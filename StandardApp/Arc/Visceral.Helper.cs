@@ -20,6 +20,11 @@ namespace Arc.Visceral
             return type.IsPublic;
         }
 
+        public static bool IsStruct(this System.Type type)
+        {
+            return type.IsValueType && !type.IsEnum && !type.IsPrimitive;
+        }
+
         public static bool IsIndexer(this System.Reflection.PropertyInfo propertyInfo)
         {
             return propertyInfo.GetIndexParameters().Length > 0;

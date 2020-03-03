@@ -95,9 +95,10 @@ namespace Arc.Visceral
             // log expressions.Add(Expression.Call(null, typeof(Console).GetMethod("WriteLine", new Type[] { typeof(String) }), Expression.Constant("reconstruct: " + type.Name)));
             var arg = Expression.Parameter(type);
             foreach (var member in info.Members.Where(x => x.Type.IsClass))
-            {
-                // new instance.
+            {// Class
                 var prop = Expression.PropertyOrField(arg, member.Name);
+
+                // new instance.
                 if (member.Type.GetConstructor(Type.EmptyTypes) != null)
                 {
                     var e = Expression.IfThen(
@@ -109,6 +110,19 @@ namespace Arc.Visceral
                 {
                     expressions.Add(Expression.Assign(prop, Expression.Constant(string.Empty)));
                 }
+
+                // reconstruct
+                var memberReconstructorCache = typeof(ResolverCache<>).MakeGenericType(member.Type);
+                var reconstructorAction = memberReconstructorCache.GetField(nameof(ResolverCache<int>.Cache));
+                if (reconstructorAction?.GetValue(memberReconstructorCache) != null)
+                {
+                    expressions.Add(Expression.Invoke(Expression.MakeMemberAccess(null, reconstructorAction), prop));
+                }
+            }
+
+            foreach (var member in info.Members.Where(x => x.Type.IsStruct()))
+            {// Struct
+                var prop = Expression.PropertyOrField(arg, member.Name);
 
                 // reconstruct
                 var memberReconstructorCache = typeof(ResolverCache<>).MakeGenericType(member.Type);
