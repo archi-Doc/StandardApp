@@ -60,9 +60,9 @@ namespace Test
 
             tc.cs.a = 5;
             tc.cs.b = 6;
-            // tc.cs.Reconstruct();
             var st = tc.cs;
             st.Reconstruct();
+            tc.cs.Reconstruct();
             tc.cs.a = 5;
             tc.cs.b = 6;
             Reconstruct.Do(tc);

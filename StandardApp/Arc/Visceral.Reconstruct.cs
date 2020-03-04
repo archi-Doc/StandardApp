@@ -123,13 +123,21 @@ namespace Arc.Visceral
             foreach (var member in info.Members.Where(x => x.Type.IsStruct()))
             {// Struct
                 var prop = Expression.PropertyOrField(arg, member.Name);
+                // var ref2 = member.Type.MakeByRefType();
+                // var prop2 = Expression.Convert(prop, member.Type.MakeByRefType());
 
                 // reconstruct
                 var memberReconstructorCache = typeof(ResolverCache<>).MakeGenericType(member.Type);
                 var reconstructorAction = memberReconstructorCache.GetField(nameof(ResolverCache<int>.Cache));
                 if (reconstructorAction?.GetValue(memberReconstructorCache) != null)
                 {
-                    expressions.Add(Expression.Invoke(Expression.MakeMemberAccess(null, reconstructorAction), prop));
+                    var instance = Expression.Parameter(member.Type, "instance");
+                    var bl = Expression.Block(
+                        new[] { instance },
+                        Expression.Assign(instance, Expression.New(member.Type)), 
+                        Expression.Invoke(Expression.MakeMemberAccess(null, reconstructorAction), instance),
+                        Expression.Assign(prop, instance));
+                    expressions.Add(bl);
                 }
             }
 
