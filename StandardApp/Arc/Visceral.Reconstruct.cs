@@ -12,6 +12,13 @@ using System.Linq.Expressions;
 namespace Arc.Visceral
 {
     /// <summary>
+    /// Reconstruct delegate.
+    /// </summary>
+    /// <typeparam name="T">The type of the object.</typeparam>
+    /// <param name="t">The object to be reconstructed.</param>
+    public delegate void ReconstructAction<T>(ref T t);
+
+    /// <summary>
     /// Reconstruct.Do() will call Reconstruct() method of each class which implements IReconstructable interface.
     /// </summary>
     public interface IReconstructable
@@ -20,11 +27,11 @@ namespace Arc.Visceral
     }
 
     /// <summary>
-    /// Get the reconstruct delegate (Action&lt;T&gt;).
+    /// Get the reconstruct delegate (ReconstructAction&lt;T&gt;).
     /// </summary>
     public interface IReconstructResolver
     {
-        bool Get<T>(out Action<T>? action);
+        bool Get<T>(out ReconstructAction<T>? action);
     }
 
     public class DefaultReconstructResolver : IReconstructResolver
@@ -34,7 +41,7 @@ namespace Arc.Visceral
         /// </summary>
         public static readonly DefaultReconstructResolver Instance = new DefaultReconstructResolver();
 
-        public bool Get<T>(out Action<T>? action)
+        public bool Get<T>(out ReconstructAction<T>? action)
         {
             action = default;
 
@@ -80,20 +87,21 @@ namespace Arc.Visceral
             }
         }
 
-        public static void Do<T>(T t)
+        public static void Do<T>(ref T t)
         {
-            ResolverCache<T>.Cache?.Invoke(t);
+            ResolverCache<T>.Cache?.Invoke(ref t);
         }
 
-        private static Action<T> BuildCode<T>()
+        private static ReconstructAction<T> BuildCode<T>()
         {
             var type = typeof(T);
+            var typeRef = type.MakeByRefType();
             var info = ObjectInfo.CreateFromType(type);
             var expressions = new List<Expression>();
 
             // log Console.WriteLine("cache: " + type.Name);
             // log expressions.Add(Expression.Call(null, typeof(Console).GetMethod("WriteLine", new Type[] { typeof(String) }), Expression.Constant("reconstruct: " + type.Name)));
-            var arg = Expression.Parameter(type);
+            var arg = Expression.Parameter(typeRef); // type
             foreach (var member in info.Members.Where(x => x.Type.IsClass))
             {// Class
                 var prop = Expression.PropertyOrField(arg, member.Name);
@@ -123,21 +131,13 @@ namespace Arc.Visceral
             foreach (var member in info.Members.Where(x => x.Type.IsStruct()))
             {// Struct
                 var prop = Expression.PropertyOrField(arg, member.Name);
-                // var ref2 = member.Type.MakeByRefType();
-                // var prop2 = Expression.Convert(prop, member.Type.MakeByRefType());
 
                 // reconstruct
                 var memberReconstructorCache = typeof(ResolverCache<>).MakeGenericType(member.Type);
                 var reconstructorAction = memberReconstructorCache.GetField(nameof(ResolverCache<int>.Cache));
                 if (reconstructorAction?.GetValue(memberReconstructorCache) != null)
                 {
-                    var instance = Expression.Parameter(member.Type, "instance");
-                    var bl = Expression.Block(
-                        new[] { instance },
-                        Expression.Assign(instance, Expression.New(member.Type)), 
-                        Expression.Invoke(Expression.MakeMemberAccess(null, reconstructorAction), instance),
-                        Expression.Assign(prop, instance));
-                    expressions.Add(bl);
+                    expressions.Add(Expression.Invoke(Expression.MakeMemberAccess(null, reconstructorAction), prop));
                 }
             }
 
@@ -152,13 +152,13 @@ namespace Arc.Visceral
             }
 
             var body = Expression.Block(expressions.ToArray());
-            var lamda = Expression.Lambda<Action<T>>(body, arg);
+            var lamda = Expression.Lambda<ReconstructAction<T>>(body, arg);
             return lamda.Compile();
         }
 
         private static class ResolverCache<T>
         {
-            public static readonly Action<T>? Cache;
+            public static readonly ReconstructAction<T>? Cache;
 
             static ResolverCache()
             {

@@ -56,16 +56,19 @@ namespace Test
         public void Test1()
         {
             var tc = new TestClass();
-            Reconstruct.Do(tc);
+            //Reconstruct.Do(ref tc.cs);
+            Reconstruct.Do(ref tc);
 
             tc.cs.a = 5;
             tc.cs.b = 6;
+            Reconstruct.Do(ref tc.cs);
+
             var st = tc.cs;
             st.Reconstruct();
             tc.cs.Reconstruct();
             tc.cs.a = 5;
             tc.cs.b = 6;
-            Reconstruct.Do(tc);
+            Reconstruct.Do(ref tc);
 
 
             Assert.Equal(0, tc.x);
