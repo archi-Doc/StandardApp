@@ -6,8 +6,8 @@ namespace Test
 {
     public class ChildClass
     {
-        int a;
-        int b;
+        public int a;
+        public int b;
     }
 
     public class ChildClass2 : IReconstructable
@@ -78,6 +78,50 @@ namespace Test
             Assert.NotNull(tc.cc);
             Assert.Equal(2, tc.cc.a2);
             Assert.Equal(3, tc.cc.b2);
+        }
+
+        public class CustomReconstructResolver : IReconstructResolver
+        {
+            /// <summary>
+            /// Default instance.
+            /// </summary>
+            public static readonly CustomReconstructResolver Instance = new CustomReconstructResolver();
+
+            void ReconstructAction_ChildClass(ref ChildClass cc)
+            {
+                cc.a = 100;
+                cc.b = 200;
+            }
+
+            public bool Get<T>(out ReconstructAction<T>? action)
+            {
+                action = default;
+
+                var type = typeof(T);
+                if (type == typeof(ChildClass))
+                {
+                    action = ReconstructAction_ChildClass;
+                    ReconstructAction<ChildClass> ac = (ref ChildClass cc) => { cc.a = 100; cc.b = 200; };
+                    ReconstructAction<T> ac2 = (ref T c) =>
+                    {
+                        //ChildClass cc = (ChildClass)c;
+                        //cc.a = 100; cc.b = 200;
+                    };
+                    action = (ReconstructAction<T>)(object)ac;
+                    return true; // empty
+                }
+
+                return false; // not supported.
+            }
+        }
+
+        [Fact]
+        public void TestInitialResolvers()
+        {
+            Reconstruct.InitialResolvers = new IReconstructResolver[] { CustomReconstructResolver.Instance, DefaultReconstructResolver.Instance };
+
+            var tc = new TestClass();
+            Reconstruct.Do(ref tc);
         }
     }
 }

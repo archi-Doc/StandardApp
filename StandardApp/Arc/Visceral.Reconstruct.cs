@@ -48,10 +48,14 @@ namespace Arc.Visceral
             var type = typeof(T);
             if (type.IsPrimitive)
             {
-                return true;
+                return true; // empty
+            }
+            else if (type == typeof(string))
+            {
+                return true; // empty
             }
 
-            return false;
+            return false; // not supported.
         }
     }
 
