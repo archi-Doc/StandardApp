@@ -1,11 +1,30 @@
 // Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using System;
-using Xunit;
 using Arc.Visceral;
+using Xunit;
+
+#pragma warning disable SA1201 // Elements should appear in the correct order
+#pragma warning disable SA1401 // Fields should be private
+#pragma warning disable SA1307 // Accessible fields should begin with upper-case letter
+#pragma warning disable SA1503 // Braces should not be omitted
+#pragma warning disable SA1649 // File name should match first type name
 
 namespace Test
 {
+    public struct ChildStruct : IReconstructable
+    {
+        public int a;
+        public int b;
+        public ChildClass2 cc2;
+
+        public void Reconstruct()
+        {
+            this.a = 10;
+            this.b = 20;
+        }
+    }
+
     public class ChildClass
     {
         public int a;
@@ -24,19 +43,6 @@ namespace Test
         }
     }
 
-    public struct ChildStruct : IReconstructable
-    {
-        public int a;
-        public int b;
-        public ChildClass2 cc2;
-
-        public void Reconstruct()
-        {
-            this.a = 10;
-            this.b = 20;
-        }
-    }
-
     public class TestClass : IReconstructable
     {
         public int x;
@@ -48,7 +54,6 @@ namespace Test
 
         public void Reconstruct()
         {
-
         }
     }
 
@@ -58,28 +63,24 @@ namespace Test
         public void Test1()
         {
             var tc = new TestClass();
-            //Reconstruct.Do(ref tc.cs);
             Reconstruct.Do(ref tc);
 
             tc.cs.a = 5;
             tc.cs.b = 6;
             Reconstruct.Do(ref tc.cs);
 
-            var st = tc.cs;
-            st.Reconstruct();
-            tc.cs.Reconstruct();
-            tc.cs.a = 5;
-            tc.cs.b = 6;
-            Reconstruct.Do(ref tc);
-
-
             Assert.Equal(0, tc.x);
-            Assert.Equal("", tc.y);
+            Assert.Equal(string.Empty, tc.y);
+
             Assert.NotNull(tc.ca);
             Assert.NotNull(tc.cb);
             Assert.NotNull(tc.cc);
             Assert.Equal(2, tc.cc.a2);
             Assert.Equal(3, tc.cc.b2);
+
+            Assert.Equal(10, tc.cs.a);
+            Assert.Equal(20, tc.cs.b);
+            Assert.NotNull(tc.cs.cc2);
         }
 
         public class CustomReconstructResolver : IReconstructResolver
@@ -89,12 +90,6 @@ namespace Test
             /// </summary>
             public static readonly CustomReconstructResolver Instance = new CustomReconstructResolver();
 
-            void ReconstructAction_ChildClass(ref ChildClass cc)
-            {
-                cc.a = 100;
-                cc.b = 200;
-            }
-
             public bool Get<T>(out ReconstructAction<T>? action)
             {
                 action = default;
@@ -102,15 +97,13 @@ namespace Test
                 var type = typeof(T);
                 if (type == typeof(ChildClass))
                 {
-                    action = ReconstructAction_ChildClass;
-                    ReconstructAction<ChildClass> ac = (ref ChildClass cc) => { cc.a = 100; cc.b = 200; };
-                    ReconstructAction<T> ac2 = (ref T c) =>
+                    ReconstructAction<ChildClass> ac = (ref ChildClass cc) =>
                     {
-                        //ChildClass cc = (ChildClass)c;
-                        //cc.a = 100; cc.b = 200;
+                        cc.a = 100;
+                        cc.b = 200;
                     };
                     action = (ReconstructAction<T>)(object)ac;
-                    return true; // empty
+                    return true; // supported.
                 }
 
                 return false; // not supported.
@@ -124,6 +117,11 @@ namespace Test
 
             var tc = new TestClass();
             Reconstruct.Do(ref tc);
+
+            Assert.Equal(100, tc.ca!.a);
+            Assert.Equal(200, tc.ca!.b);
+            Assert.Equal(100, tc.cb.a);
+            Assert.Equal(200, tc.cb.b);
         }
     }
 }

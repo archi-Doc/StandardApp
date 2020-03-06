@@ -17,6 +17,7 @@ using BenchmarkDotNet.Running;
 
 #pragma warning disable SA1401 // Fields should be private
 #pragma warning disable SA1307 // Accessible fields should begin with upper-case letter
+#pragma warning disable SA1503 // Braces should not be omitted
 
 namespace Benchmark
 {
@@ -49,8 +50,8 @@ namespace Benchmark
 
     public class ChildClass
     {
-        int a;
-        int b;
+        public int a;
+        public int b;
     }
 
     public class ChildClass2 : IReconstructable
@@ -105,7 +106,7 @@ namespace Benchmark
         [Benchmark]
         public TestClass TestRaw()
         {
-            if (this.tc.y == null) this.tc.y = "";
+            if (this.tc.y == null) this.tc.y = string.Empty;
             if (this.tc.ca == null) this.tc.ca = new ChildClass();
             if (this.tc.cb == null) this.tc.cb = new ChildClass();
             if (this.tc.cc == null) this.tc.cc = new ChildClass2();
@@ -114,14 +115,14 @@ namespace Benchmark
 
             this.tc.cc.a2 = -1;
 
-            if (this.tc.y == null) this.tc.y = "";
+            if (this.tc.y == null) this.tc.y = string.Empty;
             if (this.tc.ca == null) this.tc.ca = new ChildClass();
             if (this.tc.cb == null) this.tc.cb = new ChildClass();
             if (this.tc.cc == null) this.tc.cc = new ChildClass2();
             this.tc.cc.Reconstruct();
             this.tc.Reconstruct();
 
-            return tc;
+            return this.tc;
         }
     }
 }

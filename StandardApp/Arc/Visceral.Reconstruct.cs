@@ -69,7 +69,7 @@ namespace Arc.Visceral
 
         /// <summary>
         /// Gets or sets InitialResolvers (custom resolvers).
-        /// 
+        /// Set InitialResolvers before Reconstruct.Do() is called.
         /// </summary>
         public static IReconstructResolver[]? InitialResolvers { get; set; }
 
