@@ -7,6 +7,7 @@ using Arc.Visceral;
 using MessagePack;
 
 #pragma warning disable SA1201 // Elements should appear in the correct order
+#pragma warning disable SA1401 // Fields should be private
 #pragma warning disable SA1649 // File name should match first type name
 
 namespace SimpleBenchmark
@@ -17,7 +18,7 @@ namespace SimpleBenchmark
         private System.Diagnostics.Stopwatch stopwatch;
         private long restartTicks;
 
-        public List<Record> Records { get; set; }
+        public List<Record> Records { get; }
 
         public Stopwatch()
         {
@@ -64,7 +65,7 @@ namespace SimpleBenchmark
             var sb = new StringBuilder();
             int n;
 
-            void appendText(Record record)
+            void AppendText(Record record)
             {
                 sb.Append(record.Comment);
                 sb.Append(": ");
@@ -73,13 +74,13 @@ namespace SimpleBenchmark
 
             for (n = 0; n < (this.Records.Count - 1); n++)
             {
-                appendText(this.Records[n]);
+                AppendText(this.Records[n]);
                 sb.Append("\r\n");
             }
 
             if (n < this.Records.Count)
             {
-                appendText(this.Records[n]);
+                AppendText(this.Records[n]);
             }
 
             return sb.ToString();
@@ -97,12 +98,36 @@ namespace SimpleBenchmark
 
     public class Program
     {
+        public static Stopwatch Stopwatch { get; } = new Stopwatch();
+
         public static void Main(string[] args)
         {
             Console.WriteLine("Simple Benchmark.");
             Console.WriteLine();
 
+            Startup();
             Benchmark();
+            Benchmark();
+        }
+
+        private static void Startup()
+        {
+            var c = new StartupClass();
+
+            Stopwatch.Restart();
+            Reconstruct.Do(ref c);
+            Stopwatch.Lap("Reconstruct startup");
+
+            c = new StartupClass();
+            object? obj = c;
+            Reflection.Reconstruct(ref obj);
+            Stopwatch.Lap("Reflection startup");
+
+            MessagePack.MessagePackSerializer.Serialize(c);
+            Stopwatch.Lap("MessagePack startup");
+
+            Console.WriteLine(Stopwatch.ToSimpleString());
+            Console.WriteLine();
         }
 
         private static void Benchmark()
@@ -141,9 +166,9 @@ namespace SimpleBenchmark
     public class TestClass
     {
         [Key(0)]
-        public int intX;
+        public int IntX;
         [Key(1)]
-        public int intY;
+        public int IntY;
 
         [Key(2)]
         public ChildClass ChildA { get; set; }
@@ -160,9 +185,13 @@ namespace SimpleBenchmark
         [Key(6)]
         public string? Information;
 
+        [Key(7)]
+        public TestClass? Circular { get; set; }
+
         public TestClass()
         {
             this.ChildA = new ChildClass();
+            this.IntX = 100;
         }
     }
 
@@ -185,7 +214,7 @@ namespace SimpleBenchmark
         public ChildStruct ChildStructB { get; set; }
 
         [Key(5)]
-        public ChildOption ChildOption { get; set; }
+        public ChildOption ChildOption { get; set; } = default!;
 
         public void Reconstruct()
         {
@@ -199,11 +228,11 @@ namespace SimpleBenchmark
     public struct ChildStruct
     {
         [Key(0)]
-        public int age;
+        public int Age;
         [Key(1)]
-        public string memo;
+        public string Memo;
         [Key(2)]
-        public double height;
+        public double Height;
     }
 
     [MessagePackObject]
@@ -217,5 +246,18 @@ namespace SimpleBenchmark
 
         [Key(2)]
         public string? Description { get; set; }
+
+        [Key(3)]
+        public TestClass? Circular { get; set; }
+    }
+
+    [MessagePackObject]
+    public class StartupClass
+    {
+        [Key(0)]
+        public int N { get; set; }
+
+        [Key(1)]
+        public string? M { get; set; }
     }
 }

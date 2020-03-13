@@ -1,5 +1,8 @@
-﻿using System;
+﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
+
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace SimpleBenchmark
@@ -8,7 +11,7 @@ namespace SimpleBenchmark
     {
         public static void Reconstruct(ref object? target)
         {
-            void ReconstructAction(ref object? obj)
+            void ReconstructAction(ref object? obj, Stack<Type> reconstructedType)
             {
                 object? instance;
 
@@ -17,20 +20,39 @@ namespace SimpleBenchmark
                     return;
                 }
 
-                foreach (var x in obj.GetType().GetFields())
+                var type = obj.GetType();
+                if (type.IsPrimitive)
+                {
+                    return;
+                }
+
+                reconstructedType.Push(type);
+
+                foreach (var x in type.GetFields())
                 {// field
-                    if (x.FieldType.IsClass) // Attribute.GetCustomAttribute(x.FieldType, typeof(MessagePackObjectAttribute)) != null
+                    if (x.FieldType.IsClass)
                     {
                         try
-                        {
+                        { // new instance.
                             instance = x.GetValue(obj);
                             if (instance == null)
                             {
-                                instance = Activator.CreateInstance(x.FieldType);
+                                if (x.FieldType == typeof(string))
+                                {
+                                    instance = string.Empty;
+                                }
+                                else
+                                {
+                                    instance = Activator.CreateInstance(x.FieldType);
+                                }
+
                                 x.SetValue(obj, instance);
                             }
 
-                            ReconstructAction(ref instance);
+                            if (!reconstructedType.Contains(x.FieldType))
+                            {// prevent circular dependency.
+                                ReconstructAction(ref instance, reconstructedType);
+                            }
                         }
                         catch
                         {
@@ -38,29 +60,53 @@ namespace SimpleBenchmark
                     }
                 }
 
-                foreach (var x in obj.GetType().GetProperties())
+                foreach (var x in type.GetProperties())
                 {// property
-                    if (x.PropertyType.IsClass) // (Attribute.GetCustomAttribute(x.PropertyType, typeof(MessagePackObjectAttribute)) != null
+                    if (x.PropertyType.IsClass)
                     {
                         try
                         {
                             instance = x.GetValue(obj);
                             if (instance == null)
                             {
-                                instance = Activator.CreateInstance(x.PropertyType);
+                                if (x.PropertyType == typeof(string))
+                                {
+                                    instance = string.Empty;
+                                }
+                                else
+                                {
+                                    instance = Activator.CreateInstance(x.PropertyType);
+                                }
+
                                 x.SetValue(obj, instance);
                             }
 
-                            ReconstructAction(ref instance);
+                            if (!reconstructedType.Contains(x.PropertyType))
+                            {
+                                ReconstructAction(ref instance, reconstructedType);
+                            }
                         }
                         catch
                         {
                         }
                     }
                 }
+
+                // IReconstruct.Reconstruct()
+                try
+                {
+                    var miReconstruct = type.GetInterfaceMap(typeof(Arc.Visceral.IReconstructable)).InterfaceMethods.First(x => x.Name == "Reconstruct");
+                    miReconstruct.Invoke(obj, null);
+                }
+                catch
+                {
+                }
+
+                reconstructedType.Pop();
             }
 
-            ReconstructAction(ref target);
+            var r = new Stack<Type>();
+            ReconstructAction(ref target, r);
         }
     }
 }

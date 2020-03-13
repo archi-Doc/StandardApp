@@ -63,6 +63,8 @@ namespace Arc.Visceral
     {
         private static IReconstructResolver[]? resolvers; // Internal use.
 
+        private static Stack<Type> circularDependencyCheck = new Stack<Type>();
+
         static Reconstruct()
         {
         }
@@ -99,6 +101,8 @@ namespace Arc.Visceral
         private static ReconstructAction<T> BuildCode<T>()
         {
             var type = typeof(T);
+            circularDependencyCheck.Push(type);
+
             var typeRef = type.MakeByRefType();
             var info = ObjectInfo.CreateFromType(type);
             var expressions = new List<Expression>();
@@ -108,6 +112,11 @@ namespace Arc.Visceral
             var arg = Expression.Parameter(typeRef); // type
             foreach (var member in info.Members.Where(x => x.Type.IsClass))
             {// Class
+                if (circularDependencyCheck.Contains(member.Type))
+                {// skip (circular dependency).
+                    continue;
+                }
+
                 var prop = Expression.PropertyOrField(arg, member.Name);
 
                 // new instance.
@@ -123,7 +132,7 @@ namespace Arc.Visceral
                     expressions.Add(Expression.Assign(prop, Expression.Constant(string.Empty)));
                 }
 
-                // reconstruct
+                // reconstruct (ResolverCache<T>.Cache?.Invoke(ref t);).
                 var memberReconstructorCache = typeof(ResolverCache<>).MakeGenericType(member.Type);
                 var reconstructorAction = memberReconstructorCache.GetField(nameof(ResolverCache<int>.Cache));
                 if (reconstructorAction?.GetValue(memberReconstructorCache) != null)
@@ -134,9 +143,14 @@ namespace Arc.Visceral
 
             foreach (var member in info.Members.Where(x => x.Type.IsStruct()))
             {// Struct
+                if (circularDependencyCheck.Contains(member.Type))
+                {// skip (circular dependency).
+                    continue;
+                }
+
                 var prop = Expression.PropertyOrField(arg, member.Name);
 
-                // reconstruct
+                // reconstruct (ResolverCache<T>.Cache?.Invoke(ref t);).
                 var memberReconstructorCache = typeof(ResolverCache<>).MakeGenericType(member.Type);
                 var reconstructorAction = memberReconstructorCache.GetField(nameof(ResolverCache<int>.Cache));
                 if (reconstructorAction?.GetValue(memberReconstructorCache) != null)
@@ -154,6 +168,8 @@ namespace Arc.Visceral
             catch
             {
             }
+
+            circularDependencyCheck.Pop();
 
             var body = Expression.Block(expressions.ToArray());
             var lamda = Expression.Lambda<ReconstructAction<T>>(body, arg);
