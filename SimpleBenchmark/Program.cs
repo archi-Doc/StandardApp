@@ -188,6 +188,23 @@ namespace SimpleBenchmark
         [Key(7)]
         public TestClass? Circular { get; set; }
 
+        [Key(8)]
+        public ChildClass? Child8;
+        [Key(9)]
+        public ChildClass? Child9;
+        [Key(10)]
+        public ChildClass? Child10;
+        [Key(11)]
+        public ChildClass? Child11;
+        [Key(12)]
+        public ChildClass? Child12;
+        [Key(13)]
+        public ChildClass? Child13;
+        [Key(14)]
+        public ChildClass? Child14;
+        [Key(15)]
+        public ChildClass? Child15;
+
         public TestClass()
         {
             this.ChildA = new ChildClass();
@@ -215,6 +232,15 @@ namespace SimpleBenchmark
 
         [Key(5)]
         public ChildOption ChildOption { get; set; } = default!;
+
+        [Key(6)]
+        public ChildOption ChildOption2 { get; set; } = default!;
+
+        [Key(7)]
+        public ChildOption ChildOption3 { get; set; } = default!;
+
+        [Key(8)]
+        public ChildOption ChildOption4 { get; set; } = default!;
 
         public void Reconstruct()
         {

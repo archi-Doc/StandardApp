@@ -30,6 +30,7 @@ namespace Test
         }
     }
 
+    [Reconstructable]
     public class ChildClass
     {
         public int a;
@@ -51,6 +52,8 @@ namespace Test
     public class TestClass : IReconstructable
     {
         public int x;
+
+        [Reconstructable]
         public string? y;
         public ChildClass? ca;
         public ChildClass cb = default!;
@@ -108,7 +111,6 @@ namespace Test
 
     public class BrushOption : BindableBase
     { // Constructor -> (OnAfterDeserialize()) -> Prepare() -> ... -> OnBeforeSerialize()
-        private System.Windows.Media.Color initialColor;
         private System.Windows.Media.SolidColorBrush? brush;
 
         public BrushOption()
@@ -132,7 +134,6 @@ namespace Test
 
             var brush = new BrushOption();
             Reconstruct.Do(ref brush);
-
         }
 
         [Fact]

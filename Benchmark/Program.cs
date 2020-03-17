@@ -95,11 +95,17 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public TestClass TestVisceral()
+        public TestClass TestExpressionTree()
         {
-            Reconstruct.Do(ref this.tc);
+            Obsolete.Visceral.Reconstruct.Do(ref this.tc);
             this.tc.cc.a2 = -1;
-            Reconstruct.Do(ref this.tc);
+            Obsolete.Visceral.Reconstruct.Do(ref this.tc);
+            return this.tc;
+        }
+
+        [Benchmark]
+        public TestClass TestReflection()
+        {
             return this.tc;
         }
 

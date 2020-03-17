@@ -58,6 +58,8 @@ namespace Arc.Visceral
 
         public Type Type => this.IsField ? this.FieldInfo!.FieldType : this.PropertyInfo!.PropertyType;
 
+        public MemberInfo MemberInfo { get; set; } = default!;
+
         public FieldInfo? FieldInfo { get; set; }
 
         public PropertyInfo? PropertyInfo { get; set; }
@@ -121,6 +123,7 @@ namespace Arc.Visceral
 
                 var member = new ObjectMember
                 {
+                    MemberInfo = item,
                     PropertyInfo = item,
                     IsReadable = (getMethod != null) && !getMethod.IsStatic,
                     IsWritable = (setMethod != null) && !setMethod.IsStatic,
@@ -143,6 +146,7 @@ namespace Arc.Visceral
 
                 var member = new ObjectMember
                 {
+                    MemberInfo = item,
                     FieldInfo = item,
                     IsReadable = true,
                     IsWritable = !item.IsInitOnly,
