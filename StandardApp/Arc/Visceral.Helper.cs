@@ -145,7 +145,7 @@ namespace Arc.Visceral
                 {
                     FieldInfo = item,
                     IsReadable = true,
-                    IsWritable = true,
+                    IsWritable = !item.IsInitOnly,
                 };
 
                 members.Add(member);

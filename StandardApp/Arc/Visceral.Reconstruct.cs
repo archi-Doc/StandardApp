@@ -120,16 +120,21 @@ namespace Arc.Visceral
                 var prop = Expression.PropertyOrField(arg, member.Name);
 
                 // new instance.
-                if (member.Type.GetConstructor(Type.EmptyTypes) != null)
+                if (member.IsWritable)
                 {
-                    var e = Expression.IfThen(
-                        Expression.Equal(prop, Expression.Constant(null)),
-                        Expression.Assign(prop, Expression.New(member.Type)));
-                    expressions.Add(e);
-                }
-                else if (member.Type == typeof(string))
-                {
-                    expressions.Add(Expression.Assign(prop, Expression.Constant(string.Empty)));
+                    if (member.Type.GetConstructor(Type.EmptyTypes) != null)
+                    {
+                        var e = Expression.IfThen(
+                            Expression.Equal(prop, Expression.Constant(null)),
+                            Expression.Assign(prop, Expression.New(member.Type)));
+                        expressions.Add(e);
+                    }
+                    else if (member.Type == typeof(string))
+                    {
+                        expressions.Add(Expression.IfThen(
+                            Expression.Equal(prop, Expression.Constant(null)),
+                            Expression.Assign(prop, Expression.Constant(string.Empty))));
+                    }
                 }
 
                 // reconstruct (ResolverCache<T>.Cache?.Invoke(ref t);).
@@ -137,7 +142,9 @@ namespace Arc.Visceral
                 var reconstructorAction = memberReconstructorCache.GetField(nameof(ResolverCache<int>.Cache));
                 if (reconstructorAction?.GetValue(memberReconstructorCache) != null)
                 {
-                    expressions.Add(Expression.Invoke(Expression.MakeMemberAccess(null, reconstructorAction), prop));
+                    expressions.Add(Expression.IfThen(
+                            Expression.NotEqual(prop, Expression.Constant(null)),
+                            Expression.Invoke(Expression.MakeMemberAccess(null, reconstructorAction), prop)));
                 }
             }
 
