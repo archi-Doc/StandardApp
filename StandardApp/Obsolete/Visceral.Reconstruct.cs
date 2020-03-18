@@ -35,6 +35,14 @@ namespace Obsolete.Visceral
         bool Get<T>(out ReconstructAction<T>? action);
     }
 
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+    public class ReconstructableAttribute : Attribute
+    {
+        public ReconstructableAttribute()
+        {
+        }
+    }
+
     public class DefaultReconstructResolver : IReconstructResolver
     {
         /// <summary>
@@ -120,21 +128,23 @@ namespace Obsolete.Visceral
 
                 var prop = Expression.PropertyOrField(arg, member.Name);
 
-                // new instance.
-                if (member.IsWritable)
-                {
-                    if (member.Type.GetConstructor(Type.EmptyTypes) != null)
+                if (typeof(IReconstructable).IsAssignableFrom(member.Type) || member.Type.IsDefined(typeof(ReconstructableAttribute), true) || Attribute.IsDefined(member.MemberInfo, typeof(ReconstructableAttribute)))
+                { // If the member implements IReconstructable or ReconstructableAttribute, try to create an instance.
+                    if (member.IsWritable)
                     {
-                        var e = Expression.IfThen(
-                            Expression.Equal(prop, Expression.Constant(null)),
-                            Expression.Assign(prop, Expression.New(member.Type)));
-                        expressions.Add(e);
-                    }
-                    else if (member.Type == typeof(string))
-                    {
-                        expressions.Add(Expression.IfThen(
-                            Expression.Equal(prop, Expression.Constant(null)),
-                            Expression.Assign(prop, Expression.Constant(string.Empty))));
+                        if (member.Type.GetConstructor(Type.EmptyTypes) != null)
+                        {
+                            var e = Expression.IfThen(
+                                Expression.Equal(prop, Expression.Constant(null)),
+                                Expression.Assign(prop, Expression.New(member.Type)));
+                            expressions.Add(e);
+                        }
+                        else if (member.Type == typeof(string))
+                        {
+                            expressions.Add(Expression.IfThen(
+                                Expression.Equal(prop, Expression.Constant(null)),
+                                Expression.Assign(prop, Expression.Constant(string.Empty))));
+                        }
                     }
                 }
 
