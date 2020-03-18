@@ -104,6 +104,11 @@ namespace Arc.Visceral
 
         public static T Do<T>(T t)
         {
+            if (t == null)
+            {
+                throw new ArgumentNullException();
+            }
+
             var c = ResolverCache<T>.Cache;
             if (c != null)
             {
@@ -129,7 +134,7 @@ namespace Arc.Visceral
             // log Console.WriteLine("cache: " + type.Name);
             // log expressions.Add(Expression.Call(null, typeof(Console).GetMethod("WriteLine", new Type[] { typeof(String) }), Expression.Constant("reconstruct: " + type.Name)));
             var arg = Expression.Parameter(type); // type
-            foreach (var member in info.Members.Where(x => x.Type.IsClass))
+            foreach (var member in info.Members.Where(x => x.Type.IsClass && !x.IsStatic))
             {// Class
                 if (circularDependencyCheck.Contains(member.Type))
                 {// skip (circular dependency).
@@ -169,7 +174,7 @@ namespace Arc.Visceral
                 }
             }
 
-            foreach (var member in info.Members.Where(x => x.Type.IsStruct()))
+            foreach (var member in info.Members.Where(x => x.Type.IsStruct() && !x.IsStatic))
             {// Struct
                 if (circularDependencyCheck.Contains(member.Type))
                 {// skip (circular dependency).

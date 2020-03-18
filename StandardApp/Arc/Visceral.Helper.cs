@@ -79,6 +79,19 @@ namespace Arc.Visceral
                 return mi.DeclaringType.GetTypeInfo().IsValueType;
             }
         }
+
+        public bool IsStatic
+        {
+            get
+            {
+                if (this.PropertyInfo != null)
+                {
+                    return this.PropertyInfo.GetAccessors(true)[0].IsStatic;
+                }
+
+                return this.FieldInfo?.IsStatic == true;
+            }
+        }
     }
 
     internal class ObjectInfo

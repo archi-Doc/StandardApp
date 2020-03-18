@@ -251,6 +251,7 @@ namespace SimpleBenchmark
     }
 
     [MessagePackObject]
+    [Reconstructable]
     public struct ChildStruct
     {
         [Key(0)]
@@ -262,15 +263,18 @@ namespace SimpleBenchmark
     }
 
     [MessagePackObject]
+    [Reconstructable]
     public class ChildOption
     {
         [Key(0)]
+        [Reconstructable]
         public string? Date { get; set; }
 
         [Key(1)]
         public double Weight;
 
         [Key(2)]
+        [Reconstructable]
         public string? Description { get; set; }
 
         [Key(3)]
@@ -278,6 +282,7 @@ namespace SimpleBenchmark
     }
 
     [MessagePackObject]
+    [Reconstructable]
     public class StartupClass
     {
         [Key(0)]

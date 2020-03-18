@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using Arc.Mvvm;
 using Arc.Visceral;
 using Xunit;
 
@@ -109,18 +108,12 @@ namespace Test
         }
     }
 
-    public class BrushOption : BindableBase
+    public class BrushOption
     { // Constructor -> (OnAfterDeserialize()) -> Prepare() -> ... -> OnBeforeSerialize()
         private System.Windows.Media.SolidColorBrush? brush;
 
         public BrushOption()
         {
-        }
-
-        public System.Windows.Media.SolidColorBrush? Brush
-        {
-            get { return this.brush; }
-            private set { this.SetProperty(ref this.brush, value); }
         }
     }
 

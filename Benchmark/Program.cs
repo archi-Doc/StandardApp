@@ -48,6 +48,7 @@ namespace Benchmark
         }
     }
 
+    [Reconstructable]
     public class ChildClass
     {
         public int a;
@@ -95,17 +96,20 @@ namespace Benchmark
         }
 
         [Benchmark]
+        public TestClass TestReconstruct()
+        {
+            Reconstruct.Do(this.tc);
+            this.tc.cc.a2 = -1;
+            Reconstruct.Do(this.tc);
+            return this.tc;
+        }
+
+        [Benchmark]
         public TestClass TestExpressionTree()
         {
             Obsolete.Visceral.Reconstruct.Do(ref this.tc);
             this.tc.cc.a2 = -1;
             Obsolete.Visceral.Reconstruct.Do(ref this.tc);
-            return this.tc;
-        }
-
-        [Benchmark]
-        public TestClass TestReflection()
-        {
             return this.tc;
         }
 
