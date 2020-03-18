@@ -124,27 +124,42 @@ namespace Test
         }
     }
 
+    public class EmptyClass
+    {
+    }
+
+    [Reconstructable]
+    public class EmptyClass2
+    {
+    }
+
     public class ReconstructTest
     {
         [Fact]
         public void Test2()
         {
-            var tc = new TestClass2();
-            Reconstruct.Do(ref tc);
+            var ec = new EmptyClass();
+            Reconstruct.Do(ec);
+
+            var ec2 = new EmptyClass2();
+            Reconstruct.Do(ec2);
 
             var brush = new BrushOption();
-            Reconstruct.Do(ref brush);
+            Reconstruct.Do(brush);
+
+            var tc = new TestClass2();
+            Reconstruct.Do(tc);
         }
 
         [Fact]
         public void Test1()
         {
             var tc = new TestClass();
-            Reconstruct.Do(ref tc);
+            var tc2 = Reconstruct.Do(tc);
 
             tc.cs.a = 5;
             tc.cs.b = 6;
-            Reconstruct.Do(ref tc.cs);
+            tc.cs = Reconstruct.Do(tc.cs);
 
             Assert.Equal(0, tc.x);
             Assert.Equal(string.Empty, tc.y);
@@ -167,19 +182,20 @@ namespace Test
             /// </summary>
             public static readonly CustomReconstructResolver Instance = new CustomReconstructResolver();
 
-            public bool Get<T>(out ReconstructAction<T>? action)
+            public bool Get<T>(out ReconstructFunc<T>? action)
             {
                 action = default;
 
                 var type = typeof(T);
                 if (type == typeof(ChildClass))
                 {
-                    ReconstructAction<ChildClass> ac = (ref ChildClass cc) =>
+                    ReconstructFunc<ChildClass> ac = (ChildClass cc) =>
                     {
                         cc.a = 100;
                         cc.b = 200;
+                        return cc;
                     };
-                    action = (ReconstructAction<T>)(object)ac;
+                    action = (ReconstructFunc<T>)(object)ac;
                     return true; // supported.
                 }
 
@@ -193,7 +209,7 @@ namespace Test
             Reconstruct.InitialResolvers = new IReconstructResolver[] { CustomReconstructResolver.Instance, DefaultReconstructResolver.Instance };
 
             var tc = new TestClass();
-            Reconstruct.Do(ref tc);
+            Reconstruct.Do(tc);
 
             Assert.Equal(100, tc.ca!.a);
             Assert.Equal(200, tc.ca!.b);

@@ -115,7 +115,7 @@ namespace SimpleBenchmark
             var c = new StartupClass();
 
             Stopwatch.Restart();
-            Reconstruct.Do(ref c);
+            Reconstruct.Do(c);
             Stopwatch.Lap("Reconstruct startup");
 
             c = new StartupClass();
@@ -137,11 +137,11 @@ namespace SimpleBenchmark
             byte[] b;
 
             sw.Restart();
-            Reconstruct.Do(ref tc);
+            Reconstruct.Do(tc);
             sw.Lap("Reconstruct 1st");
 
             tc = new TestClass();
-            Reconstruct.Do(ref tc);
+            Reconstruct.Do(tc);
             sw.Lap("Reconstruct 2nd");
 
             tc = new TestClass();
