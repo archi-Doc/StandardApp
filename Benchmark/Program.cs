@@ -105,15 +105,6 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public TestClass TestExpressionTree()
-        {
-            Obsolete.Visceral.Reconstruct.Do(ref this.tc);
-            this.tc.cc.a2 = -1;
-            Obsolete.Visceral.Reconstruct.Do(ref this.tc);
-            return this.tc;
-        }
-
-        [Benchmark]
         public TestClass TestRaw()
         {
             if (this.tc.y == null) this.tc.y = string.Empty;

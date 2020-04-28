@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<resources>
+  <string name="app.name">standard app</string>
+  <string name="app.description">standard application</string>
+  <string name="dialogos.ok">O K</string>
+  <string name="dialogos.cancel">Cancel</string>
+  <string name="dialogos.yes">Yes</string>
+  <string name="dialogos.no">No</string>
+  <string name="dialogos.exit"><![CDATA[Exit?]]></string>
+  <string name="dialogos.message">Yes or No?</string>
+
+  <string name="button">NotificationMessage</string>
+  <string name="time.text">time is {0:MM/dd H:mm:ss}</string>
+</resources>
