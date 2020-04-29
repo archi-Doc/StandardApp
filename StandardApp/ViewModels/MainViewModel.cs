@@ -17,7 +17,7 @@ namespace StandardApp
     {
         public AppOptions Options => App.Options;
 
-        private IMainViewService ViewService => App.Resolve<IMainViewService>(); // To avoid a circular dependency, get an instance when it's necessary.
+        private IMainViewService ViewService => App.Resolve<IMainViewService>(); // To avoid a circular dependency, get an instance when necessary.
 
         private int number1;
 
