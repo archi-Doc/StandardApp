@@ -2,12 +2,12 @@
 <resources>
   <string name="app.name">standard app</string>
   <string name="app.description">standard application</string>
-  <string name="dialogos.ok">O K</string>
-  <string name="dialogos.cancel">Cancel</string>
-  <string name="dialogos.yes">Yes</string>
-  <string name="dialogos.no">No</string>
-  <string name="dialogos.exit"><![CDATA[Exit?]]></string>
-  <string name="dialogos.message">Yes or No?</string>
+  <string name="dialog.ok">O K</string>
+  <string name="dialog.cancel">Cancel</string>
+  <string name="dialog.yes">Yes</string>
+  <string name="dialog.no">No</string>
+  <string name="dialog.exit"><![CDATA[Exit?]]></string>
+  <string name="dialog.message">Yes or No?</string>
 
   <string name="button">NotificationMessage</string>
   <string name="time.text">time is {0:MM/dd H:mm:ss}</string>

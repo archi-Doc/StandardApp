@@ -76,10 +76,10 @@ namespace Arc.WPF
         {
             this.InitializeComponent();
 
-            this.captionOK = C4.Instance.Get("dialogos.ok") ?? "O K";
-            this.captionCancel = C4.Instance.Get("dialogos.cancel") ?? "Cancel";
-            this.captionYes = C4.Instance.Get("dialogos.yes") ?? "Yes";
-            this.captionNo = C4.Instance.Get("dialogos.no") ?? "No";
+            this.captionOK = C4.Instance.Get("dialog.ok") ?? "O K";
+            this.captionCancel = C4.Instance.Get("dialog.cancel") ?? "Cancel";
+            this.captionYes = C4.Instance.Get("dialog.yes") ?? "Yes";
+            this.captionNo = C4.Instance.Get("dialog.no") ?? "No";
 
             // settings
             this.FontSize = owner.FontSize;

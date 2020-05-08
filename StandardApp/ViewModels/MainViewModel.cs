@@ -153,19 +153,19 @@ namespace StandardApp
                     { // execute
                         // TestCommand4.Execute(null);
                         var p = default(DialogParam);
-                        p.C4Name = "dialogos.message";
+                        p.C4Name = "dialog.message";
                         p.Button = MessageBoxButton.YesNo;
                         p.Image = MessageBoxImage.Question;
                         var result = await this.ViewService.Dialog(p);
                         if (result == MessageBoxResult.Yes)
                         {
-                            p.C4Name = "dialogos.yes";
+                            p.C4Name = "dialog.yes";
                             p.Button = MessageBoxButton.OK;
                             await this.ViewService.Dialog(p);
                         }
                         else
                         {
-                            p.C4Name = "dialogos.no";
+                            p.C4Name = "dialog.no";
                             p.Button = MessageBoxButton.OK;
                             await this.ViewService.Dialog(p);
                         }

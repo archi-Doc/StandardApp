@@ -113,7 +113,7 @@ Released under the MIT license
                     {
                         try
                         {
-                            this.OpenBrowser(e.Uri.ToString());
+                            App.OpenBrowser(e.Uri.ToString());
                         }
                         catch
                         {
@@ -123,34 +123,6 @@ Released under the MIT license
                     dlg.ShowDialog();
                 }
             });
-        }
-
-        public void OpenBrowser(string url)
-        {
-            try
-            {
-                Process.Start(url);
-            }
-            catch
-            {
-                // hack because of this: https://github.com/dotnet/corefx/issues/10361
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    url = url.Replace("&", "^&");
-                    Process.Start(new ProcessStartInfo("cmd", $"/c start {url}") { CreateNoWindow = true });
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                {
-                    Process.Start("xdg-open", url);
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                {
-                    Process.Start("open", url);
-                }
-                else
-                {
-                }
-            }
         }
 
         public async Task<MessageBoxResult> Dialog(DialogParam p)
@@ -221,7 +193,7 @@ Released under the MIT license
             if (App.SessionEnding == false)
             {
                 var dlg = new Arc.WPF.Dialog(this);
-                dlg.Message = C4.Instance["dialogos.exit"];
+                dlg.Message = C4.Instance["dialog.exit"];
                 dlg.Button = MessageBoxButton.YesNo; // button
                 dlg.Result = MessageBoxResult.Yes; // focus
                 dlg.Image = MessageBoxImage.Warning;
