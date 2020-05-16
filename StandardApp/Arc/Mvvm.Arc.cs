@@ -26,6 +26,7 @@ namespace Arc.Mvvm
         Information, // information dialog
         Settings, // settings dialog
         Help, // help
+        DisplayScaling, // Update display scaling.
     }
 
     /// <summary>

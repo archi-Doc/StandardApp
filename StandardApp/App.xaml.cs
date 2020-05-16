@@ -46,6 +46,10 @@ namespace Application
 
         public static AppOptions Options { get; private set; } = default!;
 
+        public static FileVersionInfo Version { get; private set; } = default!;
+
+        public static string Title { get; private set; } = default!;
+
         public static TService Resolve<TService>() => Container.Resolve<TService>();
 
         /// <summary>
@@ -117,6 +121,23 @@ namespace Application
         [STAThread]
         private static void Main()
         {
+            // C4
+            try
+            {
+                App.C4.LoadAssembly("ja", "Resources.license.xml"); // license
+                App.C4.LoadAssembly("ja", "Resources.strings-ja.xml");
+                App.C4.LoadAssembly("en", "Resources.strings-en.xml");
+                App.C4.SetDefaultCulture(AppConst.DefaultCulture); // default culture
+            }
+            catch
+            {
+            }
+
+            // Version, Title
+            System.Reflection.Assembly asm = System.Reflection.Assembly.GetExecutingAssembly();
+            Version = FileVersionInfo.GetVersionInfo(asm.Location);
+            Title = App.C4["app.name"] + " " + App.Version.FileMajorPart.ToString() + "." + App.Version.FileMinorPart.ToString();
+
             // Prevents multiple instances.
             if (!appMutex.WaitOne(0, false))
             {
@@ -125,7 +146,16 @@ namespace Application
                 var prevProcess = Arc.WinAPI.Methods.GetPreviousProcess();
                 if (prevProcess != null)
                 {
-                    Arc.WinAPI.Methods.WakeupWindow(prevProcess.MainWindowHandle);
+                    var handle = prevProcess.MainWindowHandle; // The window handle that associated with the previous process.
+                    if (handle == IntPtr.Zero)
+                    {
+                        handle = Arc.WinAPI.Methods.GetWindowHandle(prevProcess.Id, Title); // Get handle.
+                    }
+
+                    if (handle != IntPtr.Zero)
+                    {
+                        Arc.WinAPI.Methods.WakeupWindow(handle);
+                    }
                 }
 
                 return; // Exit.
@@ -142,17 +172,6 @@ namespace Application
             .CreateLogger();
 
             Log.Information("App startup.");
-
-            // C4
-            try
-            {
-                App.C4.LoadAssembly("ja", "Resources.strings-ja.xml");
-                App.C4.LoadAssembly("en", "Resources.strings-en.xml");
-                App.C4.SetDefaultCulture(AppConst.DefaultCulture); // default culture
-            }
-            catch
-            {
-            }
 
             // Load
             var data = AppData.Load();

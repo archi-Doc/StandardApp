@@ -7,5 +7,6 @@ namespace Application
         public const string MutexName = "StandardApp.Arc";
         public const string AppDataFile = "app.data";
         public const string DefaultCulture = "ja";
+        public const double DefaultFontSize = 14;
     }
 }

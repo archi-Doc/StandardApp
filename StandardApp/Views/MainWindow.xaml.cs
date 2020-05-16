@@ -51,6 +51,8 @@ namespace StandardApp
             catch
             {
             }
+
+            this.Title = App.Title;
         }
 
         public void Notification(NotificationMessage msg)

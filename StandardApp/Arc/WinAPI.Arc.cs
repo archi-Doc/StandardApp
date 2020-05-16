@@ -70,7 +70,6 @@ namespace Arc.WinAPI
         public static string[]? GetPathFromIDList(System.Windows.IDataObject dataObject)
         {
             string[]? result = null;
-#pragma warning restore SA1011 // Closing square brackets should be spaced correctly
             MemoryStream data = (MemoryStream)dataObject.GetData(Arc.WinAPI.Const.SHELL_IDLIST_STRING);
             if (data == null)
             {
@@ -146,15 +145,66 @@ namespace Arc.WinAPI
         /// </summary>
         public static void WakeupWindow(IntPtr hWnd)
         {
+            if (!IsWindowVisible(hWnd))
+            {
+                SendMessage(hWnd, 0x0018 /*WM_SHOWWINDOW*/, IntPtr.Zero, new IntPtr(3 /*SW_PARENTOPENING*/));
+            }
+
             if (IsIconic(hWnd))
             {
-                ShowWindowAsync(hWnd, SW_RESTORE);
+                ShowWindowAsync(hWnd, (int)ShowCommands.SW_RESTORE);
             }
 
             SetForegroundWindow(hWnd);
         }
 
-        public static void SendKey(VirtualKeyCode keyCode)
+        internal static IntPtr GetWindowHandle(int pid, string title)
+        {
+            var result = IntPtr.Zero;
+
+            EnumWindowsProc enumerateHandle = (hWnd, lParam) =>
+            {
+                int id;
+                GetWindowThreadProcessId(hWnd, out id);
+
+                var pr = Process.GetProcessById(id);
+
+                if (pid == id)
+                {
+                    var clsName = new StringBuilder(256);
+                    var hasClass = GetClassName(hWnd, clsName, 256);
+                    if (hasClass)
+                    {
+                        var maxLength = (int)GetWindowTextLength(hWnd);
+                        var builder = new StringBuilder(maxLength + 1);
+                        GetWindowText(hWnd, builder, (uint)builder.Capacity);
+
+                        var text = builder.ToString();
+                        var className = clsName.ToString();
+
+                        /*There could be multiple handle associated with our pid,
+                           so we return the first handle that satisfy:
+                           1) the handle title/ caption matches our window title,
+                           2) the window class name starts with HwndWrapper (WPF specific)
+                           3) the window has WS_EX_APPWINDOW style */
+
+                        if (title == text && className.StartsWith("HwndWrapper") && IsApplicationWindow(hWnd))
+                        {
+                            result = hWnd;
+                            return false;
+                        }
+                    }
+                }
+
+                return true;
+            };
+
+            EnumDesktopWindows(IntPtr.Zero, enumerateHandle, 0);
+
+            return result;
+        }
+
+        internal static void SendKey(VirtualKeyCode keyCode)
         {
             INPUT[] input = new INPUT[2];
 
@@ -181,7 +231,7 @@ namespace Arc.WinAPI
             var result = SendInput(2, input, Marshal.SizeOf(typeof(INPUT)));
         }
 
-        public static bool IsExtendedKey(VirtualKeyCode keyCode)
+        internal static bool IsExtendedKey(VirtualKeyCode keyCode)
         {
             if (keyCode == VirtualKeyCode.MENU ||
                 keyCode == VirtualKeyCode.LMENU ||
@@ -215,7 +265,7 @@ namespace Arc.WinAPI
         /// Get the cursor position (relative to control coordinate).
         /// </summary>
         /// <returns>Cursor position.</returns>
-        public static Point GetNowPosition(Visual v)
+        internal static Point GetNowPosition(Visual v)
         {
             POINT32 p;
 
@@ -229,26 +279,53 @@ namespace Arc.WinAPI
         }
 
         [DllImport("kernel32.dll")]
-        public static extern IntPtr LoadLibrary(string lpFileName);
+        internal static extern IntPtr LoadLibrary(string lpFileName);
 
         [DllImport("kernel32.dll")]
-        public static extern IntPtr GetProcAddress(IntPtr hModule, string lpProcName);
+        internal static extern IntPtr GetProcAddress(IntPtr hModule, string lpProcName);
 
         [DllImport("kernel32.dll")]
-        public static extern bool FreeLibrary(IntPtr hLibModule);
+        internal static extern bool FreeLibrary(IntPtr hLibModule);
 
         [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
-        public static extern int SHFileOperation([In] ref SHFILEOPSTRUCT lpFileOp);
+        internal static extern int SHFileOperation([In] ref SHFILEOPSTRUCT lpFileOp);
 
         // 外部プロセスのメイン・ウィンドウを起動するためのWin32 API
         [DllImport("user32.dll")]
-        public static extern bool SetForegroundWindow(IntPtr hWnd);
+        internal static extern bool SetForegroundWindow(IntPtr hWnd);
 
         [DllImport("user32.dll")]
-        public static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
+        internal static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
 
         [DllImport("user32.dll")]
-        public static extern bool IsIconic(IntPtr hWnd);
+        internal static extern bool IsIconic(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        internal static extern bool IsWindowVisible(IntPtr hWnd);
+
+        /* GetWindowHandle */
+
+        internal delegate bool EnumWindowsProc(IntPtr hWnd, int lParam);
+
+        [DllImport("user32.dll")]
+        internal static extern bool EnumDesktopWindows(IntPtr hDesktop, EnumWindowsProc ewp, int lParam);
+
+        [DllImport("user32.dll")]
+        internal static extern uint GetWindowThreadProcessId(IntPtr hWnd, out int lpdwProcessId);
+
+        [DllImport("user32.dll")]
+        internal static extern uint GetWindowTextLength(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        internal static extern uint GetWindowText(IntPtr hWnd, StringBuilder lpString, uint nMaxCount);
+
+        internal static bool IsApplicationWindow(IntPtr hWnd)
+        {
+            return (GetWindowLong(hWnd, GWL_EXSTYLE) & 0x40000/*WS_EX_APPWINDOW*/) != 0;
+        }
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        internal static extern bool GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
 
         // キー操作、マウス操作をシミュレート(擬似的に操作する)
         [DllImport("user32.dll", SetLastError = true)]
@@ -277,8 +354,6 @@ namespace Arc.WinAPI
         internal static extern IntPtr SendMessage(IntPtr hwnd, uint msg, IntPtr wParam, IntPtr lParam);
 
         // ShowWindowAsync関数のパラメータに渡す定義値
-        public const int SW_RESTORE = 9;  // 画面を元の大きさに戻す
-
         public const int GWL_EXSTYLE = -20;
         public const int WS_EX_DLGMODALFRAME = 0x0001;
         public const int SWP_NOSIZE = 0x0001;

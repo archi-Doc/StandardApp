@@ -143,6 +143,44 @@ namespace Arc.WPF
         {
             return obj.LogicalDescendants().OfType<T>();
         }
+
+        // LogicalChildren - 子要素を取得
+        public static IEnumerable<DependencyObject> LogicalChildren(this DependencyObject obj)
+        {
+            if (obj == null)
+            {
+                throw new ArgumentNullException("obj");
+            }
+
+            foreach (var child in LogicalTreeHelper.GetChildren(obj))
+            {
+                var x = child as DependencyObject;
+                if (x != null)
+                {
+                    yield return x;
+                }
+            }
+        }
+
+        // LogicalChildren - 特定の型の子要素を取得
+        public static IEnumerable<T> LogicalChildren<T>(this DependencyObject obj)
+            where T : DependencyObject
+        {
+            return obj.LogicalChildren().OfType<T>();
+        }
+
+        public static FrameworkElement? FirstLogicalFrameworkElement(this DependencyObject obj)
+        {
+            foreach (var x in LogicalTreeHelper.GetChildren(obj))
+            {
+                if (x is FrameworkElement result)
+                {
+                    return result;
+                }
+            }
+
+            return null;
+        }
     }
 
     public static class Methods
