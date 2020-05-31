@@ -52,6 +52,8 @@ namespace StandardApp
             {
             }
 
+            Transformer.Instance.Register(this, true, false);
+
             this.Title = App.Title;
         }
 
@@ -124,6 +126,17 @@ Released under the MIT license
                     dlg.TextBlock.Inlines.Add(h);
                     dlg.ShowDialog();
                 }
+                else if (id == MessageId.Settings)
+                {
+                    var dialog = new SettingsWindow(this);
+                    dialog.ShowDialog();
+                }
+                else if (id == MessageId.DisplayScaling)
+                {
+                    Transformer.Instance.Transform(App.Settings.DisplayScaling, App.Settings.DisplayScaling);
+
+                    // this.FontSize = AppConst.DefaultFontSize * App.Settings.DisplayScaling;
+                }
             });
         }
 
@@ -181,12 +194,14 @@ Released under the MIT license
         {
             if (!App.Settings.LoadError)
             { // Change the UI before this code. The window will be displayed shortly.
-                WINDOWPLACEMENT wp = App.Settings.WindowPlacement;
+                IntPtr hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+                Arc.WinAPI.Methods.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);
+                WINDOWPLACEMENT wp = App.Settings.WindowPlacement.ToWINDOWPLACEMENT2(dpiX, dpiY);
                 wp.length = System.Runtime.InteropServices.Marshal.SizeOf(typeof(WINDOWPLACEMENT));
                 wp.flags = 0;
                 wp.showCmd = wp.showCmd == SW.SHOWMINIMIZED ? SW.SHOWNORMAL : wp.showCmd;
-                IntPtr hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
                 Arc.WinAPI.Methods.SetWindowPlacement(hwnd, ref wp);
+                Transformer.Instance.AdjustWindowPosition(this);
             }
         }
 
@@ -212,7 +227,8 @@ Released under the MIT license
             // Exit1 (Window is still visible)
             IntPtr hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
             Arc.WinAPI.Methods.GetWindowPlacement(hwnd, out var wp);
-            App.Settings.WindowPlacement = wp;
+            Arc.WinAPI.Methods.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);
+            App.Settings.WindowPlacement.FromWINDOWPLACEMENT2(wp, dpiX, dpiY);
         }
 
         private void Window_KeyDown(object sender, KeyEventArgs e)

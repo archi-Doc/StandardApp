@@ -89,6 +89,8 @@ namespace Arc.WPF
 
             // visual
             this.Foreground = Brushes.DarkBlue;
+
+            Transformer.Instance.Register(this);
         }
 
         public Dialog(Window owner, DialogParam p)

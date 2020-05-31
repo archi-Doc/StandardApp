@@ -8,7 +8,19 @@
   <string name="dialog.no">いいえ</string>
   <string name="dialog.exit"><![CDATA[終了してもよろしいですか？]]></string>
 
+  <!--settings-->
+  <string name="settings.title">設定/情報</string>
+  <string name="settings.tab.general">全般</string>
+  <string name="settings.tab.information">情報</string>
+  <string name="settings.language">表示言語</string>
+  <string name="settings.displayscaling">表示倍率</string>
+
+  <!--other-->
+  <string name="language.en">英語（English）</string>
+  <string name="language.ja">日本語（Japanese）</string>
+
   <string name="button">通知メッセージ</string>
+  <string name="button.settings">設定</string>
   <string name="tooltip.button">ボタンです</string>
   <string name="tooltip.sample">サンプルです</string>
   <string name="dialog.message">イエス or ノー？</string>

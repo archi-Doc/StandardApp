@@ -13,6 +13,7 @@ using System.Windows.Media;
 #pragma warning disable SA1201 // Elements should appear in the correct order
 #pragma warning disable SA1307 // Accessible fields should begin with upper-case letter
 #pragma warning disable SA1310 // Field names should not contain underscore
+#pragma warning disable SA1401 // Fields should be private
 #pragma warning disable SA1601 // Partial elements should be documented
 #pragma warning disable SA1602 // Enumeration items should be documented
 #pragma warning disable SA1611 // Element parameters should be documented
@@ -112,6 +113,34 @@ namespace Arc.WinAPI
 
         [DllImport("SHCore.dll", CharSet = CharSet.Unicode, PreserveSig = false)]
         public static extern void GetDpiForMonitor(IntPtr hmonitor, MonitorDpiType dpiType, ref uint dpiX, ref uint dpiY);
+
+        [DllImport("User32.dll", CharSet = CharSet.Auto)]
+        public static extern bool GetMonitorInfo(IntPtr hmonitor, [In, Out] MONITORINFOEX info);
+
+        /// <summary>
+        /// Get the dots per inch (dpi) of a display.
+        /// </summary>
+        /// <returns>True if the correct dpi value is obtained.</returns>
+        public static bool GetMonitorDpi(IntPtr hwnd, out double dpiX, out double dpiY)
+        {
+            try
+            {
+                uint x = 96;
+                uint y = 96;
+
+                var hmonitor = Arc.WinAPI.Methods.MonitorFromWindow(hwnd, MonitorDefaultTo.MONITOR_DEFAULTTONEAREST);
+                Arc.WinAPI.Methods.GetDpiForMonitor(hmonitor, MonitorDpiType.Default, ref x, ref y);
+                dpiX = x;
+                dpiY = y;
+                return true;
+            }
+            catch
+            {
+                dpiX = 96;
+                dpiY = 96;
+                return false;
+            }
+        }
 
         /// <summary>
         /// Get the process with the same process name and the same module name.
@@ -418,6 +447,17 @@ namespace Arc.WinAPI
         AngularDpi = 1,
         RawDpi = 2,
         Default = EffectiveDpi,
+    }
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto, Pack = 4)]
+    public class MONITORINFOEX
+    {
+        public int cbSize = Marshal.SizeOf(typeof(MONITORINFOEX));
+        public RECT rcMonitor = default;
+        public RECT rcWork = default;
+        public int dwFlags = 0;
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
+        public char[] szDevice = new char[32];
     }
 
     public enum FOFunc : uint

@@ -7,6 +7,9 @@
     <SolidColorBrush x:Key="ErrorBrush" Color="Red"></SolidColorBrush>
     <SolidColorBrush x:Key="DebugBrush" Color="Gray"></SolidColorBrush>
 
+    <local:CultureToStringConverter x:Key="CultureToStringConverter" />
+    <local:DisplayScalingToStringConverter x:Key="DisplayScalingToStringConverter" />
+
     <Style x:Key="tabtext" TargetType="TextBlock">
         <Setter Property="Height" Value="auto" />
         <Setter Property="Width" Value="auto" />

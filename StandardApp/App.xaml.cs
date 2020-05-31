@@ -320,17 +320,26 @@ namespace Application
     }
 
     [MessagePackObject]
-    [Reconstructable]
-    public class AppSettings
+    public class AppSettings : IReconstructable
     {// Application Settings
         [Key(0)]
         public bool LoadError { get; set; } // True if a loading error has occured.
 
         [Key(1)]
-        public WINDOWPLACEMENT WindowPlacement { get; set; }
+        [Reconstructable]
+        public DipWindowPlacement WindowPlacement { get; set; } = default!;
 
         [Key(2)]
         public string Culture { get; set; } = AppConst.DefaultCulture; // Default culture
+
+        [Key(3)]
+        public double DisplayScaling { get; set; } = 1.0d; // Display Scaling
+
+        public void Reconstruct()
+        {
+            Transformer.Instance.ScaleX = this.DisplayScaling;
+            Transformer.Instance.ScaleY = this.DisplayScaling;
+        }
     }
 
     [MessagePackObject]
