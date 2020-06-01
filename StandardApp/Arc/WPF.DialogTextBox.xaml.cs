@@ -138,6 +138,8 @@ namespace Arc.WPF
             }
 
             this.SetupButton();
+
+            Transformer.Instance.Register(this);
         }
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)

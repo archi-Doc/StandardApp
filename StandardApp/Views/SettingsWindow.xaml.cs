@@ -2,21 +2,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using Application;
 using Arc.Mvvm;
-using Arc.Text;
-using Arc.WinAPI;
 using Arc.WPF;
 
 #pragma warning disable SA1201 // Elements should appear in the correct order
@@ -34,7 +24,6 @@ namespace StandardApp
 
         public double CurrentDisplayScaling { get; set; }
 
-        // public List<string> DisplayScaling { get; private set; } = new List<string>() { "25%", "33%", "50%", "67%", "75%", "80%", "90%", "100%", "110%", "125%", "150%", "175%", "200%", "250%", "300%", };
         public List<double> DisplayScaling { get; private set; } = new List<double>() { 0.25, 0.333, 0.5, 0.667, 0.75, 0.8, 0.9, 1, 1.1, 1.25, 1.5, 1.75, 2, 2.5, 3, 5 };
 
         private IMainViewService ViewService => App.Resolve<IMainViewService>(); // To avoid a circular dependency, get an instance when necessary.
@@ -70,17 +59,7 @@ namespace StandardApp
             this.ShowInTaskbar = false;
             this.DataContext = this;
 
-            // this.Width *= App.Settings.DisplayScaling;
-            // this.Height *= App.Settings.DisplayScaling;
-            // this.FontSize = AppConst.DefaultFontSize;
-
-            /*var fe = this.FirstLogicalFrameworkElement();
-            if (fe != null)
-            {
-                fe.LayoutTransform = new ScaleTransform(1.8, 1.8);
-            }*/
-
-            Transformer.Instance.Register(this, true, false);
+            Transformer.Instance.Register(this);
 
             // Load
             this.CurrentCulture = App.Settings.Culture;
@@ -152,7 +131,6 @@ Released under the MIT license
 
         private void Window_SourceInitialized(object sender, EventArgs e)
         {
-            // Transformer.Instance.Register(this, true, false);
             Arc.WinAPI.Methods.RemoveIcon(this);
         }
 

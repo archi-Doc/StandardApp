@@ -8,7 +8,6 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using Application;
 using Arc.WinAPI;
-using Serilog;
 
 #pragma warning disable SA1649 // File name should match first type name
 
@@ -35,21 +34,20 @@ namespace Arc.WPF
         {
             lock (this.objectList)
             {
-                foreach (var x in this.objectList)
-                {
-                    if (x.Window.TryGetTarget(out var w))
-                    {
-                        if (w == window)
-                        { // already registered.
-                            return false;
-                        }
-                    }
+                if (this.SearchTransformObject(window) != null)
+                {// Already registered.
+                    return false;
                 }
 
                 var obj = new TransformerObject(window, resizeWindow, independentScale);
                 this.objectList.AddLast(obj);
-                obj.CurrentScaleX = this.ScaleX;
-                obj.CurrentScaleY = this.ScaleY;
+
+                if (!obj.IndependentScale)
+                {
+                    obj.CurrentScaleX = this.ScaleX;
+                    obj.CurrentScaleY = this.ScaleY;
+                }
+
                 obj.TransformUpdated = true;
                 obj.InitialPacket = new TransformerPacket(window, obj);
 
@@ -63,6 +61,25 @@ namespace Arc.WPF
             }
 
             return true;
+        }
+
+        public void Cleanup()
+        {
+            lock (this.objectList)
+            {
+                var node = this.objectList.First;
+                while (node != null)
+                {
+                    var next = node.Next;
+
+                    if (!node.Value.Window.TryGetTarget(out var _))
+                    {// Remove from list.
+                        this.RemoveTransformObject(node);
+                    }
+
+                    node = next;
+                }
+            }
         }
 
         public void Transform(double scaleX, double scaleY)
@@ -83,23 +100,26 @@ namespace Arc.WPF
 
                     if (node.Value.Window.TryGetTarget(out var w))
                     {// Add to list.
-                        node.Value.CurrentScaleX = scaleX;
-                        node.Value.CurrentScaleY = scaleY;
-                        node.Value.TransformUpdated = true;
-                        var packet = new TransformerPacket(w, node.Value);
-                        if (node.Value.InitialPacket == null)
+                        if (!node.Value.IndependentScale)
                         {
-                            packetList.Add(packet);
-                        }
-                        else
-                        {
-                            node.Value.InitialPacket = packet;
+                            node.Value.CurrentScaleX = scaleX;
+                            node.Value.CurrentScaleY = scaleY;
+
+                            node.Value.TransformUpdated = true;
+                            var packet = new TransformerPacket(w, node.Value);
+                            if (node.Value.InitialPacket == null)
+                            {
+                                packetList.Add(packet);
+                            }
+                            else
+                            {
+                                node.Value.InitialPacket = packet;
+                            }
                         }
                     }
                     else
                     {// Remove from list.
-                        this.objectList.Remove(node);
-                        Log.Information("transformer removed.");
+                        this.RemoveTransformObject(node);
                     }
 
                     node = next;
@@ -115,6 +135,46 @@ namespace Arc.WPF
             }
         }
 
+        public void Transform(Window window, double scaleX, double scaleY)
+        {
+            TransformerPacket? packet = null;
+
+            lock (this.objectList)
+            { // Get TransformerObject from objectList.
+                var obj = this.SearchTransformObject(window);
+                if (obj == null)
+                {
+                    return;
+                }
+
+                if (obj.IndependentScale)
+                {
+                    if (obj.CurrentScaleX != scaleX || obj.CurrentScaleY != scaleY)
+                    {
+                        obj.CurrentScaleX = scaleX;
+                        obj.CurrentScaleY = scaleY;
+
+                        obj.TransformUpdated = true;
+                        if (obj.InitialPacket == null)
+                        {
+                            packet = new TransformerPacket(window, obj);
+                        }
+                        else
+                        {
+                            obj.InitialPacket = new TransformerPacket(window, obj);
+                        }
+                    }
+                }
+            }
+
+            if (packet == null)
+            {
+                return;
+            }
+
+            this.ProcessPacket(packet);
+        }
+
         public void AdjustWindowPosition(Window window)
         {
             App.InvokeAsyncOnUI(() =>
@@ -125,9 +185,45 @@ namespace Arc.WPF
 
         public void AdjustScale(Window window, bool adjustPosition)
         {
-            App.InvokeAsyncOnUI(() =>
-            { // UI thread.
-            });
+            TransformerPacket? packet = null;
+
+            lock (this.objectList)
+            { // Get TransformerObject from objectList.
+                var obj = this.SearchTransformObject(window);
+                if (obj != null)
+                { // Found.
+                    packet = new TransformerPacket(window, obj);
+                }
+            }
+
+            if (packet != null)
+            {
+                App.InvokeAsyncOnUI(() =>
+                { // UI thread.
+                    this.AdjustScale(packet, adjustPosition);
+                });
+            }
+        }
+
+        private TransformerObject? SearchTransformObject(Window window)
+        { // lock (this.objectList) required.
+            foreach (var x in this.objectList)
+            {
+                if (x.Window.TryGetTarget(out var w))
+                {
+                    if (w == window)
+                    { // Found.
+                        return x;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private void RemoveTransformObject(LinkedListNode<TransformerObject> node)
+        { // lock (this.objectList) required.
+            this.objectList.Remove(node);
         }
 
         private void AdjustScale(TransformerPacket packet, bool adjustPosition)
@@ -273,8 +369,7 @@ namespace Arc.WPF
                     }
                     else
                     {// Remove from list.
-                        this.objectList.Remove(node);
-                        Log.Information("transformer removed.");
+                        this.RemoveTransformObject(node);
                     }
 
                     node = next;
