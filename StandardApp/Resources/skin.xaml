@@ -1,12 +1,14 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:local="clr-namespace:StandardApp"
+                    xmlns:local="clr-namespace:StandardApp.Views"
                     xmlns:Arc="clr-namespace:Arc.WPF">
 
     <SolidColorBrush x:Key="NormalBrush" Color="#FF042271"></SolidColorBrush>
     <SolidColorBrush x:Key="ErrorBrush" Color="Red"></SolidColorBrush>
     <SolidColorBrush x:Key="DebugBrush" Color="Gray"></SolidColorBrush>
 
+    <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+    <local:InverseBoolConverter x:Key="InverseBoolConverter" />
     <local:CultureToStringConverter x:Key="CultureToStringConverter" />
     <local:DisplayScalingToStringConverter x:Key="DisplayScalingToStringConverter" />
 

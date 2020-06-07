@@ -15,6 +15,8 @@ using DryIoc; // alternative: SimpleInjector
 using MessagePack;
 using Serilog;
 using StandardApp;
+using StandardApp.Views;
+using StandardApp.ViewServices;
 
 #pragma warning disable SA1202 // Elements should be ordered by access
 #pragma warning disable SA1649 // File name should match first type name

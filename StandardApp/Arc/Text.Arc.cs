@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Net.WebSockets;
+using System.Windows.Documents;
 using System.Xml.Linq;
 
 #pragma warning disable SA1201 // Elements should appear in the correct order
@@ -17,6 +19,8 @@ namespace Arc.Text
 {
     public class TimeHMS
     { // time format, hour/minute/second
+        public bool Circular { get; set; } = false;
+
         public bool IsValid => this.hour >= 0 && this.minute >= 0 && this.second >= 0;
 
         private int hour;
@@ -30,13 +34,17 @@ namespace Arc.Text
 
             set
             {
-                if (value >= 0 && value < 24)
+                if (value < 0)
                 {
-                    this.hour = value;
+                    this.hour = -1;
+                }
+                else if (value >= 24 && this.Circular)
+                {
+                    this.hour = -1;
                 }
                 else
                 {
-                    this.hour = -1;
+                    this.hour = value;
                 }
             }
         }
@@ -85,91 +93,128 @@ namespace Arc.Text
             }
         }
 
-        public void IncrementHour()
+        public bool IncrementHour()
         {
-            if (this.hour == 23)
+            if (this.hour >= 23 && this.Circular)
             {
-                this.hour = 0;
+                this.hour %= 24;
+                return true;
+            }
+            else if (this.hour >= 99)
+            {
+                return false;
             }
             else if (this.hour >= 0)
             {
                 this.hour++;
+                return true;
             }
+
+            return false;
         }
 
-        public void DecrementHour()
+        public bool DecrementHour()
         {
             if (this.hour == 0)
             {
-                this.hour = 23;
+                if (this.Circular)
+                {
+                    this.hour = 23;
+                    return true;
+                }
             }
             else if (this.hour > 0)
             {
                 this.hour--;
+                return true;
             }
+
+            return false;
         }
 
-        public void IncrementMinute()
+        public bool IncrementMinute()
         {
             if (this.minute == 59)
             {
-                this.minute = 0;
-                this.IncrementHour();
+                if (this.IncrementHour())
+                {
+                    this.minute = 0;
+                    return true;
+                }
             }
             else if (this.minute >= 0)
             {
                 this.minute++;
+                return true;
             }
+
+            return false;
         }
 
-        public void DecrementMinute()
+        public bool DecrementMinute()
         {
             if (this.minute == 0)
             {
-                this.minute = 59;
-                this.DecrementHour();
+                if (this.DecrementHour())
+                {
+                    this.minute = 59;
+                    return true;
+                }
             }
             else if (this.minute > 0)
             {
                 this.minute--;
+                return true;
             }
+
+            return false;
         }
 
-        public void IncrementSecond()
+        public bool IncrementSecond()
         {
             if (this.second == 59)
             {
-                this.second = 0;
-                this.IncrementMinute();
+                if (this.IncrementMinute())
+                {
+                    this.second = 0;
+                    return true;
+                }
             }
             else if (this.second >= 0)
             {
                 this.second++;
+                return true;
             }
+
+            return false;
         }
 
-        public void DecrementSecond()
+        public bool DecrementSecond()
         {
             if (this.second == 0)
             {
-                this.second = 59;
-                this.DecrementMinute();
+                if (this.DecrementMinute())
+                {
+                    this.second = 59;
+                    return true;
+                }
             }
             else if (this.second > 0)
             {
                 this.second--;
+                return true;
             }
+
+            return false;
         }
 
         public TimeHMS()
         {
         }
 
-        public TimeHMS(int hourInt, int minuteInt, int secondInt)
+        public TimeHMS(int hour, int minute, int second)
         {
-            this.Hour = hourInt;
-            this.Minute = minuteInt;
-            this.Second = secondInt;
+            this.SetTime(hour, minute, second);
         }
 
         public TimeHMS(string text)
@@ -183,6 +228,13 @@ namespace Arc.Text
             this.Hour = Methods.TimeStringToInt(text, ref position);
             this.Minute = Methods.TimeStringToInt(text, ref position);
             this.Second = Methods.TimeStringToInt(text, ref position);
+        }
+
+        public void SetTime(int hour, int minute, int second)
+        {
+            this.Hour = hour;
+            this.Minute = minute;
+            this.Second = second;
         }
 
         public override string ToString()
@@ -220,7 +272,7 @@ namespace Arc.Text
         }
 
         /// <summary>
-        /// nameの文字列を取得する。取得できなかったら、error_textを返す。
+        /// nameの文字列を取得する。取得できなかったら、nameを返す。
         /// </summary>
         /// <param name="name">文字列の名称</param>
         /// <returns>string.</returns>
@@ -248,7 +300,7 @@ namespace Arc.Text
                         return text;
                     }
 
-                    return this.errorText;
+                    return name; // this.errorText;
                 }
             }
 
@@ -1073,6 +1125,21 @@ namespace Arc.Text
             }
 
             return new string(c, 0, c_index);
+        }
+
+        public static bool IsOnly_Digits(string text)
+        { // 数字のみの文字列の場合、trueを返す。
+            foreach (var x in text)
+            {
+                if (x >= '0' && x <= '9')
+                {
+                    continue;
+                }
+
+                return false;
+            }
+
+            return true;
         }
 
         public static bool IsOnly_DigitsOrComma(string text)

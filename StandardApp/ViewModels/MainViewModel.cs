@@ -8,6 +8,7 @@ using System.Windows.Media;
 using Application;
 using Arc.Mvvm;
 using Arc.WPF;
+using StandardApp.ViewServices;
 
 #pragma warning disable SA1201 // Elements should appear in the correct order
 
@@ -18,6 +19,14 @@ namespace StandardApp
         public AppOptions Options => App.Options;
 
         private IMainViewService ViewService => App.Resolve<IMainViewService>(); // To avoid a circular dependency, get an instance when necessary.
+
+        private bool hideDialogButton;
+
+        public bool HideDialogButton
+        {
+            get => this.hideDialogButton;
+            set => this.SetProperty(ref this.hideDialogButton, value);
+        }
 
         private int number1;
 
@@ -120,6 +129,7 @@ namespace StandardApp
                 return this.testCommand4 ??= new DelegateCommand(
                     async () =>
                     { // execute
+                        this.HideDialogButton = !this.HideDialogButton;
                         await Task.Delay(1000);
                         this.CommandFlag = this.CommandFlag ? false : true;
                         this.Number4++;

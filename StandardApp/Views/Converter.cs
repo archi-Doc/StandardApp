@@ -8,7 +8,7 @@ using Application;
 
 #pragma warning disable SA1649 // File name should match first type name
 
-namespace StandardApp
+namespace StandardApp.Views
 {
     public class DisplayScalingToStringConverter : IValueConverter
     {// Display scaling to String
@@ -65,6 +65,88 @@ namespace StandardApp
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             throw new NotImplementedException();
+        }
+    }
+
+    public class BoolToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            bool b = false;
+
+            if (value is bool)
+            {
+                b = (bool)value;
+            }
+            else if (value is bool?)
+            {
+                var b2 = (bool?)value;
+                b = b2.HasValue ? b2.Value : false;
+            }
+
+            if (parameter != null)
+            { // Reverse conversion on any given parameter.
+                b = !b;
+            }
+
+            return b ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            bool b;
+
+            if (value is System.Windows.Visibility v)
+            {
+                b = v == System.Windows.Visibility.Visible;
+            }
+            else
+            {
+                b = false;
+            }
+
+            if (parameter != null)
+            { // Reverse conversion on any given parameter.
+                b = !b;
+            }
+
+            return b;
+        }
+    }
+
+    public class InverseBoolConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            bool b = false;
+
+            if (value is bool)
+            {
+                b = (bool)value;
+            }
+            else if (value is bool?)
+            {
+                var b2 = (bool?)value;
+                b = b2.HasValue ? b2.Value : false;
+            }
+
+            return !b;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            bool b;
+
+            if (value is bool b2)
+            {
+                b = b2;
+            }
+            else
+            {
+                b = false;
+            }
+
+            return !b;
         }
     }
 }

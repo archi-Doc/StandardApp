@@ -1,8 +1,6 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using System;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -15,9 +13,10 @@ using Arc.Text;
 using Arc.WinAPI;
 using Arc.WPF;
 
+#pragma warning disable SA1403 // File may only contain a single namespace
 #pragma warning disable SA1649 // File name should match first type name
 
-namespace StandardApp
+namespace StandardApp.ViewServices
 {
     public interface IMainViewService
     {
@@ -29,6 +28,11 @@ namespace StandardApp
 
         void CustomDialog(DialogParam p); // Csustom Dialog
     }
+}
+
+namespace StandardApp.Views
+{
+    using StandardApp.ViewServices;
 
     /// <summary>
     /// Main Window.
