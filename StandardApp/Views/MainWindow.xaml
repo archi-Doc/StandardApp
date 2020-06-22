@@ -48,6 +48,7 @@
                 <Button x:Name="button3" Content="task" HorizontalAlignment="Left" Height="auto" VerticalAlignment="Top" Width="auto" Command="{Binding TestCommand2}"/>
                 <Button x:Name="button4" Content="info" HorizontalAlignment="Left" Height="auto" VerticalAlignment="Top" Width="auto" Command="{Binding CommandMessageId}" CommandParameter="Information"/>
                 <Button x:Name="buttonSettings" Content="{Arc:C4 button.settings}"  HorizontalAlignment="Left" Height="auto" VerticalAlignment="Top" Width="auto"  Command="{Binding CommandMessageId}" CommandParameter="Settings" />
+                <Button x:Name="buttonCrossChannel" Content="CrossChannel"  HorizontalAlignment="Left" Height="auto" VerticalAlignment="Top" Width="auto"  Command="{Binding TestCrossChannel}"/>
                 <Button x:Name="button5" Content="exit without confirmation" HorizontalAlignment="Left" Height="auto"  VerticalAlignment="Top" Width="auto" Command="{Binding CommandMessageId}" CommandParameter="ExitWithoutConfirmation"/>
             </StackPanel>
 

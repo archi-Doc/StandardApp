@@ -8,6 +8,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using Application;
+using Arc.CrossChannel;
 using Arc.Mvvm;
 using Arc.Text;
 using Arc.WinAPI;
@@ -48,6 +49,8 @@ namespace StandardApp.Views
             this.DataContext = vm;
             this.vm = vm;
 
+            CrossChannel.OpenAsync<DialogParam, MessageBoxResult>(this.CrossChannel_Dialog);
+
             try
             {
                 ToolTipService.InitialShowDelayProperty.OverrideMetadata(typeof(DependencyObject), new FrameworkPropertyMetadata(1000));
@@ -59,6 +62,13 @@ namespace StandardApp.Views
             Transformer.Instance.Register(this, true, false);
 
             this.Title = App.Title;
+        }
+
+        public async Task<MessageBoxResult> CrossChannel_Dialog(DialogParam p)
+        { // Multi-thread safe, may be called from non-UI thread/context. App.UI.InvokeAsync()
+            var dlg = new Arc.WPF.Dialog(this, p);
+            var result = await dlg.ShowDialogAsync();
+            return result;
         }
 
         public void Notification(NotificationMessage msg)

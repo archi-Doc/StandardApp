@@ -1,9 +1,5 @@
 // Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using Arc.Visceral;
 using Xunit;
 
@@ -14,7 +10,7 @@ using Xunit;
 #pragma warning disable SA1503 // Braces should not be omitted
 #pragma warning disable SA1649 // File name should match first type name
 
-namespace Test
+namespace Test.Reconstruct
 {
     public struct ChildStruct : IReconstructable
     {
@@ -108,15 +104,6 @@ namespace Test
         }
     }
 
-    public class BrushOption
-    { // Constructor -> (OnAfterDeserialize()) -> Prepare() -> ... -> OnBeforeSerialize()
-        private System.Windows.Media.SolidColorBrush? brush;
-
-        public BrushOption()
-        {
-        }
-    }
-
     public class EmptyClass
     {
     }
@@ -132,27 +119,24 @@ namespace Test
         public void Test2()
         {
             var ec = new EmptyClass();
-            Reconstruct.Do(ec);
+            Arc.Visceral.Reconstruct.Do(ec);
 
             var ec2 = new EmptyClass2();
-            Reconstruct.Do(ec2);
-
-            var brush = new BrushOption();
-            Reconstruct.Do(brush);
+            Arc.Visceral.Reconstruct.Do(ec2);
 
             var tc = new TestClass2();
-            Reconstruct.Do(tc);
+            Arc.Visceral.Reconstruct.Do(tc);
         }
 
         [Fact]
         public void Test1()
         {
             var tc = new TestClass();
-            var tc2 = Reconstruct.Do(tc);
+            var tc2 = Arc.Visceral.Reconstruct.Do(tc);
 
             tc.cs.a = 5;
             tc.cs.b = 6;
-            tc.cs = Reconstruct.Do(tc.cs);
+            tc.cs = Arc.Visceral.Reconstruct.Do(tc.cs);
 
             Assert.Equal(0, tc.x);
             Assert.Equal(string.Empty, tc.y);
@@ -199,10 +183,10 @@ namespace Test
         [Fact]
         public void TestInitialResolvers()
         {
-            Reconstruct.InitialResolvers = new IReconstructResolver[] { CustomReconstructResolver.Instance, DefaultReconstructResolver.Instance };
+            Arc.Visceral.Reconstruct.InitialResolvers = new IReconstructResolver[] { CustomReconstructResolver.Instance, DefaultReconstructResolver.Instance };
 
             var tc = new TestClass();
-            Reconstruct.Do(tc);
+            Arc.Visceral.Reconstruct.Do(tc);
 
             Assert.Equal(100, tc.ca!.a);
             Assert.Equal(200, tc.ca!.b);

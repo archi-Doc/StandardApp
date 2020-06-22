@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Arc.Visceral;
+using Arc.WeakDelegate;
 using MessagePack;
 
 #pragma warning disable SA1201 // Elements should appear in the correct order
@@ -158,7 +159,25 @@ namespace SimpleBenchmark
             var tc2 = MessagePack.MessagePackSerializer.Deserialize<TestClass>(b);
             sw.Lap("MessagePack deserialize");
 
+            new WeakFunc<int, int>(a => a);
+            sw.Lap("WeakDelegate a => a");
+            new WeakFunc<int, int>(b => b);
+            sw.Lap("WeakDelegate a => a");
+            new WeakFunc<string, string>(n => n + "a");
+            sw.Lap("WeakDelegate n => n + \"a\"");
+            new WeakAction<string>(n => { });
+            sw.Lap("WeakDelegate n => { }");
+            new WeakFunc<uint, uint>(TestDelegate);
+            sw.Lap("WeakDelegate TestDelegate");
+            new WeakFunc<uint, uint>(TestDelegate);
+            sw.Lap("WeakDelegate TestDelegate 2nd");
+
             Console.WriteLine(sw.ToSimpleString());
+        }
+
+        private static uint TestDelegate(uint x)
+        {
+            return x * 2;
         }
     }
 
