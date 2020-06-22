@@ -42,19 +42,73 @@ namespace Arc.WinAPI
     public partial class Methods
     {
         [DllImport("shell32.dll")]
-        public static extern IntPtr ILCombine(IntPtr pidl1, IntPtr pidl2);
+        internal static extern IntPtr ILCombine(IntPtr pidl1, IntPtr pidl2);
 
         [DllImport("shell32.dll")]
-        public static extern void ILFree(IntPtr pidl);
+        internal static extern void ILFree(IntPtr pidl);
 
         [DllImport("shell32.dll")]
-        public static extern uint SHGetNameFromIDList(IntPtr pidl, SIGDN sigdnName, [Out, MarshalAs(UnmanagedType.LPWStr)] out string str);
+        internal static extern uint SHGetNameFromIDList(IntPtr pidl, SIGDN sigdnName, [Out, MarshalAs(UnmanagedType.LPWStr)] out string str);
 
         [DllImport("shell32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool SHGetPathFromIDListW(IntPtr pidl, [MarshalAs(UnmanagedType.LPTStr)] StringBuilder pszPath);
+        internal static extern bool SHGetPathFromIDListW(IntPtr pidl, [MarshalAs(UnmanagedType.LPTStr)] StringBuilder pszPath);
 
-        public enum SIGDN : uint
+        [DllImport("kernel32.dll")]
+        internal static extern EXECUTION_STATE SetThreadExecutionState(EXECUTION_STATE esFlags);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        internal static extern IntPtr GetCurrentProcess();
+
+        [DllImport("advapi32.dll", SetLastError = true)]
+        internal static extern bool OpenProcessToken(IntPtr processHandle, uint desiredAccess, out IntPtr tokenHandle);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        internal static extern bool CloseHandle(IntPtr hObject);
+
+        [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        internal static extern bool LookupPrivilegeValue(string? lpSystemName, string lpName, out long lpLuid);
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        internal struct TOKEN_PRIVILEGES
+        {
+            public int PrivilegeCount;
+            public long Luid;
+            public int Attributes;
+        }
+
+        [DllImport("advapi32.dll", SetLastError = true)]
+        internal static extern bool AdjustTokenPrivileges(IntPtr tokenHandle, bool disableAllPrivileges, ref TOKEN_PRIVILEGES newState, int bufferLength, IntPtr previousState, IntPtr returnLength);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        internal static extern bool ExitWindowsEx(ExitWindows uFlags,    int dwReason);
+
+        internal static void AdjustToken()
+        {
+            const uint TOKEN_ADJUST_PRIVILEGES = 0x20;
+            const uint TOKEN_QUERY = 0x8;
+            const int SE_PRIVILEGE_ENABLED = 0x2;
+            const string SE_SHUTDOWN_NAME = "SeShutdownPrivilege";
+
+            if (Environment.OSVersion.Platform != PlatformID.Win32NT)
+            {
+                return;
+            }
+
+            IntPtr procHandle = GetCurrentProcess();
+
+            IntPtr tokenHandle;
+            OpenProcessToken(procHandle, TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, out tokenHandle);
+            TOKEN_PRIVILEGES tp = default(TOKEN_PRIVILEGES);
+            tp.Attributes = SE_PRIVILEGE_ENABLED;
+            tp.PrivilegeCount = 1;
+            LookupPrivilegeValue(null, SE_SHUTDOWN_NAME, out tp.Luid);
+            AdjustTokenPrivileges(tokenHandle, false, ref tp, 0, IntPtr.Zero, IntPtr.Zero);
+
+            CloseHandle(tokenHandle);
+        }
+
+        internal enum SIGDN : uint
         {
             NORMALDISPLAY = 0x00000000,
             PARENTRELATIVEPARSING = 0x80018001,
@@ -68,7 +122,7 @@ namespace Arc.WinAPI
             PARENTRELATIVEFORUI = 0x80094001,
         }
 
-        public static string[]? GetPathFromIDList(System.Windows.IDataObject dataObject)
+        internal static string[]? GetPathFromIDList(System.Windows.IDataObject dataObject)
         {
             string[]? result = null;
             MemoryStream data = (MemoryStream)dataObject.GetData(Arc.WinAPI.Const.SHELL_IDLIST_STRING);
@@ -106,22 +160,22 @@ namespace Arc.WinAPI
         }
 
         [DllImport("shell32.dll")]
-        public static extern IntPtr ShellExecute(IntPtr hwnd, string lpOperation, string lpFile, string lpParameters, string lpDirectory, ShowCommands nShowCmd);
+        internal static extern IntPtr ShellExecute(IntPtr hwnd, string lpOperation, string lpFile, string lpParameters, string lpDirectory, ShowCommands nShowCmd);
 
         [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        public static extern IntPtr MonitorFromWindow(IntPtr hwnd, MonitorDefaultTo dwFlags);
+        internal static extern IntPtr MonitorFromWindow(IntPtr hwnd, MonitorDefaultTo dwFlags);
 
         [DllImport("SHCore.dll", CharSet = CharSet.Unicode, PreserveSig = false)]
-        public static extern void GetDpiForMonitor(IntPtr hmonitor, MonitorDpiType dpiType, ref uint dpiX, ref uint dpiY);
+        internal static extern void GetDpiForMonitor(IntPtr hmonitor, MonitorDpiType dpiType, ref uint dpiX, ref uint dpiY);
 
         [DllImport("User32.dll", CharSet = CharSet.Auto)]
-        public static extern bool GetMonitorInfo(IntPtr hmonitor, [In, Out] MONITORINFOEX info);
+        internal static extern bool GetMonitorInfo(IntPtr hmonitor, [In, Out] MONITORINFOEX info);
 
         /// <summary>
         /// Get the dots per inch (dpi) of a display.
         /// </summary>
         /// <returns>True if the correct dpi value is obtained.</returns>
-        public static bool GetMonitorDpi(IntPtr hwnd, out double dpiX, out double dpiY)
+        internal static bool GetMonitorDpi(IntPtr hwnd, out double dpiX, out double dpiY)
         {
             try
             {
@@ -146,7 +200,7 @@ namespace Arc.WinAPI
         /// Get the process with the same process name and the same module name.
         /// </summary>
         /// <returns>Process.</returns>
-        public static Process? GetPreviousProcess()
+        internal static Process? GetPreviousProcess()
         {
             Process curProcess = Process.GetCurrentProcess();
             Process[] allProcesses = Process.GetProcessesByName(curProcess.ProcessName);
@@ -172,7 +226,7 @@ namespace Arc.WinAPI
         /// <summary>
         /// Brings the window into the foreground and activates the window.
         /// </summary>
-        public static void WakeupWindow(IntPtr hWnd)
+        internal static void WakeupWindow(IntPtr hWnd)
         {
             if (!IsWindowVisible(hWnd))
             {
@@ -752,5 +806,24 @@ namespace Arc.WinAPI
         NONAME = 0xFC,
         PA1 = 0xFD,
         OEM_CLEAR = 0xFE,
+    }
+
+    [FlagsAttribute]
+    public enum EXECUTION_STATE : uint
+    {
+        ES_SYSTEM_REQUIRED = 0x00000001,
+        ES_DISPLAY_REQUIRED = 0x00000002,
+        ES_CONTINUOUS = 0x80000000,
+    }
+
+    public enum ExitWindows : uint
+    {
+        EWX_LOGOFF = 0x00,
+        EWX_SHUTDOWN = 0x01,
+        EWX_REBOOT = 0x02,
+        EWX_POWEROFF = 0x08,
+        EWX_RESTARTAPPS = 0x40,
+        EWX_FORCE = 0x04,
+        EWX_FORCEIFHUNG = 0x10,
     }
 }

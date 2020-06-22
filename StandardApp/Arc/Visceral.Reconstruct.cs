@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using FastExpressionCompiler;
 
 #pragma warning disable SA1011 // Closing square brackets should be spaced correctly
 #pragma warning disable SA1204 // Static elements should appear before instance elements
@@ -215,7 +216,8 @@ namespace Arc.Visceral
 
             var body = Expression.Block(expressions.ToArray());
             var lamda = Expression.Lambda<ReconstructFunc<T>>(body, arg);
-            return lamda.Compile();
+
+            return lamda.CompileFast();
         }
 
         private static class ResolverCache<T>
