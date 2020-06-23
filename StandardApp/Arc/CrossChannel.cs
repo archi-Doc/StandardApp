@@ -12,10 +12,10 @@ using Arc.WeakDelegate;
 
 namespace Arc.CrossChannel
 {
-    public struct ChannelIdentification
+    public readonly struct ChannelIdentification
     {
-        public Type MessageType; // The type of a message.
-        public Type? ResultType; // The type of a result.
+        public readonly Type MessageType; // The type of a message.
+        public readonly Type? ResultType; // The type of a result.
 
         public ChannelIdentification(Type messageType)
         {
@@ -561,7 +561,7 @@ namespace Arc.CrossChannel
 
         public ChannelIdentification Identification { get; private set; }
 
-        public object? TargetId { get; private set; }
+        public object? TargetId { get; set; }
 
         public bool ExclusiveChannel { get; private set; }
 

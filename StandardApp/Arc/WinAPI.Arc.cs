@@ -81,7 +81,7 @@ namespace Arc.WinAPI
         internal static extern bool AdjustTokenPrivileges(IntPtr tokenHandle, bool disableAllPrivileges, ref TOKEN_PRIVILEGES newState, int bufferLength, IntPtr previousState, IntPtr returnLength);
 
         [DllImport("user32.dll", SetLastError = true)]
-        internal static extern bool ExitWindowsEx(ExitWindows uFlags,    int dwReason);
+        internal static extern bool ExitWindowsEx(ExitWindows uFlags, int dwReason);
 
         internal static void AdjustToken()
         {
@@ -228,6 +228,11 @@ namespace Arc.WinAPI
         /// </summary>
         internal static void WakeupWindow(IntPtr hWnd)
         {
+            if (hWnd == IntPtr.Zero)
+            {
+                return;
+            }
+
             if (!IsWindowVisible(hWnd))
             {
                 SendMessage(hWnd, 0x0018 /*WM_SHOWWINDOW*/, IntPtr.Zero, new IntPtr(3 /*SW_PARENTOPENING*/));
@@ -239,6 +244,67 @@ namespace Arc.WinAPI
             }
 
             SetForegroundWindow(hWnd);
+        }
+
+        internal static void ForceWindowToForeground(IntPtr hWnd)
+        {
+            if (hWnd == IntPtr.Zero)
+            {
+                return;
+            }
+
+            // ウィンドウが最小化されている場合は元に戻す
+            if (IsIconic(hWnd))
+            {
+                ShowWindowAsync(hWnd, (int)ShowCommands.SW_RESTORE);
+            }
+
+            // AttachThreadInputの準備
+            // フォアグラウンドウィンドウのハンドルを取得
+            IntPtr forehWnd = GetForegroundWindow();
+            if (forehWnd == hWnd)
+            {
+                return;
+            }
+
+            // フォアグラウンドのスレッドIDを取得
+            uint foreThread = GetWindowThreadProcessId(forehWnd, out var _);
+
+            // 自分のスレッドIDを収得
+            uint thisThread = GetCurrentThreadId();
+
+            uint timeout = 200000;
+            if (foreThread != thisThread)
+            {
+                // ForegroundLockTimeoutの現在の設定を取得
+                // Visual Studio 2010, 2012起動後は、レジストリと違う値を返す
+                SystemParametersInfoGet(SPI_GETFOREGROUNDLOCKTIMEOUT, 0, ref timeout, 0);
+
+                // ForegroundLockTimeoutの値を0にする
+                // (SPIF_UPDATEINIFILE | SPIF_SENDCHANGE)を使いたいが、
+                //  timeoutがレジストリと違う値だと戻せなくなるので使わない
+                SystemParametersInfoSet(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, 0, 0);
+
+                // 入力処理機構にアタッチする
+                AttachThreadInput(thisThread, foreThread, true);
+            }
+
+            // ウィンドウをフォアグラウンドにする処理
+            SetForegroundWindow(hWnd);
+            SetWindowPos(hWnd, (IntPtr)HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW | SWP_ASYNCWINDOWPOS);
+            BringWindowToTop(hWnd);
+            ShowWindowAsync(hWnd, (int)ShowCommands.SW_SHOW);
+            SetFocus(hWnd);
+
+            if (foreThread != thisThread)
+            {
+                // ForegroundLockTimeoutの値を元に戻す
+                // ここでも(SPIF_UPDATEINIFILE | SPIF_SENDCHANGE)は使わない
+                SystemParametersInfoSet(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, timeout, 0);
+
+                // デタッチ
+                AttachThreadInput(thisThread, foreThread, false);
+            }
         }
 
         internal static IntPtr GetWindowHandle(int pid, string title)
@@ -377,6 +443,16 @@ namespace Arc.WinAPI
         [DllImport("user32.dll")]
         internal static extern bool SetForegroundWindow(IntPtr hWnd);
 
+        [DllImport("user32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern bool BringWindowToTop(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        internal static extern IntPtr SetFocus(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        internal static extern IntPtr GetForegroundWindow();
+
         [DllImport("user32.dll")]
         internal static extern bool ShowWindowAsync(IntPtr hWnd, int nCmdShow);
 
@@ -385,6 +461,23 @@ namespace Arc.WinAPI
 
         [DllImport("user32.dll")]
         internal static extern bool IsWindowVisible(IntPtr hWnd);
+
+        [DllImport("user32.dll", EntryPoint = "SystemParametersInfo", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool SystemParametersInfoGet(uint action, uint param, ref uint vparam, uint init);
+
+        [DllImport("user32.dll", EntryPoint = "SystemParametersInfo", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool SystemParametersInfoSet(uint action, uint param, uint vparam, uint init);
+
+        private const uint SPI_GETFOREGROUNDLOCKTIMEOUT = 0x2000;
+        private const uint SPI_SETFOREGROUNDLOCKTIMEOUT = 0x2001;
+        private const uint SPIF_UPDATEINIFILE = 0x01;
+        private const uint SPIF_SENDCHANGE = 0x02;
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
 
         /* GetWindowHandle */
 
@@ -395,6 +488,9 @@ namespace Arc.WinAPI
 
         [DllImport("user32.dll")]
         internal static extern uint GetWindowThreadProcessId(IntPtr hWnd, out int lpdwProcessId);
+
+        [DllImport("kernel32.dll")]
+        internal static extern uint GetCurrentThreadId();
 
         [DllImport("user32.dll")]
         internal static extern uint GetWindowTextLength(IntPtr hWnd);
@@ -437,13 +533,22 @@ namespace Arc.WinAPI
         internal static extern IntPtr SendMessage(IntPtr hwnd, uint msg, IntPtr wParam, IntPtr lParam);
 
         // ShowWindowAsync関数のパラメータに渡す定義値
-        public const int GWL_EXSTYLE = -20;
-        public const int WS_EX_DLGMODALFRAME = 0x0001;
-        public const int SWP_NOSIZE = 0x0001;
-        public const int SWP_NOMOVE = 0x0002;
-        public const int SWP_NOZORDER = 0x0004;
-        public const int SWP_FRAMECHANGED = 0x0020;
-        public const uint WM_SETICON = 0x0080;
+        private const int GWL_EXSTYLE = -20;
+        private const int WS_EX_DLGMODALFRAME = 0x0001;
+
+        private const int SWP_NOSIZE = 0x0001;
+        private const int SWP_NOMOVE = 0x0002;
+        private const int SWP_NOZORDER = 0x0004;
+        private const int SWP_FRAMECHANGED = 0x0020;
+        private const int SWP_SHOWWINDOW = 0x0040;
+        private const int SWP_ASYNCWINDOWPOS = 0x4000;
+
+        private const int HWND_TOP = 0;
+        private const int HWND_BOTTOM = 1;
+        private const int HWND_TOPMOST = -1;
+        private const int HWND_NOTOPMOST = -2;
+
+        private const uint WM_SETICON = 0x0080;
 
         public static void RemoveIcon(Window window)
         {
