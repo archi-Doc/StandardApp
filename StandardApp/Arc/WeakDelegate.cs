@@ -60,17 +60,17 @@ namespace Arc.WeakDelegate
         }
     }
 
-    public class WeakFunc<T, TResult> : WeakDelegate
+    public class WeakAction : WeakDelegate
     {
         private static Hashtable delegateCache = new Hashtable();
-        private Func<object, T, TResult>? compiledDelegate;
+        private Action<object>? compiledDelegate;
 
-        public WeakFunc(Func<T, TResult> method, bool keepTargetAlive = false)
+        public WeakAction(Action method, bool keepTargetAlive = false)
             : this(method.Target, method, keepTargetAlive)
         {
         }
 
-        public WeakFunc(object? target, Func<T, TResult> method, bool keepTargetAlive = false)
+        public WeakAction(object? target, Action method, bool keepTargetAlive = false)
             : base(target, method, keepTargetAlive)
         {
             if (method.Target == null)
@@ -81,12 +81,90 @@ namespace Arc.WeakDelegate
             var type = method.Target.GetType();
             var key = new DelegateKey(method.Target.GetType(), method.Method);
 
-            this.compiledDelegate = delegateCache[key] as Func<object, T, TResult>;
+            this.compiledDelegate = delegateCache[key] as Action<object>;
+            if (this.compiledDelegate == null)
+            {
+                var targetParam = Expression.Parameter(typeof(object));
+                this.compiledDelegate = Expression.Lambda<Action<object>>(
+                    Expression.Call(
+                        Expression.Convert(targetParam, type),
+                        method.Method),
+                    targetParam)
+                    .Compile();
+
+                lock (delegateCache)
+                {
+                    delegateCache[key] = this.compiledDelegate;
+                }
+            }
+        }
+
+        public void Execute(out bool executed)
+        {
+            if (this.StaticDelegate is Action method)
+            {
+                executed = true;
+                method();
+                return;
+            }
+
+            var delegateTarget = this.DelegateTarget;
+            if (this.IsAlive && this.compiledDelegate != null && delegateTarget != null)
+            {
+                executed = true;
+                this.compiledDelegate(delegateTarget);
+                return;
+            }
+
+            executed = false;
+            return;
+        }
+
+        public void Execute()
+        {
+            if (this.StaticDelegate is Action method)
+            {
+                method();
+                return;
+            }
+
+            var delegateTarget = this.DelegateTarget;
+            if (this.IsAlive && this.compiledDelegate != null && delegateTarget != null)
+            {
+                this.compiledDelegate(delegateTarget);
+            }
+
+            return;
+        }
+    }
+
+    public class WeakAction<T> : WeakDelegate
+    {
+        private static Hashtable delegateCache = new Hashtable();
+        private Action<object, T>? compiledDelegate;
+
+        public WeakAction(Action<T> method, bool keepTargetAlive = false)
+            : this(method.Target, method, keepTargetAlive)
+        {
+        }
+
+        public WeakAction(object? target, Action<T> method, bool keepTargetAlive = false)
+            : base(target, method, keepTargetAlive)
+        {
+            if (method.Target == null)
+            { // Static delegate.
+                return;
+            }
+
+            var type = method.Target.GetType();
+            var key = new DelegateKey(method.Target.GetType(), method.Method);
+
+            this.compiledDelegate = delegateCache[key] as Action<object, T>;
             if (this.compiledDelegate == null)
             {
                 var targetParam = Expression.Parameter(typeof(object));
                 var t = Expression.Parameter(typeof(T));
-                this.compiledDelegate = Expression.Lambda<Func<object, T, TResult>>(
+                this.compiledDelegate = Expression.Lambda<Action<object, T>>(
                     Expression.Call(
                         Expression.Convert(targetParam, type),
                         method.Method,
@@ -102,41 +180,42 @@ namespace Arc.WeakDelegate
             }
         }
 
-        [return: MaybeNull]
-        public TResult Execute(T t, out bool executed)
+        public void Execute(T t, out bool executed)
         {
-            if (this.StaticDelegate is Func<T, TResult> method)
+            if (this.StaticDelegate is Action<T> method)
             {
                 executed = true;
-                return method(t);
+                method(t);
+                return;
             }
 
             var delegateTarget = this.DelegateTarget;
             if (this.IsAlive && this.compiledDelegate != null && delegateTarget != null)
             {
                 executed = true;
-                return this.compiledDelegate(delegateTarget, t);
+                this.compiledDelegate(delegateTarget, t);
+                return;
             }
 
             executed = false;
-            return default;
+            return;
         }
 
-        [return: MaybeNull]
-        public TResult Execute(T t)
+        public void Execute(T t)
         {
-            if (this.StaticDelegate is Func<T, TResult> method)
+            if (this.StaticDelegate is Action<T> method)
             {
-                return method(t);
+                method(t);
+                return;
             }
 
             var delegateTarget = this.DelegateTarget;
             if (this.IsAlive && this.compiledDelegate != null && delegateTarget != null)
             {
-                return this.compiledDelegate(delegateTarget, t);
+                this.compiledDelegate(delegateTarget, t);
             }
 
-            return default;
+            return;
         }
     }
 
@@ -217,17 +296,17 @@ namespace Arc.WeakDelegate
         }
     }
 
-    public class WeakAction<T> : WeakDelegate
+    public class WeakFunc<T, TResult> : WeakDelegate
     {
         private static Hashtable delegateCache = new Hashtable();
-        private Action<object, T>? compiledDelegate;
+        private Func<object, T, TResult>? compiledDelegate;
 
-        public WeakAction(Action<T> method, bool keepTargetAlive = false)
+        public WeakFunc(Func<T, TResult> method, bool keepTargetAlive = false)
             : this(method.Target, method, keepTargetAlive)
         {
         }
 
-        public WeakAction(object? target, Action<T> method, bool keepTargetAlive = false)
+        public WeakFunc(object? target, Func<T, TResult> method, bool keepTargetAlive = false)
             : base(target, method, keepTargetAlive)
         {
             if (method.Target == null)
@@ -238,12 +317,12 @@ namespace Arc.WeakDelegate
             var type = method.Target.GetType();
             var key = new DelegateKey(method.Target.GetType(), method.Method);
 
-            this.compiledDelegate = delegateCache[key] as Action<object, T>;
+            this.compiledDelegate = delegateCache[key] as Func<object, T, TResult>;
             if (this.compiledDelegate == null)
             {
                 var targetParam = Expression.Parameter(typeof(object));
                 var t = Expression.Parameter(typeof(T));
-                this.compiledDelegate = Expression.Lambda<Action<object, T>>(
+                this.compiledDelegate = Expression.Lambda<Func<object, T, TResult>>(
                     Expression.Call(
                         Expression.Convert(targetParam, type),
                         method.Method,
@@ -260,123 +339,40 @@ namespace Arc.WeakDelegate
         }
 
         [return: MaybeNull]
-        public void Execute(T t, out bool executed)
+        public TResult Execute(T t, out bool executed)
         {
-            if (this.StaticDelegate is Action<T> method)
+            if (this.StaticDelegate is Func<T, TResult> method)
             {
                 executed = true;
-                method(t);
-                return;
+                return method(t);
             }
 
             var delegateTarget = this.DelegateTarget;
             if (this.IsAlive && this.compiledDelegate != null && delegateTarget != null)
             {
                 executed = true;
-                this.compiledDelegate(delegateTarget, t);
-                return;
+                return this.compiledDelegate(delegateTarget, t);
             }
 
             executed = false;
-            return;
+            return default;
         }
 
         [return: MaybeNull]
-        public void Execute(T t)
+        public TResult Execute(T t)
         {
-            if (this.StaticDelegate is Action<T> method)
+            if (this.StaticDelegate is Func<T, TResult> method)
             {
-                method(t);
-                return;
+                return method(t);
             }
 
             var delegateTarget = this.DelegateTarget;
             if (this.IsAlive && this.compiledDelegate != null && delegateTarget != null)
             {
-                this.compiledDelegate(delegateTarget, t);
+                return this.compiledDelegate(delegateTarget, t);
             }
 
-            return;
-        }
-    }
-
-    public class WeakAction : WeakDelegate
-    {
-        private static Hashtable delegateCache = new Hashtable();
-        private Action<object>? compiledDelegate;
-
-        public WeakAction(Action method, bool keepTargetAlive = false)
-            : this(method.Target, method, keepTargetAlive)
-        {
-        }
-
-        public WeakAction(object? target, Action method, bool keepTargetAlive = false)
-            : base(target, method, keepTargetAlive)
-        {
-            if (method.Target == null)
-            { // Static delegate.
-                return;
-            }
-
-            var type = method.Target.GetType();
-            var key = new DelegateKey(method.Target.GetType(), method.Method);
-
-            this.compiledDelegate = delegateCache[key] as Action<object>;
-            if (this.compiledDelegate == null)
-            {
-                var targetParam = Expression.Parameter(typeof(object));
-                this.compiledDelegate = Expression.Lambda<Action<object>>(
-                    Expression.Call(
-                        Expression.Convert(targetParam, type),
-                        method.Method),
-                    targetParam)
-                    .Compile();
-
-                lock (delegateCache)
-                {
-                    delegateCache[key] = this.compiledDelegate;
-                }
-            }
-        }
-
-        [return: MaybeNull]
-        public void Execute(out bool executed)
-        {
-            if (this.StaticDelegate is Action method)
-            {
-                executed = true;
-                method();
-                return;
-            }
-
-            var delegateTarget = this.DelegateTarget;
-            if (this.IsAlive && this.compiledDelegate != null && delegateTarget != null)
-            {
-                executed = true;
-                this.compiledDelegate(delegateTarget);
-                return;
-            }
-
-            executed = false;
-            return;
-        }
-
-        [return: MaybeNull]
-        public void Execute()
-        {
-            if (this.StaticDelegate is Action method)
-            {
-                method();
-                return;
-            }
-
-            var delegateTarget = this.DelegateTarget;
-            if (this.IsAlive && this.compiledDelegate != null && delegateTarget != null)
-            {
-                this.compiledDelegate(delegateTarget);
-            }
-
-            return;
+            return default;
         }
     }
 

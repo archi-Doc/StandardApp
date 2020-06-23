@@ -8,135 +8,247 @@ using System.Reflection;
 
 namespace Arc.WeakDelegate.Original
 {
+    /// <summary>
+    /// Stores a delegate without causing a hard reference to be created. The owner can be garbage collected at any time.
+    /// </summary>
+    public interface IWeakDelegate
+    {
+        /// <summary>
+        /// Gets the Delegate's owner. This object is stored as a <see cref="WeakReference" />.
+        /// </summary>
+        object? Target { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether the Delegate's owner is still alive.
+        /// </summary>
+        bool IsAlive { get; }
+
+        /// <summary>
+        /// Deletes all references, which notifies the cleanup method that this entry must be deleted.
+        /// </summary>
+        void MarkForDeletion();
+    }
+
     public class WeakAction : WeakDelegate
     {
-        public WeakAction(Action action, bool keepTargetAlive = false)
-            : this(action.Target, action, keepTargetAlive)
+        public WeakAction(Action method, bool keepTargetAlive = false)
+            : this(method.Target, method, keepTargetAlive)
         {
         }
 
-        public WeakAction(object? target, Action action, bool keepTargetAlive = false)
-            : base(target, action, keepTargetAlive)
+        public WeakAction(object? target, Action method, bool keepTargetAlive = false)
+            : base(target, method, keepTargetAlive)
         {
+        }
+
+        public void Execute(out bool executed)
+        {
+            if (this.StaticDelegate is Action method)
+            {
+                executed = true;
+                method();
+                return;
+            }
+
+            var delegateTarget = this.DelegateTarget;
+            if (this.IsAlive && delegateTarget != null)
+            {
+                executed = true;
+                this.Method?.Invoke(delegateTarget, null);
+                return;
+            }
+
+            executed = false;
+            return;
         }
 
         public void Execute()
         {
-            if (this.StaticDelegate is Action action)
+            if (this.StaticDelegate is Action method)
             {
-                action();
+                method();
                 return;
             }
 
-            var actionTarget = this.ActionTarget;
-
-            if (this.IsAlive && actionTarget != null)
+            var delegateTarget = this.DelegateTarget;
+            if (this.IsAlive && delegateTarget != null)
             {
-                this.Method?.Invoke(actionTarget, null);
-                return;
+                this.Method?.Invoke(delegateTarget, null);
             }
+
+            return;
         }
     }
 
     public class WeakAction<T> : WeakDelegate
     {
-        public WeakAction(Action<T> action, bool keepTargetAlive = false)
-            : this(action.Target, action, keepTargetAlive)
+        public WeakAction(Action<T> method, bool keepTargetAlive = false)
+            : this(method.Target, method, keepTargetAlive)
         {
         }
 
-        public WeakAction(object? target, Action<T> action, bool keepTargetAlive = false)
-            : base(target, action, keepTargetAlive)
+        public WeakAction(object? target, Action<T> method, bool keepTargetAlive = false)
+            : base(target, method, keepTargetAlive)
         {
+        }
+
+        public void Execute(T t, out bool executed)
+        {
+            if (this.StaticDelegate is Action<T> method)
+            {
+                executed = true;
+                method(t);
+                return;
+            }
+
+            var delegateTarget = this.DelegateTarget;
+            if (this.IsAlive && delegateTarget != null)
+            {
+                executed = true;
+                this.Method?.Invoke(delegateTarget, new object?[] { t });
+                return;
+            }
+
+            executed = false;
+            return;
         }
 
         public void Execute(T t)
         {
-            if (this.StaticDelegate is Action<T> action)
+            if (this.StaticDelegate is Action<T> method)
             {
-                action(t);
+                method(t);
                 return;
             }
 
-            var actionTarget = this.ActionTarget;
-
-            if (this.IsAlive && actionTarget != null)
+            var delegateTarget = this.DelegateTarget;
+            if (this.IsAlive && delegateTarget != null)
             {
-                this.Method?.Invoke(actionTarget, new object?[] { t });
-                return;
+                this.Method?.Invoke(delegateTarget, new object?[] { t });
             }
+
+            return;
         }
     }
 
     public class WeakFunc<TResult> : WeakDelegate
     {
-        public WeakFunc(Func<TResult> function, bool keepTargetAlive = false)
-            : this(function.Target, function, keepTargetAlive)
+        public WeakFunc(Func<TResult> method, bool keepTargetAlive = false)
+            : this(method.Target, method, keepTargetAlive)
         {
         }
 
-        public WeakFunc(object? target, Func<TResult> function, bool keepTargetAlive = false)
-            : base(target, function, keepTargetAlive)
+        public WeakFunc(object? target, Func<TResult> method, bool keepTargetAlive = false)
+            : base(target, method, keepTargetAlive)
         {
+        }
+
+        [return: MaybeNull]
+        public TResult Execute(out bool executed)
+        {
+            if (this.StaticDelegate is Func<TResult> method)
+            {
+                executed = true;
+                return method();
+            }
+
+            var delegateTarget = this.DelegateTarget;
+            if (this.IsAlive && delegateTarget != null)
+            {
+                executed = true;
+                return (TResult)this.Method?.Invoke(delegateTarget, null);
+            }
+
+            executed = false;
+            return default;
         }
 
         [return: MaybeNull]
         public TResult Execute()
         {
-            if (this.StaticDelegate is Func<TResult> function)
+            if (this.StaticDelegate is Func<TResult> method)
             {
-                return function();
+                return method();
             }
 
-            var actionTarget = this.ActionTarget;
-
-            if (this.IsAlive && actionTarget != null)
+            var delegateTarget = this.DelegateTarget;
+            if (this.IsAlive && delegateTarget != null)
             {
-                return (TResult)this.Method?.Invoke(actionTarget, null);
+                return (TResult)this.Method?.Invoke(delegateTarget, null);
             }
 
-            return default(TResult);
+            return default;
         }
     }
 
     public class WeakFunc<T, TResult> : WeakDelegate
     {
-        public WeakFunc(Func<T, TResult> function, bool keepTargetAlive = false)
-            : this(function.Target, function, keepTargetAlive)
+        public WeakFunc(Func<T, TResult> method, bool keepTargetAlive = false)
+            : this(method.Target, method, keepTargetAlive)
         {
         }
 
-        public WeakFunc(object? target, Func<T, TResult> function, bool keepTargetAlive = false)
-            : base(target, function, keepTargetAlive)
+        public WeakFunc(object? target, Func<T, TResult> method, bool keepTargetAlive = false)
+            : base(target, method, keepTargetAlive)
         {
+        }
+
+        [return: MaybeNull]
+        public TResult Execute(T t, out bool executed)
+        {
+            if (this.StaticDelegate is Func<T, TResult> method)
+            {
+                executed = true;
+                return method(t);
+            }
+
+            var delegateTarget = this.DelegateTarget;
+            if (this.IsAlive && delegateTarget != null)
+            {
+                executed = true;
+                return (TResult)this.Method?.Invoke(delegateTarget, new object?[] { t });
+            }
+
+            executed = false;
+            return default;
         }
 
         [return: MaybeNull]
         public TResult Execute(T t)
         {
-            if (this.StaticDelegate is Func<T, TResult> function)
+            if (this.StaticDelegate is Func<T, TResult> method)
             {
-                return function(t);
+                return method(t);
             }
 
-            var actionTarget = this.ActionTarget;
-
-            if (this.IsAlive && actionTarget != null)
+            var delegateTarget = this.DelegateTarget;
+            if (this.IsAlive && delegateTarget != null)
             {
-                return (TResult)this.Method?.Invoke(actionTarget, new object?[] { t });
+                return (TResult)this.Method?.Invoke(delegateTarget, new object?[] { t });
             }
 
-            return default(TResult);
+            return default;
         }
     }
 
-    public class WeakDelegate : Arc.WeakDelegate.IWeakDelegate
+    public class WeakDelegate : IWeakDelegate
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WeakDelegate"/> class.
+        /// </summary>
+        /// <param name="delegate">The action that will be associated to this instance.</param>
+        /// <param name="keepTargetAlive">If true, the target of the Action will be kept as a hard reference, which might cause a memory leak.</param>
         public WeakDelegate(Delegate @delegate, bool keepTargetAlive = false)
             : this(@delegate.Target, @delegate, keepTargetAlive)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WeakDelegate"/> class.
+        /// </summary>
+        /// <param name="target">The action's owner.</param>
+        /// <param name="delegate">The action that will be associated to this instance.</param>
+        /// <param name="keepTargetAlive">If true, the target of the Action will be kept as a hard reference, which might cause a memory leak.</param>
         public WeakDelegate(object? target, Delegate @delegate, bool keepTargetAlive = false)
         {
 #if NETFX_CORE
@@ -162,8 +274,8 @@ namespace Arc.WeakDelegate.Original
             this.Method = @delegate.Method;
 #endif
 
-            this.ActionReference = new WeakReference(@delegate.Target);
-            this.LiveReference = keepTargetAlive ? @delegate.Target : null;
+            this.DelegateReference = new WeakReference(@delegate.Target);
+            this.HardReference = keepTargetAlive ? @delegate.Target : null;
             this.Reference = new WeakReference(target);
         }
 
@@ -192,19 +304,13 @@ namespace Arc.WeakDelegate.Original
             }
         }
 
-        /// <summary>
-        /// Gets the Delegate's owner. This object is stored as a <see cref="WeakReference" />.
-        /// </summary>
         public object? Target => this.Reference?.Target;
 
-        /// <summary>
-        /// Gets a value indicating whether the Action's owner is still alive.
-        /// </summary>
         public bool IsAlive
         {
             get
             {
-                if (this.LiveReference != null)
+                if (this.HardReference != null)
                 {
                     return true;
                 }
@@ -229,21 +335,24 @@ namespace Arc.WeakDelegate.Original
         public bool IsStatic => this.StaticDelegate != null;
 
         /// <summary>
-        /// Gets the target of the weak reference.
+        /// Gets the target of this delegate.
         /// </summary>
-        protected object? ActionTarget
+        protected object? DelegateTarget
         {
             get
             {
-                if (this.LiveReference != null)
+                if (this.HardReference != null)
                 {
-                    return this.LiveReference;
+                    return this.HardReference;
                 }
 
-                return this.ActionReference?.Target;
+                return this.DelegateReference?.Target;
             }
         }
 
+        /// <summary>
+        /// Gets or sets a hard reference of this delegate. This property is used only when the delegate is static.
+        /// </summary>
         protected Delegate? StaticDelegate { get; set; }
 
         /// <summary>
@@ -252,19 +361,19 @@ namespace Arc.WeakDelegate.Original
         protected MethodInfo? Method { get; set; }
 
         /// <summary>
-        /// Gets or sets a WeakReference to this action's target.
+        /// Gets or sets a WeakReference to this delegate's target (new WeakReference(@delegate.Target)).
         /// </summary>
-        protected WeakReference? ActionReference { get; set; }
+        protected WeakReference? DelegateReference { get; set; }
 
         /// <summary>
-        /// Gets or sets a WeakReference to the target passed when constructing the WeakDelegate.
+        /// Gets or sets a WeakReference to the target passed when constructing the WeakDelegate (new WeakReference(target)).
         /// </summary>
         protected WeakReference? Reference { get; set; }
 
         /// <summary>
-        /// Gets or sets a hard reference.
+        /// Gets or sets a hard reference to this delegate's target (keepTargetAlive ? @delegate.Target : null).
         /// </summary>
-        protected object? LiveReference { get; set; }
+        protected object? HardReference { get; set; }
 
         /// <summary>
         /// Sets the reference that this instance stores to null.
@@ -272,8 +381,8 @@ namespace Arc.WeakDelegate.Original
         public void MarkForDeletion()
         {
             this.Reference = null;
-            this.ActionReference = null;
-            this.LiveReference = null;
+            this.DelegateReference = null;
+            this.HardReference = null;
             this.Method = null;
             this.StaticDelegate = null;
         }
