@@ -45,7 +45,7 @@ namespace Benchmark
             return new WeakFunc<int, int>(this.testClass.TestFunction);
         }
 
-        [Benchmark]
+        /*[Benchmark]
         public int Execute_Direct()
         {
             return this.func(4);
@@ -55,6 +55,6 @@ namespace Benchmark
         public int Execute_WeakFunc()
         {
             return this.weakFunc.Execute(4);
-        }
+        }*/
     }
 }

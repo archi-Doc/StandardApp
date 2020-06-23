@@ -162,7 +162,7 @@ namespace SimpleBenchmark
             new WeakFunc<int, int>(a => a);
             sw.Lap("WeakDelegate a => a");
             new WeakFunc<int, int>(b => b);
-            sw.Lap("WeakDelegate a => a");
+            sw.Lap("WeakDelegate b => b");
             new WeakFunc<string, string>(n => n + "a");
             sw.Lap("WeakDelegate n => n + \"a\"");
             new WeakAction<string>(n => { });
@@ -172,7 +172,13 @@ namespace SimpleBenchmark
             new WeakFunc<uint, uint>(TestDelegate);
             sw.Lap("WeakDelegate TestDelegate 2nd");
 
+            new Arc.WeakDelegate.Original.WeakFunc<int, int>(a => a);
+            sw.Lap("WeakDelegate Original a => a");
+            new Arc.WeakDelegate.Original.WeakFunc<int, int>(b => b);
+            sw.Lap("WeakDelegate Original b => b");
+
             Console.WriteLine(sw.ToSimpleString());
+            Console.WriteLine();
         }
 
         private static uint TestDelegate(uint x)
