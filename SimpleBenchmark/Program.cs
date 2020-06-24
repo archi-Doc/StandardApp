@@ -179,9 +179,14 @@ namespace SimpleBenchmark
             new Arc.WeakDelegate.Original.WeakFunc<int, int>(b => b);
             sw.Lap("WeakDelegate Original b => b");
             new Arc.WeakDelegate.Original.WeakFunc<long, long>(c => c * 2);
+            new Arc.WeakDelegate.Original.WeakFunc<long, long>(c => c * 3);
             sw.Lap("WeakDelegate Original c => c * 2");
             new Arc.WeakDelegate.Original.WeakFunc<string, string>(d => d + "d");
             sw.Lap("WeakDelegate Original d => d * \"d\"");
+            new Arc.WeakDelegate.Original.WeakFunc<uint, uint>(TestDelegate);
+            sw.Lap("WeakDelegate Original TestDelegate");
+            new Arc.WeakDelegate.Original.WeakFunc<uint, uint>(TestDelegate);
+            sw.Lap("WeakDelegate Original TestDelegate 2nd");
 
             Console.WriteLine(sw.ToSimpleString());
             Console.WriteLine();
