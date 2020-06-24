@@ -70,7 +70,9 @@ namespace SimpleBenchmark
             {
                 sb.Append(record.Comment);
                 sb.Append(": ");
-                sb.Append(record.Elapsed.ToString("F6"));
+                var s = String.Format("{0:F1}", record.Elapsed * 1000_000);
+                sb.Append(s);
+                // sb.Append($"{record.Elapsed * 1000:#,0"));
             }
 
             for (n = 0; n < (this.Records.Count - 1); n++)
@@ -176,6 +178,10 @@ namespace SimpleBenchmark
             sw.Lap("WeakDelegate Original a => a");
             new Arc.WeakDelegate.Original.WeakFunc<int, int>(b => b);
             sw.Lap("WeakDelegate Original b => b");
+            new Arc.WeakDelegate.Original.WeakFunc<long, long>(c => c * 2);
+            sw.Lap("WeakDelegate Original c => c * 2");
+            new Arc.WeakDelegate.Original.WeakFunc<string, string>(d => d + "d");
+            sw.Lap("WeakDelegate Original d => d * \"d\"");
 
             Console.WriteLine(sw.ToSimpleString());
             Console.WriteLine();

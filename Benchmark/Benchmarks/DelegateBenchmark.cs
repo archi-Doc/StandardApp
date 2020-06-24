@@ -1,7 +1,7 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using System;
-using Arc.WeakDelegate;
+using Arc.WeakDelegate.Original;
 using BenchmarkDotNet.Attributes;
 
 #pragma warning disable SA1201 // Elements should appear in the correct order
@@ -25,6 +25,7 @@ namespace Benchmark
     {
         private DelegateTestClass testClass = null!;
         private WeakFunc<int, int> weakFunc = null!;
+        private WeakFunc<uint, uint> weakFuncLambda = null!;
         private Func<int, int> func = null!;
 
         public DelegateBenchmark()
@@ -37,6 +38,7 @@ namespace Benchmark
             this.testClass = new DelegateTestClass();
             this.func = this.testClass.TestFunction;
             this.weakFunc = new WeakFunc<int, int>(this.testClass.TestFunction);
+            this.weakFuncLambda = new WeakFunc<uint, uint>(x => x * 3);
         }
 
         [Benchmark]
@@ -45,16 +47,28 @@ namespace Benchmark
             return new WeakFunc<int, int>(this.testClass.TestFunction);
         }
 
+        [Benchmark]
+        public WeakFunc<uint, uint> Prepare_WeakFuncLambda()
+        {
+            return new WeakFunc<uint, uint>(x => x * 3);
+        }
+
         /*[Benchmark]
         public int Execute_Direct()
         {
             return this.func(4);
-        }
+        }*/
 
         [Benchmark]
         public int Execute_WeakFunc()
         {
             return this.weakFunc.Execute(4);
-        }*/
+        }
+
+        [Benchmark]
+        public uint Execute_WeakFuncLambda()
+        {
+            return this.weakFuncLambda.Execute(4);
+        }
     }
 }
