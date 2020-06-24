@@ -198,8 +198,14 @@ namespace SimpleBenchmark
                 // IReconstruct.Reconstruct()
                 try
                 {
-                    var miReconstruct = type.GetInterfaceMap(typeof(Arc.Visceral.IReconstructable)).InterfaceMethods.First(x => x.Name == "Reconstruct");
-                    miReconstruct.Invoke(obj, null);
+                    if (type.GetInterfaces().Contains(typeof(Arc.Visceral.IReconstructable)))
+                    {
+                        var miReconstruct = type.GetInterfaceMap(typeof(Arc.Visceral.IReconstructable)).InterfaceMethods.First(x => x.Name == "Reconstruct");
+                        miReconstruct.Invoke(obj, null);
+                    }
+
+                    // var miReconstruct = type.GetInterfaceMap(typeof(Arc.Visceral.IReconstructable)).InterfaceMethods.First(x => x.Name == "Reconstruct");
+                    // miReconstruct.Invoke(obj, null);
                 }
                 catch
                 {

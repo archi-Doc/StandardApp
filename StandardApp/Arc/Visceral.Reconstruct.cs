@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using FastExpressionCompiler;
 
 #pragma warning disable SA1011 // Closing square brackets should be spaced correctly
 #pragma warning disable SA1204 // Static elements should appear before instance elements
@@ -118,7 +119,7 @@ namespace Arc.Visceral
             return t;
         }
 
-        private static ReconstructFunc<T>? BuildCode<T>()
+        public static ReconstructFunc<T>? BuildCode<T>()
         {
             var type = typeof(T);
             if (type.Namespace?.StartsWith("System") == true)
@@ -202,8 +203,11 @@ namespace Arc.Visceral
             // IReconstruct.Reconstruct()
             try
             {
-                var miReconstruct = type.GetInterfaceMap(typeof(IReconstructable)).InterfaceMethods.First(x => x.Name == "Reconstruct");
-                expressions.Add(Expression.Call(arg, miReconstruct));
+                if (type.GetInterfaces().Contains(typeof(IReconstructable)))
+                {
+                    var miReconstruct = type.GetInterfaceMap(typeof(IReconstructable)).InterfaceMethods.First(x => x.Name == "Reconstruct");
+                    expressions.Add(Expression.Call(arg, miReconstruct));
+                }
             }
             catch
             {
@@ -216,7 +220,7 @@ namespace Arc.Visceral
             var body = Expression.Block(expressions.ToArray());
             var lamda = Expression.Lambda<ReconstructFunc<T>>(body, arg);
 
-            return lamda.Compile(); // faster than lamda.CompileFast().
+            return lamda.CompileFast(); // Alternative: lamda.Compile().
         }
 
         private static class ResolverCache<T>

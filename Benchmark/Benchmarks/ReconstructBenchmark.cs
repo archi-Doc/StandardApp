@@ -58,6 +58,13 @@ namespace Benchmark
         }
 
         [Benchmark]
+        public ReconstructFunc<TestClass>? BuildReconstruct()
+        {
+            var builder = Reconstruct.BuildCode<TestClass>();
+            return builder;
+        }
+
+        [Benchmark]
         public TestClass TestReconstruct()
         {
             Reconstruct.Do(this.tc);

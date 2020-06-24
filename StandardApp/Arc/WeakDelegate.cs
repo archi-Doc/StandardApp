@@ -90,7 +90,7 @@ namespace Arc.WeakDelegate
                         Expression.Convert(targetParam, type),
                         method.Method),
                     targetParam)
-                    .Compile();
+                    .CompileFast();
 
                 lock (delegateCache)
                 {
@@ -171,7 +171,7 @@ namespace Arc.WeakDelegate
                         t),
                     targetParam,
                     t)
-                    .Compile();
+                    .CompileFast();
 
                 lock (delegateCache)
                 {
@@ -249,7 +249,7 @@ namespace Arc.WeakDelegate
                         Expression.Convert(targetParam, type),
                         method.Method),
                     targetParam)
-                    .Compile();
+                    .CompileFast();
 
                 lock (delegateCache)
                 {
@@ -317,7 +317,7 @@ namespace Arc.WeakDelegate
             var type = method.Target.GetType();
             var key = new DelegateKey(method.Target.GetType(), method.Method);
 
-            this.compiledDelegate = delegateCache[key] as Func<object, T, TResult>;
+            // this.compiledDelegate = delegateCache[key] as Func<object, T, TResult>;
             if (this.compiledDelegate == null)
             {
                 var targetParam = Expression.Parameter(typeof(object));
@@ -329,7 +329,7 @@ namespace Arc.WeakDelegate
                         t),
                     targetParam,
                     t)
-                    .Compile();
+                    .CompileFast();
 
                 lock (delegateCache)
                 {

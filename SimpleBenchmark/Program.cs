@@ -70,9 +70,8 @@ namespace SimpleBenchmark
             {
                 sb.Append(record.Comment);
                 sb.Append(": ");
-                var s = String.Format("{0:F1}", record.Elapsed * 1000_000);
+                var s = string.Format("{0:F1}", record.Elapsed * 1000_000);
                 sb.Append(s);
-                // sb.Append($"{record.Elapsed * 1000:#,0"));
             }
 
             for (n = 0; n < (this.Records.Count - 1); n++)
@@ -109,8 +108,8 @@ namespace SimpleBenchmark
             Console.WriteLine();
 
             Startup();
-            Benchmark();
-            Benchmark();
+            Benchmark1();
+            Benchmark1();
         }
 
         private static void Startup()
@@ -133,13 +132,12 @@ namespace SimpleBenchmark
             Console.WriteLine();
         }
 
-        private static void Benchmark()
+        private static void Benchmark1()
         {
             var sw = new Stopwatch();
-            var tc = new TestClass();
-            byte[] b;
 
             sw.Restart();
+            var tc = new TestClass();
             Reconstruct.Do(tc);
             sw.Lap("Reconstruct 1st");
 
@@ -148,18 +146,46 @@ namespace SimpleBenchmark
             sw.Lap("Reconstruct 2nd");
 
             tc = new TestClass();
+            Reconstruct.Do(tc);
+            sw.Lap("Reconstruct 3rd");
+
+            Reconstruct.BuildCode<TestClass>();
+            sw.Lap("Build");
+
+            Reconstruct.BuildCode<TestClass>();
+            sw.Lap("Build");
+
+            Reconstruct.BuildCode<TestClass>();
+            sw.Lap("Build");
+
+            tc = new TestClass();
             object? obj = tc;
             Reflection.Reconstruct(ref obj);
             sw.Lap("Reconstruct Reflection");
 
-            b = MessagePack.MessagePackSerializer.Serialize(tc);
+            Reflection.Reconstruct(ref obj);
+            sw.Lap("Reconstruct Reflection");
+
+            Reflection.Reconstruct(ref obj);
+            sw.Lap("Reconstruct Reflection");
+
+            /*b = MessagePack.MessagePackSerializer.Serialize(tc);
             sw.Lap("MessagePack serialize 1st");
 
             b = MessagePack.MessagePackSerializer.Serialize(tc);
             sw.Lap("MessagePack serialize 2nd");
 
             var tc2 = MessagePack.MessagePackSerializer.Deserialize<TestClass>(b);
-            sw.Lap("MessagePack deserialize");
+            sw.Lap("MessagePack deserialize");*/
+
+            Console.WriteLine(sw.ToSimpleString());
+            Console.WriteLine();
+        }
+
+        private static void Benchmark2()
+        {
+            var sw = new Stopwatch();
+            var tc = new TestClass();
 
             new WeakFunc<int, int>(a => a);
             sw.Lap("WeakDelegate a => a");
@@ -174,7 +200,7 @@ namespace SimpleBenchmark
             new WeakFunc<uint, uint>(TestDelegate);
             sw.Lap("WeakDelegate TestDelegate 2nd");
 
-            new Arc.WeakDelegate.Original.WeakFunc<int, int>(a => a);
+            /* new Arc.WeakDelegate.Original.WeakFunc<int, int>(a => a);
             sw.Lap("WeakDelegate Original a => a");
             new Arc.WeakDelegate.Original.WeakFunc<int, int>(b => b);
             sw.Lap("WeakDelegate Original b => b");
@@ -186,7 +212,7 @@ namespace SimpleBenchmark
             new Arc.WeakDelegate.Original.WeakFunc<uint, uint>(TestDelegate);
             sw.Lap("WeakDelegate Original TestDelegate");
             new Arc.WeakDelegate.Original.WeakFunc<uint, uint>(TestDelegate);
-            sw.Lap("WeakDelegate Original TestDelegate 2nd");
+            sw.Lap("WeakDelegate Original TestDelegate 2nd");*/
 
             Console.WriteLine(sw.ToSimpleString());
             Console.WriteLine();
