@@ -226,7 +226,7 @@ namespace Arc.WinAPI
         /// <summary>
         /// Brings the window into the foreground and activates the window.
         /// </summary>
-        internal static void WakeupWindow(IntPtr hWnd)
+        internal static void ActivateWindow(IntPtr hWnd)
         {
             if (hWnd == IntPtr.Zero)
             {
@@ -246,31 +246,34 @@ namespace Arc.WinAPI
             SetForegroundWindow(hWnd);
         }
 
-        internal static void ForceWindowToForeground(IntPtr hWnd)
+        internal static void ActivateWindowForce(IntPtr hWnd)
         {
             if (hWnd == IntPtr.Zero)
             {
                 return;
             }
 
-            // ウィンドウが最小化されている場合は元に戻す
-            if (IsIconic(hWnd))
+            if (!IsWindowVisible(hWnd))
             {
+                SendMessage(hWnd, 0x0018 /*WM_SHOWWINDOW*/, IntPtr.Zero, new IntPtr(3 /*SW_PARENTOPENING*/));
+            }
+
+            if (IsIconic(hWnd))
+            { // Restore the window if iconic.
                 ShowWindowAsync(hWnd, (int)ShowCommands.SW_RESTORE);
             }
 
-            // AttachThreadInputの準備
-            // フォアグラウンドウィンドウのハンドルを取得
+            // Get a window handle of the foreground window.
             IntPtr forehWnd = GetForegroundWindow();
             if (forehWnd == hWnd)
             {
                 return;
             }
 
-            // フォアグラウンドのスレッドIDを取得
+            // Get a thread id.
             uint foreThread = GetWindowThreadProcessId(forehWnd, out var _);
 
-            // 自分のスレッドIDを収得
+            // Get own thread id.
             uint thisThread = GetCurrentThreadId();
 
             uint timeout = 200000;
@@ -289,7 +292,7 @@ namespace Arc.WinAPI
                 AttachThreadInput(thisThread, foreThread, true);
             }
 
-            // ウィンドウをフォアグラウンドにする処理
+            // Move the window to the top.
             SetForegroundWindow(hWnd);
             SetWindowPos(hWnd, (IntPtr)HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW | SWP_ASYNCWINDOWPOS);
             BringWindowToTop(hWnd);
@@ -302,7 +305,7 @@ namespace Arc.WinAPI
                 // ここでも(SPIF_UPDATEINIFILE | SPIF_SENDCHANGE)は使わない
                 SystemParametersInfoSet(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, timeout, 0);
 
-                // デタッチ
+                // detach
                 AttachThreadInput(thisThread, foreThread, false);
             }
         }

@@ -156,7 +156,7 @@ namespace Application
 
                     if (handle != IntPtr.Zero)
                     {
-                        Arc.WinAPI.Methods.WakeupWindow(handle);
+                        Arc.WinAPI.Methods.ActivateWindow(handle);
                     }
                 }
 

@@ -27,7 +27,8 @@ namespace Arc.Mvvm
         Settings, // settings dialog
         Help, // help
         DisplayScaling, // Update display scaling.
-        MoveForeground, // Bring the window to foreground.
+        ActivateWindow, // Brings the window into the foreground and activates the window.
+        ActivateWindowForce, // Brings the window into the foreground forcibly, and activates the window.
     }
 
     /// <summary>
