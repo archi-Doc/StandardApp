@@ -2,8 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Arc.WeakDelegate;
 
@@ -45,7 +43,7 @@ namespace Arc.CrossChannel
 
     public static class CrossChannel
     {
-        private const int CleanupThreshold = 1; // tempcode: to 16.
+        private const int CleanupThreshold = 16;
 
         private static object cs = new object();
 
@@ -174,7 +172,6 @@ namespace Arc.CrossChannel
                 if (!node.Value.IsAlive && node.Value.ReferenceCount == 0)
                 {
                     CloseChannel(node.Value);
-                    Console.WriteLine("CleanupList(): XChannel closed."); // tempcode: delete.
                 }
 
                 node = nextNode;
@@ -281,46 +278,6 @@ namespace Arc.CrossChannel
             return array;
         }
 
-        /* private static XChannel[] PrepareXChannelArray(LinkedList<XChannel> list, object? targetId)
-        { // lock (cs) required. Convert LinkedList to Array and increment reference count.
-            var array = new XChannel[list.Count];
-            var arrayCount = 0;
-            var node = list.First;
-
-            if (targetId == null)
-            {
-                for (var n = 0; n < list.Count; n++)
-                {
-                    array[n] = node!.Value;
-                    node = node.Next;
-                }
-            }
-            else
-            {
-                for (var n = 0; n < list.Count; n++)
-                {
-                    if (node!.Value.TargetId == targetId)
-                    {
-                        array[arrayCount++] = node!.Value;
-                    }
-
-                    node = node.Next;
-                }
-
-                if (list.Count != arrayCount)
-                {
-                    Array.Resize(ref array, arrayCount);
-                }
-            }
-
-            foreach (var x in array)
-            {
-                x.ReferenceCount++;
-            }
-
-            return array;
-        } */
-
         /*[return: MaybeNull]
         public static TResult Send<TMessage, TResult>(TMessage message, out int numberReceived) => SendTarget<TMessage, TResult>(message, null, out numberReceived);
 
@@ -361,8 +318,23 @@ namespace Arc.CrossChannel
             return result;
         }*/
 
+        /// <summary>
+        /// Send a message to receivers.
+        /// </summary>
+        /// <typeparam name="TMessage">The type of the message.</typeparam>
+        /// <typeparam name="TResult">The type of the return value from receivers.</typeparam>
+        /// <param name="message">The message to send.</param>
+        /// <returns>An array of the return values (TResult).</returns>
         public static TResult[] Send<TMessage, TResult>(TMessage message) => SendTarget<TMessage, TResult>(message, null);
 
+        /// <summary>
+        /// Send a message to receivers.
+        /// </summary>
+        /// <typeparam name="TMessage">The type of the message.</typeparam>
+        /// <typeparam name="TResult">The type of the return value.</typeparam>
+        /// <param name="message">The message to send.</param>
+        /// <param name="targetId">The receiver with the same target id will receive this message. Set null to broadcast.</param>
+        /// <returns>An array of the return values (TResult).</returns>
         public static TResult[] SendTarget<TMessage, TResult>(TMessage message, object? targetId)
         {
             XChannel[] array;
@@ -405,8 +377,21 @@ namespace Arc.CrossChannel
             return results;
         }
 
+        /// <summary>
+        /// Send a message to receivers.
+        /// </summary>
+        /// <typeparam name="TMessage">The type of the message.</typeparam>
+        /// <param name="message">The message to send.</param>
+        /// <returns>A number of the receivers.</returns>
         public static int Send<TMessage>(TMessage message) => SendTarget<TMessage>(message, null);
 
+        /// <summary>
+        /// Send a message to receivers.
+        /// </summary>
+        /// <typeparam name="TMessage">The type of the message.</typeparam>
+        /// <param name="message">The message to send.</param>
+        /// <param name="targetId">The receiver with the same target id will receive this message. Set null to broadcast.</param>
+        /// <returns>A number of the receivers.</returns>
         public static int SendTarget<TMessage>(TMessage message, object? targetId)
         {
             XChannel[] array;
@@ -442,8 +427,23 @@ namespace Arc.CrossChannel
             return numberReceived;
         }
 
+        /// <summary>
+        /// Send a message to receivers asynchronously.
+        /// </summary>
+        /// <typeparam name="TMessage">The type of the message.</typeparam>
+        /// <typeparam name="TResult">The type of the return value from receivers.</typeparam>
+        /// <param name="message">The message to send.</param>
+        /// <returns>A task that represents the completion of all of the sending tasks.</returns>
         public static Task<TResult[]> SendAsync<TMessage, TResult>(TMessage message) => SendTargetAsync<TMessage, TResult>(message, null);
 
+        /// <summary>
+        /// Send a message to receivers asynchronously.
+        /// </summary>
+        /// <typeparam name="TMessage">The type of the message.</typeparam>
+        /// <typeparam name="TResult">The type of the return value from receivers.</typeparam>
+        /// <param name="message">The message to send.</param>
+        /// <param name="targetId">The receiver with the same target id will receive this message. Set null to broadcast.</param>
+        /// <returns>A task that represents the completion of all of the sending tasks.</returns>
         public static Task<TResult[]> SendTargetAsync<TMessage, TResult>(TMessage message, object? targetId)
         {
             XChannel[] array;
@@ -481,8 +481,21 @@ namespace Arc.CrossChannel
             return Task.WhenAll(taskArray);
         }
 
+        /// <summary>
+        /// Send a message to receivers asynchronously.
+        /// </summary>
+        /// <typeparam name="TMessage">The type of the message.</typeparam>
+        /// <param name="message">The message to send.</param>
+        /// <returns>A task that represents the completion of the sending task.</returns>
         public static Task SendAsync<TMessage>(TMessage message) => SendTargetAsync<TMessage>(message, null);
 
+        /// <summary>
+        /// Send a message to receivers asynchronously.
+        /// </summary>
+        /// <typeparam name="TMessage">The type of the message.</typeparam>
+        /// <param name="message">The message to send.</param>
+        /// <param name="targetId">The receiver with the same target id will receive this message. Set null to broadcast.</param>
+        /// <returns>A task that represents the completion of the sending task.</returns>
         public static Task SendTargetAsync<TMessage>(TMessage message, object? targetId)
         {
             XChannel[] array;

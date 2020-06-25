@@ -183,7 +183,8 @@ namespace Test.Reconstruct
         [Fact]
         public void TestInitialResolvers()
         {
-            Arc.Visceral.Reconstruct.InitialResolvers = new IReconstructResolver[] { CustomReconstructResolver.Instance, DefaultReconstructResolver.Instance };
+            Arc.Visceral.Reconstruct.Resolvers = new IReconstructResolver[] { CustomReconstructResolver.Instance, DefaultReconstructResolver.Instance };
+            Arc.Visceral.Reconstruct.RebuildCache<TestClass>(); // Rebuild static cache.
 
             var tc = new TestClass();
             Arc.Visceral.Reconstruct.Do(tc);
@@ -192,6 +193,49 @@ namespace Test.Reconstruct
             Assert.Equal(200, tc.ca!.b);
             Assert.Equal(100, tc.cb.a);
             Assert.Equal(200, tc.cb.b);
+        }
+
+        [Reconstructable]
+        public class CircularClass1
+        {
+            public CircularClass2? Class2 { get; set; }
+        }
+
+        [Reconstructable]
+        public class CircularClass2
+        {
+            public CircularClass1? Class1 { get; set; }
+
+            public CircularClass3? Class3 { get; set; }
+        }
+
+        [Reconstructable]
+        public class CircularClass3
+        {
+            public CircularClass1? Class1 { get; set; }
+
+            public CircularClass3? Class3 { get; set; }
+        }
+
+        [Fact]
+        public void TestCircular()
+        {
+            var cc1 = new CircularClass1();
+            Arc.Visceral.Reconstruct.Do(cc1);
+
+            Assert.NotNull(cc1.Class2);
+            Assert.Null(cc1.Class2!.Class1);
+            Assert.NotNull(cc1.Class2!.Class3);
+            Assert.Null(cc1.Class2!.Class3!.Class1);
+            Assert.Null(cc1.Class2!.Class3!.Class3);
+
+            var cc2 = new CircularClass2();
+            Arc.Visceral.Reconstruct.Do(cc2);
+
+            Assert.Null(cc2.Class1);
+            Assert.NotNull(cc2.Class3);
+            Assert.Null(cc2.Class3!.Class1);
+            Assert.Null(cc2.Class3!.Class3);
         }
     }
 }

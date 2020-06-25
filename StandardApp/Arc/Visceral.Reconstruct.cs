@@ -79,27 +79,18 @@ namespace Arc.Visceral
         {
         }
 
-        /// <summary>
-        /// Gets or sets InitialResolvers (custom resolvers).
-        /// Set InitialResolvers before Reconstruct.Do() is called.
-        /// </summary>
-        public static IReconstructResolver[]? InitialResolvers { get; set; }
-
-        private static IReconstructResolver[] Resolvers // Get Resolver.
+        public static IReconstructResolver[] Resolvers // Get Resolver.
         {
             get
             {
-                if (resolvers == null)
-                { // 1st. InitialResolvers.
-                    resolvers = InitialResolvers;
-                }
-
-                if (resolvers == null)
-                { // 2nd. Default Resolver.
-                    resolvers = new IReconstructResolver[] { DefaultReconstructResolver.Instance };
-                }
-
+                // Default Resolver.
+                resolvers ??= new IReconstructResolver[] { DefaultReconstructResolver.Instance };
                 return resolvers;
+            }
+
+            set
+            {
+                resolvers = value;
             }
         }
 
@@ -121,113 +112,128 @@ namespace Arc.Visceral
 
         public static ReconstructFunc<T>? BuildCode<T>()
         {
-            var type = typeof(T);
-            if (type.Namespace?.StartsWith("System") == true)
+            lock (circularDependencyCheck)
             {
-                return null;
-            }
-
-            circularDependencyCheck.Push(type);
-
-            var info = ObjectInfo.CreateFromType(type);
-            var expressions = new List<Expression>();
-
-            // log Console.WriteLine("cache: " + type.Name);
-            // log expressions.Add(Expression.Call(null, typeof(Console).GetMethod("WriteLine", new Type[] { typeof(String) }), Expression.Constant("reconstruct: " + type.Name)));
-            var arg = Expression.Parameter(type); // type
-            foreach (var member in info.Members.Where(x => x.Type.IsClass && !x.IsStatic))
-            {// Class
-                if (circularDependencyCheck.Contains(member.Type))
-                {// skip (circular dependency).
-                    continue;
+                var type = typeof(T);
+                if (type.Namespace?.StartsWith("System") == true)
+                {
+                    return null;
                 }
 
-                var prop = Expression.PropertyOrField(arg, member.Name);
+                circularDependencyCheck.Push(type);
 
-                if (typeof(IReconstructable).IsAssignableFrom(member.Type) || member.Type.IsDefined(typeof(ReconstructableAttribute), true) || Attribute.IsDefined(member.MemberInfo, typeof(ReconstructableAttribute)))
-                { // If the member implements IReconstructable or ReconstructableAttribute, try to create an instance.
-                    if (member.IsWritable)
-                    {
-                        if (member.Type.GetConstructor(Type.EmptyTypes) != null)
+                var info = ObjectInfo.CreateFromType(type);
+                var expressions = new List<Expression>();
+
+                // log Console.WriteLine("cache: " + type.Name);
+                // log expressions.Add(Expression.Call(null, typeof(Console).GetMethod("WriteLine", new Type[] { typeof(String) }), Expression.Constant("reconstruct: " + type.Name)));
+                var arg = Expression.Parameter(type); // type
+                foreach (var member in info.Members.Where(x => x.Type.IsClass && !x.IsStatic))
+                {// Class
+                    if (circularDependencyCheck.Contains(member.Type))
+                    {// skip (circular dependency).
+                        continue;
+                    }
+
+                    var prop = Expression.PropertyOrField(arg, member.Name);
+
+                    if (typeof(IReconstructable).IsAssignableFrom(member.Type) || member.Type.IsDefined(typeof(ReconstructableAttribute), true) || Attribute.IsDefined(member.MemberInfo, typeof(ReconstructableAttribute)))
+                    { // If the member implements IReconstructable or ReconstructableAttribute, try to create an instance.
+                        if (member.IsWritable)
                         {
-                            var e = Expression.IfThen(
-                                Expression.Equal(prop, Expression.Constant(null)),
-                                Expression.Assign(prop, Expression.New(member.Type)));
-                            expressions.Add(e);
+                            if (member.Type.GetConstructor(Type.EmptyTypes) != null)
+                            {
+                                var e = Expression.IfThen(
+                                    Expression.Equal(prop, Expression.Constant(null)),
+                                    Expression.Assign(prop, Expression.New(member.Type)));
+                                expressions.Add(e);
+                            }
+                            else if (member.Type == typeof(string))
+                            {
+                                expressions.Add(Expression.IfThen(
+                                    Expression.Equal(prop, Expression.Constant(null)),
+                                    Expression.Assign(prop, Expression.Constant(string.Empty))));
+                            }
                         }
-                        else if (member.Type == typeof(string))
+                    }
+
+                    // reconstruct (ResolverCache<T>.Cache?.Invoke(t);).
+                    var memberReconstructorCache = typeof(ResolverCache<>).MakeGenericType(member.Type);
+                    var reconstructorAction = memberReconstructorCache.GetField(nameof(ResolverCache<int>.Cache));
+                    if (reconstructorAction?.GetValue(memberReconstructorCache) != null)
+                    {
+                        expressions.Add(Expression.IfThen(
+                                Expression.NotEqual(prop, Expression.Constant(null)),
+                                Expression.Invoke(Expression.MakeMemberAccess(null, reconstructorAction), prop)));
+                    }
+                }
+
+                foreach (var member in info.Members.Where(x => x.Type.IsStruct() && !x.IsStatic))
+                {// Struct
+                    if (circularDependencyCheck.Contains(member.Type))
+                    {// skip (circular dependency).
+                        continue;
+                    }
+
+                    var prop = Expression.PropertyOrField(arg, member.Name);
+
+                    // reconstruct (ResolverCache<T>.Cache?.Invoke(t);).
+                    var memberReconstructorCache = typeof(ResolverCache<>).MakeGenericType(member.Type);
+                    var reconstructorAction = memberReconstructorCache.GetField(nameof(ResolverCache<int>.Cache));
+                    if (reconstructorAction?.GetValue(memberReconstructorCache) != null)
+                    {
+                        if (member.IsWritable)
                         {
-                            expressions.Add(Expression.IfThen(
-                                Expression.Equal(prop, Expression.Constant(null)),
-                                Expression.Assign(prop, Expression.Constant(string.Empty))));
+                            expressions.Add(Expression.Assign(prop, Expression.Invoke(Expression.MakeMemberAccess(null, reconstructorAction), prop)));
+                        }
+                        else
+                        {
+                            expressions.Add(Expression.Invoke(Expression.MakeMemberAccess(null, reconstructorAction), prop));
                         }
                     }
                 }
 
-                // reconstruct (ResolverCache<T>.Cache?.Invoke(t);).
-                var memberReconstructorCache = typeof(ResolverCache<>).MakeGenericType(member.Type);
-                var reconstructorAction = memberReconstructorCache.GetField(nameof(ResolverCache<int>.Cache));
-                if (reconstructorAction?.GetValue(memberReconstructorCache) != null)
+                // IReconstruct.Reconstruct()
+                try
                 {
-                    expressions.Add(Expression.IfThen(
-                            Expression.NotEqual(prop, Expression.Constant(null)),
-                            Expression.Invoke(Expression.MakeMemberAccess(null, reconstructorAction), prop)));
-                }
-            }
-
-            foreach (var member in info.Members.Where(x => x.Type.IsStruct() && !x.IsStatic))
-            {// Struct
-                if (circularDependencyCheck.Contains(member.Type))
-                {// skip (circular dependency).
-                    continue;
-                }
-
-                var prop = Expression.PropertyOrField(arg, member.Name);
-
-                // reconstruct (ResolverCache<T>.Cache?.Invoke(t);).
-                var memberReconstructorCache = typeof(ResolverCache<>).MakeGenericType(member.Type);
-                var reconstructorAction = memberReconstructorCache.GetField(nameof(ResolverCache<int>.Cache));
-                if (reconstructorAction?.GetValue(memberReconstructorCache) != null)
-                {
-                    if (member.IsWritable)
+                    if (type.GetInterfaces().Contains(typeof(IReconstructable)))
                     {
-                        expressions.Add(Expression.Assign(prop, Expression.Invoke(Expression.MakeMemberAccess(null, reconstructorAction), prop)));
-                    }
-                    else
-                    {
-                        expressions.Add(Expression.Invoke(Expression.MakeMemberAccess(null, reconstructorAction), prop));
+                        var miReconstruct = type.GetInterfaceMap(typeof(IReconstructable)).InterfaceMethods.First(x => x.Name == "Reconstruct");
+                        expressions.Add(Expression.Call(arg, miReconstruct));
                     }
                 }
-            }
-
-            // IReconstruct.Reconstruct()
-            try
-            {
-                if (type.GetInterfaces().Contains(typeof(IReconstructable)))
+                catch
                 {
-                    var miReconstruct = type.GetInterfaceMap(typeof(IReconstructable)).InterfaceMethods.First(x => x.Name == "Reconstruct");
-                    expressions.Add(Expression.Call(arg, miReconstruct));
                 }
+
+                expressions.Add(arg);
+
+                circularDependencyCheck.Pop();
+
+                var body = Expression.Block(expressions.ToArray());
+                var lamda = Expression.Lambda<ReconstructFunc<T>>(body, arg);
+
+                return lamda.CompileFast(); // Alternative: lamda.Compile().
             }
-            catch
-            {
-            }
+        }
 
-            expressions.Add(arg);
-
-            circularDependencyCheck.Pop();
-
-            var body = Expression.Block(expressions.ToArray());
-            var lamda = Expression.Lambda<ReconstructFunc<T>>(body, arg);
-
-            return lamda.CompileFast(); // Alternative: lamda.Compile().
+        public static void RebuildCache<T>()
+        { // Discard the old cache and rebuild cache.
+            ResolverCache<T>.PrepareCache();
         }
 
         private static class ResolverCache<T>
         {
-            public static readonly ReconstructFunc<T>? Cache;
+#pragma warning disable SA1401 // Fields should be private
+            public static ReconstructFunc<T>? Cache;
+#pragma warning restore SA1401 // Fields should be private
 
             static ResolverCache()
+            {
+                PrepareCache();
+            }
+
+            public static void PrepareCache()
             {
                 foreach (var x in Reconstruct.Resolvers)
                 {
