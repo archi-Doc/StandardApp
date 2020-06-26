@@ -236,6 +236,7 @@ namespace Arc.WinAPI
             if (!IsWindowVisible(hWnd))
             {
                 SendMessage(hWnd, 0x0018 /*WM_SHOWWINDOW*/, IntPtr.Zero, new IntPtr(3 /*SW_PARENTOPENING*/));
+                ShowWindowAsync(hWnd, (int)ShowCommands.SW_SHOW);
             }
 
             if (IsIconic(hWnd))
@@ -256,6 +257,7 @@ namespace Arc.WinAPI
             if (!IsWindowVisible(hWnd))
             {
                 SendMessage(hWnd, 0x0018 /*WM_SHOWWINDOW*/, IntPtr.Zero, new IntPtr(3 /*SW_PARENTOPENING*/));
+                ShowWindowAsync(hWnd, (int)ShowCommands.SW_SHOW);
             }
 
             if (IsIconic(hWnd))
