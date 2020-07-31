@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DryIoc.dll" Version="4.2.1" />
+    <PackageReference Include="DryIoc.dll" Version="4.2.5" />
     <PackageReference Include="FastExpressionCompiler" Version="2.0.0" />
     <PackageReference Include="MessagePack" Version="2.1.132-ga39a0f7045" />
     <PackageReference Include="Serilog" Version="2.9.0" />
