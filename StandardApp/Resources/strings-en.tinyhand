@@ -1,0 +1,26 @@
+app.name = null
+app.description = null
+dialog.ok = null
+dialog.cancel = null
+dialog.yes = null
+dialog.no = null
+dialog.exit = null
+
+// settings
+settings.title = null
+settings.tab.general = null
+settings.tab.information = null
+settings.language = null
+settings.displayscaling = null
+
+// other
+language.en = null
+language.ja = null
+
+button = null
+button.settings = null
+tooltip.button = null
+tooltip.sample = null
+dialog.message = null
+
+time.text = null

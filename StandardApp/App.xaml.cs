@@ -124,6 +124,8 @@ namespace Application
         private static void Main()
         {
             // C4
+            var element = Arc.Tinyhand.TinyhandParser.Parse("");
+
             try
             {
                 App.C4.LoadAssembly("ja", "Resources.license.xml"); // license
