@@ -4,39 +4,47 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Threading;
 using System.Xml.Linq;
+using Arc.Tinyhand;
+using Arc.Tinyhand.Object;
 
 namespace Arc.Text
 {
     public class C4
     {
+        public const int MaxIdLength = 256; // The maximum length of an identifier.
+        public const int MaxTextLength = 16 * 1024; // The maximum length of a text.
+        public const int MaxSize = 4 * 1024 * 1024; // Max data size, 4MB
+
         private object cs; // critical section
-        private Utf16Hashtable<string> currentCultureTable; // Current culture data (name, string).
-        private Utf16Hashtable<string> defaultCultureTable; // Default culture data (name, string).
-        private Utf16Hashtable<Utf16Hashtable<string>> cultureTable; // Culture and data (culture, Utf16Hashtable<string>).
-        private string? currentCulture; // Current culture
+        private Utf16Hashtable<string> currentCultureTable; // Current culture data (name to string).
+        private Utf16Hashtable<string> defaultCultureTable; // Default culture data (name to string).
+        private Utf16Hashtable<Utf16Hashtable<string>> cultureTable; // Culture and data (culture to Utf16Hashtable<string>).
+        private string defaultCulture; // Default culture
+        private CultureInfo currentCulture;
 
         public C4()
         {
-            this.cs = new object(); // critical section
+            this.cs = new object();
 
             var table = new Utf16Hashtable<string>();
             this.currentCultureTable = table;
             this.defaultCultureTable = table;
+            this.defaultCulture = this.DefaultCulture;
+            this.currentCulture = new CultureInfo(this.DefaultCulture);
+
             this.cultureTable = new Utf16Hashtable<Utf16Hashtable<string>>();
+            this.cultureTable.TryAdd(this.currentCulture.Name, table);
         }
 
         public static C4 Instance { get; } = new C4();
 
+        public string DefaultCulture => "en-US";
+
         public string ErrorText => "C4 error"; // Error message.
 
-        public int MaxIdLength => 256; // The maximum length of a identifier.
-
-        public int MaxTextLength => 16 * 1024; // The maximum length of a text.
-
-        public uint MaxSize => 4 * 1024 * 1024; // Max data size, 4MB
-
-        public CultureInfo? CurrentCulture { get; private set; }
+        public CultureInfo CurrentCulture => this.currentCulture;
 
         /// <summary>
         /// Get a string that matches the identifier.
@@ -58,7 +66,7 @@ namespace Arc.Text
                     return result;
                 }
 
-                if (this.defaultCultureTable.TryGetValue(identifier, out result))
+                if (this.currentCultureTable != this.defaultCultureTable && this.defaultCultureTable.TryGetValue(identifier, out result))
                 {
                     return result;
                 }
@@ -85,7 +93,7 @@ namespace Arc.Text
                 return result;
             }
 
-            if (this.defaultCultureTable.TryGetValue(identifier, out result))
+            if (this.currentCultureTable != this.defaultCultureTable && this.defaultCultureTable.TryGetValue(identifier, out result))
             {
                 return result;
             }
@@ -93,40 +101,93 @@ namespace Arc.Text
             return null;
         }
 
-        public void Load(string culture, string filename, bool clearFlag = false)
-        { // clearFlag 1:clear data
-            // Exception: ArgumentException, FileNotFoundException, OverflowException
-            // Exception: InvalidDataException
-            if (filename == null)
-            {
-                throw new ArgumentException();
-            }
+        public string ConvertToCultureName(string name) => name switch
+        {
+            "ja" => "ja-JP",
+            "en" => "en-US",
+            _ => name,
+        };
 
-            try
+        /// <summary>
+        /// Set the default culture.
+        /// </summary>
+        /// <param name="defaultCulture">A string of the default culture.</param>
+        public void SetDefaultCulture(string defaultCulture)
+        {
+            defaultCulture = this.ConvertToCultureName(defaultCulture);
+
+            lock (this.cs)
             {
-                using (var fs = File.OpenRead(filename))
+                this.defaultCulture = defaultCulture;
+
+                Utf16Hashtable<string>? table = null;
+                if (!this.cultureTable.TryGetValue(defaultCulture, out table))
                 {
-                    lock (this.cs)
-                    {
-                        this.Load(culture, fs, clearFlag);
-                    }
+                    table = new Utf16Hashtable<string>();
                 }
-            }
-            catch (FileNotFoundException e)
-            {
-                throw e;
+
+                Volatile.Write(ref this.defaultCultureTable, table);
             }
         }
 
-        public void LoadStream(string culture, Stream stream, bool clearFlag = false)
-        { // flag 1:clear data
-            // Exception: ArgumentException, FileNotFoundException, OverflowException
-            // Exception: InvalidDataException
-            if (stream == null)
+        /// <summary>
+        /// Change culture.
+        /// </summary>
+        /// <param name="cultureName">The culture name.</param>
+        public void ChangeCulture(string cultureName)
+        {
+            cultureName = this.ConvertToCultureName(cultureName);
+
+            if (cultureName == this.CurrentCulture.Name)
             {
-                throw new ArgumentException();
+                return;
             }
 
+            var cultureInfo = new CultureInfo(cultureName);
+
+            lock (this.cs)
+            {
+                if (!this.cultureTable.TryGetValue(cultureName, out var table))
+                {
+                    throw new CultureNotFoundException();
+                }
+
+                Volatile.Write(ref this.currentCultureTable, table);
+                Volatile.Write(ref this.currentCulture, cultureInfo);
+            }
+        }
+
+        /// <summary>
+        /// Get a name of the current culture.
+        /// </summary>
+        /// <returns>A name of the current culture.</returns>
+        public string GetCulture() => this.CurrentCulture.Name;
+
+        /// <summary>
+        /// Load from a file.
+        /// </summary>
+        /// <param name="culture">The target culture.</param>
+        /// <param name="fileName">The file name.</param>
+        /// <param name="clearFlag">Clear the string data and reload.</param>
+        public void Load(string culture, string fileName, bool clearFlag = false)
+        {
+            using (var fs = File.OpenRead(fileName))
+            {
+                lock (this.cs)
+                {
+                    this.Load(culture, fs, clearFlag);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Load from stream.
+        /// </summary>
+        /// <param name="culture">The target culture.</param>
+        /// <param name="stream">Stream.</param>
+        /// <param name="clearFlag">Clear the string data and reload.</param>
+        public void LoadStream(string culture, Stream stream, bool clearFlag = false)
+        {
             lock (this.cs)
             {
                 this.Load(culture, stream, clearFlag);
@@ -139,7 +200,7 @@ namespace Arc.Text
         /// </summary>
         /// <param name="culture">The target culture.</param>
         /// <param name="assemblyname">The assembly name.</param>
-        /// <param name="clearFlag">Initialize string data and load.</param>
+        /// <param name="clearFlag">Clear the string data and reload.</param>
         public void LoadAssembly(string culture, string assemblyname, bool clearFlag = false)
         {
             var asm = System.Reflection.Assembly.GetExecutingAssembly();
@@ -158,152 +219,39 @@ namespace Arc.Text
         }
 #endif
 
-        /// <summary>
-        /// Set the default culture.
-        /// </summary>
-        /// <param name="defaultCulture">A string of the default culture.</param>
-        public void SetDefaultCulture(string defaultCulture)
-        {
-            lock (this.cs)
-            {
-                this.defaultCultureTable = this.cultureTable[defaultCulture];
-                if (this.currentCultureTable == null)
-                {
-                    this.currentCultureTable = this.defaultCultureTable;
-                }
-            }
-        }
-
-        public void SetCulture(string culture)
-        { // set current culture. cultureが見つからない場合は、KeyNotFoundException
-            string ci;
-            switch (culture)
-            {
-                case "ja":
-                    ci = "ja-JP";
-                    break;
-                case "en":
-                    ci = "en-US";
-                    break;
-                default:
-                    ci = culture;
-                    break;
-            }
-
-            this.CurrentCulture = new CultureInfo(ci);
-
-            lock (this.cs)
-            {
-                try
-                {
-                    this.currentCultureTable = this.cultureTable[culture];
-                    this.currentCulture = culture;
-                }
-                catch (KeyNotFoundException e)
-                {
-                    throw e;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Get current culture.
-        /// </summary>
-        /// <param name="culture">culture</param>
-        public void GetCulture(out string? culture)
-        {
-            lock (this.cs)
-            {
-                culture = this.currentCulture;
-            }
-        }
-
-        public void SetErrorText(string text)
-        { // set error text.  データが見つからないときのメッセージを設定する。
-            if (text == null)
-            {
-                throw new ArgumentException();
-            }
-
-            lock (this.cs)
-            {
-                this.ErrorText = text;
-            }
-        }
-
         private void Load(string culture, Stream stream, bool clearFlag)
-        { // load xml
-            if (stream.Length > this.MaxSize)
+        {
+            if (stream.Length > MaxSize)
             {
                 throw new OverflowException();
             }
 
-            if (culture.Length > this.MaxIdLength)
+            using var ms = new MemoryStream();
+            stream.CopyTo(ms);
+            var group = (Group)TinyhandParser.Parse(ms.ToArray());
+
+            Utf16Hashtable<string>? table = null;
+            if (!this.cultureTable.TryGetValue(culture, out table))
             {
-                throw new OverflowException();
+                table = new Utf16Hashtable<string>();
+                Volatile.Write(ref this.currentCultureTable, table);
+            }
+            else if (clearFlag)
+            {// Clear
             }
 
-            Dictionary<string, string>? data;
-            this.cultureTable.TryGetValue(culture, out data); // get culture data
-            if (data == null)
+            foreach (var x in group)
             {
-                data = new Dictionary<string, string>();
-                this.cultureTable[culture] = data;
-            }
-            else
-            {
-                if (clearFlag)
-                { // clear
-                    data.Clear();
-                }
-            }
-
-            // var doc = new XmlDocument();
-            try
-            {
-                // doc.Load(stream);
-                var root = XElement.Load(stream);
-                foreach (var x in root.Elements("string"))
+                if (x.TryGetLeft_Identifier(out var identifier))
                 {
-                    this.LoadString2(data, x);
+                    if (x.TryGetRight_Value_String(out var valueString) && valueString.ValueStringUtf16.Length <= MaxTextLength)
+                    {
+                        table.TryAdd(System.Text.Encoding.UTF8.GetString(identifier), valueString.ValueStringUtf16);
+                    }
                 }
-            }
-            catch
-            {
-                throw new InvalidDataException();
             }
 
             return;
-        }
-
-        private void LoadString2(Dictionary<string, string> data, XElement element)
-        {
-            // get text
-            /*foreach(var node in element.Nodes())
-            {
-                if ((node.NodeType == XmlNodeType.Text) || (node.NodeType == XmlNodeType.CDATA))
-                {
-                    text = node.Value;
-                    goto _load_string_get;
-                }
-            }*/
-            var text = element.Value;
-
-            // get name
-            var name = element.Attribute("name")?.Value;
-            if (name == null)
-            {// no name
-                return;
-            }
-
-            // check text length
-            if (text.Length > this.MaxTextLength)
-            {
-                return;
-            }
-
-            // set
-            data[name] = text;
         }
     }
 }

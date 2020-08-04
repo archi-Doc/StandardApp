@@ -12,7 +12,9 @@
 
   <ItemGroup>
     <None Remove="Resources\license.xml" />
+    <None Remove="Resources\strings-en.tinyhand" />
     <None Remove="Resources\strings-en.xml" />
+    <None Remove="Resources\strings-ja.tinyhand" />
     <None Remove="Resources\strings-ja.xml" />
   </ItemGroup>
 
@@ -22,7 +24,9 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\license.xml" />
+    <EmbeddedResource Include="Resources\strings-en.tinyhand" />
     <EmbeddedResource Include="Resources\strings-en.xml" />
+    <EmbeddedResource Include="Resources\strings-ja.tinyhand" />
     <EmbeddedResource Include="Resources\strings-ja.xml" />
   </ItemGroup>
 

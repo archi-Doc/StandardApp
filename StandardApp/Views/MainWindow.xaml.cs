@@ -95,7 +95,7 @@ namespace StandardApp.Views
                         App.Settings.Culture = "ja";
                     }
 
-                    App.C4.SetCulture(App.Settings.Culture);
+                    App.C4.ChangeCulture(App.Settings.Culture);
                     Arc.WPF.C4Updater.C4Update();
                 }
                 else if (id == MessageId.Exit)

@@ -123,14 +123,11 @@ namespace Application
         [STAThread]
         private static void Main()
         {
-            // C4
-            var element = Arc.Tinyhand.TinyhandParser.Parse("");
-
             try
             {
-                App.C4.LoadAssembly("ja", "Resources.license.xml"); // license
-                App.C4.LoadAssembly("ja", "Resources.strings-ja.xml");
-                App.C4.LoadAssembly("en", "Resources.strings-en.xml");
+                // App.C4.LoadAssembly("ja", "Resources.license.xml"); // license
+                App.C4.LoadAssembly("ja", "Resources.strings-ja.tinyhand");
+                App.C4.LoadAssembly("en", "Resources.strings-en.tinyhand");
                 App.C4.SetDefaultCulture(AppConst.DefaultCulture); // default culture
             }
             catch
@@ -185,7 +182,7 @@ namespace Application
             // Set culture
             try
             {
-                App.C4.SetCulture(App.Settings.Culture);
+                App.C4.ChangeCulture(App.Settings.Culture);
             }
             catch
             {
