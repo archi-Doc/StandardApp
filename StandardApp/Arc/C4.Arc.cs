@@ -231,24 +231,31 @@ namespace Arc.Text
             var group = (Group)TinyhandParser.Parse(ms.ToArray());
 
             Utf16Hashtable<string>? table = null;
+            culture = this.ConvertToCultureName(culture);
             if (!this.cultureTable.TryGetValue(culture, out table))
             {
                 table = new Utf16Hashtable<string>();
-                Volatile.Write(ref this.currentCultureTable, table);
+                this.cultureTable.TryAdd(culture, table);
             }
             else if (clearFlag)
             {// Clear
+                table.Clear();
             }
 
             foreach (var x in group)
             {
-                if (x.TryGetLeft_Identifier(out var identifier))
+                if (x.TryGetLeft_IdentifierUtf16(out var identifier))
                 {
                     if (x.TryGetRight_Value_String(out var valueString) && valueString.ValueStringUtf16.Length <= MaxTextLength)
                     {
-                        table.TryAdd(System.Text.Encoding.UTF8.GetString(identifier), valueString.ValueStringUtf16);
+                        table.TryAdd(identifier, valueString.ValueStringUtf16);
                     }
                 }
+            }
+
+            if (culture == this.defaultCulture)
+            {
+                Volatile.Write(ref this.defaultCultureTable, table);
             }
 
             return;

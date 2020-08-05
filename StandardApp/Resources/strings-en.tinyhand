@@ -1,26 +1,27 @@
+// identifier = "string" // null: Use default value.
 app.name = null
 app.description = null
-dialog.ok = null
-dialog.cancel = null
-dialog.yes = null
-dialog.no = null
-dialog.exit = null
+dialog.ok = "OK"
+dialog.cancel = "Cancel"
+dialog.yes = "Yes"
+dialog.no = "No"
+dialog.exit = "Are you sure you want to exit?"
 
 // settings
-settings.title = null
-settings.tab.general = null
-settings.tab.information = null
-settings.language = null
-settings.displayscaling = null
+settings.title = "Settings/Info"
+settings.tab.general = "General"
+settings.tab.information = "Information"
+settings.language = "Language"
+settings.displayscaling = "Scaling"
 
 // other
-language.en = null
-language.ja = null
+language.en = "English (英語）"
+language.ja = "Japanese (日本語)"
 
-button = null
-button.settings = null
-tooltip.button = null
-tooltip.sample = null
-dialog.message = null
+button = "Notification message"
+button.settings = "Settings"
+tooltip.button = "This is a button."
+tooltip.sample = "Sample"
+dialog.message = "Yes or no?"
 
-time.text = null
+time.text = "Current time is {0:MM/dd H:mm:ss}."

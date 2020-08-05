@@ -14,7 +14,7 @@ namespace Arc.Text
     { // HashTable for UTF-8 (ReadOnlySpan<byte>).
         private readonly object cs = new object();
 
-        private Item[] hashTable;
+        private Item?[] hashTable;
         private uint numberOfItems;
 
         public Utf16Hashtable(uint capacity = 4)
@@ -40,6 +40,17 @@ namespace Arc.Text
 
             // replace field(threadsafe for read)
             System.Threading.Volatile.Write(ref this.hashTable, nextTable);
+        }
+
+        public void Clear()
+        {
+            lock (this.cs)
+            {
+                for (var n = 0; n < this.hashTable.Length; n++)
+                {
+                    System.Threading.Volatile.Write(ref this.hashTable[n], null);
+                }
+            }
         }
 
         private bool AddItem(Item[] table, Item item)
@@ -110,7 +121,7 @@ namespace Arc.Text
             }
             else
             {
-                var i = table[h];
+                var i = table[h]!;
                 while (true)
                 {
                     if (key.SequenceEqual(i.Key) == true)
@@ -169,7 +180,7 @@ namespace Arc.Text
             }
             else
             {
-                var i = table[h];
+                var i = table[h]!;
                 while (true)
                 {
                     if (key.SequenceEqual(i.Key) == true)
