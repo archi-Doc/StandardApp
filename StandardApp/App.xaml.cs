@@ -126,7 +126,7 @@ namespace Application
             try
             {
                 App.C4.SetDefaultCulture(AppConst.DefaultCulture); // default culture
-                // App.C4.LoadAssembly("ja", "Resources.license.xml"); // license
+                App.C4.LoadAssembly("ja", "Resources.license.tinyhand"); // license
                 App.C4.LoadAssembly("ja", "Resources.strings-ja.tinyhand");
                 App.C4.LoadAssembly("en", "Resources.strings-en.tinyhand");
             }
