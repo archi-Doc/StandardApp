@@ -3,6 +3,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Media;
@@ -48,7 +49,7 @@ namespace Application
 
         public static AppOptions Options { get; private set; } = default!;
 
-        public static FileVersionInfo Version { get; private set; } = default!;
+        public static string Version { get; private set; } = default!;
 
         public static string Title { get; private set; } = default!;
 
@@ -135,9 +136,8 @@ namespace Application
             }
 
             // Version, Title
-            System.Reflection.Assembly asm = System.Reflection.Assembly.GetExecutingAssembly();
-            Version = FileVersionInfo.GetVersionInfo(asm.Location);
-            Title = App.C4["app.name"] + " " + App.Version.FileMajorPart.ToString() + "." + App.Version.FileMinorPart.ToString();
+            Version = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? string.Empty;
+            Title = App.C4["app.name"] + " " + App.Version;
 
             // Prevents multiple instances.
             if (!appMutex.WaitOne(0, false))
