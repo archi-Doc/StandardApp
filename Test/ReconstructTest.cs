@@ -1,6 +1,6 @@
 // Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
-using Arc.Visceral;
+using Arc.Visceral.Obsolete;
 using Xunit;
 
 #pragma warning disable SA1201 // Elements should appear in the correct order
@@ -119,24 +119,24 @@ namespace Test.Reconstruct
         public void Test2()
         {
             var ec = new EmptyClass();
-            Arc.Visceral.Reconstruct.Do(ec);
+            Arc.Visceral.Obsolete.Reconstruct.Do(ec);
 
             var ec2 = new EmptyClass2();
-            Arc.Visceral.Reconstruct.Do(ec2);
+            Arc.Visceral.Obsolete.Reconstruct.Do(ec2);
 
             var tc = new TestClass2();
-            Arc.Visceral.Reconstruct.Do(tc);
+            Arc.Visceral.Obsolete.Reconstruct.Do(tc);
         }
 
         [Fact]
         public void Test1()
         {
             var tc = new TestClass();
-            var tc2 = Arc.Visceral.Reconstruct.Do(tc);
+            var tc2 = Arc.Visceral.Obsolete.Reconstruct.Do(tc);
 
             tc.cs.a = 5;
             tc.cs.b = 6;
-            tc.cs = Arc.Visceral.Reconstruct.Do(tc.cs);
+            tc.cs = Arc.Visceral.Obsolete.Reconstruct.Do(tc.cs);
 
             Assert.Equal(0, tc.x);
             Assert.Equal(string.Empty, tc.y);
@@ -183,11 +183,11 @@ namespace Test.Reconstruct
         [Fact]
         public void TestInitialResolvers()
         {
-            Arc.Visceral.Reconstruct.Resolvers = new IReconstructResolver[] { CustomReconstructResolver.Instance, DefaultReconstructResolver.Instance };
-            Arc.Visceral.Reconstruct.RebuildCache<TestClass>(); // Rebuild static cache.
+            Arc.Visceral.Obsolete.Reconstruct.Resolvers = new IReconstructResolver[] { CustomReconstructResolver.Instance, DefaultReconstructResolver.Instance };
+            Arc.Visceral.Obsolete.Reconstruct.RebuildCache<TestClass>(); // Rebuild static cache.
 
             var tc = new TestClass();
-            Arc.Visceral.Reconstruct.Do(tc);
+            Arc.Visceral.Obsolete.Reconstruct.Do(tc);
 
             Assert.Equal(100, tc.ca!.a);
             Assert.Equal(200, tc.ca!.b);
@@ -221,7 +221,7 @@ namespace Test.Reconstruct
         public void TestCircular()
         {
             var cc1 = new CircularClass1();
-            Arc.Visceral.Reconstruct.Do(cc1);
+            Arc.Visceral.Obsolete.Reconstruct.Do(cc1);
 
             Assert.NotNull(cc1.Class2);
             Assert.Null(cc1.Class2!.Class1);
@@ -230,7 +230,7 @@ namespace Test.Reconstruct
             Assert.Null(cc1.Class2!.Class3!.Class3);
 
             var cc2 = new CircularClass2();
-            Arc.Visceral.Reconstruct.Do(cc2);
+            Arc.Visceral.Obsolete.Reconstruct.Do(cc2);
 
             Assert.Null(cc2.Class1);
             Assert.NotNull(cc2.Class3);
