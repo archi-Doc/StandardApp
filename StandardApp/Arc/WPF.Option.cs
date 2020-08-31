@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using Arc.Mvvm;
-using Arc.Visceral;
+using Arc.Visceral.Obsolete;
 using MessagePack;
 
 #pragma warning disable SA1649 // File name should match first type name

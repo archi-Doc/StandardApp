@@ -10,7 +10,7 @@ using FastExpressionCompiler;
 #pragma warning disable SA1204 // Static elements should appear before instance elements
 #pragma warning disable SA1649 // File name should match first type name
 
-namespace Arc.Visceral
+namespace Arc.Visceral.Obsolete
 {
     /// <summary>
     /// Reconstruct delegate.

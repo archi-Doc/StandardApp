@@ -11,16 +11,23 @@ using BenchmarkDotNet.Attributes;
 namespace Benchmark
 {
     [Reconstructable]
-    public class ChildClass
+    [Arc.Visceral.Obsolete.Reconstructable]
+    public partial class ChildClass
     {
         public int a;
         public int b;
     }
 
-    public class ChildClass2 : IReconstructable
+    public partial class ChildClass2 : IReconstructable, Arc.Visceral.Obsolete.IReconstructable
     {
         public int a2;
         public int b2;
+
+        public void OnAfterReconstruct()
+        {
+            this.a2 = 2;
+            this.b2 = 3;
+        }
 
         public void Reconstruct()
         {
@@ -29,13 +36,17 @@ namespace Benchmark
         }
     }
 
-    public class TestClass : IReconstructable
+    public partial class TestClass : IReconstructable, Arc.Visceral.Obsolete.IReconstructable
     {
         public int x;
         public string? y;
         public ChildClass? ca;
         public ChildClass cb = default!;
         public ChildClass2 cc = default!;
+
+        public void OnAfterReconstruct()
+        {
+        }
 
         public void Reconstruct()
         {
@@ -49,6 +60,7 @@ namespace Benchmark
 
         public ReconstructTest()
         {
+            ReconstructLoader.Load();
         }
 
         [GlobalSetup]
@@ -58,10 +70,19 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public ReconstructFunc<TestClass>? BuildReconstruct()
+        public Arc.Visceral.Obsolete.ReconstructFunc<TestClass>? BuildReconstruct()
         {
-            var builder = Reconstruct.BuildCode<TestClass>();
+            var builder = Arc.Visceral.Obsolete.Reconstruct.BuildCode<TestClass>();
             return builder;
+        }
+
+        [Benchmark]
+        public TestClass TestReconstruct_Obsolete()
+        {
+            Arc.Visceral.Obsolete.Reconstruct.Do(this.tc);
+            this.tc.cc.a2 = -1;
+            Arc.Visceral.Obsolete.Reconstruct.Do(this.tc);
+            return this.tc;
         }
 
         [Benchmark]
@@ -80,8 +101,8 @@ namespace Benchmark
             if (this.tc.ca == null) this.tc.ca = new ChildClass();
             if (this.tc.cb == null) this.tc.cb = new ChildClass();
             if (this.tc.cc == null) this.tc.cc = new ChildClass2();
-            this.tc.cc.Reconstruct();
-            this.tc.Reconstruct();
+            this.tc.cc.OnAfterReconstruct();
+            this.tc.OnAfterReconstruct();
 
             this.tc.cc.a2 = -1;
 
@@ -89,8 +110,8 @@ namespace Benchmark
             if (this.tc.ca == null) this.tc.ca = new ChildClass();
             if (this.tc.cb == null) this.tc.cb = new ChildClass();
             if (this.tc.cc == null) this.tc.cc = new ChildClass2();
-            this.tc.cc.Reconstruct();
-            this.tc.Reconstruct();
+            this.tc.cc.OnAfterReconstruct();
+            this.tc.OnAfterReconstruct();
 
             return this.tc;
         }

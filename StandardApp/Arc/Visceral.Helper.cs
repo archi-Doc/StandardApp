@@ -6,7 +6,7 @@ using System.Reflection;
 
 #pragma warning disable SA1649 // File name should match first type name
 
-namespace Arc.Visceral
+namespace Arc.Visceral.Obsolete
 {
     internal static class ReflectionExtensions
     {

@@ -8,7 +8,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
 using Arc.Text;
-using Arc.Visceral;
+using Arc.Visceral.Obsolete;
 using Arc.WinAPI;
 using Arc.WPF;
 using DryIoc; // alternative: SimpleInjector
