@@ -8,6 +8,7 @@
     <Nullable>enable</Nullable>
     <StartupObject>Application.App</StartupObject>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Version>0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
