@@ -349,13 +349,14 @@ namespace Application
     { // Application Options
         public AppOptions()
         {
+            // this.MemberNotNull();
         }
 
         [Key(0)]
-        public BrushOption BrushTest { get; set; } = new BrushOption();
+        public BrushOption BrushTest { get; set; } = default!;
 
         [Key(1)]
-        public BrushCollection BrushCollection { get; set; } = new BrushCollection(); // Brush Collection
+        public BrushCollection BrushCollection { get; set; } = default!; // Brush Collection
 
         public void Reconstruct()
         {
