@@ -14,6 +14,11 @@ namespace Arc.Visceral
         {
             return propertyInfo.GetIndexParameters().Length > 0;
         }
+
+        public static bool IsStruct(this System.Type type)
+        {
+            return type.IsValueType && !type.IsEnum && !type.IsPrimitive;
+        }
     }
 
     internal class ObjectMember
