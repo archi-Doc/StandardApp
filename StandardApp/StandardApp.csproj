@@ -37,11 +37,13 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Tinyhand" Version="0.1.0" />
+    <PackageReference Include="Tinyhand" Version="0.1.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\StandardLib\StandardLib.csproj" />
+    <ProjectReference Include="..\StandardLib\StandardLib.csproj">
+      <Aliases></Aliases>
+    </ProjectReference>
   </ItemGroup>
 
 </Project>
