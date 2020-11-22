@@ -6,8 +6,8 @@ using System.Globalization;
 using System.IO;
 using System.Threading;
 using System.Xml.Linq;
-using Arc.Tinyhand;
-using Arc.Tinyhand.Object;
+using Tinyhand;
+using Tinyhand.Tree;
 
 namespace Arc.Text
 {

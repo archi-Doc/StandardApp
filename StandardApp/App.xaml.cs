@@ -9,18 +9,22 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
 using Arc.Text;
-using Arc.Visceral.Obsolete;
 using Arc.WinAPI;
 using Arc.WPF;
 using DryIoc; // alternative: SimpleInjector
-using MessagePack;
 using Serilog;
 using StandardApp;
 using StandardApp.Views;
 using StandardApp.ViewServices;
+using Tinyhand;
 
 #pragma warning disable SA1202 // Elements should be ordered by access
+#pragma warning disable SA1401 // Fields should be private
+#pragma warning disable SA1402
+#pragma warning disable SA1402 // File may only contain a single type
 #pragma warning disable SA1649 // File name should match first type name
+#pragma warning disable SA1600 // Elements should be documented
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
 namespace Application
 {
@@ -252,19 +256,14 @@ namespace Application
         }
     }
 
-    [MessagePackObject]
-    [Reconstructable]
-    public class AppData
+    [TinyhandObject]
+    public partial class AppData
     {
-#pragma warning disable SA1401 // Fields should be private
-
         [Key(0)]
         public AppSettings Settings = default!;
 
         [Key(1)]
         public AppOptions Options = default!;
-
-#pragma warning restore SA1401 // Fields should be private
 
         public AppData()
         {
@@ -285,7 +284,7 @@ namespace Application
             {
                 using (var fs = File.OpenRead(AppConst.AppDataFile))
                 {
-                    appData = MessagePackSerializer.Deserialize<AppData>(fs, MessagePackSerializerOptions.Standard.WithCompression(MessagePackCompression.Lz4BlockArray));
+                    appData = TinyhandSerializer.Deserialize<AppData>(fs);
                 }
             }
             catch
@@ -295,10 +294,9 @@ namespace Application
 
             if (appData == null)
             {
-                appData = new AppData();
+                appData = TinyhandSerializer.Reconstruct<AppData>();
             }
 
-            Reconstruct.Do(appData);
             appData.Settings.LoadError = loadError;
 
             return appData;
@@ -308,7 +306,7 @@ namespace Application
         {
             try
             {
-                var bytes = MessagePackSerializer.Serialize(this, MessagePackSerializerOptions.Standard.WithCompression(MessagePackCompression.Lz4BlockArray));
+                var bytes = TinyhandSerializer.Serialize(this);
                 using (var fs = File.Create(AppConst.AppDataFile))
                 {
                     fs.Write(bytes.AsSpan());
@@ -320,14 +318,13 @@ namespace Application
         }
     }
 
-    [MessagePackObject]
-    public class AppSettings : IReconstructable
+    [TinyhandObject]
+    public partial class AppSettings : ITinyhandSerializationCallback
     {// Application Settings
         [Key(0)]
         public bool LoadError { get; set; } // True if a loading error has occured.
 
         [Key(1)]
-        [Reconstructable]
         public DipWindowPlacement WindowPlacement { get; set; } = default!;
 
         [Key(2)]
@@ -336,15 +333,19 @@ namespace Application
         [Key(3)]
         public double DisplayScaling { get; set; } = 1.0d; // Display Scaling
 
-        public void Reconstruct()
+        public void OnAfterDeserialize()
         {
             Transformer.Instance.ScaleX = this.DisplayScaling;
             Transformer.Instance.ScaleY = this.DisplayScaling;
         }
+
+        public void OnBeforeSerialize()
+        {
+        }
     }
 
-    [MessagePackObject]
-    public class AppOptions : IReconstructable
+    [TinyhandObject]
+    public partial class AppOptions
     { // Application Options
         public AppOptions()
         {
@@ -362,8 +363,8 @@ namespace Application
         }
     }
 
-    [MessagePackObject]
-    public class BrushCollection : IReconstructable
+    [TinyhandObject]
+    public partial class BrushCollection : ITinyhandSerializationCallback
     {
         [Key(0)]
         public BrushOption Brush1 { get; set; } = null!;
@@ -376,7 +377,11 @@ namespace Application
             }
         }
 
-        public void Reconstruct()
+        public void OnBeforeSerialize()
+        {
+        }
+
+        public void OnAfterDeserialize()
         {
             this.Brush1.Prepare(Colors.BurlyWood);
         }

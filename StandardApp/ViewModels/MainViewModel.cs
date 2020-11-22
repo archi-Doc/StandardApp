@@ -100,8 +100,11 @@ namespace StandardApp
                 return (this.commandMessageId != null) ? this.commandMessageId : this.commandMessageId = new DelegateCommand<string>(
                     (param) =>
                     { // execute
-                        var id = (MessageId)Enum.Parse(typeof(MessageId), param);
-                        this.ViewService.MessageID(id);
+                        if (param != null)
+                        {
+                            var id = (MessageId)Enum.Parse(typeof(MessageId), param);
+                            this.ViewService.MessageID(id);
+                        }
                     });
             }
         }

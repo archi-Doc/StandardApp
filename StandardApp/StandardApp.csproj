@@ -1,14 +1,12 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Nullable>enable</Nullable>
     <StartupObject>Application.App</StartupObject>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Version>0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,10 +28,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arc.Tinyhand" Version="0.2.0" />
     <PackageReference Include="DryIoc.dll" Version="4.2.5" />
     <PackageReference Include="FastExpressionCompiler" Version="2.0.0" />
-    <PackageReference Include="MessagePack" Version="2.1.132-ga39a0f7045" />
     <PackageReference Include="Serilog" Version="2.9.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
@@ -41,6 +37,11 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Tinyhand" Version="0.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\StandardLib\StandardLib.csproj" />
   </ItemGroup>
 
 </Project>
