@@ -2,6 +2,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -324,10 +325,19 @@ namespace Application
         [Key(0)]
         public int x;
 
+        [Key(1)]
+        public string Name;
+
         public TestClass()
         {
-            x = 1;
-            MemberNotNull();
+            this.x = 1;
+            this.MemberNotNull();
+            this.TestFunction();
+        }
+
+        [MemberNotNull(nameof(Name))]
+        public void TestFunction()
+        {
         }
     }
 
