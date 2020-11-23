@@ -319,6 +319,19 @@ namespace Application
     }
 
     [TinyhandObject]
+    public partial class TestClass
+    {
+        [Key(0)]
+        public int x;
+
+        public TestClass()
+        {
+            x = 1;
+            MemberNotNull();
+        }
+    }
+
+    [TinyhandObject]
     public partial class AppSettings : ITinyhandSerializationCallback
     {// Application Settings
         [Key(0)]
@@ -349,7 +362,7 @@ namespace Application
     { // Application Options
         public AppOptions()
         {
-            this.MemberNotNull();
+            // this.MemberNotNull();
         }
 
         [Key(0)]
