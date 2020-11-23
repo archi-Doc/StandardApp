@@ -349,7 +349,7 @@ namespace Application
     { // Application Options
         public AppOptions()
         {
-            // this.MemberNotNull();
+            this.MemberNotNull();
         }
 
         [Key(0)]
@@ -357,6 +357,10 @@ namespace Application
 
         [Key(1)]
         public BrushCollection BrushCollection { get; set; } = default!; // Brush Collection
+
+        public void MemberNotNull2()
+        {
+        }
 
         public void Reconstruct()
         {
