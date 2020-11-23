@@ -331,8 +331,8 @@ namespace Application
         public TestClass()
         {
             this.x = 1;
-            this.MemberNotNull();
-            this.TestFunction();
+            // this.MemberNotNull(); // Ok, I can't figure out right now.
+            // this.Reconstruct(TinyhandSerializerOptions.Standard);
         }
 
         [MemberNotNull(nameof(Name))]
