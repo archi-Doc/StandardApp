@@ -320,28 +320,6 @@ namespace Application
     }
 
     [TinyhandObject]
-    public partial class TestClass
-    {
-        [Key(0)]
-        public int x;
-
-        [Key(1)]
-        public string Name;
-
-        public TestClass()
-        {
-            this.x = 1;
-            // this.MemberNotNull(); // Ok, I can't figure out right now.
-            // this.Reconstruct(TinyhandSerializerOptions.Standard);
-        }
-
-        [MemberNotNull(nameof(Name))]
-        public void TestFunction()
-        {
-        }
-    }
-
-    [TinyhandObject]
     public partial class AppSettings : ITinyhandSerializationCallback
     {// Application Settings
         [Key(0)]
@@ -376,26 +354,17 @@ namespace Application
         }
 
         [Key(0)]
-        public BrushOption BrushTest { get; set; } = default!;
+        public BrushOption BrushTest { get; set; } = new(Colors.Red);
 
         [Key(1)]
         public BrushCollection BrushCollection { get; set; } = default!; // Brush Collection
-
-        public void MemberNotNull2()
-        {
-        }
-
-        public void Reconstruct()
-        {
-            this.BrushTest.Prepare(Colors.Red);
-        }
     }
 
     [TinyhandObject]
     public partial class BrushCollection : ITinyhandSerializationCallback
     {
         [Key(0)]
-        public BrushOption Brush1 { get; set; } = null!;
+        public BrushOption Brush1 { get; set; } = new(Colors.BurlyWood);
 
         public BrushOption this[string name]
         {
@@ -411,7 +380,6 @@ namespace Application
 
         public void OnAfterDeserialize()
         {
-            this.Brush1.Prepare(Colors.BurlyWood);
         }
     }
 }

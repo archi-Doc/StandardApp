@@ -21,7 +21,17 @@ namespace Arc.WPF
         private SolidColorBrush? brush;
 
         public BrushOption()
+            : this(Colors.Black)
         {
+        }
+
+        public BrushOption(Color initialColor)
+        {
+            this.initialColor = initialColor;
+            if (this.Brush == null)
+            {
+                this.Brush = new SolidColorBrush(initialColor);
+            }
         }
 
         [IgnoreMember]
@@ -36,15 +46,6 @@ namespace Arc.WPF
 
         [Key(1)]
         public int BrushColor { get; set; }
-
-        public void Prepare(Color initialColor)
-        {
-            this.initialColor = initialColor;
-            if (this.Brush == null)
-            {
-                this.Brush = new SolidColorBrush(initialColor);
-            }
-        }
 
         public void Change(Color color)
         {
