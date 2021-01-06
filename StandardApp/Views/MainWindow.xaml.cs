@@ -122,7 +122,7 @@ namespace StandardApp.Views
                     var mit_license = "https://opensource.org/licenses/MIT";
                     var dlg = new Arc.WPF.Dialog(this);
                     dlg.TextBlock.Inlines.Add(
-    @"Copyright (c) 2020 archi-Doc
+    @"Copyright (c) 2021 archi-Doc
 Released under the MIT license
 ");
                     var h = new Hyperlink() { NavigateUri = new Uri(mit_license) };
