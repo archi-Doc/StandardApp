@@ -145,6 +145,11 @@ Released under the MIT license
                     var dialog = new SettingsWindow(this);
                     dialog.ShowDialog();
                 }
+                else if (id == MessageId.DataFolder)
+                {
+                    this.Notification(new NotificationMessage(App.LocalDataFolder));
+                    System.Diagnostics.Process.Start("Explorer.exe", App.LocalDataFolder);
+                }
                 else if (id == MessageId.DisplayScaling)
                 {
                     Transformer.Instance.Transform(App.Settings.DisplayScaling, App.Settings.DisplayScaling);

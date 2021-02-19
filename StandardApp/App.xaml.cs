@@ -2,6 +2,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -18,13 +19,9 @@ using StandardApp.Views;
 using StandardApp.ViewServices;
 using Tinyhand;
 
-#pragma warning disable SA1202 // Elements should be ordered by access
 #pragma warning disable SA1401 // Fields should be private
-#pragma warning disable SA1402
 #pragma warning disable SA1402 // File may only contain a single type
-#pragma warning disable SA1649 // File name should match first type name
 #pragma warning disable SA1600 // Elements should be documented
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
 namespace Application
 {
@@ -56,6 +53,8 @@ namespace Application
         public static string Version { get; private set; } = default!;
 
         public static string Title { get; private set; } = default!;
+
+        public static string LocalDataFolder { get; private set; } = default!;
 
         public static TService Resolve<TService>() => Container.Resolve<TService>();
 
@@ -128,6 +127,28 @@ namespace Application
         [STAThread]
         private static void Main()
         {
+            // Folder
+            try
+            {
+                // UWP
+                LocalDataFolder = Windows.Storage.ApplicationData.Current.LocalFolder.Path;
+            }
+            catch
+            {
+                // not UWP
+                LocalDataFolder = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), AppConst.AppDataFolder);
+            }
+
+            try
+            {
+                Directory.CreateDirectory(LocalDataFolder);
+            }
+            catch
+            {
+            }
+
+            // C4
             try
             {
                 App.C4.SetDefaultCulture(AppConst.DefaultCulture); // default culture
@@ -139,8 +160,18 @@ namespace Application
             {
             }
 
-            // Version, Title
-            Version = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? string.Empty;
+            // Version
+            try
+            {
+                var version = Windows.ApplicationModel.Package.Current.Id.Version;
+                Version = $"{version.Major}.{version.Minor}.{version.Build}";
+            }
+            catch
+            {
+                Version = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? string.Empty;
+            }
+
+            // Title
             Title = App.C4["app.name"] + " " + App.Version;
 
             // Prevents multiple instances.
@@ -170,7 +201,7 @@ namespace Application
             Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Information()
             .WriteTo.File(
-                "log.txt",
+                Path.Combine(LocalDataFolder, "log.txt"),
                 rollingInterval: RollingInterval.Day,
                 buffered: true,
                 flushToDiskInterval: TimeSpan.FromMilliseconds(1000))
@@ -186,6 +217,14 @@ namespace Application
             // Set culture
             try
             {
+                if (App.Settings.Culture == string.Empty)
+                {
+                    if (CultureInfo.CurrentUICulture.Name != "ja-JP")
+                    {
+                        App.Settings.Culture = "en"; // English
+                    }
+                }
+
                 App.C4.ChangeCulture(App.Settings.Culture);
             }
             catch
@@ -282,7 +321,7 @@ namespace Application
 
             try
             {
-                using (var fs = File.OpenRead(AppConst.AppDataFile))
+                using (var fs = File.OpenRead(Path.Combine(App.LocalDataFolder, AppConst.AppDataFile)))
                 {
                     appData = TinyhandSerializer.Deserialize<AppData>(fs);
                 }
@@ -307,7 +346,7 @@ namespace Application
             try
             {
                 var bytes = TinyhandSerializer.Serialize(this);
-                using (var fs = File.Create(AppConst.AppDataFile))
+                using (var fs = File.Create(Path.Combine(App.LocalDataFolder, AppConst.AppDataFile)))
                 {
                     fs.Write(bytes.AsSpan());
                 }
