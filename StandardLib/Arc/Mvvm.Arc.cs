@@ -29,6 +29,7 @@ namespace Arc.Mvvm
         DisplayScaling, // Update display scaling.
         ActivateWindow, // Brings the window into the foreground and activates the window.
         ActivateWindowForce, // Brings the window into the foreground forcibly, and activates the window.
+        DataFolder, // Open data folder.
     }
 
     /// <summary>

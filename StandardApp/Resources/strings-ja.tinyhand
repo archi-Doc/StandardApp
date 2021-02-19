@@ -20,6 +20,7 @@ language.ja = "日本語（Japanese）"
 
 button = "通知メッセージ"
 button.settings = "設定"
+button.datafolder = "データフォルダ"
 tooltip.button = "ボタンです"
 tooltip.sample = "サンプルです"
 dialog.message = "イエス or ノー？"
