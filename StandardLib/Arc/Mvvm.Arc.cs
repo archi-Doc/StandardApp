@@ -10,11 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Windows.Input;
 
-#pragma warning disable SA1201 // Elements should appear in the correct order
-#pragma warning disable SA1202 // Elements should be ordered by access
-#pragma warning disable SA1602 // Enumeration items should be documented
-#pragma warning disable SA1642 // Constructor summary documentation should begin with standard text
-#pragma warning disable SA1649 // File name should match first type name
+#pragma warning disable CS8600
 
 namespace Arc.Mvvm
 {
