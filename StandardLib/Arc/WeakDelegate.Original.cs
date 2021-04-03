@@ -1,5 +1,6 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
+#pragma warning disable CS8600
 #pragma warning disable SA1649 // File name should match first type name
 
 using System;

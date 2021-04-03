@@ -9,25 +9,22 @@ using Application;
 using Arc.CrossChannel;
 using Arc.Mvvm;
 using Arc.WPF;
+using CrossLink;
 using StandardApp.ViewServices;
 
 #pragma warning disable SA1201 // Elements should appear in the correct order
 
 namespace StandardApp
 {
-    public class MainViewModel : BindableBase
+    [CrossLinkObject]
+    public partial class MainViewModel
     {
         public AppOptions Options => App.Options;
 
         private IMainViewService ViewService => App.Resolve<IMainViewService>(); // To avoid a circular dependency, get an instance when necessary.
 
+        [Link(AutoNotify = true)]
         private bool hideDialogButton;
-
-        public bool HideDialogButton
-        {
-            get => this.hideDialogButton;
-            set => this.SetProperty(ref this.hideDialogButton, value);
-        }
 
         private int number1;
 
@@ -40,7 +37,8 @@ namespace StandardApp
 
             set
             {
-                this.SetProperty(ref this.number1, value); // this.Set(() => this.Number1, ref this.number1, value);
+                this.SetProperty(ref this.number1, value);
+                // this.SetProperty(ref this.number1, value); // this.Set(() => this.Number1, ref this.number1, value);
                 this.Number3 = this.Number1 + this.Number2;
             }
         }
@@ -56,40 +54,16 @@ namespace StandardApp
 
             set
             {
-                this.number2 = value;
+                this.SetProperty(ref this.number2, value);
                 this.Number3 = this.Number1 + this.Number2;
             }
         }
 
+        [Link(AutoNotify = true)]
         private int number3;
 
-        public int Number3
-        {
-            get
-            {
-                return this.number3;
-            }
-
-            set
-            {
-                this.SetProperty(ref this.number3, value); // this.Set(() => this.Number3, ref this.number3, value);
-            }
-        }
-
+        [Link(AutoNotify = true)]
         private int number4;
-
-        public int Number4
-        {
-            get
-            {
-                return this.number4;
-            }
-
-            set
-            {
-                this.SetProperty(ref this.number4, value); // this.Set(() => this.Number4, ref this.number4, value);
-            }
-        }
 
         private ICommand? commandMessageId;
 
@@ -109,20 +83,8 @@ namespace StandardApp
             }
         }
 
+        [Link(AutoNotify = true)]
         private bool commandFlag = true;
-
-        private bool CommandFlag
-        {
-            get
-            {
-                return this.commandFlag;
-            }
-
-            set
-            {
-                this.SetProperty(ref this.commandFlag, value);
-            }
-        }
 
         private ICommand? testCommand4;
 
