@@ -7,7 +7,7 @@ using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
-// using FastExpressionCompiler;
+using FastExpressionCompiler;
 
 namespace Arc.WeakDelegate
 {
@@ -90,8 +90,7 @@ namespace Arc.WeakDelegate
                         Expression.Convert(targetParam, type),
                         method.Method),
                     targetParam)
-                    .Compile();
-                    // .CompileFast();
+                    .CompileFast();
 
                 lock (delegateCache)
                 {
@@ -172,8 +171,7 @@ namespace Arc.WeakDelegate
                         t),
                     targetParam,
                     t)
-                    .Compile();
-                // .CompileFast();
+                    .CompileFast();
 
                 lock (delegateCache)
                 {
@@ -251,8 +249,7 @@ namespace Arc.WeakDelegate
                         Expression.Convert(targetParam, type),
                         method.Method),
                     targetParam)
-                    .Compile();
-                    // .CompileFast();
+                    .CompileFast();
 
                 lock (delegateCache)
                 {
@@ -332,8 +329,7 @@ namespace Arc.WeakDelegate
                         t),
                     targetParam,
                     t)
-                    .Compile();
-                // .CompileFast();
+                    .CompileFast();
 
                 lock (delegateCache)
                 {

@@ -15,11 +15,13 @@ namespace Benchmark
     {
         public static void Main(string[] args)
         {
-            DebugRun<ReconstructTest>();
+            DebugRun<ExpressionTree.ExpressionTreeCompile>();
 
             // var summary = BenchmarkRunner.Run<ReconstructTest>();
             var switcher = new BenchmarkSwitcher(new[]
             {
+                typeof(ExpressionTree.ExpressionTreeInvoke),
+                typeof(ExpressionTree.ExpressionTreeCompile),
                 typeof(ReconstructTest),
                 typeof(DelegateBenchmark),
                 typeof(CrossChannelBenchmark),
