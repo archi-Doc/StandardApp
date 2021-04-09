@@ -15,7 +15,7 @@ namespace Benchmark.ExpressionTree
 
         public int Test()
         {
-            return 1;
+            return 2;
         }
     }
 
