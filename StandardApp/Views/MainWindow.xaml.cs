@@ -265,7 +265,7 @@ Released under the MIT license
         {
             if ((oldIndex >= 0) && (newIndex >= 0))
             {
-                this.vm.TestCollection.Move(oldIndex, newIndex);
+                this.vm.TestGoshujin.ObservableChain.Move(oldIndex, newIndex);
             }
 
             return;

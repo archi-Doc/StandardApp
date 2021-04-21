@@ -28,7 +28,7 @@ namespace StandardApp
 
         public TestItem.GoshujinClass TestGoshujin { get; } = App.Settings.TestItem;
 
-        public ObservableCollection<TestItem> TestCollection { get; } = default!;
+        // public ObservableCollection<TestItem> TestCollection { get; } = default!;
 
         [Link(AutoNotify = true)]
         private bool hideDialogButton;
@@ -81,11 +81,16 @@ namespace StandardApp
                 return (this.commandAddItem != null) ? this.commandAddItem : this.commandAddItem = new DelegateCommand(
                     () =>
                     {
+                        if (this.TestGoshujin.QueueChain.Count >= 5)
+                        {// Limits the number of objects.
+                            this.TestGoshujin.QueueChain.Peek().Goshujin = null;
+                        }
+
                         var last = this.TestGoshujin.IdChain.Last;
                         var id = last == null ? 0 : last.Id + 1;
                         var item = new TestItem(id, DateTime.UtcNow);
                         item.Goshujin = this.TestGoshujin;
-                        this.TestCollection.Add(item);
+                        // this.TestCollection.Add(item);
                     });
             }
         }
@@ -99,11 +104,8 @@ namespace StandardApp
                 return this.commandClearItem ?? (this.commandClearItem = new DelegateCommand(
                     () =>
                     {
-                        // this.TestGoshujin.Clear();
-                        this.TestGoshujin.IdChain.Clear();
-                        this.TestGoshujin.ObservableChain.Clear();
-
-                        this.TestCollection.Clear();
+                        this.TestGoshujin.Clear();
+                        // this.TestCollection.Clear();
                     }));
             }
         }
@@ -117,7 +119,7 @@ namespace StandardApp
                 return this.commandListViewIncrement ?? (this.commandListViewIncrement = new DelegateCommand(
                     () =>
                     {
-                        foreach (var x in this.TestCollection.Where(x => x.Selection == 2))
+                        foreach (var x in this.TestGoshujin.ObservableChain.Where(x => x.Selection == 2))
                         {
                             x.Id++;
                         }
@@ -134,7 +136,7 @@ namespace StandardApp
                 return this.commandListViewDecrement ?? (this.commandListViewDecrement = new DelegateCommand(
                     () =>
                     {
-                        foreach (var x in this.TestCollection.Where(x => x.Selection == 2))
+                        foreach (var x in this.TestGoshujin.ObservableChain.Where(x => x.Selection == 2))
                         {
                             if (x.Id > 0)
                             {
@@ -259,11 +261,11 @@ namespace StandardApp
             this.TestCommand2 = new DelegateCommand(this.TestExecute2);
             this.TestCommand3 = new DelegateCommand(this.TestExecute3);
 
-            this.TestCollection = new();
+            /*this.TestCollection = new();
             foreach (var x in this.TestGoshujin.IdChain)
             {
                 this.TestCollection.Add(x);
-            }
+            }*/
         }
 
         private DelegateCommand? testCrossChannel;

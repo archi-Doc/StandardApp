@@ -25,7 +25,8 @@ namespace StandardApp
         [IgnoreMember]
         public int Selection { get; set; }
 
-        [Link(Type = ChainType.List, Name = "Observable", Primary = true)]
+        [Link(Type = ChainType.Observable, Name = "Observable", Primary = true)]
+        [Link(Type = ChainType.QueueList, Name = "Queue")]
         public TestItem(int id, DateTime dt)
         {
             this.id = id;
