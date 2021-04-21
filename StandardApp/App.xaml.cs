@@ -373,7 +373,7 @@ namespace Application
         public double DisplayScaling { get; set; } = 1.0d; // Display Scaling
 
         [Key(4)]
-        public TestItem.GoshujinClass TestItem { get; set; } = default!;
+        public TestItem.GoshujinClass TestItems { get; set; } = default!;
 
         public void OnAfterDeserialize()
         {

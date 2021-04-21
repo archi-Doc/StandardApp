@@ -26,9 +26,7 @@ namespace StandardApp
 
         private IMainViewService ViewService => App.Resolve<IMainViewService>(); // To avoid a circular dependency, get an instance when necessary.
 
-        public TestItem.GoshujinClass TestGoshujin { get; } = App.Settings.TestItem;
-
-        // public ObservableCollection<TestItem> TestCollection { get; } = default!;
+        public TestItem.GoshujinClass TestGoshujin { get; } = App.Settings.TestItems;
 
         [Link(AutoNotify = true)]
         private bool hideDialogButton;
@@ -90,7 +88,6 @@ namespace StandardApp
                         var id = last == null ? 0 : last.Id + 1;
                         var item = new TestItem(id, DateTime.UtcNow);
                         item.Goshujin = this.TestGoshujin;
-                        // this.TestCollection.Add(item);
                     });
             }
         }
@@ -105,7 +102,6 @@ namespace StandardApp
                     () =>
                     {
                         this.TestGoshujin.Clear();
-                        // this.TestCollection.Clear();
                     }));
             }
         }
@@ -260,12 +256,6 @@ namespace StandardApp
             // this.TestCommand = new RelayCommand(this.TestExecute, () => { return this.commandFlag; });
             this.TestCommand2 = new DelegateCommand(this.TestExecute2);
             this.TestCommand3 = new DelegateCommand(this.TestExecute3);
-
-            /*this.TestCollection = new();
-            foreach (var x in this.TestGoshujin.IdChain)
-            {
-                this.TestCollection.Add(x);
-            }*/
         }
 
         private DelegateCommand? testCrossChannel;
