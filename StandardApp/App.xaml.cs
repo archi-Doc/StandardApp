@@ -372,6 +372,9 @@ namespace Application
         [Key(3)]
         public double DisplayScaling { get; set; } = 1.0d; // Display Scaling
 
+        [Key(4)]
+        public TestItem.GoshujinClass TestItem { get; set; } = default!;
+
         public void OnAfterDeserialize()
         {
             Transformer.Instance.ScaleX = this.DisplayScaling;

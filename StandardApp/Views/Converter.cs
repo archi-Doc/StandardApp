@@ -10,6 +10,30 @@ using Application;
 
 namespace StandardApp.Views
 {
+    public class DateTimeToStringConverter : IValueConverter
+    {// DateTime to String
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            if (value != null && value is DateTime)
+            {
+                var dt = (DateTime)value;
+                if (dt.Ticks == 0)
+                {
+                    return string.Empty;
+                }
+
+                return dt.ToString(App.C4["app.datetime"]);
+            }
+
+            return System.Windows.DependencyProperty.UnsetValue;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class DisplayScalingToStringConverter : IValueConverter
     {// Display scaling to String
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

@@ -33,6 +33,7 @@ namespace StandardApp.ViewServices
 
 namespace StandardApp.Views
 {
+    using System.Linq;
     using StandardApp.ViewServices;
 
     /// <summary>
@@ -58,6 +59,8 @@ namespace StandardApp.Views
             catch
             {
             }
+
+            this.listView.DropMoveAction = this.ListView_DropMove;
 
             Transformer.Instance.Register(this, true, false);
 
@@ -255,6 +258,39 @@ Released under the MIT license
             if (e.Key == Key.Escape)
             {
                 this.Close();
+            }
+        }
+
+        private void ListView_DropMove(int oldIndex, int newIndex)
+        {
+            if ((oldIndex >= 0) && (newIndex >= 0))
+            {
+                this.vm.TestCollection.Move(oldIndex, newIndex);
+            }
+
+            return;
+        }
+
+        private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            foreach (var item in e.RemovedItems.Cast<TestItem>())
+            {
+                item.Selection = 0;
+            }
+
+            foreach (var item in e.AddedItems.Cast<TestItem>())
+            {
+                item.Selection = 1;
+            }
+
+            var listView = sender as ListView;
+            if (listView != null)
+            {
+                var item = listView.SelectedItem as TestItem;
+                if (item != null)
+                {
+                    item.Selection = 2; // selected+focus
+                }
             }
         }
     }

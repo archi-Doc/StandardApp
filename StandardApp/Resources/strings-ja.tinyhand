@@ -1,6 +1,7 @@
 ﻿// identifier = "string" /* null: Use default value. */
 app.name = "standard app"
 app.description = "standard application"
+app.datetime = "MM/dd H:mm:ss"
 dialog.ok = "O K"
 dialog.cancel = "キャンセル"
 dialog.yes = "はい"
@@ -26,3 +27,11 @@ tooltip.sample = "サンプルです"
 dialog.message = "イエス or ノー？"
 
 time.text = "時刻は{0:MM/dd H:mm:ss}です"
+
+// List view
+button.additem = "追加"
+button.clearitem = "クリア"
+listview.header.id = "Id"
+listview.header.time = "時間"
+listview.menu.increment = "増やす"
+listview.menu.decrement = "減らす"

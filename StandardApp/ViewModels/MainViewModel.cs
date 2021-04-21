@@ -1,6 +1,8 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -13,6 +15,7 @@ using CrossLink;
 using StandardApp.ViewServices;
 
 #pragma warning disable SA1201 // Elements should appear in the correct order
+#pragma warning disable SA1202
 
 namespace StandardApp
 {
@@ -22,6 +25,10 @@ namespace StandardApp
         public AppOptions Options => App.Options;
 
         private IMainViewService ViewService => App.Resolve<IMainViewService>(); // To avoid a circular dependency, get an instance when necessary.
+
+        public TestItem.GoshujinClass TestGoshujin { get; } = App.Settings.TestItem;
+
+        public ObservableCollection<TestItem> TestCollection { get; } = default!;
 
         [Link(AutoNotify = true)]
         private bool hideDialogButton;
@@ -64,6 +71,79 @@ namespace StandardApp
 
         [Link(AutoNotify = true)]
         private int number4;
+
+        private ICommand? commandAddItem;
+
+        public ICommand CommandAddItem
+        {
+            get
+            {
+                return (this.commandAddItem != null) ? this.commandAddItem : this.commandAddItem = new DelegateCommand(
+                    () =>
+                    {
+                        var last = this.TestGoshujin.IdChain.Last;
+                        var id = last == null ? 0 : last.Id + 1;
+                        var item = new TestItem(id, DateTime.UtcNow);
+                        item.Goshujin = this.TestGoshujin;
+                        this.TestCollection.Add(item);
+                    });
+            }
+        }
+
+        private ICommand? commandClearItem;
+
+        public ICommand CommandClearItem
+        {
+            get
+            {
+                return this.commandClearItem ?? (this.commandClearItem = new DelegateCommand(
+                    () =>
+                    {
+                        // this.TestGoshujin.Clear();
+                        this.TestGoshujin.IdChain.Clear();
+                        this.TestGoshujin.ObservableChain.Clear();
+
+                        this.TestCollection.Clear();
+                    }));
+            }
+        }
+
+        private ICommand? commandListViewIncrement;
+
+        public ICommand CommandListViewIncrement
+        {
+            get
+            {
+                return this.commandListViewIncrement ?? (this.commandListViewIncrement = new DelegateCommand(
+                    () =>
+                    {
+                        foreach (var x in this.TestCollection.Where(x => x.Selection == 2))
+                        {
+                            x.Id++;
+                        }
+                    }));
+            }
+        }
+
+        private ICommand? commandListViewDecrement;
+
+        public ICommand CommandListViewDecrement
+        {
+            get
+            {
+                return this.commandListViewDecrement ?? (this.commandListViewDecrement = new DelegateCommand(
+                    () =>
+                    {
+                        foreach (var x in this.TestCollection.Where(x => x.Selection == 2))
+                        {
+                            if (x.Id > 0)
+                            {
+                                x.Id--;
+                            }
+                        }
+                    }));
+            }
+        }
 
         private ICommand? commandMessageId;
 
@@ -178,6 +258,12 @@ namespace StandardApp
             // this.TestCommand = new RelayCommand(this.TestExecute, () => { return this.commandFlag; });
             this.TestCommand2 = new DelegateCommand(this.TestExecute2);
             this.TestCommand3 = new DelegateCommand(this.TestExecute3);
+
+            this.TestCollection = new();
+            foreach (var x in this.TestGoshujin.IdChain)
+            {
+                this.TestCollection.Add(x);
+            }
         }
 
         private DelegateCommand? testCrossChannel;

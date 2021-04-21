@@ -11,6 +11,7 @@
     <local:InverseBoolConverter x:Key="InverseBoolConverter" />
     <local:CultureToStringConverter x:Key="CultureToStringConverter" />
     <local:DisplayScalingToStringConverter x:Key="DisplayScalingToStringConverter" />
+    <local:DateTimeToStringConverter x:Key="DateTimeToStringConverter" />
 
     <Style x:Key="tabtext" TargetType="TextBlock">
         <Setter Property="Height" Value="auto" />

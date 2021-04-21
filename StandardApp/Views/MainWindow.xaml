@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:StandardApp.Views"
         xmlns:Arc="clr-namespace:Arc.WPF"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525"
+        Title="MainWindow" Height="375" Width="525"
         SourceInitialized="Window_SourceInitialized" Closing="Window_Closing" KeyDown="Window_KeyDown">
     <Window.Resources>
         <ResourceDictionary>
@@ -25,15 +25,37 @@
 
         <Grid ShowGridLines="False" Grid.Row="0" Grid.Column="0" >
 
-            <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Height="24" Margin="90,43,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="106"/>
-            <TextBox x:Name="textBox" HorizontalAlignment="Left" Height="30" Margin="45,130,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="126"/>
-            <TextBlock x:Name="textBlock1" HorizontalAlignment="Left" Margin="54,186,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="20" Width="178" Text="{Arc:Format {Arc:C4Binding time.text}, {Binding Time1}}"></TextBlock>
-            <Button x:Name="button_disable" Content="disable/enable" HorizontalAlignment="Left" Height="auto" Margin="67,89,0,0" VerticalAlignment="Top" Width="auto" Command="{Binding TestCommand4}"/>
+            <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Height="24" Margin="10,10,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="106"/>
+            <TextBox x:Name="textBox" HorizontalAlignment="Left" Height="30" Margin="10,64,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="126"/>
+            <TextBlock x:Name="textBlock1" HorizontalAlignment="Left" Margin="11,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="20" Width="178" Text="{Arc:Format {Arc:C4Binding time.text}, {Binding Time1}}"></TextBlock>
+            <Button x:Name="button_disable" Content="disable/enable" HorizontalAlignment="Left" Height="auto" Margin="10,34,0,0" VerticalAlignment="Top" Width="auto" Command="{Binding TestCommand4}"/>
 
-            <TextBox x:Name="textBox2" HorizontalAlignment="Left" Height="18" Margin="34,231,0,0" TextWrapping="Wrap" Text="{Binding Number1}" VerticalAlignment="Top" Width="55"/>
-            <TextBox x:Name="textBox3" HorizontalAlignment="Left" Height="18" Margin="105,231,0,0" TextWrapping="Wrap" Text="{Binding Number2}" VerticalAlignment="Top" Width="55"/>
-            <TextBox x:Name="textBox4" HorizontalAlignment="Left" Height="18" Margin="177,231,0,0" TextWrapping="Wrap" Text="{Binding Number3}" VerticalAlignment="Top" Width="55" IsEnabled="False"/>
-            <TextBox x:Name="textBox5" HorizontalAlignment="Left" Height="18" Margin="84,275,0,0" TextWrapping="Wrap" Text="{Binding Number4}" VerticalAlignment="Top" Width="55" IsEnabled="False"/>
+            <TextBox x:Name="textBox2" HorizontalAlignment="Left" Height="18" Margin="10,124,0,0" TextWrapping="Wrap" Text="{Binding Number1}" VerticalAlignment="Top" Width="55"/>
+            <TextBox x:Name="textBox3" HorizontalAlignment="Left" Height="18" Margin="81,124,0,0" TextWrapping="Wrap" Text="{Binding Number2}" VerticalAlignment="Top" Width="55"/>
+            <TextBox x:Name="textBox4" HorizontalAlignment="Left" Height="18" Margin="153,124,0,0" TextWrapping="Wrap" Text="{Binding Number3}" VerticalAlignment="Top" Width="55" IsEnabled="False"/>
+            <TextBox x:Name="textBox5" HorizontalAlignment="Left" Height="18" Margin="10,0,0,0" TextWrapping="Wrap" Text="{Binding Number4}" VerticalAlignment="Center" Width="55" IsEnabled="False"/>
+            <Arc:ListViewDD Margin="11,193,28,35" x:Name="listView" ItemsSource="{Binding TestCollection}" SelectionChanged="ListView_SelectionChanged">
+                <Arc:ListViewDD.View>
+                    <GridView>
+                        <GridViewColumn DisplayMemberBinding="{Binding Id}" Width="50" >
+                            <GridViewColumnHeader Content="{Arc:C4 listview.header.id}"/>
+                        </GridViewColumn>
+                        <GridViewColumn DisplayMemberBinding="{Binding DateTime, Converter={StaticResource DateTimeToStringConverter}}" Width="150" >
+                            <GridViewColumnHeader Content="{Arc:C4 listview.header.time}"/>
+                        </GridViewColumn>
+                    </GridView>
+                </Arc:ListViewDD.View>
+                <ListView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="{Arc:C4 listview.menu.increment}" Command="{Binding CommandListViewIncrement}" ToolTip="{Arc:C4 listview.menu.increment.tt}"/>
+                        <Separator />
+                        <MenuItem Header="{Arc:C4 listview.menu.decrement}" Command="{Binding CommandListViewDecrement}" ToolTip="{Arc:C4 listview.menu.increment.tt}" />
+                    </ContextMenu>
+                </ListView.ContextMenu>
+            </Arc:ListViewDD>
+
+            <Button x:Name="button8" Content="{Arc:C4 button.additem}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="auto" Height="auto" Command="{Binding CommandAddItem}" Margin="11,329,0,0"/>
+            <Button x:Name="button9" Content="{Arc:C4 button.clearitem}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="auto" Height="auto" Command="{Binding CommandClearItem}" Margin="110,329,0,0"/>
 
         </Grid>
 

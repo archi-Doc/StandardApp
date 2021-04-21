@@ -1,6 +1,7 @@
-{// identifier = "string" /* null: Use default value. */
+// identifier = "string" /* null: Use default value. */
 app.name = null
 app.description = null
+app.datetime = "MM/dd H:mm:ss"
 dialog.ok = "OK"
 dialog.cancel = "Cancel"
 dialog.yes = "Yes"
@@ -26,4 +27,11 @@ tooltip.sample = "Sample"
 dialog.message = "Yes or no?"
 
 time.text = "Current time is {0:MM/dd H:mm:ss}."
-}
+
+// List view
+button.additem = "Add"
+button.clearitem = "Clear"
+listview.header.id = "Id"
+listview.header.time = "Time"
+listview.menu.increment = "increment"
+listview.menu.decrement = "decrement"
