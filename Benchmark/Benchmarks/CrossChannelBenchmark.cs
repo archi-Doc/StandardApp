@@ -2,11 +2,10 @@
 
 using Arc.CrossChannel;
 using BenchmarkDotNet.Attributes;
+using MessagePipe;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
-#pragma warning disable SA1201 // Elements should appear in the correct order
-#pragma warning disable SA1202 // Elements should be ordered by access
-#pragma warning disable SA1401 // Fields should be private
-#pragma warning disable SA1515 // Single-line comment should be preceded by blank line
 #pragma warning disable SA1649 // File name should match first type name
 
 namespace Benchmark
@@ -28,11 +27,24 @@ namespace Benchmark
         }
     }
 
+    public class H2HReceiver
+    {
+        public H2HReceiver()
+        {
+            CrossChannel.Open<int>(x => { });
+        }
+    }
+
     [Config(typeof(BenchmarkConfig))]
     public class CrossChannelBenchmark
     {
+        public ServiceProvider Provider { get; }
+
         public CrossChannelBenchmark()
         {
+            var sc = new ServiceCollection();
+            sc.AddMessagePipe();
+            this.Provider = sc.BuildServiceProvider();
         }
 
         [GlobalSetup]
@@ -40,18 +52,82 @@ namespace Benchmark
         {
             var simpleReceiver = new SimpleReceiver();
             var simpleReceiver2 = new SimpleReceiver2();
+            var h2hReceiver = new H2HReceiver();
         }
 
         [Benchmark]
-        public int[] Send()
+        public void Send()
         {
-            return CrossChannel.Send<int, int>(3);
+            CrossChannel.Send<int>(3);
+            return;
         }
 
         [Benchmark]
+        public void OpenAndSend()
+        {
+            using (var c = CrossChannel.Open<uint>(x => { }))
+            {
+                CrossChannel.Send<uint>(3);
+            }
+
+            return;
+        }
+
+        [Benchmark]
+        public void OpenAndSend8()
+        {
+            using (var c = CrossChannel.Open<uint>(x => { }))
+            {
+                CrossChannel.Send<uint>(1);
+                CrossChannel.Send<uint>(2);
+                CrossChannel.Send<uint>(3);
+                CrossChannel.Send<uint>(4);
+                CrossChannel.Send<uint>(5);
+                CrossChannel.Send<uint>(6);
+                CrossChannel.Send<uint>(7);
+                CrossChannel.Send<uint>(8);
+            }
+
+            return;
+        }
+
+        [Benchmark]
+        public void OpenAndSend_MP()
+        {
+            var sub = this.Provider.GetService<ISubscriber<uint>>()!;
+            var pub = this.Provider.GetService<IPublisher<uint>>()!;
+            using (var i = sub.Subscribe(x => { }))
+            {
+                pub.Publish(3);
+            }
+
+            return;
+        }
+
+        [Benchmark]
+        public void OpenAndSend8_MP()
+        {
+            var sub = this.Provider.GetService<ISubscriber<uint>>()!;
+            var pub = this.Provider.GetService<IPublisher<uint>>()!;
+            using (var i = sub.Subscribe(x => { }))
+            {
+                pub.Publish(1);
+                pub.Publish(2);
+                pub.Publish(3);
+                pub.Publish(4);
+                pub.Publish(5);
+                pub.Publish(6);
+                pub.Publish(7);
+                pub.Publish(8);
+            }
+
+            return;
+        }
+
+        /*[Benchmark]
         public uint[] Send2()
         {
             return CrossChannel.SendTarget<uint, uint>(3, null);
-        }
+        }*/
     }
 }

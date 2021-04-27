@@ -15,7 +15,7 @@ namespace Benchmark
     {
         public static void Main(string[] args)
         {
-            DebugRun<ExpressionTree.ExpressionTreeCompile>();
+            DebugRun<CrossChannelBenchmark>();
 
             // var summary = BenchmarkRunner.Run<ReconstructTest>();
             var switcher = new BenchmarkSwitcher(new[]
