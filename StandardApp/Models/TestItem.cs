@@ -30,7 +30,7 @@ namespace StandardApp
         public TestItem(int id, DateTime dt)
         {
             this.id = id;
-            this.DateTime = dt;
+            this.dateTime = dt;
         }
 
         public TestItem()
