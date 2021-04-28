@@ -5,6 +5,7 @@ using BenchmarkDotNet.Attributes;
 using DryIoc;
 using MessagePipe;
 using Microsoft.Extensions.DependencyInjection;
+using PubSub;
 
 #pragma warning disable SA1649 // File name should match first type name
 
@@ -32,6 +33,14 @@ namespace Benchmark
         public H2HReceiver()
         {
             CrossChannel.Open<int>(x => { });
+        }
+    }
+
+    public class PubSubReceiver
+    {
+        public PubSubReceiver()
+        {
+            Hub.Default.Subscribe<int>(x => { });
         }
     }
 
@@ -67,6 +76,7 @@ namespace Benchmark
             var simpleReceiver = new SimpleReceiver();
             var simpleReceiver2 = new SimpleReceiver2();
             var h2hReceiver = new H2HReceiver();
+            var pubSubReceiver = new PubSubReceiver();
         }
 
         /*[Benchmark]
@@ -110,6 +120,40 @@ namespace Benchmark
                 CrossChannel.Send<uint>(7);
                 CrossChannel.Send<uint>(8);
             }
+
+            return;
+        }
+
+        [Benchmark]
+        public void Send_Pub()
+        {
+            Hub.Default.Publish(3);
+            return;
+        }
+
+        [Benchmark]
+        public void OpenAndSend_Pub()
+        {
+            Hub.Default.Subscribe<uint>(x => { });
+            Hub.Default.Publish<uint>(3);
+            Hub.Default.Unsubscribe<uint>();
+
+            return;
+        }
+
+        [Benchmark]
+        public void OpenAndSend8_Pub()
+        {
+            Hub.Default.Subscribe<uint>(x => { });
+            Hub.Default.Publish<uint>(1);
+            Hub.Default.Publish<uint>(2);
+            Hub.Default.Publish<uint>(3);
+            Hub.Default.Publish<uint>(4);
+            Hub.Default.Publish<uint>(5);
+            Hub.Default.Publish<uint>(6);
+            Hub.Default.Publish<uint>(7);
+            Hub.Default.Publish<uint>(8);
+            Hub.Default.Unsubscribe<uint>();
 
             return;
         }
