@@ -5,6 +5,7 @@ using BenchmarkDotNet.Attributes;
 using MessagePipe;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using DryIoc;
 
 #pragma warning disable SA1649 // File name should match first type name
 
@@ -35,16 +36,30 @@ namespace Benchmark
         }
     }
 
+    public class SingletonClass
+    {
+        public int Id { get; set; }
+    }
+
+    public class TransientClass
+    {
+        public int Id { get; set; }
+    }
+
     [Config(typeof(BenchmarkConfig))]
     public class CrossChannelBenchmark
     {
         public ServiceProvider Provider { get; }
+
+        public Container Container { get; } = new();
 
         public CrossChannelBenchmark()
         {
             var sc = new ServiceCollection();
             sc.AddMessagePipe();
             this.Provider = sc.BuildServiceProvider();
+            this.Container.Register<SingletonClass>(Reuse.Singleton);
+            this.Container.Register<TransientClass>(Reuse.Transient);
         }
 
         [GlobalSetup]
@@ -54,6 +69,15 @@ namespace Benchmark
             var simpleReceiver2 = new SimpleReceiver2();
             var h2hReceiver = new H2HReceiver();
         }
+
+        /*[Benchmark]
+        public SingletonClass ResolveSingletonClass() => this.Container.Resolve<SingletonClass>();
+
+        [Benchmark]
+        public TransientClass ResolveTransientClass() => this.Container.Resolve<TransientClass>();
+
+        [Benchmark]
+        public TransientClass NewTransientClass() => new TransientClass();*/
 
         [Benchmark]
         public void Send()
@@ -124,10 +148,10 @@ namespace Benchmark
             return;
         }
 
-        /*[Benchmark]
+        [Benchmark]
         public uint[] Send2()
         {
             return CrossChannel.SendTarget<uint, uint>(3, null);
-        }*/
+        }
     }
 }
