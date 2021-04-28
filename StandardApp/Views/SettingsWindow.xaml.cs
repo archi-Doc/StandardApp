@@ -8,6 +8,7 @@ using System.Windows.Input;
 using Application;
 using Arc.Mvvm;
 using Arc.WPF;
+using DryIoc;
 using StandardApp.ViewServices;
 
 #pragma warning disable SA1201 // Elements should appear in the correct order
@@ -27,7 +28,9 @@ namespace StandardApp.Views
 
         public List<double> DisplayScaling { get; private set; } = new List<double>() { 0.25, 0.333, 0.5, 0.667, 0.75, 0.8, 0.9, 1, 1.1, 1.25, 1.5, 1.75, 2, 2.5, 3, 5 };
 
-        private IMainViewService ViewService => App.Resolve<IMainViewService>(); // To avoid a circular dependency, get an instance when necessary.
+        private IMainViewService ViewService => this.Resolver.Resolve<IMainViewService>(); // To avoid a circular dependency, get an instance when necessary.
+
+        private IResolver Resolver { get; }
 
         private DelegateCommand<string>? licenseTextCommand;
 
@@ -49,8 +52,9 @@ namespace StandardApp.Views
             }
         }
 
-        public SettingsWindow(Window owner)
+        public SettingsWindow(IResolver resolver, Window owner)
         {
+            this.Resolver = resolver;
             this.InitializeComponent();
 
             // Settings

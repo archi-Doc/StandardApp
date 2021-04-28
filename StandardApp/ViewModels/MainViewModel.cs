@@ -12,6 +12,7 @@ using Arc.CrossChannel;
 using Arc.Mvvm;
 using Arc.WPF;
 using CrossLink;
+using DryIoc;
 using StandardApp.ViewServices;
 
 #pragma warning disable SA1201 // Elements should appear in the correct order
@@ -24,9 +25,11 @@ namespace StandardApp
     {
         public AppOptions Options => App.Options;
 
-        private IMainViewService ViewService => App.Resolve<IMainViewService>(); // To avoid a circular dependency, get an instance when necessary.
+        private IMainViewService ViewService => this.Resolver.Resolve<IMainViewService>(); // To avoid a circular dependency, get an instance when necessary.
 
         public TestItem.GoshujinClass TestGoshujin { get; } = App.Settings.TestItems;
+
+        private IResolver Resolver { get; }
 
         [Link(AutoNotify = true)]
         private bool hideDialogButton;
@@ -251,8 +254,10 @@ namespace StandardApp
 
         public DateTime Time1 { get; private set; } = DateTime.Now;
 
-        public MainViewModel()
+        public MainViewModel(IResolver resolver)
         {
+            this.Resolver = resolver;
+
             // this.TestCommand = new RelayCommand(this.TestExecute, () => { return this.commandFlag; });
             this.TestCommand2 = new DelegateCommand(this.TestExecute2);
             this.TestCommand3 = new DelegateCommand(this.TestExecute3);

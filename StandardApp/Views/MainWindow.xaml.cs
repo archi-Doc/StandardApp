@@ -34,6 +34,7 @@ namespace StandardApp.ViewServices
 namespace StandardApp.Views
 {
     using System.Linq;
+    using DryIoc;
     using StandardApp.ViewServices;
 
     /// <summary>
@@ -44,9 +45,12 @@ namespace StandardApp.Views
         private MainViewModel vm; // ViewModel
         private Window? windowClosing = null; // Avoid an exception which occurs when Close () is called while the Window Close confirmation dialog is displayed.
 
-        public MainWindow(MainViewModel vm)
+        private IResolver Resolver { get; }
+
+        public MainWindow(IResolver resolver, MainViewModel vm)
         {
             this.InitializeComponent();
+            this.Resolver = resolver;
             this.DataContext = vm;
             this.vm = vm;
 
@@ -145,7 +149,7 @@ Released under the MIT license
                 }
                 else if (id == MessageId.Settings)
                 {
-                    var dialog = new SettingsWindow(this);
+                    var dialog = new SettingsWindow(this.Resolver, this);
                     dialog.ShowDialog();
                 }
                 else if (id == MessageId.DataFolder)

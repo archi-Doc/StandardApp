@@ -56,7 +56,7 @@ namespace Application
 
         public static string LocalDataFolder { get; private set; } = default!;
 
-        public static TService Resolve<TService>() => Container.Resolve<TService>();
+        private static IResolver resolver = default!;
 
         /// <summary>
         /// Executes an action on the UI thread.
@@ -111,6 +111,7 @@ namespace Application
         private static void Bootstrap()
         {
             // Register your types:
+            App.Container.Register<AppClass>(Reuse.Singleton);
 
             // Register your windows and view models:
             App.Container.Register<MainWindow>(Reuse.Singleton);
@@ -232,6 +233,7 @@ namespace Application
                 App.Settings.Culture = AppConst.DefaultCulture;
             }
 
+            App.resolver = App.Container;
             Bootstrap();
             RunApplication();
         }
@@ -240,7 +242,7 @@ namespace Application
         {
             try
             {
-                var appClass = new AppClass();
+                var appClass = resolver.Resolve<AppClass>();
                 appClass.Start();
             }
             catch (Exception)
@@ -260,10 +262,17 @@ namespace Application
     /// </summary>
     public partial class AppClass : System.Windows.Application
     {
+        public AppClass(IResolver resolver)
+        {
+            this.Resolver = resolver;
+        }
+
+        private IResolver Resolver { get; }
+
         public void Start()
         {
             this.InitializeComponent();
-            var mainWindow = App.Resolve<MainWindow>();
+            var mainWindow = this.Resolver.Resolve<MainWindow>();
             this.Run(mainWindow);
         }
 
