@@ -24,7 +24,7 @@ namespace StandardApp
     {
         public AppOptions Options => App.Options;
 
-        private IMainViewService ViewService => App.Resolve<IMainViewService>(); // To avoid a circular dependency, get an instance when necessary.
+        private IMainViewService ViewService;
 
         public TestItem.GoshujinClass TestGoshujin { get; } = App.Settings.TestItems;
 
@@ -251,8 +251,9 @@ namespace StandardApp
 
         public DateTime Time1 { get; private set; } = DateTime.Now;
 
-        public MainViewModel()
+        public MainViewModel(IMainViewService mainViewService)
         {
+            this.ViewService = mainViewService;
             // this.TestCommand = new RelayCommand(this.TestExecute, () => { return this.commandFlag; });
             this.TestCommand2 = new DelegateCommand(this.TestExecute2);
             this.TestCommand3 = new DelegateCommand(this.TestExecute3);

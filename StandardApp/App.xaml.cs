@@ -114,7 +114,7 @@ namespace Application
 
             // Register your windows and view models:
             App.Container.Register<MainWindow>(Reuse.Singleton);
-            App.Container.RegisterMapping<IMainViewService, MainWindow>(); // App.Container.RegisterMany<MainWindow>(Reuse.Singleton);
+            App.Container.RegisterMapping<IMainViewService, MainViewService>(Reuse.Singleton);
             App.Container.Register<MainViewModel>(Reuse.Singleton);
 
             var errors = App.Container.Validate();
