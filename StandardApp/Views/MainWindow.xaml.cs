@@ -1,19 +1,17 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
 using Application;
 using Arc.CrossChannel;
 using Arc.Mvvm;
 using Arc.Text;
 using Arc.WinAPI;
 using Arc.WPF;
-using System.Linq;
 using StandardApp.ViewServices;
 
 #pragma warning disable SA1403 // File may only contain a single namespace
@@ -28,7 +26,6 @@ namespace StandardApp.Views
     {
         private MainViewModel vm; // ViewModel
         private IMainViewService mainViewService;
-        private Window? windowClosing = null; // Avoid an exception which occurs when Close () is called while the Window Close confirmation dialog is displayed.
 
         public MainWindow(MainViewModel vm, IMainViewService mainViewService)
         {
@@ -36,6 +33,7 @@ namespace StandardApp.Views
             this.DataContext = vm;
             this.vm = vm;
             this.mainViewService = mainViewService;
+            this.mainViewService.Initialize(this);
 
             CrossChannel.OpenAsync<DialogParam, MessageBoxResult>(this.CrossChannel_Dialog);
 
@@ -85,9 +83,9 @@ namespace StandardApp.Views
                 dlg.Button = MessageBoxButton.YesNo; // button
                 dlg.Result = MessageBoxResult.Yes; // focus
                 dlg.Image = MessageBoxImage.Warning;
-                this.windowClosing = dlg;
+                this.mainViewService.SetClosingWindow(dlg);
                 dlg.ShowDialog();
-                this.windowClosing = null;
+                this.mainViewService.SetClosingWindow(null);
                 if (dlg.Result == MessageBoxResult.No)
                 {
                     e.Cancel = true; // cancel

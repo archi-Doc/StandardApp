@@ -109,12 +109,15 @@ namespace Application
         }
 
         private static void Bootstrap()
-        {
-            // Register your types:
-
-            // Register your windows and view models:
+        {// Register your types
+            // Views
             App.Container.Register<MainWindow>(Reuse.Singleton);
-            App.Container.RegisterMapping<IMainViewService, MainViewService>(Reuse.Singleton);
+            App.Container.Register<SettingsWindow>(Reuse.Singleton);
+
+            // ViewServices
+            App.Container.Register<IMainViewService, MainViewService>(Reuse.Singleton);
+
+            // ViewModels
             App.Container.Register<MainViewModel>(Reuse.Singleton);
 
             var errors = App.Container.Validate();
@@ -196,6 +199,9 @@ namespace Application
 
                 return; // Exit.
             }
+
+            // UI Dispatcher
+            Transformer.UIDispatcher = Dispatcher.CurrentDispatcher;
 
             // Logger: Debug, Information, Warning, Error, Fatal
             Log.Logger = new LoggerConfiguration()

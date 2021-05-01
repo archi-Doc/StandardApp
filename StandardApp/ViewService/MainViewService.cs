@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
+
+using System;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Documents;
@@ -9,14 +8,16 @@ using System.Windows.Media;
 using Application;
 using Arc.Mvvm;
 using Arc.WPF;
-using StandardApp.Views;
 using DryIoc;
+using StandardApp.Views;
 
 namespace StandardApp.ViewServices
 {
     public interface IMainViewService
     {
         void Initialize(Window window);
+
+        void SetClosingWindow(Window? closingWindow); // Avoid an exception which occurs when Close () is called while the Window Close confirmation dialog is displayed.
 
         void Notification(NotificationMessage msg); // Notification Message
 
@@ -30,17 +31,22 @@ namespace StandardApp.ViewServices
     internal class MainViewService : IMainViewService
     {
         private Window? window;
+        private Window? closingWindow;
 
         public void Initialize(Window window)
         {
             this.window = window;
         }
 
+        public void SetClosingWindow(Window? closingWindow)
+        {
+            this.closingWindow = closingWindow;
+        }
+
         public void Notification(NotificationMessage msg)
         { // Multi-thread safe, may be called from non-UI thread/context. App.UI.InvokeAsync()
             App.InvokeAsyncOnUI(() =>
             {
-                this.window.textBlock.Text = msg.Notification;
                 var result = MessageBox.Show(msg.Notification);
             });
         }
@@ -70,7 +76,7 @@ namespace StandardApp.ViewServices
                 }
                 else if (id == MessageId.Exit)
                 { // Exit application with confirmation.
-                    if (this.window.windowClosing == null)
+                    if (this.closingWindow == null)
                     {
                         this.window.Close();
                     }
@@ -78,13 +84,13 @@ namespace StandardApp.ViewServices
                 else if (id == MessageId.ExitWithoutConfirmation)
                 { // Exit application without confirmation.
                     App.SessionEnding = true;
-                    if (this.windowClosing == null)
+                    if (this.closingWindow == null)
                     {
                         this.window.Close();
                     }
                     else
                     {
-                        this.window.windowClosing.Close();
+                        this.closingWindow.Close();
                     }
                 }
                 else if (id == MessageId.Information)

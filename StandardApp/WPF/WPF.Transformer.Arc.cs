@@ -6,7 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
-using Application;
+using System.Windows.Threading;
 using Arc.WinAPI;
 using Serilog;
 
@@ -25,7 +25,11 @@ namespace Arc.WPF
         {
         }
 
+        public static Dispatcher? UIDispatcher { get; set; }
+
         public static Transformer Instance { get; } = new Transformer();
+
+        private static Exception ThrowInvalidUIDispatcher() => new InvalidOperationException("Set valid UIDispatcher.");
 
         public double ScaleX { get; set; } = 1.0;
 
@@ -178,16 +182,29 @@ namespace Arc.WPF
 
         public void AdjustWindowPosition(Window window)
         {
-            App.InvokeAsyncOnUI(() =>
-            { // UI thread.
+            if (UIDispatcher == null)
+            {
+                throw ThrowInvalidUIDispatcher();
+            }
+
+            if (UIDispatcher.CheckAccess())
+            {
                 this.AdjustWindowPosition(window, null);
-            });
+            }
+            else
+            {
+                UIDispatcher.InvokeAsync(() => this.AdjustWindowPosition(window, null));
+            }
         }
 
         public void AdjustScale(Window window, bool adjustPosition)
         {
-            TransformerPacket? packet = null;
+            if (UIDispatcher == null)
+            {
+                throw ThrowInvalidUIDispatcher();
+            }
 
+            TransformerPacket? packet = null;
             lock (this.objectList)
             { // Get TransformerObject from objectList.
                 var obj = this.SearchTransformObject(window);
@@ -199,10 +216,14 @@ namespace Arc.WPF
 
             if (packet != null)
             {
-                App.InvokeAsyncOnUI(() =>
-                { // UI thread.
+                if (UIDispatcher.CheckAccess())
+                {
                     this.AdjustScale(packet, adjustPosition);
-                });
+                }
+                else
+                {
+                    UIDispatcher.InvokeAsync(() => this.AdjustScale(packet, adjustPosition));
+                }
             }
         }
 
@@ -388,21 +409,45 @@ namespace Arc.WPF
                 return;
             }
 
-            App.InvokeAsyncOnUI(() =>
-            { // UI thread.
+            if (UIDispatcher == null)
+            {
+                throw ThrowInvalidUIDispatcher();
+            }
+
+            if (UIDispatcher.CheckAccess())
+            {
                 this.ProcessPacket_Do(packet);
-            });
+            }
+            else
+            {
+                UIDispatcher.InvokeAsync(() => this.ProcessPacket_Do(packet));
+            }
         }
 
         private void ProcessPacket(List<TransformerPacket> packetList)
         {
-            App.InvokeAsyncOnUI(() =>
-            { // UI thread.
+            if (UIDispatcher == null)
+            {
+                throw ThrowInvalidUIDispatcher();
+            }
+
+            if (UIDispatcher.CheckAccess())
+            {
                 foreach (var x in packetList)
                 {
                     this.ProcessPacket_Do(x);
                 }
-            });
+            }
+            else
+            {
+                UIDispatcher.InvokeAsync(() =>
+                    {
+                        foreach (var x in packetList)
+                        {
+                            this.ProcessPacket_Do(x);
+                        }
+                    });
+            }
         }
 
         private bool GetMonitorWorkareaAndDpi(Window window, out RECT workarea, out uint dpiX, out uint dpiY)
