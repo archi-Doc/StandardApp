@@ -33,7 +33,7 @@ namespace StandardApp.Views
             this.DataContext = vm;
             this.vm = vm;
             this.mainViewService = mainViewService;
-            this.mainViewService.Initialize(this);
+            this.mainViewService.SetWindow(this);
 
             CrossChannel.OpenAsync<DialogParam, MessageBoxResult>(this.CrossChannel_Dialog);
 

@@ -15,7 +15,7 @@ namespace StandardApp.ViewServices
 {
     public interface IMainViewService
     {
-        void Initialize(Window window);
+        void SetWindow(Window window);
 
         void SetClosingWindow(Window? closingWindow); // Avoid an exception which occurs when Close () is called while the Window Close confirmation dialog is displayed.
 
@@ -33,7 +33,7 @@ namespace StandardApp.ViewServices
         private Window? window;
         private Window? closingWindow;
 
-        public void Initialize(Window window)
+        public void SetWindow(Window window)
         {
             this.window = window;
         }

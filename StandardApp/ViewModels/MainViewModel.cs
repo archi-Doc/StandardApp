@@ -15,7 +15,6 @@ using CrossLink;
 using StandardApp.ViewServices;
 
 #pragma warning disable SA1201 // Elements should appear in the correct order
-#pragma warning disable SA1202
 
 namespace StandardApp
 {
