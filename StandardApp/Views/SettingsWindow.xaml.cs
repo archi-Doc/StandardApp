@@ -19,7 +19,7 @@ namespace StandardApp.Views
     /// </summary>
     public partial class SettingsWindow : Window
     {
-        public string CurrentCulture { get; set; }
+        public string CurrentCulture { get; set; } = string.Empty;
 
         public List<string> CultureList { get; private set; } = new List<string>() { "en", "ja" };
 
@@ -27,7 +27,7 @@ namespace StandardApp.Views
 
         public List<double> DisplayScaling { get; private set; } = new List<double>() { 0.25, 0.333, 0.5, 0.667, 0.75, 0.8, 0.9, 1, 1.1, 1.25, 1.5, 1.75, 2, 2.5, 3, 5 };
 
-        private IMainViewService ViewService => App.Resolve<IMainViewService>(); // To avoid a circular dependency, get an instance when necessary.
+        private IMainViewService viewService;
 
         private DelegateCommand<string>? licenseTextCommand;
 
@@ -49,10 +49,14 @@ namespace StandardApp.Views
             }
         }
 
-        public SettingsWindow(Window owner)
+        public SettingsWindow(IMainViewService viewService)
         {
             this.InitializeComponent();
+            this.viewService = viewService;
+        }
 
+        public void Initialize(Window owner)
+        {
             // Settings
             this.FontSize = owner.FontSize;
             this.Owner = owner;
@@ -126,7 +130,7 @@ Released under the MIT license
             if (App.Settings.DisplayScaling != this.CurrentDisplayScaling)
             {
                 App.Settings.DisplayScaling = this.CurrentDisplayScaling;
-                this.ViewService.MessageID(MessageId.DisplayScaling);
+                this.viewService.MessageID(MessageId.DisplayScaling);
             }
         }
 

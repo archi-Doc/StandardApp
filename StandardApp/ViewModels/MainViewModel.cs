@@ -15,16 +15,13 @@ using CrossLink;
 using StandardApp.ViewServices;
 
 #pragma warning disable SA1201 // Elements should appear in the correct order
-#pragma warning disable SA1202
 
 namespace StandardApp
 {
     [CrossLinkObject]
     public partial class MainViewModel
     {
-        public AppOptions Options => App.Options;
-
-        private IMainViewService ViewService => App.Resolve<IMainViewService>(); // To avoid a circular dependency, get an instance when necessary.
+        private IMainViewService viewService;
 
         public TestItem.GoshujinClass TestGoshujin { get; } = App.Settings.TestItems;
 
@@ -155,7 +152,7 @@ namespace StandardApp
                         if (param != null)
                         {
                             var id = (MessageId)Enum.Parse(typeof(MessageId), param);
-                            this.ViewService.MessageID(id);
+                            this.viewService.MessageID(id);
                         }
                     });
             }
@@ -210,18 +207,18 @@ namespace StandardApp
                         p.C4Name = "dialog.message";
                         p.Button = MessageBoxButton.YesNo;
                         p.Image = MessageBoxImage.Question;
-                        var result = await this.ViewService.Dialog(p);
+                        var result = await this.viewService.Dialog(p);
                         if (result == MessageBoxResult.Yes)
                         {
                             p.C4Name = "dialog.yes";
                             p.Button = MessageBoxButton.OK;
-                            await this.ViewService.Dialog(p);
+                            await this.viewService.Dialog(p);
                         }
                         else
                         {
                             p.C4Name = "dialog.no";
                             p.Button = MessageBoxButton.OK;
-                            await this.ViewService.Dialog(p);
+                            await this.viewService.Dialog(p);
                         }
                     });
             }
@@ -240,7 +237,7 @@ namespace StandardApp
                         p.C4Name = "app.name";
                         p.Button = MessageBoxButton.OK;
                         p.Image = MessageBoxImage.Information;
-                        this.ViewService.CustomDialog(p);
+                        this.viewService.CustomDialog(p);
                     });
             }
         }
@@ -251,8 +248,9 @@ namespace StandardApp
 
         public DateTime Time1 { get; private set; } = DateTime.Now;
 
-        public MainViewModel()
+        public MainViewModel(IMainViewService mainViewService)
         {
+            this.viewService = mainViewService;
             // this.TestCommand = new RelayCommand(this.TestExecute, () => { return this.commandFlag; });
             this.TestCommand2 = new DelegateCommand(this.TestExecute2);
             this.TestCommand3 = new DelegateCommand(this.TestExecute3);
@@ -307,7 +305,7 @@ namespace StandardApp
                         App.Options.BrushCollection.Brush1.Change(Colors.Green);
                     }
 
-                    this.ViewService.Notification(new NotificationMessage("notification."));
+                    this.viewService.Notification(new NotificationMessage("notification."));
                 }, () => this.CommandFlag).ObservesProperty(() => this.CommandFlag);
             }
         }
@@ -317,7 +315,7 @@ namespace StandardApp
             Task.Run(() =>
             {
                 System.Threading.Thread.Sleep(1000);
-                this.ViewService.MessageID(MessageId.ExitWithoutConfirmation);
+                this.viewService.MessageID(MessageId.ExitWithoutConfirmation);
                 return;
             });
         }
@@ -326,7 +324,7 @@ namespace StandardApp
         {
             var p = default(DialogParam);
             p.C4Name = "app.description";
-            this.ViewService.Dialog(p);
+            this.viewService.Dialog(p);
             return;
         }
     }

@@ -9,15 +9,11 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Markup;
 using Application;
-using Arc.Mvvm;
 using Arc.Text;
 
 #pragma warning disable SA1201 // Elements should appear in the correct order
 #pragma warning disable SA1204 // Static elements should appear before instance elements
 #pragma warning disable SA1401 // Fields should be private
-#pragma warning disable SA1611 // Element parameters should be documented
-#pragma warning disable SA1615 // Element return value should be documented
-#pragma warning disable SA1618 // Generic type parameters should be documented
 #pragma warning disable SA1649 // File name should match first type name
 
 namespace Arc.WPF

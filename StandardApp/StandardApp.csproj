@@ -6,7 +6,7 @@
     <UseWPF>true</UseWPF>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <StartupObject>Application.App</StartupObject>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationManifest>App\\app.manifest</ApplicationManifest>
     <IncludePackageReferencesDuringMarkupCompilation>true</IncludePackageReferencesDuringMarkupCompilation>
   </PropertyGroup>
 

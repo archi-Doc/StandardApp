@@ -15,7 +15,7 @@ namespace Benchmark
     {
         public static void Main(string[] args)
         {
-            DebugRun<CrossChannelBenchmark>();
+            DebugRun<LogBenchmark>();
 
             // var summary = BenchmarkRunner.Run<ReconstructTest>();
             var switcher = new BenchmarkSwitcher(new[]
@@ -25,6 +25,7 @@ namespace Benchmark
                 typeof(ReconstructTest),
                 typeof(DelegateBenchmark),
                 typeof(CrossChannelBenchmark),
+                typeof(LogBenchmark),
             });
             switcher.Run(args);
         }
