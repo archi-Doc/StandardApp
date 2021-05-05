@@ -9,7 +9,6 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Markup;
 using Application;
-using Arc.Mvvm;
 using Arc.Text;
 
 #pragma warning disable SA1201 // Elements should appear in the correct order

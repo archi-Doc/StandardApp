@@ -8,7 +8,6 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Threading;
 using Arc.WinAPI;
-using Serilog;
 
 #pragma warning disable SA1649 // File name should match first type name
 
@@ -246,7 +245,7 @@ namespace Arc.WPF
         private void RemoveTransformObject(LinkedListNode<TransformerObject> node)
         { // lock (this.objectList) required.
             this.objectList.Remove(node);
-            Log.Information("transformer object removed.");
+            // Log.Information("transformer object removed.");
         }
 
         private void AdjustScale(TransformerPacket packet, bool adjustPosition)

@@ -7,10 +7,8 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
-using System.Windows.Media;
 using System.Windows.Threading;
 using Arc.Text;
-using Arc.WinAPI;
 using Arc.WPF;
 using DryIoc; // alternative: SimpleInjector
 using Serilog;
@@ -209,8 +207,16 @@ namespace Application
             .WriteTo.File(
                 Path.Combine(LocalDataFolder, "log.txt"),
                 rollingInterval: RollingInterval.Day,
+                retainedFileCountLimit: 31,
                 buffered: true,
                 flushToDiskInterval: TimeSpan.FromMilliseconds(1000))
+            /*.WriteTo.File(
+                new Serilog.Formatting.Json.JsonFormatter(renderMessage: true),
+                Path.Combine(LocalDataFolder, "log.json"),
+                rollingInterval: RollingInterval.Day,
+                retainedFileCountLimit: 31,
+                buffered: true,
+                flushToDiskInterval: TimeSpan.FromMilliseconds(1000))*/
             .CreateLogger();
 
             Log.Information("App startup.");
@@ -360,73 +366,6 @@ namespace Application
             catch
             {
             }
-        }
-    }
-
-    [TinyhandObject]
-    public partial class AppSettings : ITinyhandSerializationCallback
-    {// Application Settings
-        [Key(0)]
-        public bool LoadError { get; set; } // True if a loading error has occured.
-
-        [Key(1)]
-        public DipWindowPlacement WindowPlacement { get; set; } = default!;
-
-        [Key(2)]
-        public string Culture { get; set; } = AppConst.DefaultCulture; // Default culture
-
-        [Key(3)]
-        public double DisplayScaling { get; set; } = 1.0d; // Display Scaling
-
-        [Key(4)]
-        public TestItem.GoshujinClass TestItems { get; set; } = default!;
-
-        public void OnAfterDeserialize()
-        {
-            Transformer.Instance.ScaleX = this.DisplayScaling;
-            Transformer.Instance.ScaleY = this.DisplayScaling;
-        }
-
-        public void OnBeforeSerialize()
-        {
-        }
-    }
-
-    [TinyhandObject]
-    public partial class AppOptions
-    { // Application Options
-        public AppOptions()
-        {
-            // this.MemberNotNull();
-        }
-
-        [Key(0)]
-        public BrushOption BrushTest { get; set; } = new(Colors.Red);
-
-        [Key(1)]
-        public BrushCollection BrushCollection { get; set; } = default!; // Brush Collection
-    }
-
-    [TinyhandObject]
-    public partial class BrushCollection : ITinyhandSerializationCallback
-    {
-        [Key(0)]
-        public BrushOption Brush1 { get; set; } = new(Colors.BurlyWood);
-
-        public BrushOption this[string name]
-        {
-            get
-            {
-                return this.Brush1;
-            }
-        }
-
-        public void OnBeforeSerialize()
-        {
-        }
-
-        public void OnAfterDeserialize()
-        {
         }
     }
 }
