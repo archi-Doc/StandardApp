@@ -15,7 +15,7 @@ namespace Benchmark
     {
         public SimpleReceiver()
         {
-            CrossChannel.Open<int, int>(x => x * 5);
+            CrossChannel.Open<int, int>(null, x => x * 5);
         }
     }
 
@@ -23,8 +23,8 @@ namespace Benchmark
     {
         public SimpleReceiver2()
         {
-            CrossChannel.Open<uint, uint>(x => x * 3);
-            CrossChannel.Open<uint, uint>(x => x * 3);
+            CrossChannel.Open<uint, uint>(null, x => x * 3);
+            CrossChannel.Open<uint, uint>(null, x => x * 3);
         }
     }
 
@@ -32,7 +32,7 @@ namespace Benchmark
     {
         public H2HReceiver()
         {
-            CrossChannel.Open<int>(x => { });
+            CrossChannel.Open<int>(null, x => { });
         }
     }
 
@@ -77,6 +77,8 @@ namespace Benchmark
             var simpleReceiver2 = new SimpleReceiver2();
             var h2hReceiver = new H2HReceiver();
             var pubSubReceiver = new PubSubReceiver();
+
+            var r = CrossChannel.Send<uint, uint>(3);
         }
 
         /*[Benchmark]
@@ -98,7 +100,7 @@ namespace Benchmark
         [Benchmark]
         public void OpenAndSend()
         {
-            using (var c = CrossChannel.Open<uint>(x => { }))
+            using (var c = CrossChannel.Open<uint>(null, x => { }))
             {
                 CrossChannel.Send<uint>(3);
             }
@@ -109,7 +111,7 @@ namespace Benchmark
         [Benchmark]
         public void OpenAndSend8()
         {
-            using (var c = CrossChannel.Open<uint>(x => { }))
+            using (var c = CrossChannel.Open<uint>(null, x => { }))
             {
                 CrossChannel.Send<uint>(1);
                 CrossChannel.Send<uint>(2);
@@ -189,12 +191,6 @@ namespace Benchmark
             }
 
             return;
-        }
-
-        [Benchmark]
-        public uint[] Send2()
-        {
-            return CrossChannel.SendTarget<uint, uint>(3, null);
         }
     }
 }

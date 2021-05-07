@@ -2,380 +2,63 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Arc.WeakDelegate;
 
-#pragma warning disable SA1202 // Elements should be ordered by access
-#pragma warning disable SA1649 // File name should match first type name
-
 namespace Arc.CrossChannel
 {
-    public readonly struct ChannelIdentification
-    {
-        public readonly Type MessageType; // The type of a message.
-        public readonly Type? ResultType; // The type of a result.
-
-        public ChannelIdentification(Type messageType)
-        {
-            this.MessageType = messageType;
-            this.ResultType = null;
-        }
-
-        public ChannelIdentification(Type messageType, Type? resultType)
-        {
-            this.MessageType = messageType;
-            this.ResultType = resultType;
-        }
-
-        public override int GetHashCode() => HashCode.Combine(this.MessageType, this.ResultType);
-
-        public override bool Equals(object? obj)
-        {
-            if (obj == null || obj.GetType() != typeof(ChannelIdentification))
-            {
-                return false;
-            }
-
-            var x = (ChannelIdentification)obj;
-            return this.MessageType == x.MessageType && this.ResultType == x.ResultType;
-        }
-    }
-
     public static class CrossChannel
     {
         private const int CleanupThreshold = 16;
-
-        private static object cs = new object();
-
         private static int cleanupCount = 0;
 
         static CrossChannel()
         {
         }
 
-        private static XChannel AddXChannel(LinkedList<XChannel> list, ChannelIdentification identification, object? targetId, bool exclusiveChannel, IWeakDelegate weakDelegate)
-        { // lock (cs) required.
-            if (exclusiveChannel)
+        public static XChannel Open<TMessage>(object? weakReference, Action<TMessage> method)
+        {
+            if (++cleanupCount >= CleanupThreshold)
             {
-                if (list.Count > 0)
-                { // other channel already exists.
-                    throw new InvalidOperationException();
-                }
-            }
-            else
-            {
-                if (list.First?.Value.ExclusiveChannel == true)
-                { // Exclusive channel exists.
-                    throw new InvalidOperationException();
-                }
+                cleanupCount = 0;
+                Cleanup(CrossChannel.Cache_Message<TMessage>.List);
             }
 
-            // New XChannel
-            var channel = new XChannel(identification, targetId, exclusiveChannel, weakDelegate);
-
-            // list: Identification to XChannels.
-            channel.Node = list.AddLast(channel);
-
+            var channel = new XChannel<TMessage>(weakReference, method);
             return channel;
         }
 
-        private static void DecrementReferenceCount(XChannel[] array)
+        public static XChannel Open<TMessage, TResult>(object? weakReference, Func<TMessage, TResult> method)
         {
-            lock (cs)
+            if (++cleanupCount >= CleanupThreshold)
             {
-                foreach (var x in array)
+                cleanupCount = 0;
+
+                var list = CrossChannel.Cache_MessageResult<TMessage, TResult>.List;
+                var array = list.GetValues();
+                for (var i = 0; i < array.Length; i++)
                 {
-                    if (x.ReferenceCount > 0)
+                    if (array[i] is { } c)
                     {
-                        x.ReferenceCount--;
-                    }
-                }
-            }
-        }
-
-        public static XChannel Open<TMessage, TResult>(Func<TMessage, TResult> method, object? targetId = null, bool exclusiveChannel = false)
-        {
-            XChannel channel;
-            var identification = new ChannelIdentification(typeof(TMessage), typeof(TResult));
-
-            lock (cs)
-            {
-                var list = Cache_WeakFunction<TMessage, TResult>.List;
-                channel = AddXChannel(list, identification, targetId, exclusiveChannel, new WeakFunc<TMessage, TResult>(method));
-                CleanupList(list);
-            }
-
-            return channel;
-        }
-
-        public static XChannel Open<TMessage>(Action<TMessage> method, object? targetId = null, bool exclusiveChannel = false)
-        {
-            XChannel channel;
-            var identification = new ChannelIdentification(typeof(TMessage));
-
-            lock (cs)
-            {
-                var list = Cache_WeakAction<TMessage>.List;
-                channel = AddXChannel(list, identification, targetId, exclusiveChannel, new WeakAction<TMessage>(method));
-                CleanupList(list);
-            }
-
-            return channel;
-        }
-
-        public static XChannel OpenAsync<TMessage, TResult>(Func<TMessage, Task<TResult>> method, object? targetId = null, bool exclusiveChannel = false)
-        {
-            XChannel channel;
-            var identification = new ChannelIdentification(typeof(TMessage), typeof(Task<TResult>));
-
-            lock (cs)
-            {
-                var list = Cache_WeakFunction<TMessage, Task<TResult>>.List;
-                channel = AddXChannel(list, identification, targetId, exclusiveChannel, new WeakFunc<TMessage, Task<TResult>>(method));
-                CleanupList(list);
-            }
-
-            return channel;
-        }
-
-        public static XChannel OpenAsync<TMessage>(Func<TMessage, Task> method, object? targetId = null, bool exclusiveChannel = false)
-        {
-            XChannel channel;
-            var identification = new ChannelIdentification(typeof(TMessage), typeof(Task));
-
-            lock (cs)
-            {
-                var list = Cache_WeakFunction<TMessage, Task>.List;
-                channel = AddXChannel(list, identification, targetId, exclusiveChannel, new WeakFunc<TMessage, Task>(method));
-                CleanupList(list);
-            }
-
-            return channel;
-        }
-
-        private static void CleanupList(LinkedList<XChannel> list)
-        {
-            if (++cleanupCount < CleanupThreshold)
-            {
-                return;
-            }
-
-            cleanupCount = 0; // Initialize.
-
-            LinkedListNode<XChannel>? node = list.First;
-            LinkedListNode<XChannel>? nextNode;
-
-            while (node != null)
-            {
-                nextNode = node.Next;
-
-                if (!node.Value.IsAlive && node.Value.ReferenceCount == 0)
-                {
-                    CloseChannel(node.Value);
-                }
-
-                node = nextNode;
-            }
-        }
-
-        public static void Close(XChannel channel)
-        {
-            if (channel.Disposed == true)
-            {// already closed.
-                return;
-            }
-
-            while (true)
-            {
-                lock (cs)
-                {
-                    if (channel.ReferenceCount == 0)
-                    {// reference countが0（Send / Receive処理をしていない状態）になったら、Close
-                        CloseChannel(channel);
-                        break;
-                    }
-                }
-#if NETFX_CORE
-                Task.Delay(50).Wait();
-#else
-                System.Threading.Thread.Sleep(50);
-#endif
-            }
-        }
-
-        private static void CloseChannel(XChannel channel)
-        {// lock (cs) required. Reference count must be 0.
-            // list: Identification to XChannels.
-            if (channel.Node != null)
-            {
-                var list = channel.Node.List;
-                if (list != null)
-                {
-                    list.Remove(channel.Node);
-                }
-            }
-
-            channel.MarkForDeletion();
-        }
-
-        private static XChannel[] PrepareXChannelArray(LinkedList<XChannel> list, object? targetId)
-        { // lock (cs) required. Convert LinkedList to Array, release garbage collected object, and increment reference count.
-            var array = new XChannel[list.Count];
-            var arrayCount = 0;
-            var node = list.First;
-            LinkedListNode<XChannel>? nextNode;
-
-            if (targetId == null)
-            {
-                while (node != null)
-                {
-                    nextNode = node.Next;
-
-                    if (node.Value.IsAlive)
-                    {// The instance is still alive.
-                        array[arrayCount++] = node.Value;
-                    }
-                    else if (node.Value.ReferenceCount == 0)
-                    {// The instance is garbage collected and reference count is 0.
-                        CloseChannel(node.Value);
-                    }
-
-                    node = nextNode;
-                }
-            }
-            else
-            {
-                while (node != null)
-                {
-                    nextNode = node.Next;
-
-                    if (node.Value.IsAlive)
-                    {// The instance is still alive.
-                        if (node.Value.TargetId == targetId)
+                        if (c.WeakDelegate != null && !c.WeakDelegate.IsAlive)
                         {
-                            array[arrayCount++] = node.Value;
+                            c.Dispose();
                         }
                     }
-                    else if (node.Value.ReferenceCount == 0)
-                    {// Garbage collected and reference count is 0.
-                        CloseChannel(node.Value);
-                    }
-
-                    node = nextNode;
                 }
+
+                list.TryShrink();
             }
 
-            if (array.Length != arrayCount)
-            {
-                Array.Resize(ref array, arrayCount);
-            }
-
-            foreach (var x in array)
-            {
-                x.ReferenceCount++;
-            }
-
-            return array;
+            var channel = new XChannel<TMessage, TResult>(weakReference, method);
+            return channel;
         }
 
-        /*[return: MaybeNull]
-        public static TResult Send<TMessage, TResult>(TMessage message, out int numberReceived) => SendTarget<TMessage, TResult>(message, null, out numberReceived);
+        public static XChannel OpenKey<TKey, TMessage>(TKey key, object? weakReference, Action<TMessage> method)
+            where TKey : notnull => new XChannel_Key<TKey, TMessage>(key, weakReference, method);
 
-        [return: MaybeNull]
-        public static TResult SendTarget<TMessage, TResult>(TMessage message, object? targetId, out int numberReceived)
-        {
-            XChannel[] array;
-            TResult result = default;
-            numberReceived = 0;
-
-            lock (cs)
-            {
-                array = PrepareXChannelArray(Cache_WeakFunction<TMessage, TResult>.List, targetId);
-            }
-
-            try
-            {
-                foreach (var x in array)
-                {
-                    var d = x.WeakDelegate as WeakFunc<TMessage, TResult>;
-                    if (d == null)
-                    {
-                        continue;
-                    }
-
-                    result = d.Execute(message, out var executed);
-                    if (executed)
-                    {
-                        numberReceived++;
-                    }
-                }
-            }
-            finally
-            {
-                DecrementReferenceCount(array);
-            }
-
-            return result;
-        }*/
-
-        /// <summary>
-        /// Send a message to receivers.
-        /// </summary>
-        /// <typeparam name="TMessage">The type of the message.</typeparam>
-        /// <typeparam name="TResult">The type of the return value from receivers.</typeparam>
-        /// <param name="message">The message to send.</param>
-        /// <returns>An array of the return values (TResult).</returns>
-        public static TResult[] Send<TMessage, TResult>(TMessage message) => SendTarget<TMessage, TResult>(message, null);
-
-        /// <summary>
-        /// Send a message to receivers.
-        /// </summary>
-        /// <typeparam name="TMessage">The type of the message.</typeparam>
-        /// <typeparam name="TResult">The type of the return value.</typeparam>
-        /// <param name="message">The message to send.</param>
-        /// <param name="targetId">The receiver with the same target id will receive this message. Set null to broadcast.</param>
-        /// <returns>An array of the return values (TResult).</returns>
-        public static TResult[] SendTarget<TMessage, TResult>(TMessage message, object? targetId)
-        {
-            XChannel[] array;
-
-            lock (cs)
-            {
-                array = PrepareXChannelArray(Cache_WeakFunction<TMessage, TResult>.List, targetId);
-            }
-
-            TResult[] results = new TResult[array.Length];
-            int resultsCount = 0;
-
-            try
-            {
-                foreach (var x in array)
-                {
-                    var d = x.WeakDelegate as WeakFunc<TMessage, TResult>;
-                    if (d == null)
-                    {
-                        continue;
-                    }
-
-                    var result = d.Execute(message, out var executed);
-                    if (executed)
-                    {
-                        results[resultsCount++] = result!;
-                    }
-                }
-            }
-            finally
-            {
-                DecrementReferenceCount(array);
-            }
-
-            if (results.Length != resultsCount)
-            {
-                Array.Resize(ref results, resultsCount);
-            }
-
-            return results;
-        }
+        public static void Close(XChannel channel) => channel.Dispose();
 
         /// <summary>
         /// Send a message to receivers.
@@ -383,231 +66,292 @@ namespace Arc.CrossChannel
         /// <typeparam name="TMessage">The type of the message.</typeparam>
         /// <param name="message">The message to send.</param>
         /// <returns>A number of the receivers.</returns>
-        public static int Send<TMessage>(TMessage message) => SendTarget<TMessage>(message, null);
-
-        /// <summary>
-        /// Send a message to receivers.
-        /// </summary>
-        /// <typeparam name="TMessage">The type of the message.</typeparam>
-        /// <param name="message">The message to send.</param>
-        /// <param name="targetId">The receiver with the same target id will receive this message. Set null to broadcast.</param>
-        /// <returns>A number of the receivers.</returns>
-        public static int SendTarget<TMessage>(TMessage message, object? targetId)
+        public static int Send<TMessage>(TMessage message)
         {
-            XChannel[] array;
             var numberReceived = 0;
-
-            lock (cs)
+            var array = Cache_Message<TMessage>.List.GetValues();
+            for (var i = 0; i < array.Length; i++)
             {
-                array = PrepareXChannelArray(Cache_WeakAction<TMessage>.List, targetId);
-            }
-
-            try
-            {
-                foreach (var x in array)
+                if (array[i] is { } channel)
                 {
-                    var d = x.WeakDelegate as WeakAction<TMessage>;
-                    if (d == null)
+                    if (channel.StrongDelegate != null)
                     {
-                        continue;
-                    }
-
-                    d.Execute(message, out var executed);
-                    if (executed)
-                    {
+                        channel.StrongDelegate(message);
                         numberReceived++;
                     }
+                    else if (channel.WeakDelegate!.IsAlive)
+                    {
+                        channel.WeakDelegate!.Execute(message);
+                        numberReceived++;
+                    }
+                    else
+                    {
+                        channel.Dispose();
+                    }
                 }
-            }
-            finally
-            {
-                DecrementReferenceCount(array);
             }
 
             return numberReceived;
         }
 
         /// <summary>
-        /// Send a message to receivers asynchronously.
+        /// Send a message to receivers.
         /// </summary>
         /// <typeparam name="TMessage">The type of the message.</typeparam>
-        /// <typeparam name="TResult">The type of the return value from receivers.</typeparam>
         /// <param name="message">The message to send.</param>
-        /// <returns>A task that represents the completion of all of the sending tasks.</returns>
-        public static Task<TResult[]> SendAsync<TMessage, TResult>(TMessage message) => SendTargetAsync<TMessage, TResult>(message, null);
-
-        /// <summary>
-        /// Send a message to receivers asynchronously.
-        /// </summary>
-        /// <typeparam name="TMessage">The type of the message.</typeparam>
-        /// <typeparam name="TResult">The type of the return value from receivers.</typeparam>
-        /// <param name="message">The message to send.</param>
-        /// <param name="targetId">The receiver with the same target id will receive this message. Set null to broadcast.</param>
-        /// <returns>A task that represents the completion of all of the sending tasks.</returns>
-        public static Task<TResult[]> SendTargetAsync<TMessage, TResult>(TMessage message, object? targetId)
+        /// <typeparam name="TResult">The type of the return value.</typeparam>
+        /// <returns>An array of the return values (TResult).</returns>
+        public static TResult[] Send<TMessage, TResult>(TMessage message)
         {
-            XChannel[] array;
-
-            lock (cs)
+            var numberReceived = 0;
+            var list = Cache_MessageResult<TMessage, TResult>.List;
+            var array = list.GetValues();
+            var results = new TResult[list.GetCount()];
+            for (var i = 0; i < array.Length; i++)
             {
-                array = PrepareXChannelArray(Cache_WeakFunction<TMessage, Task<TResult>>.List, targetId);
-            }
-
-            var taskArray = new Task<TResult>[array.Length];
-            int taskCount = 0;
-
-            try
-            {
-                foreach (var x in array)
+                if (array[i] is { } channel)
                 {
-                    var d = x.WeakDelegate as WeakFunc<TMessage, Task<TResult>>;
-                    var task = d?.Execute(message);
-                    if (task != null)
+                    if (channel.StrongDelegate != null)
                     {
-                        taskArray[taskCount++] = task;
+                        results[numberReceived++] = channel.StrongDelegate(message);
+                    }
+                    else if (channel.WeakDelegate!.IsAlive)
+                    {
+                        var result = channel.WeakDelegate!.Execute(message, out var executed);
+                        if (executed)
+                        {
+                            results[numberReceived++] = result!;
+                        }
+                    }
+                    else
+                    {
+                        channel.Dispose();
                     }
                 }
             }
-            finally
+
+            if (results.Length != numberReceived)
             {
-                DecrementReferenceCount(array);
+                Array.Resize(ref results, numberReceived);
             }
 
-            if (taskArray.Length != taskCount)
-            {
-                Array.Resize(ref taskArray, taskCount);
-            }
-
-            return Task.WhenAll(taskArray);
+            return results;
         }
 
-        /// <summary>
-        /// Send a message to receivers asynchronously.
-        /// </summary>
-        /// <typeparam name="TMessage">The type of the message.</typeparam>
-        /// <param name="message">The message to send.</param>
-        /// <returns>A task that represents the completion of the sending task.</returns>
-        public static Task SendAsync<TMessage>(TMessage message) => SendTargetAsync<TMessage>(message, null);
-
-        /// <summary>
-        /// Send a message to receivers asynchronously.
-        /// </summary>
-        /// <typeparam name="TMessage">The type of the message.</typeparam>
-        /// <param name="message">The message to send.</param>
-        /// <param name="targetId">The receiver with the same target id will receive this message. Set null to broadcast.</param>
-        /// <returns>A task that represents the completion of the sending task.</returns>
-        public static Task SendTargetAsync<TMessage>(TMessage message, object? targetId)
+        public static int SendKey<TKey, TMessage>(TKey key, TMessage message)
+            where TKey : notnull
         {
-            XChannel[] array;
-
-            lock (cs)
+            var numberReceived = 0;
+            var dic = Cache_KeyMessage<TKey, TMessage>.Dic;
+            FastList<XChannel_Key<TKey, TMessage>> list;
+            lock (dic)
             {
-                array = PrepareXChannelArray(Cache_WeakFunction<TMessage, Task>.List, targetId);
+                if (dic.TryGetValue(key, out list))
+                {
+                    return 0;
+                }
             }
 
-            var taskArray = new Task[array.Length];
-            int taskCount = 0;
-
-            try
+            var array = list.GetValues();
+            for (var i = 0; i < array.Length; i++)
             {
-                foreach (var x in array)
+                if (array[i] is { } channel)
                 {
-                    var d = x.WeakDelegate as WeakFunc<TMessage, Task>;
-                    var task = d?.Execute(message);
-                    if (task != null)
+                    if (channel.StrongDelegate != null)
                     {
-                        taskArray[taskCount++] = task;
+                        channel.StrongDelegate(message);
+                        numberReceived++;
+                    }
+                    else if (channel.WeakDelegate!.IsAlive)
+                    {
+                        channel.WeakDelegate!.Execute(message);
+                        numberReceived++;
+                    }
+                    else
+                    {
+                        channel.Dispose();
                     }
                 }
             }
-            finally
+
+            return numberReceived;
+        }
+
+        private static void Cleanup<TMessage>(FastList<XChannel<TMessage>> list)
+        {
+            var array = list.GetValues();
+            for (var i = 0; i < array.Length; i++)
             {
-                DecrementReferenceCount(array);
+                if (array[i] is { } c)
+                {
+                    if (c.WeakDelegate != null && !c.WeakDelegate.IsAlive)
+                    {
+                        c.Dispose();
+                    }
+                }
             }
 
-            if (taskArray.Length != taskCount)
-            {
-                Array.Resize(ref taskArray, taskCount);
-            }
-
-            return Task.WhenAll(taskArray);
+            list.TryShrink();
         }
 
 #pragma warning disable SA1401 // Fields should be private
-        private static class Cache_WeakAction<TMessage>
+        internal static class Cache_Message<TMessage>
         {
-            public static LinkedList<XChannel> List;
+            public static FastList<XChannel<TMessage>> List;
 
-            static Cache_WeakAction()
+            static Cache_Message()
             {
-                List = new LinkedList<XChannel>();
+                List = new();
             }
         }
 
-        private static class Cache_WeakFunction<TMessage, TResult>
+        internal static class Cache_MessageResult<TMessage, TResult>
         {
-            public static LinkedList<XChannel> List;
+            public static FastList<XChannel<TMessage, TResult>> List;
 
-            static Cache_WeakFunction()
+            static Cache_MessageResult()
             {
-                List = new LinkedList<XChannel>();
+                List = new();
+            }
+        }
+
+        internal static class Cache_KeyMessage<TKey, TMessage>
+            where TKey : notnull
+        {
+            public static Dictionary<TKey, FastList<XChannel_Key<TKey, TMessage>>> Dic;
+
+            static Cache_KeyMessage()
+            {
+                Dic = new();
             }
         }
 #pragma warning restore SA1401 // Fields should be private
     }
 
-    public class XChannel : IDisposable
+    public class XChannel<TMessage> : XChannel
     {
-        public XChannel(ChannelIdentification channelIdentification, object? targetId, bool exclusiveChannel, IWeakDelegate weakDelegate)
+        public XChannel(object? weakReference, Action<TMessage> method)
         {
-            this.Identification = channelIdentification;
-            this.TargetId = targetId;
-            this.ExclusiveChannel = exclusiveChannel;
-            this.WeakDelegate = weakDelegate;
-        }
-
-        public bool Disposed { get; private set; } = false;
-
-        internal LinkedListNode<XChannel>? Node { get; set; }
-
-        internal int ReferenceCount { get; set; }
-
-        public ChannelIdentification Identification { get; private set; }
-
-        public object? TargetId { get; set; }
-
-        public bool ExclusiveChannel { get; private set; }
-
-        public IWeakDelegate WeakDelegate { get; private set; }
-
-        public bool IsAlive => this.WeakDelegate.IsAlive;
-
-        public void MarkForDeletion()
-        {
-            this.Node = null;
-            this.ReferenceCount = 0;
-            this.Identification = default(ChannelIdentification);
-            this.TargetId = null;
-            this.WeakDelegate.MarkForDeletion();
-
-            this.Disposed = true;
-        }
-
-        public void Dispose()
-        {
-            this.Dispose(true);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.Disposed)
+            var list = CrossChannel.Cache_Message<TMessage>.List;
+            this.Index = list.Add(this);
+            if (weakReference == null)
             {
-                if (disposing)
+                this.StrongDelegate = method;
+            }
+            else
+            {
+                this.WeakDelegate = new(weakReference, method);
+            }
+        }
+
+        internal Action<TMessage>? StrongDelegate { get; set; }
+
+        internal WeakAction<TMessage>? WeakDelegate { get; set; }
+
+        public override void Dispose()
+        {
+            if (this.Index != -1)
+            {
+                CrossChannel.Cache_Message<TMessage>.List.Remove(this.Index);
+                this.Index = -1;
+            }
+        }
+    }
+
+    public class XChannel<TMessage, TResult> : XChannel
+    {
+        public XChannel(object? weakReference, Func<TMessage, TResult> method)
+        {
+            var list = CrossChannel.Cache_MessageResult<TMessage, TResult>.List;
+            this.Index = list.Add(this);
+            if (weakReference == null)
+            {
+                this.StrongDelegate = method;
+            }
+            else
+            {
+                this.WeakDelegate = new(weakReference, method);
+            }
+        }
+
+        internal Func<TMessage, TResult>? StrongDelegate { get; set; }
+
+        internal WeakFunc<TMessage, TResult>? WeakDelegate { get; set; }
+
+        public override void Dispose()
+        {
+            if (this.Index != -1)
+            {
+                CrossChannel.Cache_MessageResult<TMessage, TResult>.List.Remove(this.Index);
+                this.Index = -1;
+            }
+        }
+    }
+
+    public class XChannel_Key<TKey, TMessage> : XChannel
+        where TKey : notnull
+    {
+        public XChannel_Key(TKey key, object? weakReference, Action<TMessage> method)
+        {
+            var dic = CrossChannel.Cache_KeyMessage<TKey, TMessage>.Dic;
+            lock (dic)
+            {
+                if (!dic.TryGetValue(key, out this.list))
                 {
-                    CrossChannel.Close(this);
+                    this.list = new();
+                    dic[key] = this.list;
                 }
 
-                this.Disposed = true;
+                this.Key = key;
+                this.Index = this.list.Add(this);
+            }
+
+            if (weakReference == null)
+            {
+                this.StrongDelegate = method;
+            }
+            else
+            {
+                this.WeakDelegate = new(weakReference, method);
+            }
+        }
+
+        public TKey Key { get; }
+
+        internal Action<TMessage>? StrongDelegate { get; set; }
+
+        internal WeakAction<TMessage>? WeakDelegate { get; set; }
+
+        private FastList<XChannel_Key<TKey, TMessage>> list;
+
+        public override void Dispose()
+        {
+            if (this.Index != -1)
+            {
+                var dic = CrossChannel.Cache_KeyMessage<TKey, TMessage>.Dic;
+                lock (dic)
+                {
+                    this.list.Remove(this.Index);
+                    if (this.list.GetCount() == 0)
+                    {
+                        dic.Remove(this.Key);
+                    }
+                }
+
+                this.Index = -1;
+            }
+        }
+    }
+
+    public abstract class XChannel : IDisposable
+    {
+        internal int Index { get; set; }
+
+        public virtual void Dispose()
+        {
+            if (this.Index != -1)
+            {
+                this.Index = -1;
             }
         }
     }

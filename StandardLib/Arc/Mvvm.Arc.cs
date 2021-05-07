@@ -184,6 +184,19 @@ namespace Arc.Mvvm
     {
         private readonly Action action;
 
+        /// <summary>
+        /// Observes a property that implements INotifyPropertyChanged, and automatically calls a custom action on
+        /// property changed notifications. The given expression must be in this form: "() => Prop.NestedProp.PropToObserve".
+        /// </summary>
+        /// <typeparam name="T">Type.</typeparam>
+        /// <param name="propertyExpression">Expression representing property to be observed. Ex.: "() => Prop.NestedProp.PropToObserve".</param>
+        /// <param name="action">Action to be invoked when PropertyChanged event occours.</param>
+        /// <returns>PropertyObserver.</returns>
+        internal static PropertyObserver Observes<T>(Expression<Func<T>> propertyExpression, Action action)
+        {
+            return new PropertyObserver(propertyExpression.Body, action);
+        }
+
         private PropertyObserver(Expression propertyExpression, Action action)
         {
             this.action = action;
@@ -221,19 +234,6 @@ namespace Arc.Mvvm
             }
 
             propObserverNodeRoot.SubscribeListenerFor(inpcObject);
-        }
-
-        /// <summary>
-        /// Observes a property that implements INotifyPropertyChanged, and automatically calls a custom action on
-        /// property changed notifications. The given expression must be in this form: "() => Prop.NestedProp.PropToObserve".
-        /// </summary>
-        /// <typeparam name="T">Type.</typeparam>
-        /// <param name="propertyExpression">Expression representing property to be observed. Ex.: "() => Prop.NestedProp.PropToObserve".</param>
-        /// <param name="action">Action to be invoked when PropertyChanged event occours.</param>
-        /// <returns>PropertyObserver.</returns>
-        internal static PropertyObserver Observes<T>(Expression<Func<T>> propertyExpression, Action action)
-        {
-            return new PropertyObserver(propertyExpression.Body, action);
         }
     }
 
@@ -278,6 +278,44 @@ namespace Arc.Mvvm
         public virtual event EventHandler? CanExecuteChanged;
 
         /// <summary>
+        /// Raises <see cref="CanExecuteChanged"/> so every command invoker
+        /// can requery to check if the command can execute.
+        /// </summary>
+        /// <remarks>Note that this will trigger the execution of <see cref="CanExecuteChanged"/> once for each invoker.</remarks>
+        public void RaiseCanExecuteChanged()
+        {
+            this.OnCanExecuteChanged();
+        }
+
+        void ICommand.Execute(object? parameter)
+        {
+            this.Execute(parameter);
+        }
+
+        bool ICommand.CanExecute(object? parameter)
+        {
+            return this.CanExecute(parameter);
+        }
+
+        /// <summary>
+        /// Observes a property that implements INotifyPropertyChanged, and automatically calls DelegateCommandBase.RaiseCanExecuteChanged on property changed notifications.
+        /// </summary>
+        /// <typeparam name="T">The object type containing the property specified in the expression.</typeparam>
+        /// <param name="propertyExpression">The property expression. Example: ObservesProperty(() => PropertyName).</param>
+        protected internal void ObservesPropertyInternal<T>(Expression<Func<T>> propertyExpression)
+        {
+            if (this.observedPropertiesExpressions.Contains(propertyExpression.ToString()))
+            {
+                throw new ArgumentException($"{propertyExpression.ToString()} is already being observed.", nameof(propertyExpression));
+            }
+            else
+            {
+                this.observedPropertiesExpressions.Add(propertyExpression.ToString());
+                PropertyObserver.Observes(propertyExpression, this.RaiseCanExecuteChanged);
+            }
+        }
+
+        /// <summary>
         /// Raises <see cref="ICommand.CanExecuteChanged"/> so every
         /// command invoker can requery <see cref="ICommand.CanExecute"/>.
         /// </summary>
@@ -298,27 +336,6 @@ namespace Arc.Mvvm
         }
 
         /// <summary>
-        /// Raises <see cref="CanExecuteChanged"/> so every command invoker
-        /// can requery to check if the command can execute.
-        /// </summary>
-        /// <remarks>Note that this will trigger the execution of <see cref="CanExecuteChanged"/> once for each invoker.</remarks>
-        [SuppressMessage("Microsoft.Design", "CA1030:UseEventsWhereAppropriate", Justification = ".")]
-        public void RaiseCanExecuteChanged()
-        {
-            this.OnCanExecuteChanged();
-        }
-
-        void ICommand.Execute(object? parameter)
-        {
-            this.Execute(parameter);
-        }
-
-        bool ICommand.CanExecute(object? parameter)
-        {
-            return this.CanExecute(parameter);
-        }
-
-        /// <summary>
         /// Handle the internal invocation of <see cref="ICommand.Execute(object)"/>.
         /// </summary>
         /// <param name="parameter">Command Parameter.</param>
@@ -330,24 +347,6 @@ namespace Arc.Mvvm
         /// <param name="parameter">parameter.</param>
         /// <returns><see langword="true"/> if the Command Can Execute, otherwise <see langword="false" />.</returns>
         protected abstract bool CanExecute(object? parameter);
-
-        /// <summary>
-        /// Observes a property that implements INotifyPropertyChanged, and automatically calls DelegateCommandBase.RaiseCanExecuteChanged on property changed notifications.
-        /// </summary>
-        /// <typeparam name="T">The object type containing the property specified in the expression.</typeparam>
-        /// <param name="propertyExpression">The property expression. Example: ObservesProperty(() => PropertyName).</param>
-        protected internal void ObservesPropertyInternal<T>(Expression<Func<T>> propertyExpression)
-        {
-            if (this.observedPropertiesExpressions.Contains(propertyExpression.ToString()))
-            {
-                throw new ArgumentException($"{propertyExpression.ToString()} is already being observed.", nameof(propertyExpression));
-            }
-            else
-            {
-                this.observedPropertiesExpressions.Add(propertyExpression.ToString());
-                PropertyObserver.Observes(propertyExpression, this.RaiseCanExecuteChanged);
-            }
-        }
 
         /// <summary>
         /// Gets or sets a value indicating whether the object is active.
@@ -439,25 +438,6 @@ namespace Arc.Mvvm
         }
 
         /// <summary>
-        /// Handle the internal invocation of <see cref="ICommand.Execute(object)"/>.
-        /// </summary>
-        /// <param name="parameter">Command Parameter.</param>
-        protected override void Execute(object? parameter)
-        {
-            this.Execute();
-        }
-
-        /// <summary>
-        /// Handle the internal invocation of <see cref="ICommand.CanExecute(object)"/>.
-        /// </summary>
-        /// <param name="parameter">parameter.</param>
-        /// <returns><see langword="true"/> if the Command Can Execute, otherwise <see langword="false" />.</returns>
-        protected override bool CanExecute(object? parameter)
-        {
-            return this.CanExecute();
-        }
-
-        /// <summary>
         /// Observes a property that implements INotifyPropertyChanged, and automatically calls DelegateCommandBase.RaiseCanExecuteChanged on property changed notifications.
         /// </summary>
         /// <typeparam name="T">The object type containing the property specified in the expression.</typeparam>
@@ -479,6 +459,25 @@ namespace Arc.Mvvm
             this.canExecuteMethod = canExecuteExpression.Compile();
             this.ObservesPropertyInternal(canExecuteExpression);
             return this;
+        }
+
+        /// <summary>
+        /// Handle the internal invocation of <see cref="ICommand.Execute(object)"/>.
+        /// </summary>
+        /// <param name="parameter">Command Parameter.</param>
+        protected override void Execute(object? parameter)
+        {
+            this.Execute();
+        }
+
+        /// <summary>
+        /// Handle the internal invocation of <see cref="ICommand.CanExecute(object)"/>.
+        /// </summary>
+        /// <param name="parameter">parameter.</param>
+        /// <returns><see langword="true"/> if the Command Can Execute, otherwise <see langword="false" />.</returns>
+        protected override bool CanExecute(object? parameter)
+        {
+            return this.CanExecute();
         }
     }
 
@@ -573,25 +572,6 @@ namespace Arc.Mvvm
         }
 
         /// <summary>
-        /// Handle the internal invocation of <see cref="ICommand.Execute(object)"/>.
-        /// </summary>
-        /// <param name="parameter">Command Parameter.</param>
-        protected override void Execute(object? parameter)
-        {
-            this.Execute((T)parameter);
-        }
-
-        /// <summary>
-        /// Handle the internal invocation of <see cref="ICommand.CanExecute(object)"/>.
-        /// </summary>
-        /// <param name="parameter">parameter.</param>
-        /// <returns><see langword="true"/> if the Command Can Execute, otherwise <see langword="false" />.</returns>
-        protected override bool CanExecute(object? parameter)
-        {
-            return this.CanExecute((T)parameter);
-        }
-
-        /// <summary>
         /// Observes a property that implements INotifyPropertyChanged, and automatically calls DelegateCommandBase.RaiseCanExecuteChanged on property changed notifications.
         /// </summary>
         /// <typeparam name="TType">The type of the return value of the method that this delegate encapulates.</typeparam>
@@ -614,6 +594,25 @@ namespace Arc.Mvvm
             this.canExecuteMethod = expression.Compile();
             this.ObservesPropertyInternal(canExecuteExpression);
             return this;
+        }
+
+        /// <summary>
+        /// Handle the internal invocation of <see cref="ICommand.Execute(object)"/>.
+        /// </summary>
+        /// <param name="parameter">Command Parameter.</param>
+        protected override void Execute(object? parameter)
+        {
+            this.Execute((T)parameter);
+        }
+
+        /// <summary>
+        /// Handle the internal invocation of <see cref="ICommand.CanExecute(object)"/>.
+        /// </summary>
+        /// <param name="parameter">parameter.</param>
+        /// <returns><see langword="true"/> if the Command Can Execute, otherwise <see langword="false" />.</returns>
+        protected override bool CanExecute(object? parameter)
+        {
+            return this.CanExecute((T)parameter);
         }
     }
 

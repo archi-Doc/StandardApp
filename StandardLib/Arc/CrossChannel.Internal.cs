@@ -7,20 +7,20 @@ using System.Threading;
 
 namespace Arc.CrossChannel
 {
-    internal sealed class FreeList<T> : IDisposable
+    internal sealed class FastList<T> : IDisposable
         where T : class
     {
         private const int InitialCapacity = 4;
         private const int MinShrinkStart = 8;
 
-        private readonly object gate = new object();
+        private readonly object cs = new();
 
         private T?[] values = default!;
         private int count;
-        private FastQueue<int> freeIndex = default!;
+        private FastIntQueue freeIndex = default!;
         private bool isDisposed;
 
-        public FreeList()
+        public FastList()
         {
             this.Initialize();
         }
@@ -29,7 +29,7 @@ namespace Arc.CrossChannel
 
         public int GetCount()
         {
-            lock (this.gate)
+            lock (this.cs)
             {
                 return this.count;
             }
@@ -37,11 +37,11 @@ namespace Arc.CrossChannel
 
         public int Add(T value)
         {
-            lock (this.gate)
+            lock (this.cs)
             {
                 if (this.isDisposed)
                 {
-                    throw new ObjectDisposedException(nameof(FreeList<T>));
+                    throw new ObjectDisposedException(nameof(FastList<T>));
                 }
 
                 if (this.freeIndex.Count != 0)
@@ -71,13 +71,13 @@ namespace Arc.CrossChannel
             }
         }
 
-        public void Remove(int index, bool shrinkWhenEmpty)
+        public void Remove(int index)
         {
-            lock (this.gate)
+            lock (this.cs)
             {
                 if (this.isDisposed)
                 {
-                    return; // do nothing
+                    return;
                 }
 
                 ref var v = ref this.values[index];
@@ -86,25 +86,31 @@ namespace Arc.CrossChannel
                     throw new KeyNotFoundException($"key index {index} is not found.");
                 }
 
-                v = null;
+                v = default(T);
                 this.freeIndex.Enqueue(index);
                 this.count--;
-
-                if (shrinkWhenEmpty && this.count == 0 && this.values.Length > MinShrinkStart)
-                {
-                    this.Initialize(); // re-init.
-                }
             }
         }
 
+        public bool TryShrink()
+        {
+            if (!this.isDisposed && this.count == 0 && this.values.Length > MinShrinkStart)
+            {
+                this.Initialize(); // Reset
+                return true;
+            }
+
+            return false;
+        }
+
         /// <summary>
-        /// Dispose and get cleared count.
+        /// Dispose and get the number of cleared items.
         /// </summary>
-        /// <param name="clearedCount">The number of items cleared.</param>
+        /// <param name="clearedCount">The number of cleared items.</param>
         /// <returns>True if successfully disposed.</returns>
         public bool TryDispose(out int clearedCount)
         {
-            lock (this.gate)
+            lock (this.cs)
             {
                 if (this.isDisposed)
                 {
@@ -120,7 +126,7 @@ namespace Arc.CrossChannel
 
         public void Dispose()
         {
-            lock (this.gate)
+            lock (this.cs)
             {
                 if (this.isDisposed)
                 {
@@ -137,7 +143,7 @@ namespace Arc.CrossChannel
 
         private void Initialize()
         {
-            this.freeIndex = new FastQueue<int>(InitialCapacity);
+            this.freeIndex = new FastIntQueue(InitialCapacity);
             for (int i = 0; i < InitialCapacity; i++)
             {
                 this.freeIndex.Enqueue(i);
@@ -150,7 +156,89 @@ namespace Arc.CrossChannel
         }
     }
 
-    internal class FastQueue<T>
+    internal class FastIntQueue
+    {
+        private int[] array;
+        private int head;
+        private int tail;
+        private int size;
+
+        public FastIntQueue(int capacity)
+        {
+            if (capacity < 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(capacity));
+            }
+
+            this.array = new int[capacity];
+            this.head = 0;
+            this.tail = 0;
+            this.size = 0;
+        }
+
+        public int Count => this.size;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Enqueue(int item)
+        {
+            if (this.size == this.array.Length)
+            {
+                throw new InvalidOperationException("Queue is full.");
+            }
+
+            this.array[this.tail] = item;
+            this.size++;
+            this.tail++;
+            if (this.tail == this.array.Length)
+            {
+                this.tail = 0;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int Dequeue()
+        {
+            if (this.size == 0)
+            {
+                throw new InvalidOperationException("Queue is empty.");
+            }
+
+            var removed = this.array[this.head];
+            this.array[this.head] = default!;
+            this.size--;
+
+            this.head++;
+            if (this.head == this.array.Length)
+            {
+                this.head = 0;
+            }
+
+            return removed;
+        }
+
+        public void EnsureNewCapacity(int capacity)
+        {
+            var newarray = new int[capacity];
+            if (this.size > 0)
+            {
+                if (this.head < this.tail)
+                {
+                    Array.Copy(this.array, this.head, newarray, 0, this.size);
+                }
+                else
+                {
+                    Array.Copy(this.array, this.head, newarray, 0, this.array.Length - this.head);
+                    Array.Copy(this.array, 0, newarray, this.array.Length - this.head, this.tail);
+                }
+            }
+
+            this.array = newarray;
+            this.head = 0;
+            this.tail = (this.size == capacity) ? 0 : this.size;
+        }
+    }
+
+    /*internal class FastQueue<T>
     {
         private T[] array;
         private int head;
@@ -177,12 +265,16 @@ namespace Arc.CrossChannel
         {
             if (this.size == this.array.Length)
             {
-                this.ThrowForFullQueue();
+                throw new InvalidOperationException("Queue is full.");
             }
 
             this.array[this.tail] = item;
-            this.MoveNext(ref this.tail);
             this.size++;
+            this.tail++;
+            if(this.tail == this.array.Length)
+            {
+                this.tail = 0;
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -190,15 +282,19 @@ namespace Arc.CrossChannel
         {
             if (this.size == 0)
             {
-                this.ThrowForEmptyQueue();
+                throw new InvalidOperationException("Queue is empty.");
             }
 
-            var head = this.head;
-            var array = this.array;
-            var removed = array[head];
-            array[head] = default!;
-            this.MoveNext(ref this.head);
+            var removed = this.array[this.head];
+            this.array[this.head] = default!;
             this.size--;
+
+            this.head++;
+            if (this.head == this.array.Length)
+            {
+                this.head = 0;
+            }
+
             return removed;
         }
 
@@ -222,21 +318,5 @@ namespace Arc.CrossChannel
             this.head = 0;
             this.tail = (this.size == capacity) ? 0 : this.size;
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void MoveNext(ref int index)
-        {
-            var tmp = index + 1;
-            if (tmp == this.array.Length)
-            {
-                tmp = 0;
-            }
-
-            index = tmp;
-        }
-
-        private void ThrowForEmptyQueue() => throw new InvalidOperationException("Queue is empty.");
-
-        private void ThrowForFullQueue() => throw new InvalidOperationException("Queue is full.");
-    }
+    }*/
 }
