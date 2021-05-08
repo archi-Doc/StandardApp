@@ -80,6 +80,7 @@ namespace Benchmark
             var pubSubReceiver = new PubSubReceiver();
 
             var r = CrossChannel.Send<uint, uint>(3);
+            r = GunjoChannel.Send<uint, uint>(3);
         }
 
         [Benchmark]
