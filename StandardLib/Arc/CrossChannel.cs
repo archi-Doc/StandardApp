@@ -31,21 +31,7 @@ namespace Arc.CrossChannel
             if (++cleanupCount >= CleanupThreshold)
             {
                 cleanupCount = 0;
-
-                var list = Cache_MessageResult<TMessage, TResult>.List;
-                var array = list.GetValues();
-                for (var i = 0; i < array.Length; i++)
-                {
-                    if (array[i] is { } c)
-                    {
-                        if (c.WeakDelegate != null && !c.WeakDelegate.IsAlive)
-                        {
-                            c.Dispose();
-                        }
-                    }
-                }
-
-                list.TryShrink();
+                Cleanup(Cache_MessageResult<TMessage, TResult>.List);
             }
 
             var channel = new XChannel<TMessage, TResult>(Cache_MessageResult<TMessage, TResult>.List, weakReference, method);
@@ -53,7 +39,17 @@ namespace Arc.CrossChannel
         }
 
         public static XChannel OpenKey<TKey, TMessage>(TKey key, object? weakReference, Action<TMessage> method)
-            where TKey : notnull => new XChannel_Key<TKey, TMessage>(Cache_KeyMessage<TKey, TMessage>.Dic, key, weakReference, method);
+            where TKey : notnull
+        {
+            if (++cleanupCount >= CleanupThreshold)
+            {
+                cleanupCount = 0;
+                // Cleanup(Cache_MessageResult<TMessage, TResult>.List);
+            }
+
+            var channel = new XChannel_KeyMessage<TKey, TMessage>(Cache_KeyMessage<TKey, TMessage>.Table, key, weakReference, method);
+            return channel;
+        }
 
         public static void Close(XChannel channel) => channel.Dispose();
 
@@ -139,14 +135,11 @@ namespace Arc.CrossChannel
             where TKey : notnull
         {
             var numberReceived = 0;
-            var dic = Cache_KeyMessage<TKey, TMessage>.Dic;
-            FastList<XChannel_Key<TKey, TMessage>> list;
-            lock (dic)
+            var table = Cache_KeyMessage<TKey, TMessage>.Table;
+            var list = table[key] as FastList<XChannel_KeyMessage<TKey, TMessage>>;
+            if (list == null)
             {
-                if (!dic.TryGetValue(key, out list))
-                {
-                    return 0;
-                }
+                return 0;
             }
 
             var array = list.GetValues();
@@ -191,6 +184,23 @@ namespace Arc.CrossChannel
             list.TryShrink();
         }
 
+        private static void Cleanup<TMessage, TResult>(FastList<XChannel<TMessage, TResult>> list)
+        {
+            var array = list.GetValues();
+            for (var i = 0; i < array.Length; i++)
+            {
+                if (array[i] is { } c)
+                {
+                    if (c.WeakDelegate != null && !c.WeakDelegate.IsAlive)
+                    {
+                        c.Dispose();
+                    }
+                }
+            }
+
+            list.TryShrink();
+        }
+
 #pragma warning disable SA1401 // Fields should be private
         internal static class Cache_Message<TMessage>
         {
@@ -215,11 +225,11 @@ namespace Arc.CrossChannel
         internal static class Cache_KeyMessage<TKey, TMessage>
             where TKey : notnull
         {
-            public static Dictionary<TKey, FastList<XChannel_Key<TKey, TMessage>>> Dic;
+            public static Hashtable Table;
 
             static Cache_KeyMessage()
             {
-                Dic = new();
+                Table = new();
             }
         }
 #pragma warning restore SA1401 // Fields should be private
