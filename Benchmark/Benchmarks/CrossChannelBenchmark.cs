@@ -16,6 +16,7 @@ namespace Benchmark
         public SimpleReceiver()
         {
             CrossChannel.Open<int, int>(null, x => x * 5);
+            CrossChannel.Open<int, int>(null, x => x * 5);
         }
     }
 
@@ -121,6 +122,78 @@ namespace Benchmark
                 CrossChannel.Send<uint>(6);
                 CrossChannel.Send<uint>(7);
                 CrossChannel.Send<uint>(8);
+            }
+
+            return;
+        }
+
+        [Benchmark]
+        public void SendKey()
+        {
+            CrossChannel.SendKey<int, int>(3, 3);
+            return;
+        }
+
+        [Benchmark]
+        public void OpenAndSendKey()
+        {
+            using (var c = CrossChannel.OpenKey<int, uint>(3, null, x => { }))
+            {
+                CrossChannel.SendKey<int, uint>(3, 3);
+            }
+
+            return;
+        }
+
+        [Benchmark]
+        public void OpenAndSendKey8()
+        {
+            using (var c = CrossChannel.OpenKey<int, uint>(3, null, x => { }))
+            {
+                CrossChannel.SendKey<int, uint>(3, 1);
+                CrossChannel.SendKey<int, uint>(3, 2);
+                CrossChannel.SendKey<int, uint>(3, 3);
+                CrossChannel.SendKey<int, uint>(3, 4);
+                CrossChannel.SendKey<int, uint>(3, 5);
+                CrossChannel.SendKey<int, uint>(3, 6);
+                CrossChannel.SendKey<int, uint>(3, 7);
+                CrossChannel.SendKey<int, uint>(3, 8);
+            }
+
+            return;
+        }
+
+        [Benchmark]
+        public void Send_CC2()
+        {
+            CrossChannel2.Default.Send<int>(3);
+            return;
+        }
+
+        [Benchmark]
+        public void OpenAndSend_CC2()
+        {
+            using (var c = CrossChannel2.Default.Open<uint>(null, x => { }))
+            {
+                CrossChannel2.Default.Send<uint>(3);
+            }
+
+            return;
+        }
+
+        [Benchmark]
+        public void OpenAndSend8_CC2()
+        {
+            using (var c = CrossChannel2.Default.Open<uint>(null, x => { }))
+            {
+                CrossChannel2.Default.Send<uint>(1);
+                CrossChannel2.Default.Send<uint>(2);
+                CrossChannel2.Default.Send<uint>(3);
+                CrossChannel2.Default.Send<uint>(4);
+                CrossChannel2.Default.Send<uint>(5);
+                CrossChannel2.Default.Send<uint>(6);
+                CrossChannel2.Default.Send<uint>(7);
+                CrossChannel2.Default.Send<uint>(8);
             }
 
             return;

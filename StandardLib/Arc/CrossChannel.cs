@@ -1,6 +1,7 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,10 +14,6 @@ namespace Arc.CrossChannel
         private const int CleanupThreshold = 16;
         private static int cleanupCount = 0;
 
-        static CrossChannel()
-        {
-        }
-
         public static XChannel Open<TMessage>(object? weakReference, Action<TMessage> method)
         {
             if (++cleanupCount >= CleanupThreshold)
@@ -25,7 +22,7 @@ namespace Arc.CrossChannel
                 Cleanup(CrossChannel.Cache_Message<TMessage>.List);
             }
 
-            var channel = new XChannel<TMessage>(weakReference, method);
+            var channel = new XChannel<TMessage>(CrossChannel.Cache_Message<TMessage>.List, weakReference, method);
             return channel;
         }
 
@@ -35,7 +32,7 @@ namespace Arc.CrossChannel
             {
                 cleanupCount = 0;
 
-                var list = CrossChannel.Cache_MessageResult<TMessage, TResult>.List;
+                var list = Cache_MessageResult<TMessage, TResult>.List;
                 var array = list.GetValues();
                 for (var i = 0; i < array.Length; i++)
                 {
@@ -51,12 +48,12 @@ namespace Arc.CrossChannel
                 list.TryShrink();
             }
 
-            var channel = new XChannel<TMessage, TResult>(weakReference, method);
+            var channel = new XChannel<TMessage, TResult>(Cache_MessageResult<TMessage, TResult>.List, weakReference, method);
             return channel;
         }
 
         public static XChannel OpenKey<TKey, TMessage>(TKey key, object? weakReference, Action<TMessage> method)
-            where TKey : notnull => new XChannel_Key<TKey, TMessage>(key, weakReference, method);
+            where TKey : notnull => new XChannel_Key<TKey, TMessage>(Cache_KeyMessage<TKey, TMessage>.Dic, key, weakReference, method);
 
         public static void Close(XChannel channel) => channel.Dispose();
 
@@ -146,7 +143,7 @@ namespace Arc.CrossChannel
             FastList<XChannel_Key<TKey, TMessage>> list;
             lock (dic)
             {
-                if (dic.TryGetValue(key, out list))
+                if (!dic.TryGetValue(key, out list))
                 {
                     return 0;
                 }
@@ -228,12 +225,25 @@ namespace Arc.CrossChannel
 #pragma warning restore SA1401 // Fields should be private
     }
 
-    public class XChannel<TMessage> : XChannel
+    public abstract class XChannel : IDisposable
     {
-        public XChannel(object? weakReference, Action<TMessage> method)
+        internal int Index { get; set; }
+
+        public virtual void Dispose()
         {
-            var list = CrossChannel.Cache_Message<TMessage>.List;
-            this.Index = list.Add(this);
+            if (this.Index != -1)
+            {
+                this.Index = -1;
+            }
+        }
+    }
+
+    internal class XChannel<TMessage> : XChannel
+    {
+        internal XChannel(FastList<XChannel<TMessage>> list, object? weakReference, Action<TMessage> method)
+        {
+            this.List = list;
+            this.Index = this.List.Add(this);
             if (weakReference == null)
             {
                 this.StrongDelegate = method;
@@ -243,6 +253,8 @@ namespace Arc.CrossChannel
                 this.WeakDelegate = new(weakReference, method);
             }
         }
+
+        internal FastList<XChannel<TMessage>> List { get; }
 
         internal Action<TMessage>? StrongDelegate { get; set; }
 
@@ -252,18 +264,18 @@ namespace Arc.CrossChannel
         {
             if (this.Index != -1)
             {
-                CrossChannel.Cache_Message<TMessage>.List.Remove(this.Index);
+                this.List.Remove(this.Index);
                 this.Index = -1;
             }
         }
     }
 
-    public class XChannel<TMessage, TResult> : XChannel
+    internal class XChannel<TMessage, TResult> : XChannel
     {
-        public XChannel(object? weakReference, Func<TMessage, TResult> method)
+        internal XChannel(FastList<XChannel<TMessage, TResult>> list, object? weakReference, Func<TMessage, TResult> method)
         {
-            var list = CrossChannel.Cache_MessageResult<TMessage, TResult>.List;
-            this.Index = list.Add(this);
+            this.List = list;
+            this.Index = this.List.Add(this);
             if (weakReference == null)
             {
                 this.StrongDelegate = method;
@@ -274,6 +286,8 @@ namespace Arc.CrossChannel
             }
         }
 
+        internal FastList<XChannel<TMessage, TResult>> List { get; }
+
         internal Func<TMessage, TResult>? StrongDelegate { get; set; }
 
         internal WeakFunc<TMessage, TResult>? WeakDelegate { get; set; }
@@ -282,28 +296,30 @@ namespace Arc.CrossChannel
         {
             if (this.Index != -1)
             {
-                CrossChannel.Cache_MessageResult<TMessage, TResult>.List.Remove(this.Index);
+                this.List.Remove(this.Index);
                 this.Index = -1;
             }
         }
     }
 
-    public class XChannel_Key<TKey, TMessage> : XChannel
+    internal class XChannel_KeyMessage<TKey, TMessage> : XChannel
         where TKey : notnull
     {
-        public XChannel_Key(TKey key, object? weakReference, Action<TMessage> method)
+        public XChannel_KeyMessage(Hashtable table, TKey key, object? weakReference, Action<TMessage> method)
         {
-            var dic = CrossChannel.Cache_KeyMessage<TKey, TMessage>.Dic;
-            lock (dic)
+            this.Table = table;
+            lock (this.Table)
             {
-                if (!dic.TryGetValue(key, out this.list))
+                var list = this.Table[key] as FastList<XChannel_KeyMessage<TKey, TMessage>>;
+                if (list == null)
                 {
-                    this.list = new();
-                    dic[key] = this.list;
+                    list = new();
+                    this.Table[key] = list;
                 }
 
+                this.List = list;
                 this.Key = key;
-                this.Index = this.list.Add(this);
+                this.Index = this.List.Add(this);
             }
 
             if (weakReference == null)
@@ -318,39 +334,87 @@ namespace Arc.CrossChannel
 
         public TKey Key { get; }
 
+        internal Hashtable Table { get; }
+
+        internal FastList<XChannel_KeyMessage<TKey, TMessage>> List { get; }
+
         internal Action<TMessage>? StrongDelegate { get; set; }
 
         internal WeakAction<TMessage>? WeakDelegate { get; set; }
-
-        private FastList<XChannel_Key<TKey, TMessage>> list;
 
         public override void Dispose()
         {
             if (this.Index != -1)
             {
-                var dic = CrossChannel.Cache_KeyMessage<TKey, TMessage>.Dic;
-                lock (dic)
+                this.List.Remove(this.Index);
+                if (this.List.GetCount() == 0)
                 {
-                    this.list.Remove(this.Index);
-                    if (this.list.GetCount() == 0)
+                    lock (this.Table)
                     {
-                        dic.Remove(this.Key);
+                        this.Table.Remove(this.Key);
                     }
                 }
-
-                this.Index = -1;
             }
+
+            this.Index = -1;
         }
     }
 
-    public abstract class XChannel : IDisposable
+    internal class XChannel_Key<TKey, TMessage> : XChannel
+        where TKey : notnull
     {
-        internal int Index { get; set; }
+        public XChannel_Key(Dictionary<TKey, FastList<XChannel_Key<TKey, TMessage>>> dic, TKey key, object? weakReference, Action<TMessage> method)
+        {
+            this.Dic = dic;
+            lock (this.Dic)
+            {
+                if (!this.Dic.TryGetValue(key, out this.List))
+                {
+                    this.List = new();
+                    this.Dic[key] = this.List;
+                }
 
-        public virtual void Dispose()
+                this.Key = key;
+                this.Index = this.List.Add(this);
+            }
+
+            if (weakReference == null)
+            {
+                this.StrongDelegate = method;
+            }
+            else
+            {
+                this.WeakDelegate = new(weakReference, method);
+            }
+        }
+
+        public TKey Key { get; }
+
+        internal Dictionary<TKey, FastList<XChannel_Key<TKey, TMessage>>> Dic { get; }
+
+#pragma warning disable SA1201 // Elements should appear in the correct order
+#pragma warning disable SA1401 // Fields should be private
+        internal FastList<XChannel_Key<TKey, TMessage>> List;
+#pragma warning restore SA1401 // Fields should be private
+#pragma warning restore SA1201 // Elements should appear in the correct order
+
+        internal Action<TMessage>? StrongDelegate { get; set; }
+
+        internal WeakAction<TMessage>? WeakDelegate { get; set; }
+
+        public override void Dispose()
         {
             if (this.Index != -1)
             {
+                lock (this.Dic)
+                {
+                    this.List.Remove(this.Index);
+                    if (this.List.GetCount() == 0)
+                    {
+                        this.Dic.Remove(this.Key);
+                    }
+                }
+
                 this.Index = -1;
             }
         }
