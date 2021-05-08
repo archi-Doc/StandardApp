@@ -47,7 +47,7 @@ namespace Arc.CrossChannel
                 // Cleanup(Cache_MessageResult<TMessage, TResult>.List);
             }
 
-            var channel = new XChannel_KeyMessage<TKey, TMessage>(Cache_KeyMessage<TKey, TMessage>.Table, key, weakReference, method);
+            var channel = new XChannel_Key<TKey, TMessage>(Cache_KeyMessage<TKey, TMessage>.Map, key, weakReference, method);
             return channel;
         }
 
@@ -134,15 +134,13 @@ namespace Arc.CrossChannel
         public static int SendKey<TKey, TMessage>(TKey key, TMessage message)
             where TKey : notnull
         {
-            var numberReceived = 0;
-            var table = Cache_KeyMessage<TKey, TMessage>.Table;
-            var list = table[key] as FastList<XChannel_KeyMessage<TKey, TMessage>>;
-            if (list == null)
+            if (!Cache_KeyMessage<TKey, TMessage>.Map.TryGetValue(key, out var list))
             {
                 return 0;
             }
 
             var array = list.GetValues();
+            var numberReceived = 0;
             for (var i = 0; i < array.Length; i++)
             {
                 if (array[i] is { } channel)
@@ -225,11 +223,11 @@ namespace Arc.CrossChannel
         internal static class Cache_KeyMessage<TKey, TMessage>
             where TKey : notnull
         {
-            public static Hashtable Table;
+            public static Dictionary<TKey, FastList<XChannel_Key<TKey, TMessage>>> Map;
 
             static Cache_KeyMessage()
             {
-                Table = new();
+                Map = new();
             }
         }
 #pragma warning restore SA1401 // Fields should be private
@@ -373,20 +371,22 @@ namespace Arc.CrossChannel
     internal class XChannel_Key<TKey, TMessage> : XChannel
         where TKey : notnull
     {
-        public XChannel_Key(Dictionary<TKey, FastList<XChannel_Key<TKey, TMessage>>> dic, TKey key, object? weakReference, Action<TMessage> method)
+        public XChannel_Key(Dictionary<TKey, FastList<XChannel_Key<TKey, TMessage>>> map, TKey key, object? weakReference, Action<TMessage> method)
         {
-            this.Dic = dic;
-            lock (this.Dic)
+            FastList<XChannel_Key<TKey, TMessage>>? list;
+            lock (map)
             {
-                if (!this.Dic.TryGetValue(key, out this.List))
+                if (!map.TryGetValue(key, out list))
                 {
-                    this.List = new();
-                    this.Dic[key] = this.List;
+                    list = new();
+                    map[key] = list;
                 }
-
-                this.Key = key;
-                this.Index = this.List.Add(this);
             }
+
+            this.Map = map;
+            this.List = list;
+            this.Key = key;
+            this.Index = this.List.Add(this);
 
             if (weakReference == null)
             {
@@ -400,7 +400,7 @@ namespace Arc.CrossChannel
 
         public TKey Key { get; }
 
-        internal Dictionary<TKey, FastList<XChannel_Key<TKey, TMessage>>> Dic { get; }
+        internal Dictionary<TKey, FastList<XChannel_Key<TKey, TMessage>>> Map { get; }
 
 #pragma warning disable SA1201 // Elements should appear in the correct order
 #pragma warning disable SA1401 // Fields should be private
@@ -416,12 +416,12 @@ namespace Arc.CrossChannel
         {
             if (this.Index != -1)
             {
-                lock (this.Dic)
+                this.List.Remove(this.Index);
+                if (this.List.GetCount() == 0)
                 {
-                    this.List.Remove(this.Index);
-                    if (this.List.GetCount() == 0)
+                    lock (this.Map)
                     {
-                        this.Dic.Remove(this.Key);
+                        this.Map.Remove(this.Key);
                     }
                 }
 

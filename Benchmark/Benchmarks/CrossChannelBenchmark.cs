@@ -82,15 +82,6 @@ namespace Benchmark
             var r = CrossChannel.Send<uint, uint>(3);
         }
 
-        /*[Benchmark]
-        public SingletonClass ResolveSingletonClass() => this.Container.Resolve<SingletonClass>();
-
-        [Benchmark]
-        public TransientClass ResolveTransientClass() => this.Container.Resolve<TransientClass>();
-
-        [Benchmark]
-        public TransientClass NewTransientClass() => new TransientClass();*/
-
         [Benchmark]
         public void Send()
         {
@@ -163,7 +154,7 @@ namespace Benchmark
             return;
         }
 
-        [Benchmark]
+        /*[Benchmark]
         public void Send_CC2()
         {
             CrossChannel2.Default.Send<int>(3);
@@ -264,6 +255,6 @@ namespace Benchmark
             }
 
             return;
-        }
+        }*/
     }
 }
