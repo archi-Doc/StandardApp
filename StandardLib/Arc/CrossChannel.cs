@@ -265,12 +265,12 @@ namespace Arc.CrossChannel
             return numberReceived;
         }
 
-        internal abstract FastList<XChannel<TMessage>> Get_Message<TMessage>();
+        internal virtual FastList<XChannel<TMessage>> Get_Message<TMessage>() => throw new InvalidOperationException();
 
-        internal abstract FastList<XChannel<TMessage, TResult>> Get_MessageResult<TMessage, TResult>();
+        internal virtual FastList<XChannel<TMessage, TResult>> Get_MessageResult<TMessage, TResult>() => throw new InvalidOperationException();
 
-        internal abstract Dictionary<TKey, FastList<XChannel_Key<TKey, TMessage>>> Get_KeyMessage<TKey, TMessage>()
-            where TKey : notnull;
+        internal virtual Dictionary<TKey, FastList<XChannel_Key<TKey, TMessage>>> Get_KeyMessage<TKey, TMessage>()
+            where TKey : notnull => throw new InvalidOperationException();
 
         private void Cleanup<TMessage>(FastList<XChannel<TMessage>> list)
         {
