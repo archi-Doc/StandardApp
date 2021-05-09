@@ -15,8 +15,8 @@ namespace Benchmark
     {
         public SimpleReceiver()
         {
-            CrossChannel.Open<int, int>(null, x => x * 5);
-            CrossChannel.Open<int, int>(null, x => x * 5);
+            CrossChannel.Instance.Open<int, int>(null, x => x * 5);
+            CrossChannel.Instance.Open<int, int>(null, x => x * 5);
         }
     }
 
@@ -24,8 +24,8 @@ namespace Benchmark
     {
         public SimpleReceiver2()
         {
-            CrossChannel.Open<uint, uint>(null, x => x * 3);
-            CrossChannel.Open<uint, uint>(null, x => x * 3);
+            CrossChannel.Instance.Open<uint, uint>(null, x => x * 3);
+            CrossChannel.Instance.Open<uint, uint>(null, x => x * 3);
         }
     }
 
@@ -33,7 +33,7 @@ namespace Benchmark
     {
         public H2HReceiver()
         {
-            CrossChannel.Open<int>(null, x => { });
+            CrossChannel.Instance.Open<int>(null, x => { });
         }
     }
 
@@ -79,23 +79,23 @@ namespace Benchmark
             var h2hReceiver = new H2HReceiver();
             var pubSubReceiver = new PubSubReceiver();
 
-            var r = CrossChannel.Send<uint, uint>(3);
-            r = GunjoChannel.Send<uint, uint>(3);
+            var r = CrossChannel.Instance.Send<uint, uint>(3);
+            r = GunjoChannel.Instance.Send<uint, uint>(3);
         }
 
         [Benchmark]
         public void Send()
         {
-            CrossChannel.Send<int>(3);
+            CrossChannel.Instance.Send<int>(3);
             return;
         }
 
         [Benchmark]
         public void OpenAndSend()
         {
-            using (var c = CrossChannel.Open<uint>(null, x => { }))
+            using (var c = CrossChannel.Instance.Open<uint>(null, x => { }))
             {
-                CrossChannel.Send<uint>(3);
+                CrossChannel.Instance.Send<uint>(3);
             }
 
             return;
@@ -104,16 +104,16 @@ namespace Benchmark
         [Benchmark]
         public void OpenAndSend8()
         {
-            using (var c = CrossChannel.Open<uint>(null, x => { }))
+            using (var c = CrossChannel.Instance.Open<uint>(null, x => { }))
             {
-                CrossChannel.Send<uint>(1);
-                CrossChannel.Send<uint>(2);
-                CrossChannel.Send<uint>(3);
-                CrossChannel.Send<uint>(4);
-                CrossChannel.Send<uint>(5);
-                CrossChannel.Send<uint>(6);
-                CrossChannel.Send<uint>(7);
-                CrossChannel.Send<uint>(8);
+                CrossChannel.Instance.Send<uint>(1);
+                CrossChannel.Instance.Send<uint>(2);
+                CrossChannel.Instance.Send<uint>(3);
+                CrossChannel.Instance.Send<uint>(4);
+                CrossChannel.Instance.Send<uint>(5);
+                CrossChannel.Instance.Send<uint>(6);
+                CrossChannel.Instance.Send<uint>(7);
+                CrossChannel.Instance.Send<uint>(8);
             }
 
             return;
@@ -122,16 +122,16 @@ namespace Benchmark
         [Benchmark]
         public void SendKey()
         {
-            CrossChannel.SendKey<int, int>(3, 3);
+            CrossChannel.Instance.SendKey<int, int>(3, 3);
             return;
         }
 
         [Benchmark]
         public void OpenAndSendKey()
         {
-            using (var c = CrossChannel.OpenKey<int, uint>(3, null, x => { }))
+            using (var c = CrossChannel.Instance.OpenKey<int, uint>(3, null, x => { }))
             {
-                CrossChannel.SendKey<int, uint>(3, 3);
+                CrossChannel.Instance.SendKey<int, uint>(3, 3);
             }
 
             return;
@@ -140,22 +140,22 @@ namespace Benchmark
         [Benchmark]
         public void OpenAndSendKey8()
         {
-            using (var c = CrossChannel.OpenKey<int, uint>(3, null, x => { }))
+            using (var c = CrossChannel.Instance.OpenKey<int, uint>(3, null, x => { }))
             {
-                CrossChannel.SendKey<int, uint>(3, 1);
-                CrossChannel.SendKey<int, uint>(3, 2);
-                CrossChannel.SendKey<int, uint>(3, 3);
-                CrossChannel.SendKey<int, uint>(3, 4);
-                CrossChannel.SendKey<int, uint>(3, 5);
-                CrossChannel.SendKey<int, uint>(3, 6);
-                CrossChannel.SendKey<int, uint>(3, 7);
-                CrossChannel.SendKey<int, uint>(3, 8);
+                CrossChannel.Instance.SendKey<int, uint>(3, 1);
+                CrossChannel.Instance.SendKey<int, uint>(3, 2);
+                CrossChannel.Instance.SendKey<int, uint>(3, 3);
+                CrossChannel.Instance.SendKey<int, uint>(3, 4);
+                CrossChannel.Instance.SendKey<int, uint>(3, 5);
+                CrossChannel.Instance.SendKey<int, uint>(3, 6);
+                CrossChannel.Instance.SendKey<int, uint>(3, 7);
+                CrossChannel.Instance.SendKey<int, uint>(3, 8);
             }
 
             return;
         }
 
-        /*[Benchmark]
+        [Benchmark]
         public void Send_CC2()
         {
             CrossChannel2.Default.Send<int>(3);
@@ -191,7 +191,7 @@ namespace Benchmark
             return;
         }
 
-        [Benchmark]
+        /*[Benchmark]
         public void Send_Pub()
         {
             Hub.Default.Publish(3);
