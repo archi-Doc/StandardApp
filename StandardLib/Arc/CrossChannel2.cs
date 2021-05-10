@@ -25,14 +25,11 @@ namespace Arc.CrossChannel
             var key = typeof(TMessage);
             lock (this.tableMessage)
             {
-                if (!this.tableMessage.TryGetValue(key, out var obj))
+                list = this.tableMessage[typeof(TMessage)] as FastList<XChannel<TMessage>>;
+                if (list == null)
                 {
                     list = new();
                     this.tableMessage[key] = list;
-                }
-                else
-                {
-                    list = (FastList<XChannel<TMessage>>)obj;
                 }
             }
 
@@ -80,14 +77,11 @@ namespace Arc.CrossChannel
             var k = (typeof(TKey), typeof(TMessage));
             lock (this.tableKeyMessage)
             {
-                if (!this.tableKeyMessage.TryGetValue(k, out var obj))
+                list = this.tableKeyMessage[k] as FastList<XChannel<TMessage>>;
+                if (list == null)
                 {
                     list = new();
                     this.tableKeyMessage[k] = list;
-                }
-                else
-                {
-                    list = (FastList<XChannel<TMessage>>)obj;
                 }
             }
 
@@ -111,12 +105,12 @@ namespace Arc.CrossChannel
         /// <returns>A number of the receivers.</returns>
         public int Send<TMessage>(TMessage message)
         {
-            if (!this.tableMessage.TryGetValue(typeof(TMessage), out var obj))
+            var list = this.tableMessage[typeof(TMessage)] as FastList<XChannel<TMessage>>;
+            if (list == null)
             {
                 return 0;
             }
 
-            var list = (FastList<XChannel<TMessage>>)obj;
             var array = list.GetValues();
             var numberReceived = 0;
             for (var i = 0; i < array.Length; i++)
@@ -195,12 +189,12 @@ namespace Arc.CrossChannel
         public int SendKey<TKey, TMessage>(TKey key, TMessage message)
             where TKey : notnull
         {
-            if (!this.tableKeyMessage.TryGetValue((typeof(TKey), typeof(TMessage)), out var obj))
+            var list = this.tableKeyMessage[(typeof(TKey), typeof(TMessage))] as FastList<XChannel<TMessage>>;
+            if (list == null)
             {
                 return 0;
             }
 
-            var list = (FastList<XChannel<TMessage>>)obj;
             var array = list.GetValues();
             var numberReceived = 0;
             for (var i = 0; i < array.Length; i++)
@@ -261,8 +255,8 @@ namespace Arc.CrossChannel
             list.TryShrink();
         }
 
-        private Dictionary<Type, object> tableMessage = new();
-        private Dictionary<(Type, Type), object> tableKeyMessage = new();
+        private Hashtable tableMessage = new();
+        private Hashtable tableKeyMessage = new();
         private Dictionary<(Type, Type), object> tableMessageResult = new();
     }
 }

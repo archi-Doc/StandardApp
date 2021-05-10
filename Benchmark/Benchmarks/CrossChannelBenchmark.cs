@@ -83,7 +83,7 @@ namespace Benchmark
             r = GunjoChannel.Instance.Send<uint, uint>(3);
         }
 
-        [Benchmark]
+        /*[Benchmark]
         public void Send()
         {
             CrossChannel.Instance.Send<int>(3);
@@ -117,7 +117,7 @@ namespace Benchmark
             }
 
             return;
-        }
+        }*/
 
         /*[Benchmark]
         public void SendKey()
@@ -186,6 +186,42 @@ namespace Benchmark
                 CrossChannel2.Default.Send<uint>(6);
                 CrossChannel2.Default.Send<uint>(7);
                 CrossChannel2.Default.Send<uint>(8);
+            }
+
+            return;
+        }
+
+        [Benchmark]
+        public void SendKey()
+        {
+            CrossChannel2.Default.SendKey<int, int>(3, 3);
+            return;
+        }
+
+        [Benchmark]
+        public void OpenAndSendKey()
+        {
+            using (var c = CrossChannel2.Default.OpenKey<int, uint>(3, null, x => { }))
+            {
+                CrossChannel2.Default.SendKey<int, uint>(3, 3);
+            }
+
+            return;
+        }
+
+        [Benchmark]
+        public void OpenAndSendKey8()
+        {
+            using (var c = CrossChannel2.Default.OpenKey<int, uint>(3, null, x => { }))
+            {
+                CrossChannel2.Default.SendKey<int, uint>(3, 1);
+                CrossChannel2.Default.SendKey<int, uint>(3, 2);
+                CrossChannel2.Default.SendKey<int, uint>(3, 3);
+                CrossChannel2.Default.SendKey<int, uint>(3, 4);
+                CrossChannel2.Default.SendKey<int, uint>(3, 5);
+                CrossChannel2.Default.SendKey<int, uint>(3, 6);
+                CrossChannel2.Default.SendKey<int, uint>(3, 7);
+                CrossChannel2.Default.SendKey<int, uint>(3, 8);
             }
 
             return;
