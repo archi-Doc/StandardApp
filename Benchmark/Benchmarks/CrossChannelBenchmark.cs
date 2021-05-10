@@ -118,19 +118,19 @@ namespace Benchmark
             return;
         }
 
-        /*[Benchmark]
+        [Benchmark]
         public void SendKey()
         {
-            CrossChannel.Instance.SendKey<int, int>(3, 3);
+            CrossChannel.SendKey<int, int>(3, 3);
             return;
         }
 
         [Benchmark]
         public void OpenAndSendKey()
         {
-            using (var c = CrossChannel.Instance.OpenKey<int, uint>(3, null, x => { }))
+            using (var c = CrossChannel.OpenKey<int, uint>(3, null, x => { }))
             {
-                CrossChannel.Instance.SendKey<int, uint>(3, 3);
+                CrossChannel.SendKey<int, uint>(3, 3);
             }
 
             return;
@@ -139,20 +139,20 @@ namespace Benchmark
         [Benchmark]
         public void OpenAndSendKey8()
         {
-            using (var c = CrossChannel.Instance.OpenKey<int, uint>(3, null, x => { }))
+            using (var c = CrossChannel.OpenKey<int, uint>(3, null, x => { }))
             {
-                CrossChannel.Instance.SendKey<int, uint>(3, 1);
-                CrossChannel.Instance.SendKey<int, uint>(3, 2);
-                CrossChannel.Instance.SendKey<int, uint>(3, 3);
-                CrossChannel.Instance.SendKey<int, uint>(3, 4);
-                CrossChannel.Instance.SendKey<int, uint>(3, 5);
-                CrossChannel.Instance.SendKey<int, uint>(3, 6);
-                CrossChannel.Instance.SendKey<int, uint>(3, 7);
-                CrossChannel.Instance.SendKey<int, uint>(3, 8);
+                CrossChannel.SendKey<int, uint>(3, 1);
+                CrossChannel.SendKey<int, uint>(3, 2);
+                CrossChannel.SendKey<int, uint>(3, 3);
+                CrossChannel.SendKey<int, uint>(3, 4);
+                CrossChannel.SendKey<int, uint>(3, 5);
+                CrossChannel.SendKey<int, uint>(3, 6);
+                CrossChannel.SendKey<int, uint>(3, 7);
+                CrossChannel.SendKey<int, uint>(3, 8);
             }
 
             return;
-        }*/
+        }
 
         [Benchmark]
         public void Send_CC2()
@@ -191,14 +191,14 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public void SendKey()
+        public void SendKey_CC2()
         {
             this.CCC.SendKey<int, int>(3, 3);
             return;
         }
 
         [Benchmark]
-        public void OpenAndSendKey()
+        public void OpenAndSendKey_CC2()
         {
             using (var c = this.CCC.OpenKey<int, uint>(3, null, x => { }))
             {
@@ -209,7 +209,7 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public void OpenAndSendKey8()
+        public void OpenAndSendKey8_CC2()
         {
             using (var c = this.CCC.OpenKey<int, uint>(3, null, x => { }))
             {

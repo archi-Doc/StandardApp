@@ -36,6 +36,35 @@ namespace Arc.CrossChannel
             return numberReceived;
         }
 
+        internal static int Send<TKey, TMessage>(this FastList<XChannel_KeyMessage<TKey, TMessage>> list, TMessage message)
+            where TKey : notnull
+        {
+            var array = list.GetValues();
+            var numberReceived = 0;
+            for (var i = 0; i < array.Length; i++)
+            {
+                if (array[i] is { } channel)
+                {
+                    if (channel.StrongDelegate != null)
+                    {
+                        channel.StrongDelegate(message);
+                        numberReceived++;
+                    }
+                    else if (channel.WeakDelegate!.IsAlive)
+                    {
+                        channel.WeakDelegate!.Execute(message);
+                        numberReceived++;
+                    }
+                    else
+                    {
+                        channel.Dispose();
+                    }
+                }
+            }
+
+            return numberReceived;
+        }
+
         internal static TResult[] Send<TMessage, TResult>(this FastList<XChannel<TMessage, TResult>> list, TMessage message)
         {
             var array = list.GetValues();

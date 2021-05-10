@@ -54,7 +54,7 @@ namespace Test.CrossChannelTest
     {
         public TestClass_CrossChannel()
         {
-            CrossChannel.Open<int, int>(this.Function);
+            CrossChannel.Open<int, int>(this, this.Function);
         }
 
         public int Function(int x)

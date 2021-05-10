@@ -8,6 +8,7 @@ using System.Runtime.Serialization;
 using System.Threading;
 
 #pragma warning disable SA1202 // Elements should be ordered by access
+#pragma warning disable CS0252 // Possible unintended reference comparison; left hand side needs cast
 
 namespace Arc.CrossChannel
 {
@@ -189,7 +190,6 @@ namespace Arc.CrossChannel
             this.Rehash(this.buckets.Length, false);
         }
 
-        [ReliabilityContract(Consistency.WillNotCorruptState, Cer.MayFail)]
         private void Rehash(int newsize, bool forceNewHashCode)
         {
             // reset occupancy

@@ -35,6 +35,8 @@ namespace Arc.CrossChannel
             }
         }
 
+        public bool IsEmpty => this.count == 0;
+
         public int Add(T value)
         {
             lock (this.cs)
@@ -71,13 +73,13 @@ namespace Arc.CrossChannel
             }
         }
 
-        public void Remove(int index)
+        public bool Remove(int index)
         {
             lock (this.cs)
             {
                 if (this.isDisposed)
                 {
-                    return;
+                    return true;
                 }
 
                 ref var v = ref this.values[index];
@@ -89,6 +91,8 @@ namespace Arc.CrossChannel
                 v = default(T);
                 this.freeIndex.Enqueue(index);
                 this.count--;
+
+                return this.count == 0;
             }
         }
 
