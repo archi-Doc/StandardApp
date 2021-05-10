@@ -9,7 +9,7 @@ using Arc.WeakDelegate;
 
 namespace Arc.CrossChannel
 {
-    public class CrossChannel : CrossChannelBase
+    public sealed class CrossChannel : CrossChannelBase
     {
         public static CrossChannel Instance => instance ?? (instance = new());
 
@@ -59,7 +59,7 @@ namespace Arc.CrossChannel
 #pragma warning restore SA1401 // Fields should be private
     }
 
-    public class GunjoChannel : CrossChannelBase
+    public sealed class GunjoChannel : CrossChannelBase
     {
         public static GunjoChannel Instance => instance ?? (instance = new());
 
@@ -265,12 +265,12 @@ namespace Arc.CrossChannel
             return numberReceived;
         }
 
-        internal virtual FastList<XChannel<TMessage>> Get_Message<TMessage>() => throw new InvalidOperationException();
+        internal abstract FastList<XChannel<TMessage>> Get_Message<TMessage>();
 
-        internal virtual FastList<XChannel<TMessage, TResult>> Get_MessageResult<TMessage, TResult>() => throw new InvalidOperationException();
+        internal abstract FastList<XChannel<TMessage, TResult>> Get_MessageResult<TMessage, TResult>();
 
-        internal virtual Dictionary<TKey, FastList<XChannel_Key<TKey, TMessage>>> Get_KeyMessage<TKey, TMessage>()
-            where TKey : notnull => throw new InvalidOperationException();
+        internal abstract Dictionary<TKey, FastList<XChannel_Key<TKey, TMessage>>> Get_KeyMessage<TKey, TMessage>()
+            where TKey : notnull;
 
         private void Cleanup<TMessage>(FastList<XChannel<TMessage>> list)
         {

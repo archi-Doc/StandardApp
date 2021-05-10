@@ -119,7 +119,7 @@ namespace Benchmark
             return;
         }
 
-        [Benchmark]
+        /*[Benchmark]
         public void SendKey()
         {
             CrossChannel.Instance.SendKey<int, int>(3, 3);
@@ -189,7 +189,7 @@ namespace Benchmark
             }
 
             return;
-        }
+        }*/
 
         /*[Benchmark]
         public void Send_Pub()
