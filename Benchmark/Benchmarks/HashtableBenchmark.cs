@@ -24,6 +24,8 @@ namespace Benchmark
 
         public TypeKeyDictionary<object> TypeKeyDictionary { get; private set; } = default!;
 
+        public ThreadsafeTypeKeyHashtable ThreadsafeTypeKeyHashtable { get; private set; } = default!;
+
         public HashtableBenchmark()
         {
         }
@@ -49,12 +51,14 @@ namespace Benchmark
             this.TypeHashtable = new();
             this.TypeDictionary = new();
             this.TypeKeyDictionary = new();
+            this.ThreadsafeTypeKeyHashtable = new();
             foreach (var x in this.Types) // typeof(int).Assembly.GetTypes()
             {
                 this.TypeConcurrentDictionary.TryAdd(x, x);
                 this.TypeHashtable.Add(x, x);
                 this.TypeDictionary.Add(x, x);
                 this.TypeKeyDictionary.Add(x, x);
+                this.ThreadsafeTypeKeyHashtable.Add(x, x);
             }
         }
 
@@ -104,9 +108,24 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public TypeKeyDictionary<object> CreateAndAdd_ThreadsafeHashtable()
+        public TypeKeyDictionary<object> CreateAndAdd_TypeKeyDictionary()
         {
             var c = new TypeKeyDictionary<object>();
+            foreach (var x in this.Types)
+            {
+                lock (c)
+                {
+                    c.Add(x, x);
+                }
+            }
+
+            return c;
+        }
+
+        [Benchmark]
+        public ThreadsafeTypeKeyHashtable CreateAndAdd_ThreadsafeHashtable()
+        {
+            var c = new ThreadsafeTypeKeyHashtable();
             foreach (var x in this.Types)
             {
                 lock (c)
@@ -146,6 +165,12 @@ namespace Benchmark
             {
                 return this.TypeKeyDictionary[typeof(int)];
             }
+        }
+
+        [Benchmark]
+        public object Get_ThreadsafeHashtable()
+        {
+                return this.ThreadsafeTypeKeyHashtable[typeof(int)];
         }
     }
 }
