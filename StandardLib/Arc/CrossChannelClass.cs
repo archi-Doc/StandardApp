@@ -9,14 +9,8 @@ using Arc.WeakDelegate;
 
 namespace Arc.CrossChannel
 {
-    public class CrossChannel2
+    public class CrossChannelClass
     {
-        private const int CleanupThreshold = 16;
-
-        private static CrossChannel2? @default;
-
-        public static CrossChannel2 Default => @default ?? (@default = new());
-
         private int cleanupCount = 0;
 
         public XChannel Open<TMessage>(object? weakReference, Action<TMessage> method)
@@ -33,10 +27,10 @@ namespace Arc.CrossChannel
                 }
             }
 
-            if (++this.cleanupCount >= CleanupThreshold)
+            if (++this.cleanupCount >= CrossChannel.CleanupThreshold)
             {
                 this.cleanupCount = 0;
-                this.Cleanup(list);
+                list.Cleanup();
             }
 
             var channel = new XChannel<TMessage>(list, weakReference, method);
@@ -60,10 +54,10 @@ namespace Arc.CrossChannel
                 }
             }
 
-            if (++this.cleanupCount >= CleanupThreshold)
+            if (++this.cleanupCount >= CrossChannel.CleanupThreshold)
             {
                 this.cleanupCount = 0;
-                this.Cleanup(list);
+                list.Cleanup();
             }
 
             var channel = new XChannel<TMessage, TResult>(list,  weakReference, method);
@@ -85,7 +79,7 @@ namespace Arc.CrossChannel
                 }
             }
 
-            if (++this.cleanupCount >= CleanupThreshold)
+            if (++this.cleanupCount >= CrossChannel.CleanupThreshold)
             {
                 this.cleanupCount = 0;
                 // Cleanup(list);
@@ -111,30 +105,7 @@ namespace Arc.CrossChannel
                 return 0;
             }
 
-            var array = list.GetValues();
-            var numberReceived = 0;
-            for (var i = 0; i < array.Length; i++)
-            {
-                if (array[i] is { } channel)
-                {
-                    if (channel.StrongDelegate != null)
-                    {
-                        channel.StrongDelegate(message);
-                        numberReceived++;
-                    }
-                    else if (channel.WeakDelegate!.IsAlive)
-                    {
-                        channel.WeakDelegate!.Execute(message);
-                        numberReceived++;
-                    }
-                    else
-                    {
-                        channel.Dispose();
-                    }
-                }
-            }
-
-            return numberReceived;
+            return list.Send(message);
         }
 
         /// <summary>
@@ -152,38 +123,7 @@ namespace Arc.CrossChannel
             }
 
             var list = (FastList<XChannel<TMessage, TResult>>)obj;
-            var array = list.GetValues();
-            var results = new TResult[list.GetCount()];
-            var numberReceived = 0;
-            for (var i = 0; i < array.Length; i++)
-            {
-                if (array[i] is { } channel)
-                {
-                    if (channel.StrongDelegate != null)
-                    {
-                        results[numberReceived++] = channel.StrongDelegate(message);
-                    }
-                    else if (channel.WeakDelegate!.IsAlive)
-                    {
-                        var result = channel.WeakDelegate!.Execute(message, out var executed);
-                        if (executed)
-                        {
-                            results[numberReceived++] = result!;
-                        }
-                    }
-                    else
-                    {
-                        channel.Dispose();
-                    }
-                }
-            }
-
-            if (results.Length != numberReceived)
-            {
-                Array.Resize(ref results, numberReceived);
-            }
-
-            return results;
+            return list.Send(message);
         }
 
         public int SendKey<TKey, TMessage>(TKey key, TMessage message)
@@ -195,64 +135,7 @@ namespace Arc.CrossChannel
                 return 0;
             }
 
-            var array = list.GetValues();
-            var numberReceived = 0;
-            for (var i = 0; i < array.Length; i++)
-            {
-                if (array[i] is { } channel)
-                {
-                    if (channel.StrongDelegate != null)
-                    {
-                        channel.StrongDelegate(message);
-                        numberReceived++;
-                    }
-                    else if (channel.WeakDelegate!.IsAlive)
-                    {
-                        channel.WeakDelegate!.Execute(message);
-                        numberReceived++;
-                    }
-                    else
-                    {
-                        channel.Dispose();
-                    }
-                }
-            }
-
-            return numberReceived;
-        }
-
-        private void Cleanup<TMessage>(FastList<XChannel<TMessage>> list)
-        {
-            var array = list.GetValues();
-            for (var i = 0; i < array.Length; i++)
-            {
-                if (array[i] is { } c)
-                {
-                    if (c.WeakDelegate != null && !c.WeakDelegate.IsAlive)
-                    {
-                        c.Dispose();
-                    }
-                }
-            }
-
-            list.TryShrink();
-        }
-
-        private void Cleanup<TMessage, TResult>(FastList<XChannel<TMessage, TResult>> list)
-        {
-            var array = list.GetValues();
-            for (var i = 0; i < array.Length; i++)
-            {
-                if (array[i] is { } c)
-                {
-                    if (c.WeakDelegate != null && !c.WeakDelegate.IsAlive)
-                    {
-                        c.Dispose();
-                    }
-                }
-            }
-
-            list.TryShrink();
+            return list.Send(message);
         }
 
         private Hashtable tableMessage = new();

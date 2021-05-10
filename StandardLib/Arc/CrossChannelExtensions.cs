@@ -1,0 +1,109 @@
+﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace Arc.CrossChannel
+{
+    internal static class CrossChannelExtensions
+    {
+        internal static int Send<TMessage>(this FastList<XChannel<TMessage>> list, TMessage message)
+        {
+            var array = list.GetValues();
+            var numberReceived = 0;
+            for (var i = 0; i < array.Length; i++)
+            {
+                if (array[i] is { } channel)
+                {
+                    if (channel.StrongDelegate != null)
+                    {
+                        channel.StrongDelegate(message);
+                        numberReceived++;
+                    }
+                    else if (channel.WeakDelegate!.IsAlive)
+                    {
+                        channel.WeakDelegate!.Execute(message);
+                        numberReceived++;
+                    }
+                    else
+                    {
+                        channel.Dispose();
+                    }
+                }
+            }
+
+            return numberReceived;
+        }
+
+        internal static TResult[] Send<TMessage, TResult>(this FastList<XChannel<TMessage, TResult>> list, TMessage message)
+        {
+            var array = list.GetValues();
+            var results = new TResult[list.GetCount()];
+            var numberReceived = 0;
+            for (var i = 0; i < array.Length; i++)
+            {
+                if (array[i] is { } channel)
+                {
+                    if (channel.StrongDelegate != null)
+                    {
+                        results[numberReceived++] = channel.StrongDelegate(message);
+                    }
+                    else if (channel.WeakDelegate!.IsAlive)
+                    {
+                        var result = channel.WeakDelegate!.Execute(message, out var executed);
+                        if (executed)
+                        {
+                            results[numberReceived++] = result!;
+                        }
+                    }
+                    else
+                    {
+                        channel.Dispose();
+                    }
+                }
+            }
+
+            if (results.Length != numberReceived)
+            {
+                Array.Resize(ref results, numberReceived);
+            }
+
+            return results;
+        }
+
+        internal static bool Cleanup<TMessage>(this FastList<XChannel<TMessage>> list)
+        {
+            var array = list.GetValues();
+            for (var i = 0; i < array.Length; i++)
+            {
+                if (array[i] is { } c)
+                {
+                    if (c.WeakDelegate != null && !c.WeakDelegate.IsAlive)
+                    {
+                        c.Dispose();
+                    }
+                }
+            }
+
+            return list.TryShrink();
+        }
+
+        internal static bool Cleanup<TMessage, TResult>(this FastList<XChannel<TMessage, TResult>> list)
+        {
+            var array = list.GetValues();
+            for (var i = 0; i < array.Length; i++)
+            {
+                if (array[i] is { } c)
+                {
+                    if (c.WeakDelegate != null && !c.WeakDelegate.IsAlive)
+                    {
+                        c.Dispose();
+                    }
+                }
+            }
+
+            return list.TryShrink();
+        }
+    }
+}

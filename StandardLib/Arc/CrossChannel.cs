@@ -11,7 +11,7 @@ namespace Arc.CrossChannel
 {
     public static class CrossChannel
     {
-        private const int CleanupThreshold = 16;
+        public const int CleanupThreshold = 16;
         private static int cleanupCount = 0;
 
         public static XChannel Open<TMessage>(object? weakReference, Action<TMessage> method)
