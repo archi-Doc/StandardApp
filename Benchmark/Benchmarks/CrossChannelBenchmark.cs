@@ -83,14 +83,13 @@ namespace Benchmark
         [GlobalSetup]
         public void Setup()
         {
-            var simpleReceiver = new SimpleReceiver();
-            simpleReceiver = new SimpleReceiver();
+            // var simpleReceiver = new SimpleReceiver();
             // var simpleReceiver2 = new SimpleReceiver2();
             // var h2hReceiver = new H2HReceiver();
             // var pubSubReceiver = new PubSubReceiver();
         }
 
-        /*[Benchmark]
+        [Benchmark]
         public void Send()
         {
             CrossChannel.Send<int>(3);
@@ -124,9 +123,9 @@ namespace Benchmark
             }
 
             return;
-        }*/
+        }
 
-        public void WeakActionTest(uint x)
+        /*public void WeakActionTest(uint x)
         {
         }
 
@@ -160,9 +159,9 @@ namespace Benchmark
             }
 
             return;
-        }
+        }*/
 
-        /*[Benchmark]
+        [Benchmark]
         public void SendKey()
         {
             CrossChannel.SendKey<int, int>(3, 3);
@@ -198,7 +197,7 @@ namespace Benchmark
             return;
         }
 
-        [Benchmark]
+        /*[Benchmark]
         public void Send_CC2()
         {
             this.CCC.Send<int>(3);

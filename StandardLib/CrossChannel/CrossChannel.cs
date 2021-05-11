@@ -20,7 +20,7 @@ namespace Arc.CrossChannel
                 Cache_Message<TMessage>.List.Cleanup();
             }
 
-            var channel = new XChannel<TMessage>(Cache_Message<TMessage>.List, weakReference, method);
+            var channel = new XChannel_Message<TMessage>(Cache_Message<TMessage>.List, weakReference, method);
             return channel;
         }
 
@@ -48,6 +48,19 @@ namespace Arc.CrossChannel
             var channel = new XChannel_Key<TKey, TMessage>(Cache_KeyMessage<TKey, TMessage>.Map, key, weakReference, method);
             return channel;
         }
+
+        /*public static XChannel OpenKey<TKey, TMessage, TResult>(TKey key, object? weakReference, Func<TMessage, TResult> method)
+            where TKey : notnull
+        {
+            if (++cleanupCount >= CleanupThreshold)
+            {
+                cleanupCount = 0;
+                // Cleanup(Cache_MessageResult<TMessage, TResult>.List);
+            }
+
+            var channel = new XChannel_KeyMessageResult<TKey, TMessage, TResult>(Cache_KeyMessage<TKey, TMessage>.Map, key, weakReference, method);
+            return channel;
+        }*/
 
         public static void Close(XChannel channel) => channel.Dispose();
 
@@ -95,7 +108,7 @@ namespace Arc.CrossChannel
 #pragma warning disable SA1401 // Fields should be private
         internal static class Cache_Message<TMessage>
         {
-            public static FastList<XChannel<TMessage>> List;
+            public static FastList<XChannel_Message<TMessage>> List;
 
             static Cache_Message()
             {

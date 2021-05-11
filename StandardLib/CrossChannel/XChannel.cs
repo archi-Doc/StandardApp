@@ -20,9 +20,9 @@ namespace Arc.CrossChannel
         }
     }
 
-    internal class XChannel<TMessage> : XChannel
+    internal class XChannel_Message<TMessage> : XChannel
     {
-        internal XChannel(FastList<XChannel<TMessage>> list, object? weakReference, Action<TMessage> method)
+        internal XChannel_Message(FastList<XChannel_Message<TMessage>> list, object? weakReference, Action<TMessage> method)
         {
             this.List = list;
             this.Index = this.List.Add(this);
@@ -36,7 +36,7 @@ namespace Arc.CrossChannel
             }
         }
 
-        internal FastList<XChannel<TMessage>> List { get; }
+        internal FastList<XChannel_Message<TMessage>> List { get; }
 
         internal Action<TMessage>? StrongDelegate { get; set; }
 

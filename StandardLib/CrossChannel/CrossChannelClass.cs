@@ -15,11 +15,11 @@ namespace Arc.CrossChannel
 
         public XChannel Open<TMessage>(object? weakReference, Action<TMessage> method)
         {
-            FastList<XChannel<TMessage>>? list;
+            FastList<XChannel_Message<TMessage>>? list;
             var key = typeof(TMessage);
             lock (this.tableMessage)
             {
-                list = this.tableMessage[typeof(TMessage)] as FastList<XChannel<TMessage>>;
+                list = this.tableMessage[typeof(TMessage)] as FastList<XChannel_Message<TMessage>>;
                 if (list == null)
                 {
                     list = new();
@@ -33,7 +33,7 @@ namespace Arc.CrossChannel
                 list.Cleanup();
             }
 
-            var channel = new XChannel<TMessage>(list, weakReference, method);
+            var channel = new XChannel_Message<TMessage>(list, weakReference, method);
             return channel;
         }
 
@@ -67,11 +67,11 @@ namespace Arc.CrossChannel
         public XChannel OpenKey<TKey, TMessage>(TKey key, object? weakReference, Action<TMessage> method)
             where TKey : notnull
         {
-            FastList<XChannel<TMessage>>? list;
+            FastList<XChannel_Message<TMessage>>? list;
             var k = (typeof(TKey), typeof(TMessage));
             lock (this.tableKeyMessage)
             {
-                list = this.tableKeyMessage[k] as FastList<XChannel<TMessage>>;
+                list = this.tableKeyMessage[k] as FastList<XChannel_Message<TMessage>>;
                 if (list == null)
                 {
                     list = new();
@@ -85,7 +85,7 @@ namespace Arc.CrossChannel
                 // Cleanup(list);
             }
 
-            var channel = new XChannel<TMessage>(list, weakReference, method);
+            var channel = new XChannel_Message<TMessage>(list, weakReference, method);
             return channel;
         }
 
@@ -99,7 +99,7 @@ namespace Arc.CrossChannel
         /// <returns>A number of the receivers.</returns>
         public int Send<TMessage>(TMessage message)
         {
-            var list = this.tableMessage[typeof(TMessage)] as FastList<XChannel<TMessage>>;
+            var list = this.tableMessage[typeof(TMessage)] as FastList<XChannel_Message<TMessage>>;
             if (list == null)
             {
                 return 0;
@@ -129,7 +129,7 @@ namespace Arc.CrossChannel
         public int SendKey<TKey, TMessage>(TKey key, TMessage message)
             where TKey : notnull
         {
-            var list = this.tableKeyMessage[(typeof(TKey), typeof(TMessage))] as FastList<XChannel<TMessage>>;
+            var list = this.tableKeyMessage[(typeof(TKey), typeof(TMessage))] as FastList<XChannel_Message<TMessage>>;
             if (list == null)
             {
                 return 0;

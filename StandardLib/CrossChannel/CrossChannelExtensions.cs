@@ -8,7 +8,7 @@ namespace Arc.CrossChannel
 {
     internal static class CrossChannelExtensions
     {
-        internal static int Send<TMessage>(this FastList<XChannel<TMessage>> list, TMessage message)
+        internal static int Send<TMessage>(this FastList<XChannel_Message<TMessage>> list, TMessage message)
         {
             var array = list.GetValues();
             var numberReceived = 0;
@@ -130,7 +130,7 @@ namespace Arc.CrossChannel
             return results;
         }
 
-        internal static bool Cleanup<TMessage>(this FastList<XChannel<TMessage>> list)
+        internal static bool Cleanup<TMessage>(this FastList<XChannel_Message<TMessage>> list)
         {
             var array = list.GetValues();
             for (var i = 0; i < array.Length; i++)
