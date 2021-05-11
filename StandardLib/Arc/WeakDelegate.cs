@@ -34,6 +34,7 @@ namespace Arc.WeakDelegate
 
     /// <summary>
     /// A key which stores a type of the Delegate's owner and a MethodInfo of the Delegate.
+    /// Method (e.g. Action&lt;T&gt;) is not suitable for a key (cannot cache properly).
     /// </summary>
     public struct DelegateKey
     {
@@ -79,7 +80,7 @@ namespace Arc.WeakDelegate
             }
 
             var type = method.Target.GetType();
-            var key = new DelegateKey(method.Target.GetType(), method.Method);
+            var key = new DelegateKey(type, method.Method);
 
             this.compiledDelegate = delegateCache[key] as Action<object>;
             if (this.compiledDelegate == null)
@@ -140,7 +141,7 @@ namespace Arc.WeakDelegate
 
     public class WeakAction<T> : WeakDelegate
     {
-        private static Hashtable delegateCache = new Hashtable();
+        private static Hashtable delegateCache = new();
         private Action<object, T>? compiledDelegate;
 
         public WeakAction(Action<T> method, bool keepTargetAlive = false)
@@ -156,14 +157,12 @@ namespace Arc.WeakDelegate
                 return;
             }
 
-            // var type = method.Target.GetType();
-            // var key = new DelegateKey(type, method.Method);
-            var key = method;
+            var type = method.Target.GetType();
+            var key = new DelegateKey(type, method.Method);
 
             this.compiledDelegate = delegateCache[key] as Action<object, T>;
             if (this.compiledDelegate == null)
             {
-                var type = method.Target.GetType();
                 var targetParam = Expression.Parameter(typeof(object));
                 var t = Expression.Parameter(typeof(T));
                 this.compiledDelegate = Expression.Lambda<Action<object, T>>(
@@ -240,7 +239,7 @@ namespace Arc.WeakDelegate
             }
 
             var type = method.Target.GetType();
-            var key = new DelegateKey(method.Target.GetType(), method.Method);
+            var key = new DelegateKey(type, method.Method);
 
             this.compiledDelegate = delegateCache[key] as Func<object, TResult>;
             if (this.compiledDelegate == null)
@@ -317,7 +316,7 @@ namespace Arc.WeakDelegate
             }
 
             var type = method.Target.GetType();
-            var key = new DelegateKey(method.Target.GetType(), method.Method);
+            var key = new DelegateKey(type, method.Method);
 
             this.compiledDelegate = delegateCache[key] as Func<object, T, TResult>;
             if (this.compiledDelegate == null)

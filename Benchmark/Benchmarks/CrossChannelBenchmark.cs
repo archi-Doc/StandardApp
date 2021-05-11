@@ -1,6 +1,7 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using Arc.CrossChannel;
+using Arc.WeakDelegate;
 using BenchmarkDotNet.Attributes;
 using DryIoc;
 using MessagePipe;
@@ -83,6 +84,7 @@ namespace Benchmark
         public void Setup()
         {
             var simpleReceiver = new SimpleReceiver();
+            simpleReceiver = new SimpleReceiver();
             // var simpleReceiver2 = new SimpleReceiver2();
             // var h2hReceiver = new H2HReceiver();
             // var pubSubReceiver = new PubSubReceiver();
@@ -127,6 +129,9 @@ namespace Benchmark
         public void WeakActionTest(uint x)
         {
         }
+
+        [Benchmark]
+        public WeakAction<int> CreateWeakAction() => new WeakAction<int>(this, x => { });
 
         [Benchmark]
         public void OpenAndSend_Weak()
