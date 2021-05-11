@@ -15,8 +15,14 @@ namespace Benchmark
     {
         public SimpleReceiver()
         {
+            CrossChannel.Open<int>(this, Test);
+            CrossChannel.Open<int>(this, Test);
             CrossChannel.Open<int, int>(null, x => x * 5);
             CrossChannel.Open<int, int>(null, x => x * 5);
+        }
+
+        public void Test(int x)
+        {
         }
     }
 
@@ -77,12 +83,12 @@ namespace Benchmark
         public void Setup()
         {
             var simpleReceiver = new SimpleReceiver();
-            var simpleReceiver2 = new SimpleReceiver2();
-            var h2hReceiver = new H2HReceiver();
-            var pubSubReceiver = new PubSubReceiver();
+            // var simpleReceiver2 = new SimpleReceiver2();
+            // var h2hReceiver = new H2HReceiver();
+            // var pubSubReceiver = new PubSubReceiver();
         }
 
-        [Benchmark]
+        /*[Benchmark]
         public void Send()
         {
             CrossChannel.Send<int>(3);
@@ -116,9 +122,42 @@ namespace Benchmark
             }
 
             return;
+        }*/
+
+        public void WeakActionTest(uint x)
+        {
         }
 
         [Benchmark]
+        public void OpenAndSend_Weak()
+        {
+            using (var c = CrossChannel.Open<uint>(this, WeakActionTest))
+            {
+                CrossChannel.Send<uint>(3);
+            }
+
+            return;
+        }
+
+        [Benchmark]
+        public void OpenAndSend8_Weak()
+        {
+            using (var c = CrossChannel.Open<uint>(this, WeakActionTest))
+            {
+                CrossChannel.Send<uint>(1);
+                CrossChannel.Send<uint>(2);
+                CrossChannel.Send<uint>(3);
+                CrossChannel.Send<uint>(4);
+                CrossChannel.Send<uint>(5);
+                CrossChannel.Send<uint>(6);
+                CrossChannel.Send<uint>(7);
+                CrossChannel.Send<uint>(8);
+            }
+
+            return;
+        }
+
+        /*[Benchmark]
         public void SendKey()
         {
             CrossChannel.SendKey<int, int>(3, 3);
@@ -226,7 +265,7 @@ namespace Benchmark
             return;
         }
 
-        /*[Benchmark]
+        [Benchmark]
         public void Send_Pub()
         {
             Hub.Default.Publish(3);

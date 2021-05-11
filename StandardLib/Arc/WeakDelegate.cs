@@ -156,12 +156,14 @@ namespace Arc.WeakDelegate
                 return;
             }
 
-            var type = method.Target.GetType();
-            var key = new DelegateKey(method.Target.GetType(), method.Method);
+            // var type = method.Target.GetType();
+            // var key = new DelegateKey(type, method.Method);
+            var key = method;
 
             this.compiledDelegate = delegateCache[key] as Action<object, T>;
             if (this.compiledDelegate == null)
             {
+                var type = method.Target.GetType();
                 var targetParam = Expression.Parameter(typeof(object));
                 var t = Expression.Parameter(typeof(T));
                 this.compiledDelegate = Expression.Lambda<Action<object, T>>(
@@ -421,7 +423,14 @@ namespace Arc.WeakDelegate
 
             this.DelegateReference = new WeakReference(@delegate.Target);
             this.HardReference = keepTargetAlive ? @delegate.Target : null;
-            this.Reference = new WeakReference(target);
+            if (target == @delegate.Target)
+            {
+                this.Reference = this.DelegateReference;
+            }
+            else
+            {
+                this.Reference = new WeakReference(target);
+            }
         }
 
         /// <summary>

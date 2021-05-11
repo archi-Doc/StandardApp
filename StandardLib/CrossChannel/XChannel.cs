@@ -190,8 +190,8 @@ namespace Arc.CrossChannel
         {
             if (this.Index != -1)
             {
-                this.List.Remove(this.Index);
-                if (this.List.GetCount() == 0)
+                var empty = this.List.Remove(this.Index);
+                if (empty)
                 {
                     lock (this.Map)
                     {
