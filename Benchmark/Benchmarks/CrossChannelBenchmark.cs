@@ -171,7 +171,7 @@ namespace Benchmark
         [Benchmark]
         public void OpenAndSendKey()
         {
-            using (var c = CrossChannel.OpenKey<int, uint>(3, null, x => { }))
+            using (var d = CrossChannel.OpenKey<int, uint>(3, null, x => { }))
             {
                 CrossChannel.SendKey<int, uint>(3, 3);
             }

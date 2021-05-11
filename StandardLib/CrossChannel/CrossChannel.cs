@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Arc.WeakDelegate;
 
@@ -45,7 +46,7 @@ namespace Arc.CrossChannel
                 // Cleanup(Cache_MessageResult<TMessage, TResult>.List);
             }
 
-            var channel = new XChannel_KeyMessage<TKey, TMessage>(Cache_KeyMessage<TKey, TMessage>.Map, key, weakReference, method);
+            var channel = new XChannel_Key2<TKey, TMessage>(Cache_KeyMessage<TKey, TMessage>.Map, key, weakReference, method);
             return channel;
         }
 
@@ -90,8 +91,14 @@ namespace Arc.CrossChannel
         public static int SendKey<TKey, TMessage>(TKey key, TMessage message)
             where TKey : notnull
         {
-            var list = Cache_KeyMessage<TKey, TMessage>.Map[key] as FastList<XChannel_KeyMessage<TKey, TMessage>>;
+            /*var list = Cache_KeyMessage<TKey, TMessage>.Map[key] as FastList<XChannel_KeyMessage<TKey, TMessage>>;
             if (list == null)
+            {
+                return 0;
+            }*/
+
+            FastList<XChannel_Key2<TKey, TMessage>>? list;
+            if (!Cache_KeyMessage<TKey, TMessage>.Map.TryGetValue(key, out list))
             {
                 return 0;
             }
@@ -133,7 +140,7 @@ namespace Arc.CrossChannel
         internal static class Cache_KeyMessage<TKey, TMessage>
             where TKey : notnull
         {
-            public static Hashtable Map;
+            public static ConcurrentDictionary<TKey, FastList<XChannel_Key2<TKey, TMessage>>> Map;
 
             static Cache_KeyMessage()
             {

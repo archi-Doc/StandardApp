@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Arc.WeakDelegate;
 
@@ -197,6 +198,55 @@ namespace Arc.CrossChannel
                     {
                         this.Map.Remove(this.Key);
                     }
+                }
+
+                this.Index = -1;
+            }
+        }
+    }
+
+    internal class XChannel_Key2<TKey, TMessage> : XChannel
+        where TKey : notnull
+    {
+        public XChannel_Key2(ConcurrentDictionary<TKey, FastList<XChannel_Key2<TKey, TMessage>>> map, TKey key, object? weakReference, Action<TMessage> method)
+        {
+            this.Map = map;
+            this.List = map.GetOrAdd(key, x => new FastList<XChannel_Key2<TKey, TMessage>>());
+            this.Key = key;
+            this.Index = this.List.Add(this);
+
+            if (weakReference == null)
+            {
+                this.StrongDelegate = method;
+            }
+            else
+            {
+                this.WeakDelegate = new(weakReference, method);
+            }
+        }
+
+        public TKey Key { get; }
+
+        internal ConcurrentDictionary<TKey, FastList<XChannel_Key2<TKey, TMessage>>> Map { get; }
+
+#pragma warning disable SA1201 // Elements should appear in the correct order
+#pragma warning disable SA1401 // Fields should be private
+        internal FastList<XChannel_Key2<TKey, TMessage>> List;
+#pragma warning restore SA1401 // Fields should be private
+#pragma warning restore SA1201 // Elements should appear in the correct order
+
+        internal Action<TMessage>? StrongDelegate { get; set; }
+
+        internal WeakAction<TMessage>? WeakDelegate { get; set; }
+
+        public override void Dispose()
+        {
+            if (this.Index != -1)
+            {
+                var empty = this.List.Remove(this.Index);
+                if (empty)
+                {
+                    this.Map.TryRemove(this.Key, out _);
                 }
 
                 this.Index = -1;
