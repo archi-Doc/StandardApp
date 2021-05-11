@@ -97,9 +97,13 @@ namespace Arc.CrossChannel
             }*/
 
             FastList<XChannel_Key<TKey, TMessage>>? list;
-            if (!Cache_KeyMessage<TKey, TMessage>.Map.TryGetValue(key, out list))
+            var map = Cache_KeyMessage<TKey, TMessage>.Map;
+            lock (map)
             {
-                return 0;
+                if (!map.TryGetValue(key, out list))
+                {
+                    return 0;
+                }
             }
 
             return list.Send(message);
