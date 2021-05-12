@@ -89,7 +89,7 @@ namespace Benchmark
             // var pubSubReceiver = new PubSubReceiver();
         }
 
-        [Benchmark]
+      /*  [Benchmark]
         public void Send()
         {
             CrossChannel.Send<int>(3);
@@ -123,9 +123,9 @@ namespace Benchmark
             }
 
             return;
-        }
+        }*/
 
-        /*public void WeakActionTest(uint x)
+        public void WeakActionTest(uint x)
         {
         }
 
@@ -159,9 +159,9 @@ namespace Benchmark
             }
 
             return;
-        }*/
+        }
 
-        [Benchmark]
+        /*[Benchmark]
         public void SendKey()
         {
             CrossChannel.SendKey<int, int>(3, 3);
