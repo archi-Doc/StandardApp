@@ -161,7 +161,7 @@ namespace Benchmark
             return;
         }
 
-        /*[Benchmark]
+        [Benchmark]
         public void SendKey()
         {
             CrossChannel.SendKey<int, int>(3, 3);
@@ -171,7 +171,7 @@ namespace Benchmark
         [Benchmark]
         public void OpenAndSendKey()
         {
-            using (var d = CrossChannel.OpenKey<int, uint>(3, null, x => { }))
+            using (var d = CrossChannel.OpenKey<int, uint>(null, 3, x => { }))
             {
                 CrossChannel.SendKey<int, uint>(3, 3);
             }
@@ -182,7 +182,7 @@ namespace Benchmark
         [Benchmark]
         public void OpenAndSendKey8()
         {
-            using (var c = CrossChannel.OpenKey<int, uint>(3, null, x => { }))
+            using (var c = CrossChannel.OpenKey<int, uint>(null, 3, x => { }))
             {
                 CrossChannel.SendKey<int, uint>(3, 1);
                 CrossChannel.SendKey<int, uint>(3, 2);
@@ -192,6 +192,35 @@ namespace Benchmark
                 CrossChannel.SendKey<int, uint>(3, 6);
                 CrossChannel.SendKey<int, uint>(3, 7);
                 CrossChannel.SendKey<int, uint>(3, 8);
+            }
+
+            return;
+        }
+
+        [Benchmark]
+        public void OpenAndSendKeyResult()
+        {
+            using (var d = CrossChannel.OpenKey<int, uint, uint>(null, 3, x => x))
+            {
+                CrossChannel.SendKey<int, uint, uint>(3, 3);
+            }
+
+            return;
+        }
+
+        [Benchmark]
+        public void OpenAndSendKeyResult8()
+        {
+            using (var c = CrossChannel.OpenKey<int, uint, uint>(null, 3, x => x))
+            {
+                CrossChannel.SendKey<int, uint, uint>(3, 1);
+                CrossChannel.SendKey<int, uint, uint>(3, 2);
+                CrossChannel.SendKey<int, uint, uint>(3, 3);
+                CrossChannel.SendKey<int, uint, uint>(3, 4);
+                CrossChannel.SendKey<int, uint, uint>(3, 5);
+                CrossChannel.SendKey<int, uint, uint>(3, 6);
+                CrossChannel.SendKey<int, uint, uint>(3, 7);
+                CrossChannel.SendKey<int, uint, uint>(3, 8);
             }
 
             return;

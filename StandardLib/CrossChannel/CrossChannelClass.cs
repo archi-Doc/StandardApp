@@ -39,7 +39,7 @@ namespace Arc.CrossChannel
 
         public XChannel Open<TMessage, TResult>(object? weakReference, Func<TMessage, TResult> method)
         {
-            FastList<XChannel<TMessage, TResult>>? list;
+            FastList<XChannel_MessageResult<TMessage, TResult>>? list;
             var key = (typeof(TMessage), typeof(TResult));
             lock (this.tableMessageResult)
             {
@@ -50,7 +50,7 @@ namespace Arc.CrossChannel
                 }
                 else
                 {
-                    list = (FastList<XChannel<TMessage, TResult>>)obj;
+                    list = (FastList<XChannel_MessageResult<TMessage, TResult>>)obj;
                 }
             }
 
@@ -60,7 +60,7 @@ namespace Arc.CrossChannel
                 list.Cleanup();
             }
 
-            var channel = new XChannel<TMessage, TResult>(list,  weakReference, method);
+            var channel = new XChannel_MessageResult<TMessage, TResult>(list,  weakReference, method);
             return channel;
         }
 
@@ -122,7 +122,7 @@ namespace Arc.CrossChannel
                 return Array.Empty<TResult>();
             }
 
-            var list = (FastList<XChannel<TMessage, TResult>>)obj;
+            var list = (FastList<XChannel_MessageResult<TMessage, TResult>>)obj;
             return list.Send(message);
         }
 

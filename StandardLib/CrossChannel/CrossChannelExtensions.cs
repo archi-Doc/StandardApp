@@ -123,10 +123,47 @@ namespace Arc.CrossChannel
             return numberReceived;
         }
 
-        internal static TResult[] Send<TMessage, TResult>(this FastList<XChannel<TMessage, TResult>> list, TMessage message)
+        internal static TResult[] Send<TMessage, TResult>(this FastList<XChannel_MessageResult<TMessage, TResult>> list, TMessage message)
         {
             var array = list.GetValues();
             var results = new TResult[list.GetCount()];
+            var numberReceived = 0;
+            for (var i = 0; i < array.Length; i++)
+            {
+                if (array[i] is { } channel)
+                {
+                    if (channel.StrongDelegate != null)
+                    {
+                        results[numberReceived++] = channel.StrongDelegate(message);
+                    }
+                    else if (channel.WeakDelegate!.IsAlive)
+                    {
+                        var result = channel.WeakDelegate!.Execute(message, out var executed);
+                        if (executed)
+                        {
+                            results[numberReceived++] = result!;
+                        }
+                    }
+                    else
+                    {
+                        channel.Dispose();
+                    }
+                }
+            }
+
+            if (results.Length != numberReceived)
+            {
+                Array.Resize(ref results, numberReceived);
+            }
+
+            return results;
+        }
+
+        internal static TResult[] SendKey<TKey, TMessage, TResult>(this FastList<XChannel_KeyMessageResult<TKey, TMessage, TResult>> list, TMessage message)
+            where TKey : notnull
+        {
+            (var array, var count) = list.GetValuesAndCount();
+            var results = new TResult[count];
             var numberReceived = 0;
             for (var i = 0; i < array.Length; i++)
             {
@@ -176,7 +213,7 @@ namespace Arc.CrossChannel
             return list.TryShrink();
         }
 
-        internal static bool Cleanup<TMessage, TResult>(this FastList<XChannel<TMessage, TResult>> list)
+        internal static bool Cleanup<TMessage, TResult>(this FastList<XChannel_MessageResult<TMessage, TResult>> list)
         {
             var array = list.GetValues();
             for (var i = 0; i < array.Length; i++)
