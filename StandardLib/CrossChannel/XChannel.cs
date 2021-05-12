@@ -215,9 +215,12 @@ namespace Arc.CrossChannel
         public XChannel_Key2(ConcurrentDictionary<TKey, FastList<XChannel_Key2<TKey, TMessage>>> map, TKey key, object? weakReference, Action<TMessage> method)
         {
             this.Map = map;
-            this.List = map.GetOrAdd(key, x => new FastList<XChannel_Key2<TKey, TMessage>>());
-            this.Key = key;
-            this.Index = this.List.Add(this);
+            lock (map)
+            {
+                this.List = map.GetOrAdd(key, x => new FastList<XChannel_Key2<TKey, TMessage>>());
+                this.Key = key;
+                this.Index = this.List.Add(this);
+            }
 
             if (weakReference == null)
             {
@@ -247,10 +250,13 @@ namespace Arc.CrossChannel
         {
             if (this.Index != -1)
             {
-                var empty = this.List.Remove(this.Index);
-                if (empty)
+                lock (this.Map)
                 {
-                    this.Map.TryRemove(this.Key, out _);
+                    var empty = this.List.Remove(this.Index);
+                    if (empty)
+                    {
+                        this.Map.TryRemove(this.Key, out _);
+                    }
                 }
 
                 this.Index = -1;

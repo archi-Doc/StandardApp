@@ -125,7 +125,7 @@ namespace Benchmark
             return;
         }*/
 
-        public void WeakActionTest(uint x)
+        /*public void WeakActionTest(uint x)
         {
         }
 
@@ -159,7 +159,7 @@ namespace Benchmark
             }
 
             return;
-        }
+        }*/
 
         [Benchmark]
         public void SendKey()
@@ -198,7 +198,7 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public void OpenAndSendKeyResult()
+        /*public void OpenAndSendKeyResult()
         {
             using (var d = CrossChannel.OpenKey<int, uint, uint>(null, 3, x => x))
             {
@@ -224,7 +224,7 @@ namespace Benchmark
             }
 
             return;
-        }
+        }*/
 
         /*[Benchmark]
         public void Send_CC2()
