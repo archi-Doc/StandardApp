@@ -131,10 +131,10 @@ namespace Arc.CrossChannel
         {
             if (this.Index != -1)
             {
-                var empty = this.List.Remove(this.Index);
-                if (empty)
+                lock (this.Table)
                 {
-                    lock (this.Table)
+                    var empty = this.List.Remove(this.Index);
+                    if (empty)
                     {
                         this.Table.Remove(this.Key);
                     }
@@ -151,20 +151,19 @@ namespace Arc.CrossChannel
     {
         public XChannel_Key(Dictionary<TKey, FastList<XChannel_Key<TKey, TMessage>>> map, TKey key, object? weakReference, Action<TMessage> method)
         {
-            FastList<XChannel_Key<TKey, TMessage>>? list;
-            lock (map)
+            this.Map = map;
+            lock (this.Map)
             {
-                if (!map.TryGetValue(key, out list))
+                if (!map.TryGetValue(key, out var list))
                 {
                     list = new();
                     map[key] = list;
                 }
-            }
 
-            this.Map = map;
-            this.List = list;
-            this.Key = key;
-            this.Index = this.List.Add(this);
+                this.List = list;
+                this.Key = key;
+                this.Index = this.List.Add(this);
+            }
 
             if (weakReference == null)
             {
@@ -194,10 +193,10 @@ namespace Arc.CrossChannel
         {
             if (this.Index != -1)
             {
-                var empty = this.List.Remove(this.Index);
-                if (empty)
+                lock (this.Map)
                 {
-                    lock (this.Map)
+                    var empty = this.List.Remove(this.Index);
+                    if (empty)
                     {
                         this.Map.Remove(this.Key);
                     }

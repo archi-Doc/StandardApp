@@ -46,7 +46,7 @@ namespace Arc.CrossChannel
                 // Cleanup(Cache_MessageResult<TMessage, TResult>.List);
             }
 
-            var channel = new XChannel_Key2<TKey, TMessage>(Cache_KeyMessage<TKey, TMessage>.Map, key, weakReference, method);
+            var channel = new XChannel_Key<TKey, TMessage>(Cache_KeyMessage<TKey, TMessage>.Map, key, weakReference, method);
             return channel;
         }
 
@@ -97,13 +97,7 @@ namespace Arc.CrossChannel
                 return 0;
             }*/
 
-            FastList<XChannel_Key2<TKey, TMessage>>? list;
-            if (!Cache_KeyMessage<TKey, TMessage>.Map.TryGetValue(key, out list))
-            {
-                return 0;
-            }
-
-            /*FastList<XChannel_Key<TKey, TMessage>>? list;
+            FastList<XChannel_Key<TKey, TMessage>>? list;
             var map = Cache_KeyMessage<TKey, TMessage>.Map;
             lock (map)
             {
@@ -111,7 +105,7 @@ namespace Arc.CrossChannel
                 {
                     return 0;
                 }
-            }*/
+            }
 
             return list.Send(message);
         }
@@ -152,7 +146,7 @@ namespace Arc.CrossChannel
         internal static class Cache_KeyMessage<TKey, TMessage>
             where TKey : notnull
         {
-            public static ConcurrentDictionary<TKey, FastList<XChannel_Key2<TKey, TMessage>>> Map;
+            public static Dictionary<TKey, FastList<XChannel_Key<TKey, TMessage>>> Map;
 
             static Cache_KeyMessage()
             {
