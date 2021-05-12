@@ -197,8 +197,8 @@ namespace Benchmark
             return;
         }
 
-        [Benchmark]
-        /*public void OpenAndSendKeyResult()
+        /*[Benchmark]
+        public void OpenAndSendKeyResult()
         {
             using (var d = CrossChannel.OpenKey<int, uint, uint>(null, 3, x => x))
             {
