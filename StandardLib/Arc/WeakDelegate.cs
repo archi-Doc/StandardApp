@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -141,7 +142,7 @@ namespace Arc.WeakDelegate
 
     public class WeakAction<T> : WeakDelegate
     {
-        private static Hashtable delegateCache = new();
+        private static ConcurrentDictionary<DelegateKey, Action<object, T>> delegateCache = new();
         private Action<object, T>? compiledDelegate;
 
         public WeakAction(Action<T> method, bool keepTargetAlive = false)
@@ -160,8 +161,8 @@ namespace Arc.WeakDelegate
             var type = method.Target.GetType();
             var key = new DelegateKey(type, method.Method);
 
-            this.compiledDelegate = delegateCache[key] as Action<object, T>;
-            if (this.compiledDelegate == null)
+            // this.compiledDelegate = delegateCache[key] as Action<object, T>;
+            if (!delegateCache.TryGetValue(key, out this.compiledDelegate))
             {
                 var targetParam = Expression.Parameter(typeof(object));
                 var t = Expression.Parameter(typeof(T));
@@ -174,10 +175,12 @@ namespace Arc.WeakDelegate
                     t)
                     .CompileFast();
 
-                lock (delegateCache)
+                delegateCache.TryAdd(key, this.compiledDelegate);
+
+                /*lock (delegateCache)
                 {
                     delegateCache[key] = this.compiledDelegate;
-                }
+                }*/
             }
         }
 
