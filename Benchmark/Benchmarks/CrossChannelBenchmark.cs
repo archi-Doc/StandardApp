@@ -89,7 +89,7 @@ namespace Benchmark
             // var pubSubReceiver = new PubSubReceiver();
         }
 
-      /*  [Benchmark]
+        [Benchmark]
         public void Send()
         {
             CrossChannel.Send<int>(3);
@@ -123,7 +123,7 @@ namespace Benchmark
             }
 
             return;
-        }*/
+        }
 
         /*public void WeakActionTest(uint x)
         {
@@ -161,7 +161,7 @@ namespace Benchmark
             return;
         }*/
 
-        [Benchmark]
+        /*[Benchmark]
         public void SendKey()
         {
             CrossChannel.SendKey<int, int>(3, 3);
@@ -197,6 +197,35 @@ namespace Benchmark
             return;
         }
 
+        [Benchmark]
+        public void OpenAndSendResult()
+        {
+            using (var c = CrossChannel.Open<int, int>(null, x => x))
+            {
+                CrossChannel.Send<int, int>(1);
+            }
+
+            return;
+        }
+
+        [Benchmark]
+        public void OpenAndSendResult8()
+        {
+            using (var c = CrossChannel.Open<int, int>(null, x => x))
+            {
+                CrossChannel.Send<int, int>(1);
+                CrossChannel.Send<int, int>(2);
+                CrossChannel.Send<int, int>(3);
+                CrossChannel.Send<int, int>(4);
+                CrossChannel.Send<int, int>(5);
+                CrossChannel.Send<int, int>(6);
+                CrossChannel.Send<int, int>(7);
+                CrossChannel.Send<int, int>(8);
+            }
+
+            return;
+        }*/
+
         /*[Benchmark]
         public void OpenAndSendKeyResult()
         {
@@ -226,15 +255,15 @@ namespace Benchmark
             return;
         }*/
 
-        /*[Benchmark]
-        public void Send_CC2()
+        [Benchmark]
+        public void Send_CCC()
         {
             this.CCC.Send<int>(3);
             return;
         }
 
         [Benchmark]
-        public void OpenAndSend_CC2()
+        public void OpenAndSend_CCC()
         {
             using (var c = this.CCC.Open<uint>(null, x => { }))
             {
@@ -245,7 +274,7 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public void OpenAndSend8_CC2()
+        public void OpenAndSend8_CCC()
         {
             using (var c = this.CCC.Open<uint>(null, x => { }))
             {
@@ -262,7 +291,7 @@ namespace Benchmark
             return;
         }
 
-        [Benchmark]
+        /*[Benchmark]
         public void SendKey_CC2()
         {
             this.CCC.SendKey<int, int>(3, 3);

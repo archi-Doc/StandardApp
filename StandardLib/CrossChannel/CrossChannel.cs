@@ -10,7 +10,8 @@ namespace Arc.CrossChannel
 {
     public static class CrossChannel
     {
-        public const int CleanupThreshold = 16;
+        internal const int CleanupThreshold = 32;
+        internal const int DictionaryThreshold = 16;
         private static int cleanupCount = 0;
 
         public static XChannel Open<TMessage>(object? weakReference, Action<TMessage> method)
@@ -43,10 +44,12 @@ namespace Arc.CrossChannel
             if (++cleanupCount >= CleanupThreshold)
             {
                 cleanupCount = 0;
-                // Cleanup(Cache_MessageResult<TMessage, TResult>.List);
+                Cache_KeyMessage<TKey, TMessage>.Collection.Cleanup();
             }
 
-            var channel = new XChannel_Key2<TKey, TMessage>(Cache_KeyMessage<TKey, TMessage>.Map, key, weakReference, method);
+            // var channel = new XChannel_Key2<TKey, TMessage>(Cache_KeyMessage<TKey, TMessage>.Map, key, weakReference, method);
+
+            var channel = new XChannel_KeyMessage<TKey, TMessage>(Cache_KeyMessage<TKey, TMessage>.Collection, key, weakReference, method);
             return channel;
         }
 
@@ -59,7 +62,7 @@ namespace Arc.CrossChannel
                 // Cleanup(Cache_MessageResult<TMessage, TResult>.List);
             }
 
-            var channel = new XChannel_KeyMessageResult<TKey, TMessage, TResult>(Cache_KeyMessageResult<TKey, TMessage, TResult>.Map, key, weakReference, method);
+            var channel = new XChannel_KeyMessageResult<TKey, TMessage, TResult>(Cache_KeyMessageResult<TKey, TMessage, TResult>.Collection, key, weakReference, method);
             return channel;
         }
 
@@ -97,7 +100,12 @@ namespace Arc.CrossChannel
                 return 0;
             }*/
 
-            if (!Cache_KeyMessage<TKey, TMessage>.Map.TryGetValue(key, out var list))
+            /*if (!Cache_KeyMessage<TKey, TMessage>.Map.TryGetValue(key, out var list))
+            {
+                return 0;
+            }*/
+
+            if (!Cache_KeyMessage<TKey, TMessage>.Collection.Dictionary.TryGetValue(key, out var list))
             {
                 return 0;
             }
@@ -108,13 +116,12 @@ namespace Arc.CrossChannel
         public static TResult[] SendKey<TKey, TMessage, TResult>(TKey key, TMessage message)
             where TKey : notnull
         {
-            FastList<XChannel_KeyMessageResult<TKey, TMessage, TResult>>? list;
-            if (!Cache_KeyMessageResult<TKey, TMessage, TResult>.Map.TryGetValue(key, out list))
+            if (!Cache_KeyMessageResult<TKey, TMessage, TResult>.Collection.Dictionary.TryGetValue(key, out var list))
             {
                 return Array.Empty<TResult>();
             }
 
-            return list.SendKey(message);
+            return list.Send(message);
         }
 
 #pragma warning disable SA1401 // Fields should be private
@@ -138,7 +145,7 @@ namespace Arc.CrossChannel
             }
         }
 
-        internal static class Cache_KeyMessage<TKey, TMessage>
+        /*internal static class Cache_KeyMessage<TKey, TMessage>
             where TKey : notnull
         {
             public static ConcurrentDictionary<TKey, FastList<XChannel_Key2<TKey, TMessage>>> Map;
@@ -147,16 +154,27 @@ namespace Arc.CrossChannel
             {
                 Map = new();
             }
+        }*/
+
+        internal static class Cache_KeyMessage<TKey, TMessage>
+            where TKey : notnull
+        {
+            public static XCollection_KeyMessage<TKey, TMessage> Collection;
+
+            static Cache_KeyMessage()
+            {
+                Collection = new();
+            }
         }
 
         internal static class Cache_KeyMessageResult<TKey, TMessage, TResult>
             where TKey : notnull
         {
-            public static ConcurrentDictionary<TKey, FastList<XChannel_KeyMessageResult<TKey, TMessage, TResult>>> Map;
+            public static XCollection_KeyMessageResult<TKey, TMessage, TResult> Collection;
 
             static Cache_KeyMessageResult()
             {
-                Map = new();
+                Collection = new();
             }
         }
 #pragma warning restore SA1401 // Fields should be private

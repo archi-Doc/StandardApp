@@ -6,67 +6,9 @@ using System.Text;
 
 namespace Arc.CrossChannel
 {
-    internal static class CrossChannelExtensions
+    internal static partial class CrossChannelExtensions
     {
         internal static int Send<TMessage>(this FastList<XChannel_Message<TMessage>> list, TMessage message)
-        {
-            var array = list.GetValues();
-            var numberReceived = 0;
-            for (var i = 0; i < array.Length; i++)
-            {
-                if (array[i] is { } channel)
-                {
-                    if (channel.StrongDelegate != null)
-                    {
-                        channel.StrongDelegate(message);
-                        numberReceived++;
-                    }
-                    else if (channel.WeakDelegate!.IsAlive)
-                    {
-                        channel.WeakDelegate!.Execute(message);
-                        numberReceived++;
-                    }
-                    else
-                    {
-                        channel.Dispose();
-                    }
-                }
-            }
-
-            return numberReceived;
-        }
-
-        internal static int Send<TKey, TMessage>(this FastList<XChannel_Key<TKey, TMessage>> list, TMessage message)
-            where TKey : notnull
-        {
-            var array = list.GetValues();
-            var numberReceived = 0;
-            for (var i = 0; i < array.Length; i++)
-            {
-                if (array[i] is { } channel)
-                {
-                    if (channel.StrongDelegate != null)
-                    {
-                        channel.StrongDelegate(message);
-                        numberReceived++;
-                    }
-                    else if (channel.WeakDelegate!.IsAlive)
-                    {
-                        channel.WeakDelegate!.Execute(message);
-                        numberReceived++;
-                    }
-                    else
-                    {
-                        channel.Dispose();
-                    }
-                }
-            }
-
-            return numberReceived;
-        }
-
-        internal static int Send<TKey, TMessage>(this FastList<XChannel_Key2<TKey, TMessage>> list, TMessage message)
-            where TKey : notnull
         {
             var array = list.GetValues();
             var numberReceived = 0;
@@ -125,8 +67,9 @@ namespace Arc.CrossChannel
 
         internal static TResult[] Send<TMessage, TResult>(this FastList<XChannel_MessageResult<TMessage, TResult>> list, TMessage message)
         {
+            // (var array, var count) = list.GetValuesAndCount(); // Slow
             var array = list.GetValues();
-            var results = new TResult[list.GetCount()];
+            var results = new TResult[array.Length];
             var numberReceived = 0;
             for (var i = 0; i < array.Length; i++)
             {
@@ -159,11 +102,12 @@ namespace Arc.CrossChannel
             return results;
         }
 
-        internal static TResult[] SendKey<TKey, TMessage, TResult>(this FastList<XChannel_KeyMessageResult<TKey, TMessage, TResult>> list, TMessage message)
+        internal static TResult[] Send<TKey, TMessage, TResult>(this FastList<XChannel_KeyMessageResult<TKey, TMessage, TResult>> list, TMessage message)
             where TKey : notnull
         {
-            (var array, var count) = list.GetValuesAndCount();
-            var results = new TResult[count];
+            // (var array, var count) = list.GetValuesAndCount(); // Slow
+            var array = list.GetValues();
+            var results = new TResult[array.Length];
             var numberReceived = 0;
             for (var i = 0; i < array.Length; i++)
             {
@@ -228,6 +172,30 @@ namespace Arc.CrossChannel
             }
 
             return list.TryShrink();
+        }
+
+        internal static bool Cleanup<TKey, TMessage>(this XCollection_KeyMessage<TKey, TMessage> collection)
+            where TKey : notnull
+        {
+            lock (collection)
+            {
+                foreach (var x in collection.Dictionary)
+                {
+                    var array = x.Value.GetValues();
+                    for (var i = 0; i < array.Length; i++)
+                    {
+                        if (array[i] is { } c)
+                        {
+                            if (c.WeakDelegate != null && !c.WeakDelegate.IsAlive)
+                            {
+                                c.Dispose();
+                            }
+                        }
+                    }
+                }
+
+                return collection.Count == 0;
+            }
         }
     }
 }
