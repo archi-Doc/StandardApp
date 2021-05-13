@@ -89,7 +89,7 @@ namespace Benchmark
             // var pubSubReceiver = new PubSubReceiver();
         }
 
-        [Benchmark]
+        /*[Benchmark]
         public void Send()
         {
             CrossChannel.Send<int>(3);
@@ -123,7 +123,7 @@ namespace Benchmark
             }
 
             return;
-        }
+        }*/
 
         /*public void WeakActionTest(uint x)
         {
@@ -255,7 +255,7 @@ namespace Benchmark
             return;
         }*/
 
-        [Benchmark]
+        /*[Benchmark]
         public void Send_CCC()
         {
             this.CCC.Send<int>(3);
@@ -289,19 +289,12 @@ namespace Benchmark
             }
 
             return;
-        }
-
-        /*[Benchmark]
-        public void SendKey_CC2()
-        {
-            this.CCC.SendKey<int, int>(3, 3);
-            return;
-        }
+        }*/
 
         [Benchmark]
-        public void OpenAndSendKey_CC2()
+        public void OpenAndSendKey_CCC()
         {
-            using (var c = this.CCC.OpenKey<int, uint>(3, null, x => { }))
+            using (var c = this.CCC.OpenKey<int, uint>(null, 3, x => { }))
             {
                 this.CCC.SendKey<int, uint>(3, 3);
             }
@@ -310,9 +303,9 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public void OpenAndSendKey8_CC2()
+        public void OpenAndSendKey8_CCC()
         {
-            using (var c = this.CCC.OpenKey<int, uint>(3, null, x => { }))
+            using (var c = this.CCC.OpenKey<int, uint>(null, 3, x => { }))
             {
                 this.CCC.SendKey<int, uint>(3, 1);
                 this.CCC.SendKey<int, uint>(3, 2);
@@ -327,7 +320,7 @@ namespace Benchmark
             return;
         }
 
-        [Benchmark]
+        /*[Benchmark]
         public void Send_Pub()
         {
             Hub.Default.Publish(3);
