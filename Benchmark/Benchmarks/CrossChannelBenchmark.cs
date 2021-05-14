@@ -229,6 +229,35 @@ namespace Benchmark
         }
 
         [Benchmark]
+        public void Class_OpenSend_Key()
+        {
+            using (var c = this.CCC.OpenKey<int, uint>(null, 1, x => { }))
+            {
+                this.CCC.SendKey<int, uint>(1, 3);
+            }
+
+            return;
+        }
+
+        [Benchmark]
+        public void Class_OpenSend8_Key()
+        {
+            using (var c = this.CCC.OpenKey<int, uint>(null, 1, x => { }))
+            {
+                this.CCC.SendKey<int, uint>(1, 1);
+                this.CCC.SendKey<int, uint>(1, 2);
+                this.CCC.SendKey<int, uint>(1, 3);
+                this.CCC.SendKey<int, uint>(1, 4);
+                this.CCC.SendKey<int, uint>(1, 5);
+                this.CCC.SendKey<int, uint>(1, 6);
+                this.CCC.SendKey<int, uint>(1, 7);
+                this.CCC.SendKey<int, uint>(1, 8);
+            }
+
+            return;
+        }
+
+        [Benchmark]
         public void Class_OpenSend_Result()
         {
             using (var c = this.CCC.Open<int, int>(null, x => x))
