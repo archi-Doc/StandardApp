@@ -12,14 +12,20 @@ namespace Arc.CrossChannel
     {
         internal const int CleanupThreshold = 32;
         internal const int DictionaryThreshold = 16;
-        private static int cleanupCount = 0;
 
+        /// <summary>
+        /// Open a channel to receive the message.
+        /// </summary>
+        /// <typeparam name="TMessage">The type of the message.</typeparam>
+        /// <param name="weakReference"></param>
+        /// <param name="method">The delegate which is called when the message is sent.</param>
+        /// <returns>Created XChannel instance. You should call <see cref="XChannel.Dispose()"/></returns>
         public static XChannel Open<TMessage>(object? weakReference, Action<TMessage> method)
         {
             var list = Cache_Message<TMessage>.List;
-            if (++cleanupCount >= CleanupThreshold)
+            if (++list.CleanupCount >= CleanupThreshold)
             {
-                cleanupCount = 0;
+                list.CleanupCount = 0;
                 list.Cleanup();
             }
 
@@ -30,9 +36,9 @@ namespace Arc.CrossChannel
         public static XChannel Open<TMessage, TResult>(object? weakReference, Func<TMessage, TResult> method)
         {
             var list = Cache_MessageResult<TMessage, TResult>.List;
-            if (++cleanupCount >= CleanupThreshold)
+            if (++list.CleanupCount >= CleanupThreshold)
             {
-                cleanupCount = 0;
+                list.CleanupCount = 0;
                 list.Cleanup();
             }
 
@@ -44,9 +50,9 @@ namespace Arc.CrossChannel
             where TKey : notnull
         {
             var collection = Cache_KeyMessage<TKey, TMessage>.Collection;
-            if (++cleanupCount >= CleanupThreshold)
+            if (++collection.CleanupCount >= CleanupThreshold)
             {
-                cleanupCount = 0;
+                collection.CleanupCount = 0;
                 collection.Cleanup();
             }
 
@@ -60,9 +66,9 @@ namespace Arc.CrossChannel
             where TKey : notnull
         {
             var collection = Cache_KeyMessageResult<TKey, TMessage, TResult>.Collection;
-            if (++cleanupCount >= CleanupThreshold)
+            if (++collection.CleanupCount >= CleanupThreshold)
             {
-                cleanupCount = 0;
+                collection.CleanupCount = 0;
                 collection.Cleanup();
             }
 

@@ -103,8 +103,6 @@ namespace Arc.CrossChannel
 
     public class CrossChannelClass
     {
-        private int cleanupCount = 0;
-
         public XChannel Open<TMessage>(object? weakReference, Action<TMessage> method)
         {
             /*FastList<XChannel_Message<TMessage>>? list;
@@ -123,9 +121,9 @@ namespace Arc.CrossChannel
                 typeof(TMessage),
                 x => new FastList<XChannel_Message<TMessage>>());
 
-            if (++this.cleanupCount >= CrossChannel.CleanupThreshold)
+            if (++list.CleanupCount >= CrossChannel.CleanupThreshold)
             {
-                this.cleanupCount = 0;
+                list.CleanupCount = 0;
                 list.Cleanup();
             }
 
@@ -139,9 +137,9 @@ namespace Arc.CrossChannel
                 new Identifier_MessageResult(typeof(TMessage), typeof(TResult)),
                 x => new FastList<XChannel_MessageResult<TMessage, TResult>>());
 
-            if (++this.cleanupCount >= CrossChannel.CleanupThreshold)
+            if (++list.CleanupCount >= CrossChannel.CleanupThreshold)
             {
-                this.cleanupCount = 0;
+                list.CleanupCount = 0;
                 list.Cleanup();
             }
 
@@ -156,9 +154,9 @@ namespace Arc.CrossChannel
                 new Identifier_KeyMessage<TKey>(key, typeof(TMessage)),
                 x => new FastList<XChannel_Message<TMessage>>());
 
-            if (++this.cleanupCount >= CrossChannel.CleanupThreshold)
+            if (++list.CleanupCount >= CrossChannel.CleanupThreshold)
             {
-                this.cleanupCount = 0;
+                list.CleanupCount = 0;
                 list.Cleanup();
             }
 
@@ -186,9 +184,9 @@ namespace Arc.CrossChannel
                 new Identifier_KeyMessageResult<TKey>(key, typeof(TMessage), typeof(TResult)),
                 x => new FastList<XChannel_MessageResult<TMessage, TResult>>());
 
-            if (++this.cleanupCount >= CrossChannel.CleanupThreshold)
+            if (++list.CleanupCount >= CrossChannel.CleanupThreshold)
             {
-                this.cleanupCount = 0;
+                list.CleanupCount = 0;
                 list.Cleanup();
             }
 

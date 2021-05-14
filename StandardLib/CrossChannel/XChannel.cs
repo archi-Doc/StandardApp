@@ -95,6 +95,8 @@ namespace Arc.CrossChannel
         internal ConcurrentDictionary<TKey, FastList<XChannel_KeyMessage<TKey, TMessage>>> Dictionary { get; } = new();
 
         internal int Count { get; set; } // ConcurrentDictionary.Count is just slow.
+
+        internal int CleanupCount { get; set; }
     }
 
     internal class XChannel_KeyMessage<TKey, TMessage> : XChannel
@@ -174,6 +176,8 @@ namespace Arc.CrossChannel
         internal ConcurrentDictionary<TKey, FastList<XChannel_KeyMessageResult<TKey, TMessage, TResult>>> Dictionary { get; } = new();
 
         internal int Count { get; set; } // ConcurrentDictionary.Count is just slow.
+
+        internal int CleanupCount { get; set; }
     }
 
     internal class XChannel_KeyMessageResult<TKey, TMessage, TResult> : XChannel

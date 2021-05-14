@@ -25,15 +25,9 @@ namespace Arc.CrossChannel
             this.Initialize();
         }
 
-        public T?[] GetValues() => this.values; // no lock, safe for iterate
+        public int CleanupCount { get; set; } // no lock, not thread safe
 
-        /*public (T?[] values, int count) GetValuesAndCount()
-        {
-            lock (this.cs)
-            {
-                return (this.values, this.count);
-            }
-        }*/
+        public T?[] GetValues() => this.values; // no lock, safe for iterate
 
         public bool IsEmpty => this.count == 0;
 
