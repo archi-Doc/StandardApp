@@ -20,6 +20,7 @@ namespace Benchmark
             // var summary = BenchmarkRunner.Run<ReconstructTest>();
             var switcher = new BenchmarkSwitcher(new[]
             {
+                typeof(H2HBenchmark),
                 typeof(HashtableBenchmark),
                 typeof(CrossChannelBenchmark),
                 typeof(ReconstructTest),
@@ -100,8 +101,8 @@ namespace Benchmark
 
             // this.AddJob(Job.ShortRun.With(BenchmarkDotNet.Environments.Platform.X64).WithWarmupCount(1).WithIterationCount(1));
             // this.AddJob(BenchmarkDotNet.Jobs.Job.MediumRun.WithGcForce(true).WithId("GcForce medium"));
-            // this.AddJob(BenchmarkDotNet.Jobs.Job.ShortRun);
-            this.AddJob(BenchmarkDotNet.Jobs.Job.MediumRun);
+            this.AddJob(BenchmarkDotNet.Jobs.Job.ShortRun);
+            // this.AddJob(BenchmarkDotNet.Jobs.Job.MediumRun);
         }
     }
 }

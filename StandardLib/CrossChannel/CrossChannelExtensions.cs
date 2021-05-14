@@ -197,5 +197,29 @@ namespace Arc.CrossChannel
                 return collection.Count == 0;
             }
         }
+
+        internal static bool Cleanup<TKey, TMessage, TResult>(this XCollection_KeyMessageResult<TKey, TMessage, TResult> collection)
+            where TKey : notnull
+        {
+            lock (collection)
+            {
+                foreach (var x in collection.Dictionary)
+                {
+                    var array = x.Value.GetValues();
+                    for (var i = 0; i < array.Length; i++)
+                    {
+                        if (array[i] is { } c)
+                        {
+                            if (c.WeakDelegate != null && !c.WeakDelegate.IsAlive)
+                            {
+                                c.Dispose();
+                            }
+                        }
+                    }
+                }
+
+                return collection.Count == 0;
+            }
+        }
     }
 }

@@ -37,9 +37,6 @@ namespace Test.CrossChannelTest
             i = CrossChannel.Send<int, int>(4);
             Assert.Single(i);
             Assert.Equal(8, i[0]);
-
-            i = CrossChannel.SendTarget<int, int>(43, "ee");
-            Assert.Empty(i);
         }
 
         [Fact]
@@ -47,6 +44,37 @@ namespace Test.CrossChannelTest
         {
             new TestClass_CrossChannel();
             return;
+        }
+
+        [Fact]
+        public void Test_Dispose()
+        {
+            this.Test_Dispose1();
+            GC.Collect();
+
+            CrossChannel.Open<int>(new object(), x => { });
+
+            this.Test_Dispose2();
+            GC.Collect();
+
+            CrossChannel.OpenKey<int, int>(new object(), 0, x => { });
+            CrossChannel.OpenKey<int, int>(new object(), 0, x => { });
+        }
+
+        private void Test_Dispose1()
+        {
+            for (var n = 0; n < 31; n++)
+            {
+                CrossChannel.Open<int>(new object(), x => { });
+            }
+        }
+
+        private void Test_Dispose2()
+        {
+            for (var n = 0; n < 31; n++)
+            {
+                CrossChannel.OpenKey<int, int>(new object(), 0, x => { });
+            }
         }
     }
 

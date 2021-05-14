@@ -292,6 +292,64 @@ namespace Benchmark
         }*/
 
         [Benchmark]
+        public void OpenSend_Class_Result()
+        {
+            using (var c = this.CCC.Open<int, int>(null, x => x))
+            {
+                this.CCC.Send<int, int>(3);
+            }
+
+            return;
+        }
+
+        [Benchmark]
+        public void OpenSend8_Class_Result()
+        {
+            using (var c = this.CCC.Open<int, int>(null, x => x))
+            {
+                this.CCC.Send<int, int>(1);
+                this.CCC.Send<int, int>(2);
+                this.CCC.Send<int, int>(3);
+                this.CCC.Send<int, int>(4);
+                this.CCC.Send<int, int>(5);
+                this.CCC.Send<int, int>(6);
+                this.CCC.Send<int, int>(7);
+                this.CCC.Send<int, int>(8);
+            }
+
+            return;
+        }
+
+        [Benchmark]
+        public void OpenSend_Class_KeyResult()
+        {
+            using (var c = this.CCC.OpenKey<int, int, int>(null, 1, x => x))
+            {
+                this.CCC.SendKey<int, int, int>(1, 3);
+            }
+
+            return;
+        }
+
+        [Benchmark]
+        public void OpenSend8_Class_KeyResult()
+        {
+            using (var c = this.CCC.OpenKey<int, int, int>(null, 1, x => x))
+            {
+                this.CCC.SendKey<int, int, int>(1, 1);
+                this.CCC.SendKey<int, int, int>(1, 2);
+                this.CCC.SendKey<int, int, int>(1, 3);
+                this.CCC.SendKey<int, int, int>(1, 4);
+                this.CCC.SendKey<int, int, int>(1, 5);
+                this.CCC.SendKey<int, int, int>(1, 6);
+                this.CCC.SendKey<int, int, int>(1, 7);
+                this.CCC.SendKey<int, int, int>(1, 8);
+            }
+
+            return;
+        }
+
+        /*[Benchmark]
         public void OpenAndSendKey_CCC()
         {
             using (var c = this.CCC.OpenKey<int, uint>(null, 3, x => { }))
@@ -318,7 +376,7 @@ namespace Benchmark
             }
 
             return;
-        }
+        }*/
 
         /*[Benchmark]
         public void Send_Pub()

@@ -16,53 +16,57 @@ namespace Arc.CrossChannel
 
         public static XChannel Open<TMessage>(object? weakReference, Action<TMessage> method)
         {
+            var list = Cache_Message<TMessage>.List;
             if (++cleanupCount >= CleanupThreshold)
             {
                 cleanupCount = 0;
-                Cache_Message<TMessage>.List.Cleanup();
+                list.Cleanup();
             }
 
-            var channel = new XChannel_Message<TMessage>(Cache_Message<TMessage>.List, weakReference, method);
+            var channel = new XChannel_Message<TMessage>(list, weakReference, method);
             return channel;
         }
 
         public static XChannel Open<TMessage, TResult>(object? weakReference, Func<TMessage, TResult> method)
         {
+            var list = Cache_MessageResult<TMessage, TResult>.List;
             if (++cleanupCount >= CleanupThreshold)
             {
                 cleanupCount = 0;
-                Cache_MessageResult<TMessage, TResult>.List.Cleanup();
+                list.Cleanup();
             }
 
-            var channel = new XChannel_MessageResult<TMessage, TResult>(Cache_MessageResult<TMessage, TResult>.List, weakReference, method);
+            var channel = new XChannel_MessageResult<TMessage, TResult>(list, weakReference, method);
             return channel;
         }
 
         public static XChannel OpenKey<TKey, TMessage>(object? weakReference, TKey key, Action<TMessage> method)
             where TKey : notnull
         {
+            var collection = Cache_KeyMessage<TKey, TMessage>.Collection;
             if (++cleanupCount >= CleanupThreshold)
             {
                 cleanupCount = 0;
-                Cache_KeyMessage<TKey, TMessage>.Collection.Cleanup();
+                collection.Cleanup();
             }
 
             // var channel = new XChannel_Key2<TKey, TMessage>(Cache_KeyMessage<TKey, TMessage>.Map, key, weakReference, method);
 
-            var channel = new XChannel_KeyMessage<TKey, TMessage>(Cache_KeyMessage<TKey, TMessage>.Collection, key, weakReference, method);
+            var channel = new XChannel_KeyMessage<TKey, TMessage>(collection, key, weakReference, method);
             return channel;
         }
 
         public static XChannel OpenKey<TKey, TMessage, TResult>(object? weakReference, TKey key, Func<TMessage, TResult> method)
             where TKey : notnull
         {
+            var collection = Cache_KeyMessageResult<TKey, TMessage, TResult>.Collection;
             if (++cleanupCount >= CleanupThreshold)
             {
                 cleanupCount = 0;
-                // Cleanup(Cache_MessageResult<TMessage, TResult>.List);
+                collection.Cleanup();
             }
 
-            var channel = new XChannel_KeyMessageResult<TKey, TMessage, TResult>(Cache_KeyMessageResult<TKey, TMessage, TResult>.Collection, key, weakReference, method);
+            var channel = new XChannel_KeyMessageResult<TKey, TMessage, TResult>(collection, key, weakReference, method);
             return channel;
         }
 
@@ -83,8 +87,8 @@ namespace Arc.CrossChannel
         /// Send a message to receivers.
         /// </summary>
         /// <typeparam name="TMessage">The type of the message.</typeparam>
-        /// <param name="message">The message to send.</param>
         /// <typeparam name="TResult">The type of the return value.</typeparam>
+        /// <param name="message">The message to send.</param>
         /// <returns>An array of the return values (TResult).</returns>
         public static TResult[] Send<TMessage, TResult>(TMessage message)
         {
