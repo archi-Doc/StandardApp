@@ -24,8 +24,6 @@ namespace Benchmark
             var sc = new ServiceCollection();
             sc.AddMessagePipe();
             this.Provider = sc.BuildServiceProvider();
-            this.Container.Register<SingletonClass>(Reuse.Singleton);
-            this.Container.Register<TransientClass>(Reuse.Transient);
         }
 
         [GlobalSetup]
@@ -63,33 +61,6 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public void PS_OpenSend()
-        {
-            Hub.Default.Subscribe<int>(x => { });
-            Hub.Default.Publish<int>(3);
-            Hub.Default.Unsubscribe<int>();
-
-            return;
-        }
-
-        [Benchmark]
-        public void PS_OpenSend8()
-        {
-            Hub.Default.Subscribe<int>(x => { });
-            Hub.Default.Publish<int>(1);
-            Hub.Default.Publish<int>(2);
-            Hub.Default.Publish<int>(3);
-            Hub.Default.Publish<int>(4);
-            Hub.Default.Publish<int>(5);
-            Hub.Default.Publish<int>(6);
-            Hub.Default.Publish<int>(7);
-            Hub.Default.Publish<int>(8);
-            Hub.Default.Unsubscribe<int>();
-
-            return;
-        }
-
-        [Benchmark]
         public void MP_OpenSend()
         {
             var sub = this.Provider.GetService<ISubscriber<int>>()!;
@@ -118,6 +89,33 @@ namespace Benchmark
                 pub.Publish(7);
                 pub.Publish(8);
             }
+
+            return;
+        }
+
+        [Benchmark]
+        public void PS_OpenSend()
+        {
+            Hub.Default.Subscribe<int>(x => { });
+            Hub.Default.Publish<int>(3);
+            Hub.Default.Unsubscribe<int>();
+
+            return;
+        }
+
+        [Benchmark]
+        public void PS_OpenSend8()
+        {
+            Hub.Default.Subscribe<int>(x => { });
+            Hub.Default.Publish<int>(1);
+            Hub.Default.Publish<int>(2);
+            Hub.Default.Publish<int>(3);
+            Hub.Default.Publish<int>(4);
+            Hub.Default.Publish<int>(5);
+            Hub.Default.Publish<int>(6);
+            Hub.Default.Publish<int>(7);
+            Hub.Default.Publish<int>(8);
+            Hub.Default.Unsubscribe<int>();
 
             return;
         }

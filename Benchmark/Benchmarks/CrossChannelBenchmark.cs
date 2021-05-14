@@ -12,84 +12,21 @@ using PubSub;
 
 namespace Benchmark
 {
-    public class SimpleReceiver
-    {
-        public SimpleReceiver()
-        {
-            CrossChannel.Open<int>(this, Test);
-            CrossChannel.Open<int>(this, Test);
-            CrossChannel.Open<int, int>(null, x => x * 5);
-            CrossChannel.Open<int, int>(null, x => x * 5);
-        }
-
-        public void Test(int x)
-        {
-        }
-    }
-
-    public class SimpleReceiver2
-    {
-        public SimpleReceiver2()
-        {
-            CrossChannel.Open<uint, uint>(null, x => x * 3);
-            CrossChannel.Open<uint, uint>(null, x => x * 3);
-        }
-    }
-
-    public class H2HReceiver
-    {
-        public H2HReceiver()
-        {
-            CrossChannel.Open<int>(null, x => { });
-        }
-    }
-
-    public class PubSubReceiver
-    {
-        public PubSubReceiver()
-        {
-            Hub.Default.Subscribe<int>(x => { });
-        }
-    }
-
-    public class SingletonClass
-    {
-        public int Id { get; set; }
-    }
-
-    public class TransientClass
-    {
-        public int Id { get; set; }
-    }
-
     [Config(typeof(BenchmarkConfig))]
     public class CrossChannelBenchmark
     {
-        public ServiceProvider Provider { get; }
-
-        public Container Container { get; } = new();
-
         public CrossChannelClass CCC { get; } = new();
 
         public CrossChannelBenchmark()
         {
-            var sc = new ServiceCollection();
-            sc.AddMessagePipe();
-            this.Provider = sc.BuildServiceProvider();
-            this.Container.Register<SingletonClass>(Reuse.Singleton);
-            this.Container.Register<TransientClass>(Reuse.Transient);
         }
 
         [GlobalSetup]
         public void Setup()
         {
-            // var simpleReceiver = new SimpleReceiver();
-            // var simpleReceiver2 = new SimpleReceiver2();
-            // var h2hReceiver = new H2HReceiver();
-            // var pubSubReceiver = new PubSubReceiver();
         }
 
-        /*[Benchmark]
+        [Benchmark]
         public void Send()
         {
             CrossChannel.Send<int>(3);
@@ -97,7 +34,7 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public void OpenAndSend()
+        public void OpenSend()
         {
             using (var c = CrossChannel.Open<uint>(null, x => { }))
             {
@@ -108,7 +45,7 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public void OpenAndSend8()
+        public void OpenSend8()
         {
             using (var c = CrossChannel.Open<uint>(null, x => { }))
             {
@@ -123,19 +60,19 @@ namespace Benchmark
             }
 
             return;
-        }*/
+        }
 
-        /*public void WeakActionTest(uint x)
+        public void WeakActionTest(uint x)
         {
         }
 
-        [Benchmark]
-        public WeakAction<int> CreateWeakAction() => new WeakAction<int>(this, x => { });
+        // [Benchmark]
+        // public WeakAction<int> CreateWeakAction() => new WeakAction<int>(this, x => { });
 
         [Benchmark]
-        public void OpenAndSend_Weak()
+        public void OpenSend_Weak()
         {
-            using (var c = CrossChannel.Open<uint>(this, WeakActionTest))
+            using (var c = CrossChannel.Open<uint>(new object(), WeakActionTest))
             {
                 CrossChannel.Send<uint>(3);
             }
@@ -144,9 +81,9 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public void OpenAndSend8_Weak()
+        public void OpenSend8_Weak()
         {
-            using (var c = CrossChannel.Open<uint>(this, WeakActionTest))
+            using (var c = CrossChannel.Open<uint>(new object(), WeakActionTest))
             {
                 CrossChannel.Send<uint>(1);
                 CrossChannel.Send<uint>(2);
@@ -159,9 +96,9 @@ namespace Benchmark
             }
 
             return;
-        }*/
+        }
 
-        /*[Benchmark]
+        [Benchmark]
         public void SendKey()
         {
             CrossChannel.SendKey<int, int>(3, 3);
@@ -169,7 +106,7 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public void OpenAndSendKey()
+        public void OpenSend_Key()
         {
             using (var d = CrossChannel.OpenKey<int, uint>(null, 3, x => { }))
             {
@@ -180,7 +117,7 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public void OpenAndSendKey8()
+        public void OpenSend8_Key()
         {
             using (var c = CrossChannel.OpenKey<int, uint>(null, 3, x => { }))
             {
@@ -198,7 +135,7 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public void OpenAndSendResult()
+        public void OpenSend_Result()
         {
             using (var c = CrossChannel.Open<int, int>(null, x => x))
             {
@@ -209,7 +146,7 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public void OpenAndSendResult8()
+        public void OpenSend8_Result()
         {
             using (var c = CrossChannel.Open<int, int>(null, x => x))
             {
@@ -224,10 +161,10 @@ namespace Benchmark
             }
 
             return;
-        }*/
+        }
 
-        /*[Benchmark]
-        public void OpenAndSendKeyResult()
+        [Benchmark]
+        public void OpenSend_KeyResult()
         {
             using (var d = CrossChannel.OpenKey<int, uint, uint>(null, 3, x => x))
             {
@@ -238,7 +175,7 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public void OpenAndSendKeyResult8()
+        public void OpenSend8_KeyResult()
         {
             using (var c = CrossChannel.OpenKey<int, uint, uint>(null, 3, x => x))
             {
@@ -253,17 +190,17 @@ namespace Benchmark
             }
 
             return;
-        }*/
+        }
 
-        /*[Benchmark]
-        public void Send_CCC()
+        [Benchmark]
+        public void Class_Send()
         {
             this.CCC.Send<int>(3);
             return;
         }
 
         [Benchmark]
-        public void OpenAndSend_CCC()
+        public void Class_OpenSend()
         {
             using (var c = this.CCC.Open<uint>(null, x => { }))
             {
@@ -274,7 +211,7 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public void OpenAndSend8_CCC()
+        public void Class_OpenSend8()
         {
             using (var c = this.CCC.Open<uint>(null, x => { }))
             {
@@ -289,10 +226,10 @@ namespace Benchmark
             }
 
             return;
-        }*/
+        }
 
         [Benchmark]
-        public void OpenSend_Class_Result()
+        public void Class_OpenSend_Result()
         {
             using (var c = this.CCC.Open<int, int>(null, x => x))
             {
@@ -303,7 +240,7 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public void OpenSend8_Class_Result()
+        public void Class_OpenSend8_Result()
         {
             using (var c = this.CCC.Open<int, int>(null, x => x))
             {
@@ -321,7 +258,7 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public void OpenSend_Class_KeyResult()
+        public void Class_OpenSend_KeyResult()
         {
             using (var c = this.CCC.OpenKey<int, int, int>(null, 1, x => x))
             {
@@ -332,7 +269,7 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public void OpenSend8_Class_KeyResult()
+        public void Class_OpenSend8_KeyResult()
         {
             using (var c = this.CCC.OpenKey<int, int, int>(null, 1, x => x))
             {
@@ -348,101 +285,5 @@ namespace Benchmark
 
             return;
         }
-
-        /*[Benchmark]
-        public void OpenAndSendKey_CCC()
-        {
-            using (var c = this.CCC.OpenKey<int, uint>(null, 3, x => { }))
-            {
-                this.CCC.SendKey<int, uint>(3, 3);
-            }
-
-            return;
-        }
-
-        [Benchmark]
-        public void OpenAndSendKey8_CCC()
-        {
-            using (var c = this.CCC.OpenKey<int, uint>(null, 3, x => { }))
-            {
-                this.CCC.SendKey<int, uint>(3, 1);
-                this.CCC.SendKey<int, uint>(3, 2);
-                this.CCC.SendKey<int, uint>(3, 3);
-                this.CCC.SendKey<int, uint>(3, 4);
-                this.CCC.SendKey<int, uint>(3, 5);
-                this.CCC.SendKey<int, uint>(3, 6);
-                this.CCC.SendKey<int, uint>(3, 7);
-                this.CCC.SendKey<int, uint>(3, 8);
-            }
-
-            return;
-        }*/
-
-        /*[Benchmark]
-        public void Send_Pub()
-        {
-            Hub.Default.Publish(3);
-            return;
-        }
-
-        [Benchmark]
-        public void OpenAndSend_Pub()
-        {
-            Hub.Default.Subscribe<uint>(x => { });
-            Hub.Default.Publish<uint>(3);
-            Hub.Default.Unsubscribe<uint>();
-
-            return;
-        }
-
-        [Benchmark]
-        public void OpenAndSend8_Pub()
-        {
-            Hub.Default.Subscribe<uint>(x => { });
-            Hub.Default.Publish<uint>(1);
-            Hub.Default.Publish<uint>(2);
-            Hub.Default.Publish<uint>(3);
-            Hub.Default.Publish<uint>(4);
-            Hub.Default.Publish<uint>(5);
-            Hub.Default.Publish<uint>(6);
-            Hub.Default.Publish<uint>(7);
-            Hub.Default.Publish<uint>(8);
-            Hub.Default.Unsubscribe<uint>();
-
-            return;
-        }
-
-        [Benchmark]
-        public void OpenAndSend_MP()
-        {
-            var sub = this.Provider.GetService<ISubscriber<uint>>()!;
-            var pub = this.Provider.GetService<IPublisher<uint>>()!;
-            using (var i = sub.Subscribe(x => { }))
-            {
-                pub.Publish(3);
-            }
-
-            return;
-        }
-
-        [Benchmark]
-        public void OpenAndSend8_MP()
-        {
-            var sub = this.Provider.GetService<ISubscriber<uint>>()!;
-            var pub = this.Provider.GetService<IPublisher<uint>>()!;
-            using (var i = sub.Subscribe(x => { }))
-            {
-                pub.Publish(1);
-                pub.Publish(2);
-                pub.Publish(3);
-                pub.Publish(4);
-                pub.Publish(5);
-                pub.Publish(6);
-                pub.Publish(7);
-                pub.Publish(8);
-            }
-
-            return;
-        }*/
     }
 }
