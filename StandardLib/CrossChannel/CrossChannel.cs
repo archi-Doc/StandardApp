@@ -18,9 +18,11 @@ namespace Arc.CrossChannel
         /// Open a channel to receive the message.
         /// </summary>
         /// <typeparam name="TMessage">The type of the message.</typeparam>
-        /// <param name="weakReference"></param>
-        /// <param name="method">The delegate which is called when the message is sent.</param>
-        /// <returns>Created XChannel instance. You should call <see cref="XChannel.Dispose()"/></returns>
+        /// <param name="weakReference">A weak reference of the object.<br/>
+        /// The channel will be automatically closed when the object is garbage collected.</param>
+        /// <param name="method">The delegate that is called when the message is sent.</param>
+        /// <returns>A new instance of XChannel.<br/>
+        /// You need to call <see cref="XChannel.Dispose()"/> when the channel is no longer necessary, unless the weak reference is specified.</returns>
         public static XChannel Open<TMessage>(object? weakReference, Action<TMessage> method)
         {
             var list = Cache_Message<TMessage>.List;
@@ -34,22 +36,9 @@ namespace Arc.CrossChannel
             return channel;
         }
 
-        public static XChannel OpenAndRespond<TMessage, TResult>(object? weakReference, Func<TMessage, TResult> method)
-        {
-            var list = Cache_MessageResult<TMessage, TResult>.List;
-            if (++list.CleanupCount >= CleanupThreshold)
-            {
-                list.CleanupCount = 0;
-                list.Cleanup();
-            }
+        public static XChannel OpenAsync<TMessage>(object? weakReference, Func<TMessage, Task> method) => CrossChannel.OpenTwoWay<TMessage, Task>(weakReference, method);
 
-            var channel = new XChannel_MessageResult<TMessage, TResult>(list, weakReference, method);
-            return channel;
-        }
-
-        public static XChannel OpenAsync<TMessage, TResult>(object? weakReference, Func<TMessage, Task<TResult>> method) => CrossChannel.OpenAndRespond<TMessage, Task<TResult>>(weakReference, method);
-
-        public static XChannel Open_Key<TKey, TMessage>(object? weakReference, TKey key, Action<TMessage> method)
+        public static XChannel OpenKey<TKey, TMessage>(object? weakReference, TKey key, Action<TMessage> method)
             where TKey : notnull
         {
             var collection = Cache_KeyMessage<TKey, TMessage>.Collection;
@@ -65,7 +54,22 @@ namespace Arc.CrossChannel
             return channel;
         }
 
-        public static XChannel OpenAndRespond_Key<TKey, TMessage, TResult>(object? weakReference, TKey key, Func<TMessage, TResult> method)
+        public static XChannel OpenTwoWay<TMessage, TResult>(object? weakReference, Func<TMessage, TResult> method)
+        {
+            var list = Cache_MessageResult<TMessage, TResult>.List;
+            if (++list.CleanupCount >= CleanupThreshold)
+            {
+                list.CleanupCount = 0;
+                list.Cleanup();
+            }
+
+            var channel = new XChannel_MessageResult<TMessage, TResult>(list, weakReference, method);
+            return channel;
+        }
+
+        public static XChannel OpenTwoWayAsync<TMessage, TResult>(object? weakReference, Func<TMessage, Task<TResult>> method) => CrossChannel.OpenTwoWay<TMessage, Task<TResult>>(weakReference, method);
+
+        public static XChannel OpenTwoWayKey<TKey, TMessage, TResult>(object? weakReference, TKey key, Func<TMessage, TResult> method)
             where TKey : notnull
         {
             var collection = Cache_KeyMessageResult<TKey, TMessage, TResult>.Collection;
@@ -92,24 +96,7 @@ namespace Arc.CrossChannel
             return Cache_Message<TMessage>.List.Send(message);
         }
 
-        /// <summary>
-        /// Send a message to receivers.
-        /// </summary>
-        /// <typeparam name="TMessage">The type of the message.</typeparam>
-        /// <typeparam name="TResult">The type of the return value.</typeparam>
-        /// <param name="message">The message to send.</param>
-        /// <returns>An array of the return values (TResult).</returns>
-        public static TResult[] SendAndReceive<TMessage, TResult>(TMessage message)
-        {
-            return Cache_MessageResult<TMessage, TResult>.List.Send(message);
-        }
-
-        public static Task<TResult[]> SendAndReceiveAsync<TMessage, TResult>(TMessage message)
-        {
-            return Cache_MessageResult<TMessage, Task<TResult>>.List.SendAsync(message);
-        }
-
-        public static int Send_Key<TKey, TMessage>(TKey key, TMessage message)
+        public static int SendKey<TKey, TMessage>(TKey key, TMessage message)
             where TKey : notnull
         {
             /*var list = Cache_KeyMessage<TKey, TMessage>.Map[key] as FastList<XChannel_KeyMessage<TKey, TMessage>>;
@@ -131,7 +118,29 @@ namespace Arc.CrossChannel
             return list.Send(message);
         }
 
-        public static TResult[] SendAndReceive_Key<TKey, TMessage, TResult>(TKey key, TMessage message)
+        public static Task SendAsync<TMessage, TResult>(TMessage message)
+        {
+            return Cache_MessageResult<TMessage, Task>.List.SendAsync(message);
+        }
+
+        /// <summary>
+        /// Send a message to receivers.
+        /// </summary>
+        /// <typeparam name="TMessage">The type of the message.</typeparam>
+        /// <typeparam name="TResult">The type of the return value.</typeparam>
+        /// <param name="message">The message to send.</param>
+        /// <returns>An array of the return values (TResult).</returns>
+        public static TResult[] SendTwoWay<TMessage, TResult>(TMessage message)
+        {
+            return Cache_MessageResult<TMessage, TResult>.List.Send(message);
+        }
+
+        public static Task<TResult[]> SendTwoWayAsync<TMessage, TResult>(TMessage message)
+        {
+            return Cache_MessageResult<TMessage, Task<TResult>>.List.SendAsync(message);
+        }
+
+        public static TResult[] SendTwoWayKey<TKey, TMessage, TResult>(TKey key, TMessage message)
             where TKey : notnull
         {
             if (!Cache_KeyMessageResult<TKey, TMessage, TResult>.Collection.Dictionary.TryGetValue(key, out var list))

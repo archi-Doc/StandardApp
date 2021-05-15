@@ -101,16 +101,16 @@ namespace Benchmark
         [Benchmark]
         public void SendKey()
         {
-            CrossChannel.Send_Key<int, int>(3, 3);
+            CrossChannel.SendKey<int, int>(3, 3);
             return;
         }
 
         [Benchmark]
         public void OpenSend_Key()
         {
-            using (var d = CrossChannel.Open_Key<int, uint>(null, 3, x => { }))
+            using (var d = CrossChannel.OpenKey<int, uint>(null, 3, x => { }))
             {
-                CrossChannel.Send_Key<int, uint>(3, 3);
+                CrossChannel.SendKey<int, uint>(3, 3);
             }
 
             return;
@@ -119,16 +119,16 @@ namespace Benchmark
         [Benchmark]
         public void OpenSend8_Key()
         {
-            using (var c = CrossChannel.Open_Key<int, uint>(null, 3, x => { }))
+            using (var c = CrossChannel.OpenKey<int, uint>(null, 3, x => { }))
             {
-                CrossChannel.Send_Key<int, uint>(3, 1);
-                CrossChannel.Send_Key<int, uint>(3, 2);
-                CrossChannel.Send_Key<int, uint>(3, 3);
-                CrossChannel.Send_Key<int, uint>(3, 4);
-                CrossChannel.Send_Key<int, uint>(3, 5);
-                CrossChannel.Send_Key<int, uint>(3, 6);
-                CrossChannel.Send_Key<int, uint>(3, 7);
-                CrossChannel.Send_Key<int, uint>(3, 8);
+                CrossChannel.SendKey<int, uint>(3, 1);
+                CrossChannel.SendKey<int, uint>(3, 2);
+                CrossChannel.SendKey<int, uint>(3, 3);
+                CrossChannel.SendKey<int, uint>(3, 4);
+                CrossChannel.SendKey<int, uint>(3, 5);
+                CrossChannel.SendKey<int, uint>(3, 6);
+                CrossChannel.SendKey<int, uint>(3, 7);
+                CrossChannel.SendKey<int, uint>(3, 8);
             }
 
             return;
@@ -137,9 +137,9 @@ namespace Benchmark
         [Benchmark]
         public void OpenSend_Result()
         {
-            using (var c = CrossChannel.OpenAndRespond<int, int>(null, x => x))
+            using (var c = CrossChannel.OpenTwoWay<int, int>(null, x => x))
             {
-                CrossChannel.SendAndReceive<int, int>(1);
+                CrossChannel.SendTwoWay<int, int>(1);
             }
 
             return;
@@ -148,16 +148,16 @@ namespace Benchmark
         [Benchmark]
         public void OpenSend8_Result()
         {
-            using (var c = CrossChannel.OpenAndRespond<int, int>(null, x => x))
+            using (var c = CrossChannel.OpenTwoWay<int, int>(null, x => x))
             {
-                CrossChannel.SendAndReceive<int, int>(1);
-                CrossChannel.SendAndReceive<int, int>(2);
-                CrossChannel.SendAndReceive<int, int>(3);
-                CrossChannel.SendAndReceive<int, int>(4);
-                CrossChannel.SendAndReceive<int, int>(5);
-                CrossChannel.SendAndReceive<int, int>(6);
-                CrossChannel.SendAndReceive<int, int>(7);
-                CrossChannel.SendAndReceive<int, int>(8);
+                CrossChannel.SendTwoWay<int, int>(1);
+                CrossChannel.SendTwoWay<int, int>(2);
+                CrossChannel.SendTwoWay<int, int>(3);
+                CrossChannel.SendTwoWay<int, int>(4);
+                CrossChannel.SendTwoWay<int, int>(5);
+                CrossChannel.SendTwoWay<int, int>(6);
+                CrossChannel.SendTwoWay<int, int>(7);
+                CrossChannel.SendTwoWay<int, int>(8);
             }
 
             return;
@@ -166,9 +166,9 @@ namespace Benchmark
         [Benchmark]
         public void OpenSend_KeyResult()
         {
-            using (var d = CrossChannel.OpenAndRespond_Key<int, uint, uint>(null, 3, x => x))
+            using (var d = CrossChannel.OpenTwoWayKey<int, uint, uint>(null, 3, x => x))
             {
-                CrossChannel.SendAndReceive_Key<int, uint, uint>(3, 3);
+                CrossChannel.SendTwoWayKey<int, uint, uint>(3, 3);
             }
 
             return;
@@ -177,16 +177,16 @@ namespace Benchmark
         [Benchmark]
         public void OpenSend8_KeyResult()
         {
-            using (var c = CrossChannel.OpenAndRespond_Key<int, uint, uint>(null, 3, x => x))
+            using (var c = CrossChannel.OpenTwoWayKey<int, uint, uint>(null, 3, x => x))
             {
-                CrossChannel.SendAndReceive_Key<int, uint, uint>(3, 1);
-                CrossChannel.SendAndReceive_Key<int, uint, uint>(3, 2);
-                CrossChannel.SendAndReceive_Key<int, uint, uint>(3, 3);
-                CrossChannel.SendAndReceive_Key<int, uint, uint>(3, 4);
-                CrossChannel.SendAndReceive_Key<int, uint, uint>(3, 5);
-                CrossChannel.SendAndReceive_Key<int, uint, uint>(3, 6);
-                CrossChannel.SendAndReceive_Key<int, uint, uint>(3, 7);
-                CrossChannel.SendAndReceive_Key<int, uint, uint>(3, 8);
+                CrossChannel.SendTwoWayKey<int, uint, uint>(3, 1);
+                CrossChannel.SendTwoWayKey<int, uint, uint>(3, 2);
+                CrossChannel.SendTwoWayKey<int, uint, uint>(3, 3);
+                CrossChannel.SendTwoWayKey<int, uint, uint>(3, 4);
+                CrossChannel.SendTwoWayKey<int, uint, uint>(3, 5);
+                CrossChannel.SendTwoWayKey<int, uint, uint>(3, 6);
+                CrossChannel.SendTwoWayKey<int, uint, uint>(3, 7);
+                CrossChannel.SendTwoWayKey<int, uint, uint>(3, 8);
             }
 
             return;
