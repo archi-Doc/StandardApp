@@ -8,7 +8,7 @@ using Arc.WeakDelegate;
 #pragma warning disable SA1202 // Elements should be ordered by access
 #pragma warning disable SA1649 // File name should match first type name
 
-namespace Arc.CrossChannel
+namespace Arc.CrossChannel.Obsolete
 {
     public readonly struct ChannelIdentification
     {
