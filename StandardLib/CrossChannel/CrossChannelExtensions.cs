@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Arc.CrossChannel
 {
@@ -100,6 +101,43 @@ namespace Arc.CrossChannel
             }
 
             return results;
+        }
+
+        internal static Task<TResult[]> SendAsync<TMessage, TResult>(this FastList<XChannel_MessageResult<TMessage, Task<TResult>>> list, TMessage message)
+        {
+            // (var array, var count) = list.GetValuesAndCount(); // Slow
+            var array = list.GetValues();
+            var results = new Task<TResult>[array.Length];
+            var numberReceived = 0;
+            for (var i = 0; i < array.Length; i++)
+            {
+                if (array[i] is { } channel)
+                {
+                    if (channel.StrongDelegate != null)
+                    {
+                        results[numberReceived++] = channel.StrongDelegate(message);
+                    }
+                    else if (channel.WeakDelegate!.IsAlive)
+                    {
+                        var result = channel.WeakDelegate!.Execute(message, out var executed);
+                        if (executed)
+                        {
+                            results[numberReceived++] = result!;
+                        }
+                    }
+                    else
+                    {
+                        channel.Dispose();
+                    }
+                }
+            }
+
+            if (results.Length != numberReceived)
+            {
+                Array.Resize(ref results, numberReceived);
+            }
+
+            return Task.WhenAll(results);
         }
 
         internal static TResult[] Send<TKey, TMessage, TResult>(this FastList<XChannel_KeyMessageResult<TKey, TMessage, TResult>> list, TMessage message)

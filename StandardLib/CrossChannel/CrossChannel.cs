@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Arc.WeakDelegate;
 
 namespace Arc.CrossChannel
@@ -45,6 +46,8 @@ namespace Arc.CrossChannel
             var channel = new XChannel_MessageResult<TMessage, TResult>(list, weakReference, method);
             return channel;
         }
+
+        public static XChannel OpenAsync<TMessage, TResult>(object? weakReference, Func<TMessage, Task<TResult>> method) => CrossChannel.Open<TMessage, Task<TResult>>(weakReference, method);
 
         public static XChannel OpenKey<TKey, TMessage>(object? weakReference, TKey key, Action<TMessage> method)
             where TKey : notnull
@@ -99,6 +102,11 @@ namespace Arc.CrossChannel
         public static TResult[] Send<TMessage, TResult>(TMessage message)
         {
             return Cache_MessageResult<TMessage, TResult>.List.Send(message);
+        }
+
+        public static Task<TResult[]> SendAsync<TMessage, TResult>(TMessage message)
+        {
+            return Cache_MessageResult<TMessage, Task<TResult>>.List.SendAsync(message);
         }
 
         public static int SendKey<TKey, TMessage>(TKey key, TMessage message)
