@@ -123,9 +123,9 @@ namespace Benchmark
         [Benchmark]
         public void CC_OpenSend_Key()
         {
-            using (var d = CrossChannel.OpenKey<int, int>(null, 3, x => { }))
+            using (var d = CrossChannel.Open_Key<int, int>(null, 3, x => { }))
             {
-                CrossChannel.SendKey<int, int>(3, 3);
+                CrossChannel.Send_Key<int, int>(3, 3);
             }
 
             return;
@@ -134,16 +134,16 @@ namespace Benchmark
         [Benchmark]
         public void CC_OpenSend8_Key()
         {
-            using (var c = CrossChannel.OpenKey<int, int>(null, 3, x => { }))
+            using (var c = CrossChannel.Open_Key<int, int>(null, 3, x => { }))
             {
-                CrossChannel.SendKey<int, int>(3, 1);
-                CrossChannel.SendKey<int, int>(3, 2);
-                CrossChannel.SendKey<int, int>(3, 3);
-                CrossChannel.SendKey<int, int>(3, 4);
-                CrossChannel.SendKey<int, int>(3, 5);
-                CrossChannel.SendKey<int, int>(3, 6);
-                CrossChannel.SendKey<int, int>(3, 7);
-                CrossChannel.SendKey<int, int>(3, 8);
+                CrossChannel.Send_Key<int, int>(3, 1);
+                CrossChannel.Send_Key<int, int>(3, 2);
+                CrossChannel.Send_Key<int, int>(3, 3);
+                CrossChannel.Send_Key<int, int>(3, 4);
+                CrossChannel.Send_Key<int, int>(3, 5);
+                CrossChannel.Send_Key<int, int>(3, 6);
+                CrossChannel.Send_Key<int, int>(3, 7);
+                CrossChannel.Send_Key<int, int>(3, 8);
             }
 
             return;
