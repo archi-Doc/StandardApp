@@ -215,6 +215,82 @@ namespace Arc.CrossChannel
             return results;
         }
 
+        internal static Task SendAsync<TKey, TMessage>(this FastList<XChannel_KeyMessageResult<TKey, TMessage, Task>> list, TMessage message)
+            where TKey : notnull
+        {
+            // (var array, var count) = list.GetValuesAndCount(); // Slow
+            var array = list.GetValues();
+            var results = new Task[array.Length];
+            var numberReceived = 0;
+            for (var i = 0; i < array.Length; i++)
+            {
+                if (array[i] is { } channel)
+                {
+                    if (channel.StrongDelegate != null)
+                    {
+                        results[numberReceived++] = channel.StrongDelegate(message);
+                    }
+                    else if (channel.WeakDelegate!.IsAlive)
+                    {
+                        var result = channel.WeakDelegate!.Execute(message, out var executed);
+                        if (executed)
+                        {
+                            results[numberReceived++] = result!;
+                        }
+                    }
+                    else
+                    {
+                        channel.Dispose();
+                    }
+                }
+            }
+
+            if (results.Length != numberReceived)
+            {
+                Array.Resize(ref results, numberReceived);
+            }
+
+            return Task.WhenAll(results);
+        }
+
+        internal static Task<TResult[]> SendAsync<TKey, TMessage, TResult>(this FastList<XChannel_KeyMessageResult<TKey, TMessage, Task<TResult>>> list, TMessage message)
+            where TKey : notnull
+        {
+            // (var array, var count) = list.GetValuesAndCount(); // Slow
+            var array = list.GetValues();
+            var results = new Task<TResult>[array.Length];
+            var numberReceived = 0;
+            for (var i = 0; i < array.Length; i++)
+            {
+                if (array[i] is { } channel)
+                {
+                    if (channel.StrongDelegate != null)
+                    {
+                        results[numberReceived++] = channel.StrongDelegate(message);
+                    }
+                    else if (channel.WeakDelegate!.IsAlive)
+                    {
+                        var result = channel.WeakDelegate!.Execute(message, out var executed);
+                        if (executed)
+                        {
+                            results[numberReceived++] = result!;
+                        }
+                    }
+                    else
+                    {
+                        channel.Dispose();
+                    }
+                }
+            }
+
+            if (results.Length != numberReceived)
+            {
+                Array.Resize(ref results, numberReceived);
+            }
+
+            return Task.WhenAll(results);
+        }
+
         internal static bool Cleanup<TMessage>(this FastList<XChannel_Message<TMessage>> list)
         {
             var array = list.GetValues();

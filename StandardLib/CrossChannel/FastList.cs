@@ -31,6 +31,8 @@ namespace Arc.CrossChannel
 
         public bool IsEmpty => this.count == 0;
 
+        internal bool IsShrinkRequired => this.values.Length > MinShrinkStart && (this.values.Length > this.count * 2);
+
         public int Add(T value)
         {
             lock (this.cs)
@@ -90,15 +92,33 @@ namespace Arc.CrossChannel
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryShrink()
         {
-            if (!this.isDisposed && this.count == 0 && this.values.Length > MinShrinkStart)
+            if (this.IsShrinkRequired)
             {
-                this.Initialize(); // Reset
-                return true;
+                return this.Shrink();
             }
 
             return false;
+        }
+
+        public bool Shrink()
+        {
+            lock (this.cs)
+            {
+                if (!this.IsShrinkRequired)
+                {
+                    return false;
+                }
+
+                var nextSize = this.values.Length / 2;
+                for (var i = nextSize; i < this.values.Length; i++)
+                {
+                }
+            }
+
+            return true;
         }
 
         /// <summary>

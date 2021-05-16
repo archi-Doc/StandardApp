@@ -26,7 +26,7 @@ namespace Arc.CrossChannel
         public static XChannel Open<TMessage>(object? weakReference, Action<TMessage> method)
         {
             var list = Cache_Message<TMessage>.List;
-            if (++list.CleanupCount >= CleanupThreshold)
+            if (list.CleanupCount++ >= CleanupThreshold)
             {
                 list.CleanupCount = 0;
                 list.Cleanup();
@@ -38,11 +38,14 @@ namespace Arc.CrossChannel
 
         public static XChannel OpenAsync<TMessage>(object? weakReference, Func<TMessage, Task> method) => CrossChannel.OpenTwoWay<TMessage, Task>(weakReference, method);
 
+        public static XChannel OpenAsyncKey<TKey, TMessage>(object? weakReference, TKey key, Func<TMessage, Task> method)
+            where TKey : notnull => CrossChannel.OpenTwoWayKey<TKey, TMessage, Task>(weakReference, key, method);
+
         public static XChannel OpenKey<TKey, TMessage>(object? weakReference, TKey key, Action<TMessage> method)
             where TKey : notnull
         {
             var collection = Cache_KeyMessage<TKey, TMessage>.Collection;
-            if (++collection.CleanupCount >= CleanupThreshold)
+            if (collection.CleanupCount++ >= CleanupThreshold)
             {
                 collection.CleanupCount = 0;
                 collection.Cleanup();
@@ -68,6 +71,9 @@ namespace Arc.CrossChannel
         }
 
         public static XChannel OpenTwoWayAsync<TMessage, TResult>(object? weakReference, Func<TMessage, Task<TResult>> method) => CrossChannel.OpenTwoWay<TMessage, Task<TResult>>(weakReference, method);
+
+        public static XChannel OpenTwoWayAsyncKey<TKey, TMessage, TResult>(object? weakReference, TKey key, Func<TMessage, Task<TResult>> method)
+             where TKey : notnull => CrossChannel.OpenTwoWayKey<TKey, TMessage, Task<TResult>>(weakReference, key, method);
 
         public static XChannel OpenTwoWayKey<TKey, TMessage, TResult>(object? weakReference, TKey key, Func<TMessage, TResult> method)
             where TKey : notnull
@@ -96,6 +102,22 @@ namespace Arc.CrossChannel
             return Cache_Message<TMessage>.List.Send(message);
         }
 
+        public static Task SendAsync<TMessage>(TMessage message)
+        {
+            return Cache_MessageResult<TMessage, Task>.List.SendAsync(message);
+        }
+
+        public static Task SendAsyncKey<TKey, TMessage>(TKey key, TMessage message)
+            where TKey : notnull
+        {
+            if (!Cache_KeyMessageResult<TKey, TMessage, Task>.Collection.Dictionary.TryGetValue(key, out var list))
+            {
+                return Task.CompletedTask;
+            }
+
+            return list.SendAsync(message);
+        }
+
         public static int SendKey<TKey, TMessage>(TKey key, TMessage message)
             where TKey : notnull
         {
@@ -116,11 +138,6 @@ namespace Arc.CrossChannel
             }
 
             return list.Send(message);
-        }
-
-        public static Task SendAsync<TMessage, TResult>(TMessage message)
-        {
-            return Cache_MessageResult<TMessage, Task>.List.SendAsync(message);
         }
 
         /// <summary>
@@ -149,6 +166,17 @@ namespace Arc.CrossChannel
             }
 
             return list.Send(message);
+        }
+
+        public static Task<TResult[]> SendTwoWayAsyncKey<TKey, TMessage, TResult>(TKey key, TMessage message)
+            where TKey : notnull
+        {
+            if (!Cache_KeyMessageResult<TKey, TMessage, Task<TResult>>.Collection.Dictionary.TryGetValue(key, out var list))
+            {
+                return Task.FromResult(Array.Empty<TResult>());
+            }
+
+            return list.SendAsync(message);
         }
 
 #pragma warning disable SA1401 // Fields should be private
