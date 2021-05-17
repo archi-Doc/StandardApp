@@ -23,6 +23,8 @@ namespace StandardApp
     {
         private IMainViewService viewService;
 
+        public AppOptions Options => App.Options;
+
         public TestItem.GoshujinClass TestGoshujin { get; } = App.Settings.TestItems;
 
         [Link(AutoNotify = true)]

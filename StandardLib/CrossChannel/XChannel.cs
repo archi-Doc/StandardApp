@@ -13,7 +13,7 @@ namespace Arc.CrossChannel
     public abstract class XChannel : IDisposable
     {
 #pragma warning disable SA1401 // Fields should be private
-        internal int Index; // The index of FastList<T>. lock() required.
+        internal int Index = -1; // The index of FastList<T>. lock() required.
 #pragma warning restore SA1401 // Fields should be private
 
         public virtual void Dispose()
