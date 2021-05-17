@@ -1,11 +1,7 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using Arc.WeakDelegate;
 
 namespace Arc.CrossChannel
@@ -29,18 +25,18 @@ namespace Arc.CrossChannel
     {
         internal XChannel_Message(FastList<XChannel_Message<TMessage>> list, object? weakReference, Action<TMessage> method)
         {
+            if (weakReference == null)
+            {
+                this.StrongDelegate = method;
+            }
+            else
+            {
+                this.WeakDelegate = new(weakReference, method);
+            }
+
             this.List = list;
             lock (this.List)
             {
-                if (weakReference == null)
-                {
-                    this.StrongDelegate = method;
-                }
-                else
-                {
-                    this.WeakDelegate = new(weakReference, method);
-                }
-
                 this.List.Add(this);
             }
         }
@@ -68,18 +64,18 @@ namespace Arc.CrossChannel
     {
         internal XChannel_MessageResult(FastList<XChannel_MessageResult<TMessage, TResult>> list, object? weakReference, Func<TMessage, TResult> method)
         {
+            if (weakReference == null)
+            {
+                this.StrongDelegate = method;
+            }
+            else
+            {
+                this.WeakDelegate = new(weakReference, method);
+            }
+
             this.List = list;
             lock (this.List)
             {
-                if (weakReference == null)
-                {
-                    this.StrongDelegate = method;
-                }
-                else
-                {
-                    this.WeakDelegate = new(weakReference, method);
-                }
-
                 this.List.Add(this);
             }
         }
@@ -118,24 +114,24 @@ namespace Arc.CrossChannel
     {
         public XChannel_KeyMessage(XCollection_KeyMessage<TKey, TMessage> collection, TKey key, object? weakReference, Action<TMessage> method)
         {
+            this.Key = key;
+            if (weakReference == null)
+            {
+                this.StrongDelegate = method;
+            }
+            else
+            {
+                this.WeakDelegate = new(weakReference, method);
+            }
+
             this.Collection = collection;
             lock (this.Collection)
             {
                 if (!this.Collection.Dictionary.TryGetValue(key, out this.List))
                 {
-                    this.List = new FastList<XChannel_KeyMessage<TKey, TMessage>>(static x => ref x.Index);
+                    this.List = new FastList<XChannel_KeyMessage<TKey, TMessage>>();
                     this.Collection.Dictionary.TryAdd(key, this.List);
                     this.Collection.Count++;
-                }
-
-                this.Key = key;
-                if (weakReference == null)
-                {
-                    this.StrongDelegate = method;
-                }
-                else
-                {
-                    this.WeakDelegate = new(weakReference, method);
                 }
 
                 this.List.Add(this);
@@ -165,7 +161,7 @@ namespace Arc.CrossChannel
                     var empty = this.List.Remove(this);
                     this.WeakDelegate?.MarkForDeletion();
 
-                    if (empty && this.Collection.Count >= CrossChannel.DictionaryThreshold)
+                    if (empty && this.Collection.Count >= CrossChannel.Const.HoldDictionaryThreshold)
                     {
                         this.Collection.Dictionary.TryRemove(this.Key, out _);
                         this.Collection.Count--;
@@ -191,24 +187,24 @@ namespace Arc.CrossChannel
     {
         public XChannel_KeyMessageResult(XCollection_KeyMessageResult<TKey, TMessage, TResult> collection, TKey key, object? weakReference, Func<TMessage, TResult> method)
         {
+            this.Key = key;
+            if (weakReference == null)
+            {
+                this.StrongDelegate = method;
+            }
+            else
+            {
+                this.WeakDelegate = new(weakReference, method);
+            }
+
             this.Collection = collection;
             lock (this.Collection)
             {
                 if (!this.Collection.Dictionary.TryGetValue(key, out this.List))
                 {
-                    this.List = new FastList<XChannel_KeyMessageResult<TKey, TMessage, TResult>>(static x => ref x.Index);
+                    this.List = new FastList<XChannel_KeyMessageResult<TKey, TMessage, TResult>>();
                     this.Collection.Dictionary.TryAdd(key, this.List);
                     this.Collection.Count++;
-                }
-
-                this.Key = key;
-                if (weakReference == null)
-                {
-                    this.StrongDelegate = method;
-                }
-                else
-                {
-                    this.WeakDelegate = new(weakReference, method);
                 }
 
                 this.List.Add(this);
@@ -238,7 +234,7 @@ namespace Arc.CrossChannel
                     var empty = this.List.Remove(this);
                     this.WeakDelegate?.MarkForDeletion();
 
-                    if (empty && this.Collection.Count >= CrossChannel.DictionaryThreshold)
+                    if (empty && this.Collection.Count >= CrossChannel.Const.HoldDictionaryThreshold)
                     {
                         this.Collection.Dictionary.TryRemove(this.Key, out _);
                         this.Collection.Count--;

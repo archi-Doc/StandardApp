@@ -9,20 +9,20 @@ namespace Arc.CrossChannel
 {
     // NOT thread safe, highly customized for XChannel.
     internal sealed class FastList<T> : IDisposable
-        where T : class
+        where T : XChannel
     {
         private const int InitialCapacity = 4;
-        private const int MinCleanupStart = 8;
+        private const int MinShrinkStart = 8;
 
-        public delegate ref int ObjectToIndexDelegete(T obj);
+        // public delegate ref int ObjectToIndexDelegete(T obj);
 
         private T?[] values = default!;
         private int count;
         private FastIntQueue freeIndex = default!;
 
-        public FastList(ObjectToIndexDelegete objectToIndex)
+        public FastList()
         {
-            this.objectToIndex = objectToIndex;
+            // this.objectToIndex = objectToIndex;
             this.Initialize();
         }
 
@@ -34,8 +34,6 @@ namespace Arc.CrossChannel
 
         public bool IsEmpty => this.count == 0;
 
-        internal bool IsCleanupRequired => this.values.Length > MinCleanupStart && (this.values.Length > this.count * 2);
-
         public int Add(T value)
         {
             if (this.IsDisposed)
@@ -46,7 +44,8 @@ namespace Arc.CrossChannel
             if (this.freeIndex.Count != 0)
             {
                 var index = this.freeIndex.Dequeue();
-                this.objectToIndex(value) = index;
+                // this.objectToIndex(value) = index;
+                value.Index = index;
                 this.values[index] = value;
                 this.count++;
                 return index;
@@ -63,7 +62,8 @@ namespace Arc.CrossChannel
                 }
 
                 var index = this.freeIndex.Dequeue();
-                this.objectToIndex(value) = index;
+                // this.objectToIndex(value) = index;
+                value.Index = index;
                 newValues[this.values.Length] = value;
                 this.count++;
                 Volatile.Write(ref this.values, newValues);
@@ -78,7 +78,7 @@ namespace Arc.CrossChannel
                 return true;
             }
 
-            ref var index = ref this.objectToIndex(value);
+            var index = value.Index;
             ref var v = ref this.values[index];
             if (v == null)
             {
@@ -87,25 +87,68 @@ namespace Arc.CrossChannel
 
             v = default(T);
             this.freeIndex.Enqueue(index);
-            index = -1;
+            value.Index = -1;
             this.count--;
 
             return this.count == 0;
         }
 
-        public bool Cleanup()
+        /// <summary>
+        /// Shrink the list when there are too many unused items.
+        /// </summary>
+        /// <returns>true if the list is empty.</returns>
+        public bool Shrink()
         {
-            if (!this.IsCleanupRequired)
+            if (this.count == 0)
+            {// Empty
+                if (this.values.Length > MinShrinkStart)
+                {
+                    this.Initialize();
+                }
+
+                return true;
+            }
+
+            if (this.values.Length <= MinShrinkStart)
+            {
+                return false;
+            }
+            else if (this.count * 2 >= this.values.Length)
             {
                 return false;
             }
 
-            var nextSize = this.values.Length / 2;
-            for (var i = nextSize; i < this.values.Length; i++)
+            var newLength = this.values.Length;
+            while (this.count < (newLength >> 1))
             {
+                newLength >>= 1;
             }
 
-            return true;
+            newLength = (newLength < InitialCapacity) ? InitialCapacity : newLength;
+            var newValues = new T[newLength];
+
+            var oldIndex = 0;
+            var i = 0;
+            for (i = 0; i < this.count; i++)
+            {
+                while (this.values[oldIndex] == null)
+                {
+                    oldIndex++;
+                }
+
+                ref var v = ref this.values[oldIndex]!;
+                newValues[i] = v;
+                v.Index = i;
+                v = default(T);
+            }
+
+            this.freeIndex = new FastIntQueue(newLength);
+            for (; i < newLength; i++)
+            {
+                this.freeIndex.Enqueue(i);
+            }
+
+            return false;
         }
 
         public void Dispose()
@@ -120,7 +163,7 @@ namespace Arc.CrossChannel
             this.count = 0;
         }
 
-        private ObjectToIndexDelegete objectToIndex;
+        // private ObjectToIndexDelegete objectToIndex;
 
         private void Initialize()
         {

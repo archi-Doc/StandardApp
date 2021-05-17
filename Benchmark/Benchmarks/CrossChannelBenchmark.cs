@@ -135,7 +135,7 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public void OpenSend_Result()
+        public void OpenSend_TwoWay()
         {
             using (var c = CrossChannel.OpenTwoWay<int, int>(null, x => x))
             {
@@ -146,7 +146,7 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public void OpenSend8_Result()
+        public void OpenSend8_TwoWay()
         {
             using (var c = CrossChannel.OpenTwoWay<int, int>(null, x => x))
             {
@@ -164,7 +164,7 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public void OpenSend_KeyResult()
+        public void OpenSend_TwoWayKey()
         {
             using (var d = CrossChannel.OpenTwoWayKey<int, uint, uint>(null, 3, x => x))
             {
@@ -175,7 +175,7 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public void OpenSend8_KeyResult()
+        public void OpenSend8_TwoWayKey()
         {
             using (var c = CrossChannel.OpenTwoWayKey<int, uint, uint>(null, 3, x => x))
             {
@@ -258,58 +258,58 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public void Class_OpenSend_Result()
+        public void Class_OpenSend_TwoWay()
         {
-            using (var c = this.CCC.Open<int, int>(null, x => x))
+            using (var c = this.CCC.OpenTwoWay<int, int>(null, x => x))
             {
-                this.CCC.Send<int, int>(3);
+                this.CCC.SendTwoWay<int, int>(3);
             }
 
             return;
         }
 
         [Benchmark]
-        public void Class_OpenSend8_Result()
+        public void Class_OpenSend8_TwoWay()
         {
-            using (var c = this.CCC.Open<int, int>(null, x => x))
+            using (var c = this.CCC.OpenTwoWay<int, int>(null, x => x))
             {
-                this.CCC.Send<int, int>(1);
-                this.CCC.Send<int, int>(2);
-                this.CCC.Send<int, int>(3);
-                this.CCC.Send<int, int>(4);
-                this.CCC.Send<int, int>(5);
-                this.CCC.Send<int, int>(6);
-                this.CCC.Send<int, int>(7);
-                this.CCC.Send<int, int>(8);
+                this.CCC.SendTwoWay<int, int>(1);
+                this.CCC.SendTwoWay<int, int>(2);
+                this.CCC.SendTwoWay<int, int>(3);
+                this.CCC.SendTwoWay<int, int>(4);
+                this.CCC.SendTwoWay<int, int>(5);
+                this.CCC.SendTwoWay<int, int>(6);
+                this.CCC.SendTwoWay<int, int>(7);
+                this.CCC.SendTwoWay<int, int>(8);
             }
 
             return;
         }
 
         [Benchmark]
-        public void Class_OpenSend_KeyResult()
+        public void Class_OpenSend_TwoWayKey()
         {
-            using (var c = this.CCC.OpenKey<int, int, int>(null, 1, x => x))
+            using (var c = this.CCC.OpenTwoWayKey<int, int, int>(null, 1, x => x))
             {
-                this.CCC.SendKey<int, int, int>(1, 3);
+                this.CCC.SendTwoWayKey<int, int, int>(1, 3);
             }
 
             return;
         }
 
         [Benchmark]
-        public void Class_OpenSend8_KeyResult()
+        public void Class_OpenSend8_TwoWayKey()
         {
-            using (var c = this.CCC.OpenKey<int, int, int>(null, 1, x => x))
+            using (var c = this.CCC.OpenTwoWayKey<int, int, int>(null, 1, x => x))
             {
-                this.CCC.SendKey<int, int, int>(1, 1);
-                this.CCC.SendKey<int, int, int>(1, 2);
-                this.CCC.SendKey<int, int, int>(1, 3);
-                this.CCC.SendKey<int, int, int>(1, 4);
-                this.CCC.SendKey<int, int, int>(1, 5);
-                this.CCC.SendKey<int, int, int>(1, 6);
-                this.CCC.SendKey<int, int, int>(1, 7);
-                this.CCC.SendKey<int, int, int>(1, 8);
+                this.CCC.SendTwoWayKey<int, int, int>(1, 1);
+                this.CCC.SendTwoWayKey<int, int, int>(1, 2);
+                this.CCC.SendTwoWayKey<int, int, int>(1, 3);
+                this.CCC.SendTwoWayKey<int, int, int>(1, 4);
+                this.CCC.SendTwoWayKey<int, int, int>(1, 5);
+                this.CCC.SendTwoWayKey<int, int, int>(1, 6);
+                this.CCC.SendTwoWayKey<int, int, int>(1, 7);
+                this.CCC.SendTwoWayKey<int, int, int>(1, 8);
             }
 
             return;

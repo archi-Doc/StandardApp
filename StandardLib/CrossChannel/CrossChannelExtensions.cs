@@ -292,37 +292,37 @@ namespace Arc.CrossChannel
         }
 
         internal static bool Cleanup<TMessage>(this FastList<XChannel_Message<TMessage>> list)
-        {
+        {// lock required.
             var array = list.GetValues();
             for (var i = 0; i < array.Length; i++)
             {
                 if (array[i] is { } c)
                 {
-                    if (c.WeakDelegate != null && !c.WeakDelegate.IsAlive)
+                    if (c.WeakDelegate?.IsAlive == false)
                     {
                         c.Dispose();
                     }
                 }
             }
 
-            return list.Cleanup();
+            return list.Shrink();
         }
 
         internal static bool Cleanup<TMessage, TResult>(this FastList<XChannel_MessageResult<TMessage, TResult>> list)
-        {
+        {// lock required.
             var array = list.GetValues();
             for (var i = 0; i < array.Length; i++)
             {
                 if (array[i] is { } c)
                 {
-                    if (c.WeakDelegate != null && !c.WeakDelegate.IsAlive)
+                    if (c.WeakDelegate?.IsAlive == false)
                     {
                         c.Dispose();
                     }
                 }
             }
 
-            return list.Cleanup();
+            return list.Shrink();
         }
 
         internal static bool Cleanup<TKey, TMessage>(this XCollection_KeyMessage<TKey, TMessage> collection)
@@ -330,16 +330,24 @@ namespace Arc.CrossChannel
         {// lock required
             foreach (var x in collection.Dictionary)
             {
-                var array = x.Value.GetValues();
+                var list = x.Value;
+                var array = list.GetValues();
                 for (var i = 0; i < array.Length; i++)
                 {
                     if (array[i] is { } c)
                     {
-                        if (c.WeakDelegate != null && !c.WeakDelegate.IsAlive)
+                        if (c.WeakDelegate?.IsAlive == false)
                         {
                             c.Dispose();
                         }
                     }
+                }
+
+                if (list.Shrink() && collection.Count >= CrossChannel.Const.HoldDictionaryThreshold)
+                {
+                    collection.Dictionary.TryRemove(x.Key, out _);
+                    collection.Count--;
+                    list.Dispose();
                 }
             }
 
@@ -348,26 +356,31 @@ namespace Arc.CrossChannel
 
         internal static bool Cleanup<TKey, TMessage, TResult>(this XCollection_KeyMessageResult<TKey, TMessage, TResult> collection)
             where TKey : notnull
-        {
-            lock (collection)
+        {// lock required
+            foreach (var x in collection.Dictionary)
             {
-                foreach (var x in collection.Dictionary)
+                var list = x.Value;
+                var array = list.GetValues();
+                for (var i = 0; i < array.Length; i++)
                 {
-                    var array = x.Value.GetValues();
-                    for (var i = 0; i < array.Length; i++)
+                    if (array[i] is { } c)
                     {
-                        if (array[i] is { } c)
+                        if (c.WeakDelegate?.IsAlive == false)
                         {
-                            if (c.WeakDelegate != null && !c.WeakDelegate.IsAlive)
-                            {
-                                c.Dispose();
-                            }
+                            c.Dispose();
                         }
                     }
                 }
 
-                return collection.Count == 0;
+                if (list.Shrink() && collection.Count >= CrossChannel.Const.HoldDictionaryThreshold)
+                {
+                    collection.Dictionary.TryRemove(x.Key, out _);
+                    collection.Count--;
+                    list.Dispose();
+                }
             }
+
+            return collection.Count == 0;
         }
     }
 }

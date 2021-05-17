@@ -20,7 +20,7 @@ namespace Arc.CrossChannel
             {
                 if (!map.TryGetValue(key, out var list))
                 {
-                    list = new(static x => ref x.Index);
+                    list = new();
                     map[key] = list;
                 }
 
@@ -83,7 +83,7 @@ namespace Arc.CrossChannel
                 // this.List = map.GetOrAdd(key, x => new FastList<XChannel_Key2<TKey, TMessage>>());
                 if (!map.TryGetValue(key, out this.List))
                 {
-                    this.List = new FastList<XChannel_Key2<TKey, TMessage>>(static x => ref x.Index);
+                    this.List = new FastList<XChannel_Key2<TKey, TMessage>>();
                     map.TryAdd(key, this.List);
                     Interlocked.Increment(ref mapCount);
                 }
@@ -167,7 +167,7 @@ namespace Arc.CrossChannel
                 var list = this.Table[key] as FastList<XChannel_Key3<TKey, TMessage>>;
                 if (list == null)
                 {
-                    list = new(static x => ref x.Index);
+                    list = new();
                     this.Table[key] = list;
                 }
 

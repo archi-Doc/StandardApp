@@ -11,8 +11,12 @@ namespace Arc.CrossChannel
 {
     public static class CrossChannel
     {
-        internal const int CleanupThreshold = 32;
-        internal const int DictionaryThreshold = 16;
+        public static class Const
+        {
+            public const int CleanupListThreshold = 32;
+            public const int CleanupDictionaryThreshold = 128;
+            public const int HoldDictionaryThreshold = 16;
+        }
 
         /// <summary>
         /// Open a channel to receive the message.
@@ -26,7 +30,7 @@ namespace Arc.CrossChannel
         public static XChannel Open<TMessage>(object? weakReference, Action<TMessage> method)
         {
             var list = Cache_Message<TMessage>.List;
-            if (list.CleanupCount++ >= CleanupThreshold)
+            if (list.CleanupCount++ >= Const.CleanupListThreshold)
             {
                 lock (list)
                 {
@@ -48,7 +52,7 @@ namespace Arc.CrossChannel
             where TKey : notnull
         {
             var collection = Cache_KeyMessage<TKey, TMessage>.Collection;
-            if (collection.CleanupCount++ >= CleanupThreshold)
+            if (collection.CleanupCount++ >= Const.CleanupDictionaryThreshold)
             {
                 lock (collection)
                 {
@@ -64,7 +68,7 @@ namespace Arc.CrossChannel
         public static XChannel OpenTwoWay<TMessage, TResult>(object? weakReference, Func<TMessage, TResult> method)
         {
             var list = Cache_MessageResult<TMessage, TResult>.List;
-            if (++list.CleanupCount >= CleanupThreshold)
+            if (list.CleanupCount++ >= Const.CleanupListThreshold)
             {
                 lock (list)
                 {
@@ -86,7 +90,7 @@ namespace Arc.CrossChannel
             where TKey : notnull
         {
             var collection = Cache_KeyMessageResult<TKey, TMessage, TResult>.Collection;
-            if (++collection.CleanupCount >= CleanupThreshold)
+            if (collection.CleanupCount++ >= Const.CleanupDictionaryThreshold)
             {
                 lock (collection)
                 {
@@ -131,17 +135,6 @@ namespace Arc.CrossChannel
         public static int SendKey<TKey, TMessage>(TKey key, TMessage message)
             where TKey : notnull
         {
-            /*var list = Cache_KeyMessage<TKey, TMessage>.Map[key] as FastList<XChannel_KeyMessage<TKey, TMessage>>;
-            if (list == null)
-            {
-                return 0;
-            }*/
-
-            /*if (!Cache_KeyMessage<TKey, TMessage>.Map.TryGetValue(key, out var list))
-            {
-                return 0;
-            }*/
-
             if (!Cache_KeyMessage<TKey, TMessage>.Collection.Dictionary.TryGetValue(key, out var list))
             {
                 return 0;
@@ -167,17 +160,6 @@ namespace Arc.CrossChannel
             return Cache_MessageResult<TMessage, Task<TResult>>.List.SendAsync(message);
         }
 
-        public static TResult[] SendTwoWayKey<TKey, TMessage, TResult>(TKey key, TMessage message)
-            where TKey : notnull
-        {
-            if (!Cache_KeyMessageResult<TKey, TMessage, TResult>.Collection.Dictionary.TryGetValue(key, out var list))
-            {
-                return Array.Empty<TResult>();
-            }
-
-            return list.Send(message);
-        }
-
         public static Task<TResult[]> SendTwoWayAsyncKey<TKey, TMessage, TResult>(TKey key, TMessage message)
             where TKey : notnull
         {
@@ -189,6 +171,29 @@ namespace Arc.CrossChannel
             return list.SendAsync(message);
         }
 
+        /// <summary>
+        /// temp<br/>
+        /// TKey: <typeparamref name="TKey"/>.<br/>
+        /// TMessage: <typeparamref name="TMessage"/>.<br/>
+        /// TResult: <typeparamref name="TResult"/>.<br/>
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TMessage">The type of the message.</typeparam>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="key">The specified key </param>
+        /// <param name="message">The message to send.</param>
+        /// <returns>An array of <typeparamref name="TResult"/>.</returns>
+        public static TResult[] SendTwoWayKey<TKey, TMessage, TResult>(TKey key, TMessage message)
+            where TKey : notnull
+        {
+            if (!Cache_KeyMessageResult<TKey, TMessage, TResult>.Collection.Dictionary.TryGetValue(key, out var list))
+            {
+                return Array.Empty<TResult>();
+            }
+
+            return list.Send(message);
+        }
+
 #pragma warning disable SA1401 // Fields should be private
         internal static class Cache_Message<TMessage>
         {// lock (FastList<XChannel_Message<TMessage>>) : XChannel_Message<TMessage>
@@ -196,7 +201,7 @@ namespace Arc.CrossChannel
 
             static Cache_Message()
             {
-                List = new(static x => ref x.Index);
+                List = new();
             }
         }
 
@@ -206,7 +211,7 @@ namespace Arc.CrossChannel
 
             static Cache_MessageResult()
             {
-                List = new(static x => ref x.Index);
+                List = new();
             }
         }
 
@@ -223,7 +228,7 @@ namespace Arc.CrossChannel
 
         internal static class Cache_KeyMessageResult<TKey, TMessage, TResult>
             where TKey : notnull
-        {
+        {// lock (XCollection_KeyMessageResult<TKey, TMessage, TResult>) : ConcurrentDictionary<TKey, FastList<XChannel_KeyMessageResult<TKey, TMessage, TResult>>>
             public static XCollection_KeyMessageResult<TKey, TMessage, TResult> Collection;
 
             static Cache_KeyMessageResult()
