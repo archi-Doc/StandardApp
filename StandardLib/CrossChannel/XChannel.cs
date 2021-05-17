@@ -28,7 +28,6 @@ namespace Arc.CrossChannel
         internal XChannel_Message(FastList<XChannel_Message<TMessage>> list, object? weakReference, Action<TMessage> method)
         {
             this.List = list;
-            this.Index = this.List.Add(this);
             if (weakReference == null)
             {
                 this.StrongDelegate = method;
@@ -37,6 +36,8 @@ namespace Arc.CrossChannel
             {
                 this.WeakDelegate = new(weakReference, method);
             }
+
+            this.Index = this.List.Add(this);
         }
 
         internal FastList<XChannel_Message<TMessage>> List { get; }

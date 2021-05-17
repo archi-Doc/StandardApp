@@ -15,7 +15,7 @@ namespace Benchmark
     {
         public static void Main(string[] args)
         {
-            DebugRun<CrossChannelBenchmark>();
+            DebugRun<H2HBenchmark>();
 
             // var summary = BenchmarkRunner.Run<ReconstructTest>();
             var switcher = new BenchmarkSwitcher(new[]
