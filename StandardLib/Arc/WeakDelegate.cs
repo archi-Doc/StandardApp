@@ -34,7 +34,7 @@ namespace Arc.WeakDelegate
     }
 
     /// <summary>
-    /// A key which stores a type of the Delegate's owner and a MethodInfo of the Delegate.
+    /// A key which stores a type of the Delegate's owner and MethodInfo.
     /// Method (e.g. Action&lt;T&gt;) is not suitable for a key (cannot cache properly).
     /// </summary>
     public struct DelegateKey
@@ -102,7 +102,7 @@ namespace Arc.WeakDelegate
         }
 
         public void Execute(out bool executed)
-        {
+        {// Thread safe
             if (this.StaticDelegate is Action method)
             {
                 executed = true;
@@ -123,7 +123,7 @@ namespace Arc.WeakDelegate
         }
 
         public void Execute()
-        {
+        {// Thread safe
             if (this.StaticDelegate is Action method)
             {
                 method();
@@ -185,7 +185,7 @@ namespace Arc.WeakDelegate
         }
 
         public void Execute(T t, out bool executed)
-        {
+        {// Thread safe
             if (this.StaticDelegate is Action<T> method)
             {
                 executed = true;
@@ -206,7 +206,7 @@ namespace Arc.WeakDelegate
         }
 
         public void Execute(T t)
-        {
+        {// Thread safe
             if (this.StaticDelegate is Action<T> method)
             {
                 method(t);
@@ -264,7 +264,7 @@ namespace Arc.WeakDelegate
 
         [return: MaybeNull]
         public TResult Execute(out bool executed)
-        {
+        {// Thread safe
             if (this.StaticDelegate is Func<TResult> method)
             {
                 executed = true;
@@ -284,7 +284,7 @@ namespace Arc.WeakDelegate
 
         [return: MaybeNull]
         public TResult Execute()
-        {
+        {// Thread safe
             if (this.StaticDelegate is Func<TResult> method)
             {
                 return method();
@@ -344,7 +344,7 @@ namespace Arc.WeakDelegate
 
         [return: MaybeNull]
         public TResult Execute(T t, out bool executed)
-        {
+        {// Thread safe
             if (this.StaticDelegate is Func<T, TResult> method)
             {
                 executed = true;
@@ -364,7 +364,7 @@ namespace Arc.WeakDelegate
 
         [return: MaybeNull]
         public TResult Execute(T t)
-        {
+        {// Thread safe
             if (this.StaticDelegate is Func<T, TResult> method)
             {
                 return method(t);
@@ -439,31 +439,31 @@ namespace Arc.WeakDelegate
         /// Gets the name of the method.
         /// </summary>
         public string MethodName
-        {
+        {// Thread safe
             get
             {
-                if (this.StaticDelegate != null)
+                if (this.StaticDelegate is { } sd)
                 {
 #if NETFX_CORE
-                    return this.StaticDelegate.GetMethodInfo().Name;
+                    return sd.GetMethodInfo().Name;
 #else
-                    return this.StaticDelegate.Method.Name;
+                    return sd.Method.Name;
 #endif
                 }
 
-                if (this.Method != null)
+                if (this.Method is { } m)
                 {
-                    return this.Method.Name;
+                    return m.Name;
                 }
 
                 return string.Empty;
             }
         }
 
-        public object? Target => this.Reference?.Target;
+        public object? Target => this.Reference?.Target; // Thread safe
 
         public bool IsAlive
-        {
+        {// Thread safe
             get
             {
                 if (this.HardReference != null)
@@ -471,9 +471,9 @@ namespace Arc.WeakDelegate
                     return true;
                 }
 
-                if (this.Reference != null)
+                if (this.Reference is { } w)
                 {
-                    return this.Reference.IsAlive;
+                    return w.IsAlive;
                 }
 
                 if (this.StaticDelegate != null)
@@ -488,13 +488,13 @@ namespace Arc.WeakDelegate
         /// <summary>
         /// Gets a value indicating whether the WeakDelegate is static or not.
         /// </summary>
-        public bool IsStatic => this.StaticDelegate != null;
+        public bool IsStatic => this.StaticDelegate != null; // Thread safe
 
         /// <summary>
         /// Gets the target of this delegate.
         /// </summary>
         protected object? DelegateTarget
-        {
+        {// Thread safe
             get
             {
                 if (this.HardReference != null)
@@ -532,10 +532,10 @@ namespace Arc.WeakDelegate
         protected object? HardReference { get; set; }
 
         /// <summary>
-        /// Sets the reference that this instance stores to null.
+        /// Sets the reference that this instance stores to null. Thread safe.
         /// </summary>
         public void MarkForDeletion()
-        {
+        {// Thread safe
             this.Reference = null;
             this.DelegateReference = null;
             this.HardReference = null;

@@ -12,7 +12,9 @@ namespace Arc.CrossChannel
 {
     public abstract class XChannel : IDisposable
     {
-        internal int Index { get; set; }
+#pragma warning disable SA1401 // Fields should be private
+        internal int Index; // The index of FastList<T>. lock() required.
+#pragma warning restore SA1401 // Fields should be private
 
         public virtual void Dispose()
         {
@@ -28,16 +30,19 @@ namespace Arc.CrossChannel
         internal XChannel_Message(FastList<XChannel_Message<TMessage>> list, object? weakReference, Action<TMessage> method)
         {
             this.List = list;
-            if (weakReference == null)
+            lock (this.List)
             {
-                this.StrongDelegate = method;
-            }
-            else
-            {
-                this.WeakDelegate = new(weakReference, method);
-            }
+                if (weakReference == null)
+                {
+                    this.StrongDelegate = method;
+                }
+                else
+                {
+                    this.WeakDelegate = new(weakReference, method);
+                }
 
-            this.Index = this.List.Add(this);
+                this.List.Add(this);
+            }
         }
 
         internal FastList<XChannel_Message<TMessage>> List { get; }
@@ -48,11 +53,13 @@ namespace Arc.CrossChannel
 
         public override void Dispose()
         {
-            if (this.Index != -1)
+            lock (this.List)
             {
-                this.List.Remove(this.Index);
-                this.Index = -1;
-                this.WeakDelegate?.MarkForDeletion();
+                if (this.Index != -1)
+                {
+                    this.List.Remove(this);
+                    this.WeakDelegate?.MarkForDeletion();
+                }
             }
         }
     }
@@ -62,14 +69,18 @@ namespace Arc.CrossChannel
         internal XChannel_MessageResult(FastList<XChannel_MessageResult<TMessage, TResult>> list, object? weakReference, Func<TMessage, TResult> method)
         {
             this.List = list;
-            this.Index = this.List.Add(this);
-            if (weakReference == null)
+            lock (this.List)
             {
-                this.StrongDelegate = method;
-            }
-            else
-            {
-                this.WeakDelegate = new(weakReference, method);
+                if (weakReference == null)
+                {
+                    this.StrongDelegate = method;
+                }
+                else
+                {
+                    this.WeakDelegate = new(weakReference, method);
+                }
+
+                this.List.Add(this);
             }
         }
 
@@ -81,11 +92,13 @@ namespace Arc.CrossChannel
 
         public override void Dispose()
         {
-            if (this.Index != -1)
+            lock (this.List)
             {
-                this.List.Remove(this.Index);
-                this.Index = -1;
-                this.WeakDelegate?.MarkForDeletion();
+                if (this.Index != -1)
+                {
+                    this.List.Remove(this);
+                    this.WeakDelegate?.MarkForDeletion();
+                }
             }
         }
     }
@@ -110,22 +123,22 @@ namespace Arc.CrossChannel
             {
                 if (!this.Collection.Dictionary.TryGetValue(key, out this.List))
                 {
-                    this.List = new FastList<XChannel_KeyMessage<TKey, TMessage>>();
+                    this.List = new FastList<XChannel_KeyMessage<TKey, TMessage>>(static x => ref x.Index);
                     this.Collection.Dictionary.TryAdd(key, this.List);
                     this.Collection.Count++;
                 }
 
                 this.Key = key;
-                this.Index = this.List.Add(this);
-            }
+                if (weakReference == null)
+                {
+                    this.StrongDelegate = method;
+                }
+                else
+                {
+                    this.WeakDelegate = new(weakReference, method);
+                }
 
-            if (weakReference == null)
-            {
-                this.StrongDelegate = method;
-            }
-            else
-            {
-                this.WeakDelegate = new(weakReference, method);
+                this.List.Add(this);
             }
         }
 
@@ -145,28 +158,20 @@ namespace Arc.CrossChannel
 
         public override void Dispose()
         {
-            if (this.Index != -1)
+            lock (this.Collection)
             {
-                if (this.Collection.Count <= CrossChannel.DictionaryThreshold)
+                if (this.Index != -1)
                 {
-                    this.List.Remove(this.Index);
-                }
-                else
-                {
-                    lock (this.Collection)
+                    var empty = this.List.Remove(this);
+                    this.WeakDelegate?.MarkForDeletion();
+
+                    if (empty && this.Collection.Count >= CrossChannel.DictionaryThreshold)
                     {
-                        var empty = this.List.Remove(this.Index);
-                        if (empty)
-                        {
-                            this.Collection.Dictionary.TryRemove(this.Key, out _);
-                            this.Collection.Count--;
-                            this.List.Dispose();
-                        }
+                        this.Collection.Dictionary.TryRemove(this.Key, out _);
+                        this.Collection.Count--;
+                        this.List.Dispose();
                     }
                 }
-
-                this.Index = -1;
-                this.WeakDelegate?.MarkForDeletion();
             }
         }
     }
@@ -191,22 +196,22 @@ namespace Arc.CrossChannel
             {
                 if (!this.Collection.Dictionary.TryGetValue(key, out this.List))
                 {
-                    this.List = new FastList<XChannel_KeyMessageResult<TKey, TMessage, TResult>>();
+                    this.List = new FastList<XChannel_KeyMessageResult<TKey, TMessage, TResult>>(static x => ref x.Index);
                     this.Collection.Dictionary.TryAdd(key, this.List);
                     this.Collection.Count++;
                 }
 
                 this.Key = key;
-                this.Index = this.List.Add(this);
-            }
+                if (weakReference == null)
+                {
+                    this.StrongDelegate = method;
+                }
+                else
+                {
+                    this.WeakDelegate = new(weakReference, method);
+                }
 
-            if (weakReference == null)
-            {
-                this.StrongDelegate = method;
-            }
-            else
-            {
-                this.WeakDelegate = new(weakReference, method);
+                this.List.Add(this);
             }
         }
 
@@ -226,28 +231,20 @@ namespace Arc.CrossChannel
 
         public override void Dispose()
         {
-            if (this.Index != -1)
+            lock (this.Collection)
             {
-                if (this.Collection.Count <= CrossChannel.DictionaryThreshold)
+                if (this.Index != -1)
                 {
-                    this.List.Remove(this.Index);
-                }
-                else
-                {
-                    lock (this.Collection)
+                    var empty = this.List.Remove(this);
+                    this.WeakDelegate?.MarkForDeletion();
+
+                    if (empty && this.Collection.Count >= CrossChannel.DictionaryThreshold)
                     {
-                        var empty = this.List.Remove(this.Index);
-                        if (empty)
-                        {
-                            this.Collection.Dictionary.TryRemove(this.Key, out _);
-                            this.Collection.Count--;
-                            this.List.Dispose();
-                        }
+                        this.Collection.Dictionary.TryRemove(this.Key, out _);
+                        this.Collection.Count--;
+                        this.List.Dispose();
                     }
                 }
-
-                this.Index = -1;
-                this.WeakDelegate?.MarkForDeletion();
             }
         }
     }

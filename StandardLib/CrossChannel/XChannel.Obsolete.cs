@@ -20,7 +20,7 @@ namespace Arc.CrossChannel
             {
                 if (!map.TryGetValue(key, out var list))
                 {
-                    list = new();
+                    list = new(static x => ref x.Index);
                     map[key] = list;
                 }
 
@@ -59,7 +59,7 @@ namespace Arc.CrossChannel
             {
                 lock (this.Map)
                 {
-                    var empty = this.List.Remove(this.Index);
+                    var empty = this.List.Remove(this);
                     if (empty)
                     {
                         this.Map.Remove(this.Key);
@@ -83,7 +83,7 @@ namespace Arc.CrossChannel
                 // this.List = map.GetOrAdd(key, x => new FastList<XChannel_Key2<TKey, TMessage>>());
                 if (!map.TryGetValue(key, out this.List))
                 {
-                    this.List = new FastList<XChannel_Key2<TKey, TMessage>>();
+                    this.List = new FastList<XChannel_Key2<TKey, TMessage>>(static x => ref x.Index);
                     map.TryAdd(key, this.List);
                     Interlocked.Increment(ref mapCount);
                 }
@@ -126,13 +126,13 @@ namespace Arc.CrossChannel
 
                 if (mapCount < 16)
                 {
-                    this.List.Remove(this.Index);
+                    this.List.Remove(this);
                 }
                 else
                 {
                     lock (this.Map)
                     {
-                        var empty = this.List.Remove(this.Index);
+                        var empty = this.List.Remove(this);
                         if (empty)
                         {
                             this.Map.TryRemove(this.Key, out _);
@@ -167,7 +167,7 @@ namespace Arc.CrossChannel
                 var list = this.Table[key] as FastList<XChannel_Key3<TKey, TMessage>>;
                 if (list == null)
                 {
-                    list = new();
+                    list = new(static x => ref x.Index);
                     this.Table[key] = list;
                 }
 
@@ -202,7 +202,7 @@ namespace Arc.CrossChannel
             {
                 lock (this.Table)
                 {
-                    var empty = this.List.Remove(this.Index);
+                    var empty = this.List.Remove(this);
                     if (empty)
                     {
                         this.Table.Remove(this.Key);

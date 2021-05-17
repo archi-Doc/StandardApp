@@ -28,8 +28,11 @@ namespace Arc.CrossChannel
             var list = Cache_Message<TMessage>.List;
             if (list.CleanupCount++ >= CleanupThreshold)
             {
-                list.CleanupCount = 0;
-                list.Cleanup();
+                lock (list)
+                {
+                    list.CleanupCount = 0;
+                    list.Cleanup();
+                }
             }
 
             var channel = new XChannel_Message<TMessage>(list, weakReference, method);
@@ -47,11 +50,12 @@ namespace Arc.CrossChannel
             var collection = Cache_KeyMessage<TKey, TMessage>.Collection;
             if (collection.CleanupCount++ >= CleanupThreshold)
             {
-                collection.CleanupCount = 0;
-                collection.Cleanup();
+                lock (collection)
+                {
+                    collection.CleanupCount = 0;
+                    collection.Cleanup();
+                }
             }
-
-            // var channel = new XChannel_Key2<TKey, TMessage>(Cache_KeyMessage<TKey, TMessage>.Map, key, weakReference, method);
 
             var channel = new XChannel_KeyMessage<TKey, TMessage>(collection, key, weakReference, method);
             return channel;
@@ -62,8 +66,11 @@ namespace Arc.CrossChannel
             var list = Cache_MessageResult<TMessage, TResult>.List;
             if (++list.CleanupCount >= CleanupThreshold)
             {
-                list.CleanupCount = 0;
-                list.Cleanup();
+                lock (list)
+                {
+                    list.CleanupCount = 0;
+                    list.Cleanup();
+                }
             }
 
             var channel = new XChannel_MessageResult<TMessage, TResult>(list, weakReference, method);
@@ -81,8 +88,11 @@ namespace Arc.CrossChannel
             var collection = Cache_KeyMessageResult<TKey, TMessage, TResult>.Collection;
             if (++collection.CleanupCount >= CleanupThreshold)
             {
-                collection.CleanupCount = 0;
-                collection.Cleanup();
+                lock (collection)
+                {
+                    collection.CleanupCount = 0;
+                    collection.Cleanup();
+                }
             }
 
             var channel = new XChannel_KeyMessageResult<TKey, TMessage, TResult>(collection, key, weakReference, method);
@@ -181,39 +191,28 @@ namespace Arc.CrossChannel
 
 #pragma warning disable SA1401 // Fields should be private
         internal static class Cache_Message<TMessage>
-        {
+        {// lock (FastList<XChannel_Message<TMessage>>) : XChannel_Message<TMessage>
             public static FastList<XChannel_Message<TMessage>> List;
 
             static Cache_Message()
             {
-                List = new();
+                List = new(static x => ref x.Index);
             }
         }
 
         internal static class Cache_MessageResult<TMessage, TResult>
-        {
+        {// lock (FastList<XChannel_MessageResult<TMessage, TResult>>) : XChannel_MessageResult<TMessage, TResult>
             public static FastList<XChannel_MessageResult<TMessage, TResult>> List;
 
             static Cache_MessageResult()
             {
-                List = new();
+                List = new(static x => ref x.Index);
             }
         }
 
-        /*internal static class Cache_KeyMessage<TKey, TMessage>
-            where TKey : notnull
-        {
-            public static ConcurrentDictionary<TKey, FastList<XChannel_Key2<TKey, TMessage>>> Map;
-
-            static Cache_KeyMessage()
-            {
-                Map = new();
-            }
-        }*/
-
         internal static class Cache_KeyMessage<TKey, TMessage>
             where TKey : notnull
-        {
+        {// lock (XCollection_KeyMessage<TKey, TMessage>) : ConcurrentDictionary<TKey, FastList<XChannel_KeyMessage<TKey, TMessage>>>
             public static XCollection_KeyMessage<TKey, TMessage> Collection;
 
             static Cache_KeyMessage()

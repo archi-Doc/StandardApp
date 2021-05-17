@@ -7,157 +7,120 @@ using System.Threading;
 
 namespace Arc.CrossChannel
 {
+    // NOT thread safe, highly customized for XChannel.
     internal sealed class FastList<T> : IDisposable
         where T : class
     {
         private const int InitialCapacity = 4;
-        private const int MinShrinkStart = 8;
+        private const int MinCleanupStart = 8;
 
-        private readonly object cs = new();
+        public delegate ref int ObjectToIndexDelegete(T obj);
 
         private T?[] values = default!;
         private int count;
         private FastIntQueue freeIndex = default!;
-        private bool isDisposed;
 
-        public FastList()
+        public FastList(ObjectToIndexDelegete objectToIndex)
         {
+            this.objectToIndex = objectToIndex;
             this.Initialize();
         }
 
-        public int CleanupCount { get; set; } // no lock, not thread safe
+        internal int CleanupCount { get; set; } // no lock, not thread safe
 
         public T?[] GetValues() => this.values; // no lock, safe for iterate
 
+        public bool IsDisposed => this.freeIndex == null;
+
         public bool IsEmpty => this.count == 0;
 
-        internal bool IsShrinkRequired => this.values.Length > MinShrinkStart && (this.values.Length > this.count * 2);
+        internal bool IsCleanupRequired => this.values.Length > MinCleanupStart && (this.values.Length > this.count * 2);
 
         public int Add(T value)
         {
-            lock (this.cs)
+            if (this.IsDisposed)
             {
-                if (this.isDisposed)
+                throw new ObjectDisposedException(nameof(FastList<T>));
+            }
+
+            if (this.freeIndex.Count != 0)
+            {
+                var index = this.freeIndex.Dequeue();
+                this.objectToIndex(value) = index;
+                this.values[index] = value;
+                this.count++;
+                return index;
+            }
+            else
+            {
+                // resize
+                var newValues = new T[this.values.Length * 2];
+                Array.Copy(this.values, 0, newValues, 0, this.values.Length);
+                this.freeIndex.EnsureNewCapacity(newValues.Length);
+                for (var i = this.values.Length; i < newValues.Length; i++)
                 {
-                    throw new ObjectDisposedException(nameof(FastList<T>));
+                    this.freeIndex.Enqueue(i);
                 }
 
-                if (this.freeIndex.Count != 0)
-                {
-                    var index = this.freeIndex.Dequeue();
-                    this.values[index] = value;
-                    this.count++;
-                    return index;
-                }
-                else
-                {
-                    // resize
-                    var newValues = new T[this.values.Length * 2];
-                    Array.Copy(this.values, 0, newValues, 0, this.values.Length);
-                    this.freeIndex.EnsureNewCapacity(newValues.Length);
-                    for (var i = this.values.Length; i < newValues.Length; i++)
-                    {
-                        this.freeIndex.Enqueue(i);
-                    }
-
-                    var index = this.freeIndex.Dequeue();
-                    newValues[this.values.Length] = value;
-                    this.count++;
-                    Volatile.Write(ref this.values, newValues);
-                    return index;
-                }
+                var index = this.freeIndex.Dequeue();
+                this.objectToIndex(value) = index;
+                newValues[this.values.Length] = value;
+                this.count++;
+                Volatile.Write(ref this.values, newValues);
+                return index;
             }
         }
 
-        public bool Remove(int index)
+        public bool Remove(T value)
         {
-            lock (this.cs)
+            if (this.IsDisposed)
             {
-                if (this.isDisposed)
-                {
-                    return true;
-                }
-
-                ref var v = ref this.values[index];
-                if (v == null)
-                {
-                    throw new KeyNotFoundException($"key index {index} is not found.");
-                }
-
-                v = default(T);
-                this.freeIndex.Enqueue(index);
-                this.count--;
-
-                return this.count == 0;
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool TryShrink()
-        {
-            if (this.IsShrinkRequired)
-            {
-                return this.Shrink();
+                return true;
             }
 
-            return false;
+            ref var index = ref this.objectToIndex(value);
+            ref var v = ref this.values[index];
+            if (v == null)
+            {
+                throw new KeyNotFoundException($"key index {index} is not found.");
+            }
+
+            v = default(T);
+            this.freeIndex.Enqueue(index);
+            index = -1;
+            this.count--;
+
+            return this.count == 0;
         }
 
-        public bool Shrink()
+        public bool Cleanup()
         {
-            lock (this.cs)
+            if (!this.IsCleanupRequired)
             {
-                if (!this.IsShrinkRequired)
-                {
-                    return false;
-                }
+                return false;
+            }
 
-                var nextSize = this.values.Length / 2;
-                for (var i = nextSize; i < this.values.Length; i++)
-                {
-                }
+            var nextSize = this.values.Length / 2;
+            for (var i = nextSize; i < this.values.Length; i++)
+            {
             }
 
             return true;
         }
 
-        /// <summary>
-        /// Dispose and get the number of cleared items.
-        /// </summary>
-        /// <param name="clearedCount">The number of cleared items.</param>
-        /// <returns>True if successfully disposed.</returns>
-        public bool TryDispose(out int clearedCount)
-        {
-            lock (this.cs)
-            {
-                if (this.isDisposed)
-                {
-                    clearedCount = 0;
-                    return false;
-                }
-
-                clearedCount = this.count;
-                this.Dispose();
-                return true;
-            }
-        }
-
         public void Dispose()
         {
-            lock (this.cs)
+            if (this.IsDisposed)
             {
-                if (this.isDisposed)
-                {
-                    return;
-                }
-
-                this.isDisposed = true;
-
-                this.freeIndex = null!;
-                this.values = Array.Empty<T?>();
-                this.count = 0;
+                return;
             }
+
+            this.freeIndex = null!;
+            this.values = Array.Empty<T?>();
+            this.count = 0;
         }
+
+        private ObjectToIndexDelegete objectToIndex;
 
         private void Initialize()
         {
@@ -168,7 +131,6 @@ namespace Arc.CrossChannel
             }
 
             this.count = 0;
-
             var v = new T?[InitialCapacity];
             Volatile.Write(ref this.values, v);
         }

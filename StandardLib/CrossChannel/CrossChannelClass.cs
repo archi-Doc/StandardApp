@@ -119,12 +119,15 @@ namespace Arc.CrossChannel
 
             var list = (FastList<XChannel_Message<TMessage>>)this.dictionaryMessage.GetOrAdd(
                 typeof(TMessage),
-                x => new FastList<XChannel_Message<TMessage>>());
+                x => new FastList<XChannel_Message<TMessage>>(static x => ref x.Index));
 
-            if (++list.CleanupCount >= CrossChannel.CleanupThreshold)
+            if (list.CleanupCount++ >= CrossChannel.CleanupThreshold)
             {
-                list.CleanupCount = 0;
-                list.Cleanup();
+                lock (list)
+                {
+                    list.CleanupCount = 0;
+                    list.Cleanup();
+                }
             }
 
             var channel = new XChannel_Message<TMessage>(list, weakReference, method);
@@ -135,7 +138,7 @@ namespace Arc.CrossChannel
         {
             var list = (FastList<XChannel_MessageResult<TMessage, TResult>>)this.dictionaryMessageResult.GetOrAdd(
                 new Identifier_MessageResult(typeof(TMessage), typeof(TResult)),
-                x => new FastList<XChannel_MessageResult<TMessage, TResult>>());
+                x => new FastList<XChannel_MessageResult<TMessage, TResult>>(static x => ref x.Index));
 
             if (++list.CleanupCount >= CrossChannel.CleanupThreshold)
             {
@@ -152,7 +155,7 @@ namespace Arc.CrossChannel
         {
             var list = (FastList<XChannel_Message<TMessage>>)this.dictionaryKeyMessage.GetOrAdd(
                 new Identifier_KeyMessage<TKey>(key, typeof(TMessage)),
-                x => new FastList<XChannel_Message<TMessage>>());
+                x => new FastList<XChannel_Message<TMessage>>(static x => ref x.Index));
 
             if (++list.CleanupCount >= CrossChannel.CleanupThreshold)
             {
@@ -182,7 +185,7 @@ namespace Arc.CrossChannel
         {
             var list = (FastList<XChannel_MessageResult<TMessage, TResult>>)this.dictionaryKeyMessageResult.GetOrAdd(
                 new Identifier_KeyMessageResult<TKey>(key, typeof(TMessage), typeof(TResult)),
-                x => new FastList<XChannel_MessageResult<TMessage, TResult>>());
+                x => new FastList<XChannel_MessageResult<TMessage, TResult>>(static x => ref x.Index));
 
             if (++list.CleanupCount >= CrossChannel.CleanupThreshold)
             {
