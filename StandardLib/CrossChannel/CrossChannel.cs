@@ -1,11 +1,7 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using System;
-using System.Collections;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using Arc.WeakDelegate;
 
 namespace Arc.CrossChannel
 {
@@ -19,11 +15,12 @@ namespace Arc.CrossChannel
         }
 
         /// <summary>
-        /// Open a channel to receive the message.
+        /// Open a channel to receive a message.
         /// </summary>
         /// <typeparam name="TMessage">The type of the message.</typeparam>
         /// <param name="weakReference">A weak reference of the object.<br/>
-        /// The channel will be automatically closed when the object is garbage collected.</param>
+        /// The channel will be automatically closed when the object is garbage collected.<br/>
+        /// To achieve maximum performance, you can set this value to null (DON'T forget close the channel manually).</param>
         /// <param name="method">The delegate that is called when the message is sent.</param>
         /// <returns>A new instance of XChannel.<br/>
         /// You need to call <see cref="XChannel.Dispose()"/> when the channel is no longer necessary, unless the weak reference is specified.</returns>
@@ -83,6 +80,19 @@ namespace Arc.CrossChannel
 
         public static XChannel OpenTwoWayAsync<TMessage, TResult>(object? weakReference, Func<TMessage, Task<TResult>> method) => CrossChannel.OpenTwoWay<TMessage, Task<TResult>>(weakReference, method);
 
+        /// <summary>
+        /// Open a channel to receive a message and send a result asynchronously.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the key.</typeparam>
+        /// <typeparam name="TMessage">The type of the message.</typeparam>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="weakReference">A weak reference of the object.<br/>
+        /// The channel will be automatically closed when the object is garbage collected.<br/>
+        /// To achieve maximum performance, you can set this value to null (DON'T forget close the channel manually).</param>
+        /// <param name="key">Specify a key to limit the channels to receive the message.</param>
+        /// <param name="method">The delegate that is called when the message is sent.</param>
+        /// <returns>A new instance of XChannel.<br/>
+        /// You need to call <see cref="XChannel.Dispose()"/> when the channel is no longer necessary, unless the weak reference is specified.</returns>
         public static XChannel OpenTwoWayAsyncKey<TKey, TMessage, TResult>(object? weakReference, TKey key, Func<TMessage, Task<TResult>> method)
              where TKey : notnull => CrossChannel.OpenTwoWayKey<TKey, TMessage, Task<TResult>>(weakReference, key, method);
 
@@ -103,11 +113,15 @@ namespace Arc.CrossChannel
             return channel;
         }
 
+        /// <summary>
+        /// Close the channel.
+        /// </summary>
+        /// <param name="channel">The channel to close.</param>
         public static void Close(XChannel channel) => channel.Dispose();
 
         /// <summary>
         /// Send a message.<br/>
-        /// TMessage: <typeparamref name="TMessage"/>.
+        /// Message: <typeparamref name="TMessage"/>.
         /// </summary>
         /// <typeparam name="TMessage">The type of the message.</typeparam>
         /// <param name="message">The message to send.</param>
@@ -119,7 +133,7 @@ namespace Arc.CrossChannel
 
         /// <summary>
         /// Send a message asynchronously.<br/>
-        /// TMessage: <typeparamref name="TMessage"/>.
+        /// Message: <typeparamref name="TMessage"/>.
         /// </summary>
         /// <typeparam name="TMessage">The type of the message.</typeparam>
         /// <param name="message">The message to send.</param>
@@ -131,8 +145,8 @@ namespace Arc.CrossChannel
 
         /// <summary>
         /// Send a message to a channel with the same key asynchronously.<br/>
-        /// TKey: <typeparamref name="TKey"/>.<br/>
-        /// TMessage: <typeparamref name="TMessage"/>.
+        /// Key: <typeparamref name="TKey"/>.<br/>
+        /// Message: <typeparamref name="TMessage"/>.
         /// </summary>
         /// <typeparam name="TKey">The type of the key.</typeparam>
         /// <typeparam name="TMessage">The type of the message.</typeparam>
@@ -152,8 +166,8 @@ namespace Arc.CrossChannel
 
         /// <summary>
         /// Send a message to a channel with the same key.<br/>
-        /// TKey: <typeparamref name="TKey"/>.<br/>
-        /// TMessage: <typeparamref name="TMessage"/>.
+        /// Key: <typeparamref name="TKey"/>.<br/>
+        /// Message: <typeparamref name="TMessage"/>.
         /// </summary>
         /// <typeparam name="TKey">The type of the key.</typeparam>
         /// <typeparam name="TMessage">The type of the message.</typeparam>
@@ -173,8 +187,8 @@ namespace Arc.CrossChannel
 
         /// <summary>
         /// Send a message and receive the result.<br/>
-        /// TMessage: <typeparamref name="TMessage"/>.<br/>
-        /// TResult: <typeparamref name="TResult"/>.<br/>
+        /// Message: <typeparamref name="TMessage"/>.<br/>
+        /// Result: <typeparamref name="TResult"/>.<br/>
         /// </summary>
         /// <typeparam name="TMessage">The type of the message.</typeparam>
         /// <typeparam name="TResult">The type of the result.</typeparam>
@@ -187,8 +201,8 @@ namespace Arc.CrossChannel
 
         /// <summary>
         /// Send a message and receive the result asynchronously.<br/>
-        /// TMessage: <typeparamref name="TMessage"/>.<br/>
-        /// TResult: <typeparamref name="TResult"/>.<br/>
+        /// Message: <typeparamref name="TMessage"/>.<br/>
+        /// Result: <typeparamref name="TResult"/>.<br/>
         /// </summary>
         /// <typeparam name="TMessage">The type of the message.</typeparam>
         /// <typeparam name="TResult">The type of the result.</typeparam>
@@ -201,9 +215,9 @@ namespace Arc.CrossChannel
 
         /// <summary>
         /// Send a message to a channel with the same key, and receive the result asynchronously.<br/>
-        /// TKey: <typeparamref name="TKey"/>.<br/>
-        /// TMessage: <typeparamref name="TMessage"/>.<br/>
-        /// TResult: <typeparamref name="TResult"/>.
+        /// Key: <typeparamref name="TKey"/>.<br/>
+        /// Message: <typeparamref name="TMessage"/>.<br/>
+        /// Result: <typeparamref name="TResult"/>.
         /// </summary>
         /// <typeparam name="TKey">The type of the key.</typeparam>
         /// <typeparam name="TMessage">The type of the message.</typeparam>
@@ -224,9 +238,9 @@ namespace Arc.CrossChannel
 
         /// <summary>
         /// Send a message to a channel with the same key, and receive the result.<br/>
-        /// TKey: <typeparamref name="TKey"/>.<br/>
-        /// TMessage: <typeparamref name="TMessage"/>.<br/>
-        /// TResult: <typeparamref name="TResult"/>.
+        /// Key: <typeparamref name="TKey"/>.<br/>
+        /// Message: <typeparamref name="TMessage"/>.<br/>
+        /// Result: <typeparamref name="TResult"/>.
         /// </summary>
         /// <typeparam name="TKey">The type of the key.</typeparam>
         /// <typeparam name="TMessage">The type of the message.</typeparam>

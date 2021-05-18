@@ -26,7 +26,7 @@ namespace Benchmark
         {
         }
 
-        /*[Benchmark]
+        [Benchmark]
         public void Send()
         {
             CrossChannel.Send<int>(3);
@@ -96,7 +96,7 @@ namespace Benchmark
             }
 
             return;
-        }*/
+        }
 
         [Benchmark]
         public void SendKey()
@@ -134,7 +134,7 @@ namespace Benchmark
             return;
         }
 
-        /*[Benchmark]
+        [Benchmark]
         public void OpenSend_TwoWay()
         {
             using (var c = CrossChannel.OpenTwoWay<int, int>(null, x => x))
@@ -226,35 +226,6 @@ namespace Benchmark
             }
 
             return;
-        }*/
-
-        [Benchmark]
-        public void Class_OpenSend_KeyD()
-        {
-            using (var c = this.CCC.OpenKeyD<int, uint>(null, 1, x => { }))
-            {
-                this.CCC.SendKeyD<int, uint>(1, 3);
-            }
-
-            return;
-        }
-
-        [Benchmark]
-        public void Class_OpenSend8_KeyD()
-        {
-            using (var c = this.CCC.OpenKeyD<int, uint>(null, 1, x => { }))
-            {
-                this.CCC.SendKeyD<int, uint>(1, 1);
-                this.CCC.SendKeyD<int, uint>(1, 2);
-                this.CCC.SendKeyD<int, uint>(1, 3);
-                this.CCC.SendKeyD<int, uint>(1, 4);
-                this.CCC.SendKeyD<int, uint>(1, 5);
-                this.CCC.SendKeyD<int, uint>(1, 6);
-                this.CCC.SendKeyD<int, uint>(1, 7);
-                this.CCC.SendKeyD<int, uint>(1, 8);
-            }
-
-            return;
         }
 
         [Benchmark]
@@ -286,7 +257,7 @@ namespace Benchmark
             return;
         }
 
-        /*[Benchmark]
+        [Benchmark]
         public void Class_OpenSend_TwoWay()
         {
             using (var c = this.CCC.OpenTwoWay<int, int>(null, x => x))
@@ -342,6 +313,6 @@ namespace Benchmark
             }
 
             return;
-        }*/
+        }
     }
 }

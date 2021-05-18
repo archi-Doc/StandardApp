@@ -6,6 +6,10 @@ using Arc.WeakDelegate;
 
 namespace Arc.CrossChannel
 {
+    /// <summary>
+    /// Channel class to receive a message.<br/>
+    /// You need to call <see cref="XChannel.Dispose()"/> when the channel is no longer necessary, unless the weak reference is specified.
+    /// </summary>
     public abstract class XChannel : IDisposable
     {
 #pragma warning disable SA1401 // Fields should be private

@@ -86,7 +86,7 @@ namespace Arc.CrossChannel
         }
     }
 
-    public class Identifier_KeyMessageD
+    /*public class Identifier_KeyMessageD
     {
     }
 
@@ -115,7 +115,7 @@ namespace Arc.CrossChannel
             var x = (Identifier_KeyMessageD<TKey>)obj;
             return EqualityComparer<TKey>.Default.Equals(this.Key, x.Key) && this.MessageType == x.MessageType;
         }
-    }
+    }*/
 
     /*public class Identifier_KeyMessageResult
     {

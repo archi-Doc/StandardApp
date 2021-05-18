@@ -32,26 +32,6 @@ namespace Arc.CrossChannel
         public XChannel OpenAsyncKey<TKey, TMessage>(object? weakReference, TKey key, Func<TMessage, Task> method)
             where TKey : notnull => this.OpenTwoWayKey<TKey, TMessage, Task>(weakReference, key, method);
 
-        public XChannel OpenKeyD<TKey, TMessage>(object? weakReference, TKey key, Action<TMessage> method)
-            where TKey : notnull
-        {
-            var list = (FastList<XChannel_Message<TMessage>>)this.dictionaryKeyMessageD.GetOrAdd(
-                new Identifier_KeyMessageD<TKey>(key, typeof(TMessage)),
-                x => new FastList<XChannel_Message<TMessage>>());
-
-            if (list.CleanupCount++ >= CrossChannel.Const.CleanupListThreshold)
-            {
-                lock (list)
-                {
-                    list.CleanupCount = 0;
-                    list.Cleanup();
-                }
-            }
-
-            var channel = new XChannel_Message<TMessage>(list, weakReference, method);
-            return channel;
-        }
-
         public XChannel OpenKey<TKey, TMessage>(object? weakReference, TKey key, Action<TMessage> method)
             where TKey : notnull
         {
@@ -157,18 +137,6 @@ namespace Arc.CrossChannel
             return list.SendAsync(message);
         }
 
-        public int SendKeyD<TKey, TMessage>(TKey key, TMessage message)
-            where TKey : notnull
-        {
-            if (!this.dictionaryKeyMessageD.TryGetValue(new Identifier_KeyMessageD<TKey>(key, typeof(TMessage)), out var obj))
-            {
-                return 0;
-            }
-
-            var list = (FastList<XChannel_Message<TMessage>>)obj;
-            return list.Send(message);
-        }
-
         public int SendKey<TKey, TMessage>(TKey key, TMessage message)
             where TKey : notnull
         {
@@ -242,12 +210,10 @@ namespace Arc.CrossChannel
             return list.Send(message);
         }
 
-        // private Hashtable tableMessage = new();
+        // private ConcurrentDictionary<Identifier_KeyMessageD, object> dictionaryKeyMessageDirect = new(); // FastList<XChannel_Message<TMessage>> // 20-30% Faster, but I could not solve the synchronization problem and the cleanup problem.
         private ConcurrentDictionary<Type, object> dictionaryMessage = new(); // FastList<XChannel_Message<TMessage>>
         private ConcurrentDictionary<Identifier_MessageResult, object> dictionaryMessageResult = new(); // FastList<XChannel_MessageResult<TMessage, TResult>>
         private ConcurrentDictionary<Identifier_KeyMessage, object> dictionaryKeyMessage = new(); // XCollection_KeyMessage<TKey, TMessage>
         private ConcurrentDictionary<Identifier_KeyMessageResult, object> dictionaryKeyMessageResult = new(); // XCollection_KeyMessageResult<TKey, TMessage, TResult>
-
-        private ConcurrentDictionary<Identifier_KeyMessageD, object> dictionaryKeyMessageD = new(); // FastList<XChannel_Message<TMessage>>
     }
 }
