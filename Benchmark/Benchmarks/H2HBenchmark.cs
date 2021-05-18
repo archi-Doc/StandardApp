@@ -60,7 +60,7 @@ namespace Benchmark
             return;
         }
 
-        [Benchmark]
+        /*[Benchmark]
         public void MP_OpenSend()
         {
             var sub = this.Provider.GetService<ISubscriber<int>>()!;
@@ -180,6 +180,35 @@ namespace Benchmark
             }
 
             return;
+        }*/
+
+        /*[Benchmark]
+        public void CCO_OpenSend()
+        {
+            using (var c = Arc.CrossChannel.Obsolete.CrossChannel.Open<int>(this, x => { }))
+            {
+                Arc.CrossChannel.Obsolete.CrossChannel.Send<int>(1);
+            }
+
+            return;
         }
+
+        [Benchmark]
+        public void CCO_OpenSend8()
+        {
+            using (var c = Arc.CrossChannel.Obsolete.CrossChannel.Open<int>(this, x => { }))
+            {
+                Arc.CrossChannel.Obsolete.CrossChannel.Send<int>(1);
+                Arc.CrossChannel.Obsolete.CrossChannel.Send<int>(2);
+                Arc.CrossChannel.Obsolete.CrossChannel.Send<int>(3);
+                Arc.CrossChannel.Obsolete.CrossChannel.Send<int>(4);
+                Arc.CrossChannel.Obsolete.CrossChannel.Send<int>(5);
+                Arc.CrossChannel.Obsolete.CrossChannel.Send<int>(6);
+                Arc.CrossChannel.Obsolete.CrossChannel.Send<int>(7);
+                Arc.CrossChannel.Obsolete.CrossChannel.Send<int>(8);
+            }
+
+            return;
+        }*/
     }
 }

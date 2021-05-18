@@ -8,7 +8,7 @@ using Arc.WeakDelegate;
 #pragma warning disable SA1202 // Elements should be ordered by access
 #pragma warning disable SA1649 // File name should match first type name
 
-namespace Arc.CrossChannel.Obsolete
+namespace Arc.CrossChannel.Original
 {
     public readonly struct ChannelIdentification
     {
@@ -108,7 +108,7 @@ namespace Arc.CrossChannel.Obsolete
             return channel;
         }
 
-        public static XChannel Open<TMessage>(object? weakReference, Action<TMessage> method, object? targetId = null, bool exclusiveChannel = false)
+        public static XChannel Open<TMessage>(Action<TMessage> method, object? targetId = null, bool exclusiveChannel = false)
         {
             XChannel channel;
             var identification = new ChannelIdentification(typeof(TMessage));
@@ -116,7 +116,7 @@ namespace Arc.CrossChannel.Obsolete
             lock (cs)
             {
                 var list = Cache_WeakAction<TMessage>.List;
-                channel = AddXChannel(list, identification, targetId, exclusiveChannel, new WeakAction<TMessage>(weakReference, method));
+                channel = AddXChannel(list, identification, targetId, exclusiveChannel, new WeakAction<TMessage>(method));
                 CleanupList(list);
             }
 

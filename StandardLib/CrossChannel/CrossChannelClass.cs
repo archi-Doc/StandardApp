@@ -1,233 +1,160 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Arc.WeakDelegate;
 
 namespace Arc.CrossChannel
 {
-    public class Identifier_KeyMessage
-    {
-    }
-
-    public class Identifier_MessageResult
-    {
-        public Type MessageType { get; }
-
-        public Type ResultType { get; }
-
-        public Identifier_MessageResult(Type messageType, Type resultType)
-        {
-            this.MessageType = messageType;
-            this.ResultType = resultType;
-        }
-
-        public override int GetHashCode() => HashCode.Combine(this.MessageType, this.ResultType);
-
-        public override bool Equals(object? obj)
-        {
-            if (obj == null || obj.GetType() != typeof(Identifier_MessageResult))
-            {
-                return false;
-            }
-
-            var x = (Identifier_MessageResult)obj;
-            return this.MessageType == x.MessageType && this.ResultType == x.ResultType;
-        }
-    }
-
-    public class Identifier_KeyMessage<TKey> : Identifier_KeyMessage
-        where TKey : notnull
-    {
-        public TKey Key { get; }
-
-        public Type MessageType { get; }
-
-        public Identifier_KeyMessage(TKey key, Type messageType)
-        {
-            this.Key = key;
-            this.MessageType = messageType;
-        }
-
-        public override int GetHashCode() => HashCode.Combine(this.Key, this.MessageType);
-
-        public override bool Equals(object? obj)
-        {
-            if (obj == null || obj.GetType() != typeof(Identifier_KeyMessage<TKey>))
-            {
-                return false;
-            }
-
-            var x = (Identifier_KeyMessage<TKey>)obj;
-            return EqualityComparer<TKey>.Default.Equals(this.Key, x.Key) && this.MessageType == x.MessageType;
-        }
-    }
-
-    public class Identifier_KeyMessageResult
-    {
-    }
-
-    public class Identifier_KeyMessageResult<TKey> : Identifier_KeyMessageResult
-        where TKey : notnull
-    {
-        public TKey Key { get; }
-
-        public Type MessageType { get; }
-
-        public Type ResultType { get; }
-
-        public Identifier_KeyMessageResult(TKey key, Type messageType, Type resultType)
-        {
-            this.Key = key;
-            this.MessageType = messageType;
-            this.ResultType = resultType;
-        }
-
-        public override int GetHashCode() => HashCode.Combine(this.Key, this.MessageType, this.ResultType);
-
-        public override bool Equals(object? obj)
-        {
-            if (obj == null || obj.GetType() != typeof(Identifier_KeyMessageResult<TKey>))
-            {
-                return false;
-            }
-
-            var x = (Identifier_KeyMessageResult<TKey>)obj;
-            return EqualityComparer<TKey>.Default.Equals(this.Key, x.Key) && this.MessageType == x.MessageType && this.ResultType == x.ResultType;
-        }
-    }
-
     public class CrossChannelClass
     {
         public XChannel Open<TMessage>(object? weakReference, Action<TMessage> method)
         {
-            /*FastList<XChannel_Message<TMessage>>? list;
-            var key = typeof(TMessage);
-            lock (this.tableMessage)
-            {
-                list = this.tableMessage[typeof(TMessage)] as FastList<XChannel_Message<TMessage>>;
-                if (list == null)
-                {
-                    list = new();
-                    this.tableMessage[key] = list;
-                }
-            }*/
-
             var list = (FastList<XChannel_Message<TMessage>>)this.dictionaryMessage.GetOrAdd(
                 typeof(TMessage),
                 x => new FastList<XChannel_Message<TMessage>>());
 
-            if (++list.CleanupCount >= CrossChannel.CleanupThreshold)
+            if (list.CleanupCount++ >= CrossChannel.Const.CleanupListThreshold)
             {
-                list.CleanupCount = 0;
-                list.Cleanup();
+                lock (list)
+                {
+                    list.CleanupCount = 0;
+                    list.Cleanup();
+                }
             }
 
             var channel = new XChannel_Message<TMessage>(list, weakReference, method);
             return channel;
         }
 
-        public XChannel Open<TMessage, TResult>(object? weakReference, Func<TMessage, TResult> method)
+        public XChannel OpenAsync<TMessage>(object? weakReference, Func<TMessage, Task> method) => this.OpenTwoWay<TMessage, Task>(weakReference, method);
+
+        public XChannel OpenAsyncKey<TKey, TMessage>(object? weakReference, TKey key, Func<TMessage, Task> method)
+            where TKey : notnull => this.OpenTwoWayKey<TKey, TMessage, Task>(weakReference, key, method);
+
+        public XChannel OpenKey<TKey, TMessage>(object? weakReference, TKey key, Action<TMessage> method)
+            where TKey : notnull
+        {
+            var collection = (XCollection_KeyMessage<TKey, TMessage>)this.dictionaryKeyMessage.GetOrAdd(
+                new Identifier_KeyMessage(typeof(TKey), typeof(TMessage)),
+                x => new XCollection_KeyMessage<TKey, TMessage>());
+
+            if (collection.CleanupCount++ >= CrossChannel.Const.CleanupDictionaryThreshold)
+            {
+                lock (collection)
+                {
+                    collection.CleanupCount = 0;
+                    collection.Cleanup();
+                }
+            }
+
+            var channel = new XChannel_KeyMessage<TKey, TMessage>(collection, key, weakReference, method);
+            return channel;
+        }
+
+        public XChannel OpenTwoWay<TMessage, TResult>(object? weakReference, Func<TMessage, TResult> method)
         {
             var list = (FastList<XChannel_MessageResult<TMessage, TResult>>)this.dictionaryMessageResult.GetOrAdd(
                 new Identifier_MessageResult(typeof(TMessage), typeof(TResult)),
                 x => new FastList<XChannel_MessageResult<TMessage, TResult>>());
 
-            if (++list.CleanupCount >= CrossChannel.CleanupThreshold)
+            if (list.CleanupCount++ >= CrossChannel.Const.CleanupListThreshold)
             {
-                list.CleanupCount = 0;
-                list.Cleanup();
+                lock (list)
+                {
+                    list.CleanupCount = 0;
+                    list.Cleanup();
+                }
             }
 
             var channel = new XChannel_MessageResult<TMessage, TResult>(list, weakReference, method);
             return channel;
         }
 
-        public XChannel OpenKey<TKey, TMessage>(object? weakReference, TKey key, Action<TMessage> method)
+        public XChannel OpenTwoWayAsync<TMessage, TResult>(object? weakReference, Func<TMessage, Task<TResult>> method) => this.OpenTwoWay<TMessage, Task<TResult>>(weakReference, method);
+
+        public XChannel OpenTwoWayAsyncKey<TKey, TMessage, TResult>(object? weakReference, TKey key, Func<TMessage, Task<TResult>> method)
+             where TKey : notnull => this.OpenTwoWayKey<TKey, TMessage, Task<TResult>>(weakReference, key, method);
+
+        public XChannel OpenTwoWayKey<TKey, TMessage, TResult>(object? weakReference, TKey key, Func<TMessage, TResult> method)
             where TKey : notnull
         {
-            var list = (FastList<XChannel_Message<TMessage>>)this.dictionaryKeyMessage.GetOrAdd(
-                new Identifier_KeyMessage<TKey>(key, typeof(TMessage)),
-                x => new FastList<XChannel_Message<TMessage>>());
+            var collection = (XCollection_KeyMessageResult<TKey, TMessage, TResult>)this.dictionaryKeyMessageResult.GetOrAdd(
+                new Identifier_KeyMessageResult(typeof(TKey), typeof(TMessage), typeof(TResult)),
+                x => new XCollection_KeyMessageResult<TKey, TMessage, TResult>());
 
-            if (++list.CleanupCount >= CrossChannel.CleanupThreshold)
+            if(collection.CleanupCount++ >= CrossChannel.Const.CleanupDictionaryThreshold)
             {
-                list.CleanupCount = 0;
-                list.Cleanup();
+                lock (collection)
+                {
+                    collection.CleanupCount = 0;
+                    collection.Cleanup();
+                }
             }
 
-            var channel = new XChannel_Message<TMessage>(list, weakReference, method);
-            return channel;
-
-            /*var collection = (XCollection_KeyMessage<TKey, TMessage>)this.tableKeyMessage.GetOrAdd(
-                new Identifier_KeyMessage(typeof(TKey), typeof(TMessage)),
-                x => new XCollection_KeyMessage<TKey, TMessage>());
-
-            if (++this.cleanupCount >= CrossChannel.CleanupThreshold)
-            {
-                this.cleanupCount = 0;
-                // Cleanup(list);
-            }
-
-            var channel = new XChannel_KeyMessage<TKey, TMessage>(collection, key, weakReference, method);
-            return channel;*/
-        }
-
-        public XChannel OpenKey<TKey, TMessage, TResult>(object? weakReference, TKey key, Func<TMessage, TResult> method)
-            where TKey : notnull
-        {
-            var list = (FastList<XChannel_MessageResult<TMessage, TResult>>)this.dictionaryKeyMessageResult.GetOrAdd(
-                new Identifier_KeyMessageResult<TKey>(key, typeof(TMessage), typeof(TResult)),
-                x => new FastList<XChannel_MessageResult<TMessage, TResult>>());
-
-            if (++list.CleanupCount >= CrossChannel.CleanupThreshold)
-            {
-                list.CleanupCount = 0;
-                list.Cleanup();
-            }
-
-            var channel = new XChannel_MessageResult<TMessage, TResult>(list, weakReference, method);
+            var channel = new XChannel_KeyMessageResult<TKey, TMessage, TResult>(collection, key, weakReference, method);
             return channel;
         }
 
         public void Close(XChannel channel) => channel.Dispose();
 
-        /// <summary>
-        /// Send a message to receivers.
-        /// </summary>
-        /// <typeparam name="TMessage">The type of the message.</typeparam>
-        /// <param name="message">The message to send.</param>
-        /// <returns>A number of the receivers.</returns>
         public int Send<TMessage>(TMessage message)
         {
-            /*var list = this.tableMessage[typeof(TMessage)] as FastList<XChannel_Message<TMessage>>;
-            if (list == null)
-            {
-                return 0;
-            }*/
-
             if (!this.dictionaryMessage.TryGetValue(typeof(TMessage), out var obj))
             {
                 return 0;
             }
 
             var list = (FastList<XChannel_Message<TMessage>>)obj;
+            return list.Send(message);
+        }
+
+        public Task SendAsync<TMessage>(TMessage message)
+        {
+            if (!this.dictionaryMessageResult.TryGetValue(new Identifier_MessageResult(typeof(TMessage), typeof(Task)), out var obj))
+            {
+                return Task.CompletedTask;
+            }
+
+            var list = (FastList<XChannel_MessageResult<TMessage, Task>>)obj;
+            return list.SendAsync(message);
+        }
+
+        public Task SendAsyncKey<TKey, TMessage>(TKey key, TMessage message)
+            where TKey : notnull
+        {
+            if (!this.dictionaryKeyMessageResult.TryGetValue(new Identifier_KeyMessageResult(typeof(TKey), typeof(TMessage), typeof(Task)), out var obj))
+            {
+                return Task.CompletedTask;
+            }
+
+            var collection = (XCollection_KeyMessageResult<TKey, TMessage, Task>)obj;
+            if (!collection.Dictionary.TryGetValue(key, out var list))
+            {
+                return Task.CompletedTask;
+            }
+
+            return list.SendAsync(message);
+        }
+
+        public int SendKey<TKey, TMessage>(TKey key, TMessage message)
+            where TKey : notnull
+        {
+            if (!this.dictionaryKeyMessage.TryGetValue(new Identifier_KeyMessage(typeof(TKey), typeof(TMessage)), out var obj))
+            {
+                return 0;
+            }
+
+            var collection = (XCollection_KeyMessage<TKey, TMessage>)obj;
+            if (!collection.Dictionary.TryGetValue(key, out var list))
+            {
+                return 0;
+            }
 
             return list.Send(message);
         }
 
-        /// <summary>
-        /// Send a message to receivers.
-        /// </summary>
-        /// <typeparam name="TMessage">The type of the message.</typeparam>
-        /// <param name="message">The message to send.</param>
-        /// <typeparam name="TResult">The type of the return value.</typeparam>
-        /// <returns>An array of the return values (TResult).</returns>
-        public TResult[] Send<TMessage, TResult>(TMessage message)
+        public TResult[] SendTwoWay<TMessage, TResult>(TMessage message)
         {
             if (!this.dictionaryMessageResult.TryGetValue(new Identifier_MessageResult(typeof(TMessage), typeof(TResult)), out var obj))
             {
@@ -235,44 +162,58 @@ namespace Arc.CrossChannel
             }
 
             var list = (FastList<XChannel_MessageResult<TMessage, TResult>>)obj;
-
             return list.Send(message);
         }
 
-        public int SendKey<TKey, TMessage>(TKey key, TMessage message)
-            where TKey : notnull
+        public Task<TResult[]> SendTwoWayAsync<TMessage, TResult>(TMessage message)
         {
-            if (!this.dictionaryKeyMessage.TryGetValue(new Identifier_KeyMessage<TKey>(key, typeof(TMessage)), out var obj))
+            if (!this.dictionaryMessageResult.TryGetValue(new Identifier_MessageResult(typeof(TMessage), typeof(Task<TResult>)), out var obj))
             {
-                return 0;
+                return Task.FromResult(Array.Empty<TResult>());
             }
 
-            var list = (FastList<XChannel_Message<TMessage>>)obj;
-            /*var collection = (XCollection_KeyMessage<TKey, TMessage>)obj;
-            if (!collection.Dictionary.TryGetValue(key, out var list))
-            {
-                return 0;
-            }*/
-
-            return list.Send(message);
+            var list = (FastList<XChannel_MessageResult<TMessage, Task<TResult>>>)obj;
+            return list.SendAsync(message);
         }
 
-        public TResult[] SendKey<TKey, TMessage, TResult>(TKey key, TMessage message)
+        public Task<TResult[]> SendTwoWayAsyncKey<TKey, TMessage, TResult>(TKey key, TMessage message)
             where TKey : notnull
         {
-            if (!this.dictionaryKeyMessageResult.TryGetValue(new Identifier_KeyMessageResult<TKey>(key, typeof(TMessage), typeof(TResult)), out var obj))
+            if (!this.dictionaryKeyMessageResult.TryGetValue(new Identifier_KeyMessageResult(typeof(TKey), typeof(TMessage), typeof(Task<TResult>)), out var obj))
+            {
+                return Task.FromResult(Array.Empty<TResult>());
+            }
+
+            var collection = (XCollection_KeyMessageResult<TKey, TMessage, Task<TResult>>)obj;
+            if (!collection.Dictionary.TryGetValue(key, out var list))
+            {
+                return Task.FromResult(Array.Empty<TResult>());
+            }
+
+            return list.SendAsync(message);
+        }
+
+        public TResult[] SendTwoWayKey<TKey, TMessage, TResult>(TKey key, TMessage message)
+            where TKey : notnull
+        {
+            if (!this.dictionaryKeyMessageResult.TryGetValue(new Identifier_KeyMessageResult(typeof(TKey), typeof(TMessage), typeof(TResult)), out var obj))
             {
                 return Array.Empty<TResult>();
             }
 
-            var list = (FastList<XChannel_MessageResult<TMessage, TResult>>)obj;
+            var collection = (XCollection_KeyMessageResult<TKey, TMessage, TResult>)obj;
+            if (!collection.Dictionary.TryGetValue(key, out var list))
+            {
+                return Array.Empty<TResult>();
+            }
+
             return list.Send(message);
         }
 
-        // private Hashtable tableMessage = new();
+        // private ConcurrentDictionary<Identifier_KeyMessageD, object> dictionaryKeyMessageDirect = new(); // FastList<XChannel_Message<TMessage>> // 20-30% Faster, but I could not solve the synchronization problem and the cleanup problem.
         private ConcurrentDictionary<Type, object> dictionaryMessage = new(); // FastList<XChannel_Message<TMessage>>
         private ConcurrentDictionary<Identifier_MessageResult, object> dictionaryMessageResult = new(); // FastList<XChannel_MessageResult<TMessage, TResult>>
-        private ConcurrentDictionary<Identifier_KeyMessage, object> dictionaryKeyMessage = new(); // FastList<XChannel_Message<TMessage>>
-        private ConcurrentDictionary<Identifier_KeyMessageResult, object> dictionaryKeyMessageResult = new(); // FastList<XChannel_MessageResult<TMessage, TResult>>
+        private ConcurrentDictionary<Identifier_KeyMessage, object> dictionaryKeyMessage = new(); // XCollection_KeyMessage<TKey, TMessage>
+        private ConcurrentDictionary<Identifier_KeyMessageResult, object> dictionaryKeyMessageResult = new(); // XCollection_KeyMessageResult<TKey, TMessage, TResult>
     }
 }

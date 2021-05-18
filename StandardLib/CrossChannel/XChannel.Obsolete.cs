@@ -59,7 +59,7 @@ namespace Arc.CrossChannel
             {
                 lock (this.Map)
                 {
-                    var empty = this.List.Remove(this.Index);
+                    var empty = this.List.Remove(this);
                     if (empty)
                     {
                         this.Map.Remove(this.Key);
@@ -126,13 +126,13 @@ namespace Arc.CrossChannel
 
                 if (mapCount < 16)
                 {
-                    this.List.Remove(this.Index);
+                    this.List.Remove(this);
                 }
                 else
                 {
                     lock (this.Map)
                     {
-                        var empty = this.List.Remove(this.Index);
+                        var empty = this.List.Remove(this);
                         if (empty)
                         {
                             this.Map.TryRemove(this.Key, out _);
@@ -202,7 +202,7 @@ namespace Arc.CrossChannel
             {
                 lock (this.Table)
                 {
-                    var empty = this.List.Remove(this.Index);
+                    var empty = this.List.Remove(this);
                     if (empty)
                     {
                         this.Table.Remove(this.Key);

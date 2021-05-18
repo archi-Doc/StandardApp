@@ -35,7 +35,7 @@ namespace StandardApp.Views
             this.mainViewService = mainViewService;
             this.mainViewService.SetWindow(this);
 
-            CrossChannel.OpenAsync<DialogParam, MessageBoxResult>(this, this.CrossChannel_Dialog);
+            CrossChannel.OpenTwoWayAsync<DialogParam, MessageBoxResult>(this, this.CrossChannel_Dialog);
 
             try
             {

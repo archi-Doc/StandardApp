@@ -22,19 +22,19 @@ namespace Test.CrossChannelTest
 
             this.Test_CrossChannel_Create();
             this.Test_CrossChannel_Create();
-            var i = CrossChannel.Send<int, int>(3);
+            var i = CrossChannel.SendTwoWay<int, int>(3);
             Assert.Equal(2, i.Length);
             Assert.Equal(6, i[0]);
             Assert.Equal(6, i[1]);
 
             GC.Collect();
 
-            i = CrossChannel.Send<int, int>(43);
+            i = CrossChannel.SendTwoWay<int, int>(43);
             Assert.Empty(i);
 
             this.Test_CrossChannel_Create();
 
-            i = CrossChannel.Send<int, int>(4);
+            i = CrossChannel.SendTwoWay<int, int>(4);
             Assert.Single(i);
             Assert.Equal(8, i[0]);
         }
@@ -82,7 +82,7 @@ namespace Test.CrossChannelTest
     {
         public TestClass_CrossChannel()
         {
-            CrossChannel.Open<int, int>(this, this.Function);
+            CrossChannel.OpenTwoWay<int, int>(this, this.Function);
         }
 
         public int Function(int x)
