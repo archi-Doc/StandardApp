@@ -273,7 +273,6 @@ namespace Benchmark
         {
             using (var c = this.CCC.OpenKey<int, uint>(null, 1, x => { }))
             {
-                CrossChannel.SendTwoWayAsyncKey<int, int, int>(1, 2);
                 this.CCC.SendKey<int, uint>(1, 1);
                 this.CCC.SendKey<int, uint>(1, 2);
                 this.CCC.SendKey<int, uint>(1, 3);
