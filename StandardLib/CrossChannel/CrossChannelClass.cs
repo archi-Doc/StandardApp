@@ -19,7 +19,7 @@ namespace Arc.CrossChannel
                 lock (list)
                 {
                     list.CleanupCount = 0;
-                    list.Shrink();
+                    list.Cleanup();
                 }
             }
 
@@ -39,16 +39,28 @@ namespace Arc.CrossChannel
                 new Identifier_KeyMessage<TKey>(key, typeof(TMessage)),
                 x => new FastList<XChannel_Message<TMessage>>());
 
-            if (list.CleanupCount++ >= CrossChannel.Const.CleanupListThreshold)
+            // this.dictionaryKeyMessage.Cleanup<TKey, TMessage>();
+            /*if (list.CleanupCount++ >= CrossChannel.Const.CleanupListThreshold)
             {
                 lock (list)
                 {
                     list.CleanupCount = 0;
-                    list.Shrink();
+                    list.Cleanup();
                 }
-            }
+            }*/
 
             var channel = new XChannel_Message<TMessage>(list, weakReference, method);
+            return channel;
+        }
+
+        public XChannel OpenKey2<TKey, TMessage>(object? weakReference, TKey key, Action<TMessage> method)
+            where TKey : notnull
+        {
+            var collection = (XCollection_KeyMessage<TKey, TMessage>)this.dictionaryKeyMessage2.GetOrAdd(
+                new Identifier_MessageResult(typeof(TKey), typeof(TMessage)),
+                x => new XCollection_KeyMessage<TKey, TMessage>());
+
+            var channel = new XChannel_KeyMessage<TKey, TMessage>(collection, key, weakReference, method);
             return channel;
         }
 
@@ -63,7 +75,7 @@ namespace Arc.CrossChannel
                 lock (list)
                 {
                     list.CleanupCount = 0;
-                    list.Shrink();
+                    list.Cleanup();
                 }
             }
 
@@ -144,6 +156,23 @@ namespace Arc.CrossChannel
             return list.Send(message);
         }
 
+        public int SendKey2<TKey, TMessage>(TKey key, TMessage message)
+            where TKey : notnull
+        {
+            if (!this.dictionaryKeyMessage2.TryGetValue(new Identifier_MessageResult(typeof(TKey), typeof(TMessage)), out var obj))
+            {
+                return 0;
+            }
+
+            var collection = (XCollection_KeyMessage<TKey, TMessage>)obj;
+            if (!collection.Dictionary.TryGetValue(key, out var list))
+            {
+                return 0;
+            }
+
+            return list.Send(message);
+        }
+
         public TResult[] SendTwoWay<TMessage, TResult>(TMessage message)
         {
             if (!this.dictionaryMessageResult.TryGetValue(new Identifier_MessageResult(typeof(TMessage), typeof(TResult)), out var obj))
@@ -195,5 +224,7 @@ namespace Arc.CrossChannel
         private ConcurrentDictionary<Identifier_MessageResult, object> dictionaryMessageResult = new(); // FastList<XChannel_MessageResult<TMessage, TResult>>
         private ConcurrentDictionary<Identifier_KeyMessage, object> dictionaryKeyMessage = new(); // FastList<XChannel_Message<TMessage>>
         private ConcurrentDictionary<Identifier_KeyMessageResult, object> dictionaryKeyMessageResult = new(); // FastList<XChannel_MessageResult<TMessage, TResult>>
+
+        private ConcurrentDictionary<Identifier_MessageResult, object> dictionaryKeyMessage2 = new(); // XCollection_KeyMessage<TKey, TMessage>
     }
 }

@@ -94,7 +94,7 @@ namespace Arc.CrossChannel
         }
 
         /// <summary>
-        /// Shrink the list when there are too many unused items.
+        /// Shrink the list when there are too many unused objects.
         /// </summary>
         /// <returns>true if the list is empty.</returns>
         public bool Shrink()
@@ -118,12 +118,13 @@ namespace Arc.CrossChannel
                 return false;
             }
 
-            var newLength = this.values.Length;
-            while (this.count < (newLength >> 1))
+            var newLength = this.values.Length >> 1;
+            while (this.count < newLength)
             {
                 newLength >>= 1;
             }
 
+            newLength <<= 1;
             newLength = (newLength < InitialCapacity) ? InitialCapacity : newLength;
             var newValues = new T[newLength];
 
@@ -147,6 +148,8 @@ namespace Arc.CrossChannel
             {
                 this.freeIndex.Enqueue(i);
             }
+
+            Volatile.Write(ref this.values, newValues);
 
             return false;
         }
