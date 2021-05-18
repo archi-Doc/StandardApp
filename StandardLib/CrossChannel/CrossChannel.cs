@@ -106,21 +106,39 @@ namespace Arc.CrossChannel
         public static void Close(XChannel channel) => channel.Dispose();
 
         /// <summary>
-        /// Send a message to receivers.
+        /// Send a message.<br/>
+        /// TMessage: <typeparamref name="TMessage"/>.
         /// </summary>
         /// <typeparam name="TMessage">The type of the message.</typeparam>
         /// <param name="message">The message to send.</param>
-        /// <returns>A number of the receivers.</returns>
+        /// <returns>The number of channels that received the message.</returns>
         public static int Send<TMessage>(TMessage message)
         {
             return Cache_Message<TMessage>.List.Send(message);
         }
 
+        /// <summary>
+        /// Send a message asynchronously.<br/>
+        /// TMessage: <typeparamref name="TMessage"/>.
+        /// </summary>
+        /// <typeparam name="TMessage">The type of the message.</typeparam>
+        /// <param name="message">The message to send.</param>
+        /// <returns><see cref="Task"/>.</returns>
         public static Task SendAsync<TMessage>(TMessage message)
         {
             return Cache_MessageResult<TMessage, Task>.List.SendAsync(message);
         }
 
+        /// <summary>
+        /// Send a message to a channel with the same key asynchronously.<br/>
+        /// TKey: <typeparamref name="TKey"/>.<br/>
+        /// TMessage: <typeparamref name="TMessage"/>.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the key.</typeparam>
+        /// <typeparam name="TMessage">The type of the message.</typeparam>
+        /// <param name="key">The channel with the same key receives the message.</param>
+        /// <param name="message">The message to send.</param>
+        /// <returns><see cref="Task"/>.</returns>
         public static Task SendAsyncKey<TKey, TMessage>(TKey key, TMessage message)
             where TKey : notnull
         {
@@ -132,6 +150,16 @@ namespace Arc.CrossChannel
             return list.SendAsync(message);
         }
 
+        /// <summary>
+        /// Send a message to a channel with the same key.<br/>
+        /// TKey: <typeparamref name="TKey"/>.<br/>
+        /// TMessage: <typeparamref name="TMessage"/>.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the key.</typeparam>
+        /// <typeparam name="TMessage">The type of the message.</typeparam>
+        /// <param name="key">The channel with the same key receives the message.</param>
+        /// <param name="message">The message to send.</param>
+        /// <returns>The number of channels that received the message.</returns>
         public static int SendKey<TKey, TMessage>(TKey key, TMessage message)
             where TKey : notnull
         {
@@ -144,22 +172,45 @@ namespace Arc.CrossChannel
         }
 
         /// <summary>
-        /// Send a message to receivers.
+        /// Send a message and receive the result.<br/>
+        /// TMessage: <typeparamref name="TMessage"/>.<br/>
+        /// TResult: <typeparamref name="TResult"/>.<br/>
         /// </summary>
         /// <typeparam name="TMessage">The type of the message.</typeparam>
-        /// <typeparam name="TResult">The type of the return value.</typeparam>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
         /// <param name="message">The message to send.</param>
-        /// <returns>An array of the return values (TResult).</returns>
+        /// <returns>The result; An array of <typeparamref name="TResult"/>.</returns>
         public static TResult[] SendTwoWay<TMessage, TResult>(TMessage message)
         {
             return Cache_MessageResult<TMessage, TResult>.List.Send(message);
         }
 
+        /// <summary>
+        /// Send a message and receive the result asynchronously.<br/>
+        /// TMessage: <typeparamref name="TMessage"/>.<br/>
+        /// TResult: <typeparamref name="TResult"/>.<br/>
+        /// </summary>
+        /// <typeparam name="TMessage">The type of the message.</typeparam>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="message">The message to send.</param>
+        /// <returns>The result; <see cref="Task"/>&lt;<typeparamref name="TResult"/>[]&gt;.</returns>
         public static Task<TResult[]> SendTwoWayAsync<TMessage, TResult>(TMessage message)
         {
             return Cache_MessageResult<TMessage, Task<TResult>>.List.SendAsync(message);
         }
 
+        /// <summary>
+        /// Send a message to a channel with the same key, and receive the result asynchronously.<br/>
+        /// TKey: <typeparamref name="TKey"/>.<br/>
+        /// TMessage: <typeparamref name="TMessage"/>.<br/>
+        /// TResult: <typeparamref name="TResult"/>.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the key.</typeparam>
+        /// <typeparam name="TMessage">The type of the message.</typeparam>
+        /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="key">The channel with the same key receives the message.</param>
+        /// <param name="message">The message to send.</param>
+        /// <returns>The result; <see cref="Task"/>&lt;<typeparamref name="TResult"/>[]&gt;.</returns>
         public static Task<TResult[]> SendTwoWayAsyncKey<TKey, TMessage, TResult>(TKey key, TMessage message)
             where TKey : notnull
         {
@@ -172,17 +223,17 @@ namespace Arc.CrossChannel
         }
 
         /// <summary>
-        /// temp<br/>
+        /// Send a message to a channel with the same key, and receive the result.<br/>
         /// TKey: <typeparamref name="TKey"/>.<br/>
         /// TMessage: <typeparamref name="TMessage"/>.<br/>
-        /// TResult: <typeparamref name="TResult"/>.<br/>
+        /// TResult: <typeparamref name="TResult"/>.
         /// </summary>
-        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TKey">The type of the key.</typeparam>
         /// <typeparam name="TMessage">The type of the message.</typeparam>
         /// <typeparam name="TResult">The type of the result.</typeparam>
-        /// <param name="key">The specified key </param>
+        /// <param name="key">The channel with the same key receives the message.</param>
         /// <param name="message">The message to send.</param>
-        /// <returns>An array of <typeparamref name="TResult"/>.</returns>
+        /// <returns>The result; An array of <typeparamref name="TResult"/>.</returns>
         public static TResult[] SendTwoWayKey<TKey, TMessage, TResult>(TKey key, TMessage message)
             where TKey : notnull
         {

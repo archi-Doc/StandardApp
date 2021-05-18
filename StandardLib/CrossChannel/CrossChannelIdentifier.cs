@@ -5,10 +5,6 @@ using System.Collections.Generic;
 
 namespace Arc.CrossChannel
 {
-    public class Identifier_KeyMessage
-    {
-    }
-
     public class Identifier_MessageResult
     {
         public Type MessageType { get; }
@@ -35,14 +31,73 @@ namespace Arc.CrossChannel
         }
     }
 
-    public class Identifier_KeyMessage<TKey> : Identifier_KeyMessage
+    public class Identifier_KeyMessage
+    {
+        public Type KeyType { get; }
+
+        public Type MessageType { get; }
+
+        public Identifier_KeyMessage(Type keyType, Type messageType)
+        {
+            this.KeyType = keyType;
+            this.MessageType = messageType;
+        }
+
+        public override int GetHashCode() => HashCode.Combine(this.KeyType, this.MessageType);
+
+        public override bool Equals(object? obj)
+        {
+            if (obj == null || obj.GetType() != typeof(Identifier_KeyMessage))
+            {
+                return false;
+            }
+
+            var x = (Identifier_KeyMessage)obj;
+            return this.KeyType == x.KeyType && this.MessageType == x.MessageType;
+        }
+    }
+
+    public class Identifier_KeyMessageResult
+    {
+        public Type KeyType { get; }
+
+        public Type MessageType { get; }
+
+        public Type ResultType { get; }
+
+        public Identifier_KeyMessageResult(Type keyType, Type messageType, Type resultType)
+        {
+            this.KeyType = keyType;
+            this.MessageType = messageType;
+            this.ResultType = resultType;
+        }
+
+        public override int GetHashCode() => HashCode.Combine(this.KeyType, this.MessageType, this.ResultType);
+
+        public override bool Equals(object? obj)
+        {
+            if (obj == null || obj.GetType() != typeof(Identifier_KeyMessageResult))
+            {
+                return false;
+            }
+
+            var x = (Identifier_KeyMessageResult)obj;
+            return this.KeyType == x.KeyType && this.MessageType == x.MessageType && this.ResultType == x.ResultType;
+        }
+    }
+
+    public class Identifier_KeyMessageD
+    {
+    }
+
+    public class Identifier_KeyMessageD<TKey> : Identifier_KeyMessageD
         where TKey : notnull
     {
         public TKey Key { get; }
 
         public Type MessageType { get; }
 
-        public Identifier_KeyMessage(TKey key, Type messageType)
+        public Identifier_KeyMessageD(TKey key, Type messageType)
         {
             this.Key = key;
             this.MessageType = messageType;
@@ -52,17 +107,17 @@ namespace Arc.CrossChannel
 
         public override bool Equals(object? obj)
         {
-            if (obj == null || obj.GetType() != typeof(Identifier_KeyMessage<TKey>))
+            if (obj == null || obj.GetType() != typeof(Identifier_KeyMessageD<TKey>))
             {
                 return false;
             }
 
-            var x = (Identifier_KeyMessage<TKey>)obj;
+            var x = (Identifier_KeyMessageD<TKey>)obj;
             return EqualityComparer<TKey>.Default.Equals(this.Key, x.Key) && this.MessageType == x.MessageType;
         }
     }
 
-    public class Identifier_KeyMessageResult
+    /*public class Identifier_KeyMessageResult
     {
     }
 
@@ -94,5 +149,5 @@ namespace Arc.CrossChannel
             var x = (Identifier_KeyMessageResult<TKey>)obj;
             return EqualityComparer<TKey>.Default.Equals(this.Key, x.Key) && this.MessageType == x.MessageType && this.ResultType == x.ResultType;
         }
-    }
+    }*/
 }

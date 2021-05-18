@@ -383,37 +383,5 @@ namespace Arc.CrossChannel
 
             return collection.Count == 0;
         }
-
-        internal static bool Cleanup<TKey, TMessage>(this ConcurrentDictionary<Identifier_KeyMessage, object> collection)
-            where TKey : notnull
-        {// Identifier_KeyMessage, FastList<XChannel_Message<TMessage>>
-            foreach (var x in collection)
-            {
-                var list = (FastList<XChannel_Message<TMessage>>)x.Value;
-                lock (list)
-                {
-                    var array = list.GetValues();
-                    for (var i = 0; i < array.Length; i++)
-                    {
-                        if (array[i] is { } c)
-                        {
-                            if (c.WeakDelegate?.IsAlive == false)
-                            {
-                                c.Dispose();
-                            }
-                        }
-                    }
-
-                    if (list.Shrink() && collection.Count >= CrossChannel.Const.HoldDictionaryThreshold)
-                    {
-                        collection.TryRemove(x.Key, out _);
-                        // collection.Count--;
-                        list.Dispose();
-                    }
-                }
-            }
-
-            return collection.Count == 0;
-        }
     }
 }

@@ -229,6 +229,35 @@ namespace Benchmark
         }*/
 
         [Benchmark]
+        public void Class_OpenSend_KeyD()
+        {
+            using (var c = this.CCC.OpenKeyD<int, uint>(null, 1, x => { }))
+            {
+                this.CCC.SendKeyD<int, uint>(1, 3);
+            }
+
+            return;
+        }
+
+        [Benchmark]
+        public void Class_OpenSend8_KeyD()
+        {
+            using (var c = this.CCC.OpenKeyD<int, uint>(null, 1, x => { }))
+            {
+                this.CCC.SendKeyD<int, uint>(1, 1);
+                this.CCC.SendKeyD<int, uint>(1, 2);
+                this.CCC.SendKeyD<int, uint>(1, 3);
+                this.CCC.SendKeyD<int, uint>(1, 4);
+                this.CCC.SendKeyD<int, uint>(1, 5);
+                this.CCC.SendKeyD<int, uint>(1, 6);
+                this.CCC.SendKeyD<int, uint>(1, 7);
+                this.CCC.SendKeyD<int, uint>(1, 8);
+            }
+
+            return;
+        }
+
+        [Benchmark]
         public void Class_OpenSend_Key()
         {
             using (var c = this.CCC.OpenKey<int, uint>(null, 1, x => { }))
@@ -244,6 +273,7 @@ namespace Benchmark
         {
             using (var c = this.CCC.OpenKey<int, uint>(null, 1, x => { }))
             {
+                CrossChannel.SendTwoWayAsyncKey<int, int, int>(1, 2);
                 this.CCC.SendKey<int, uint>(1, 1);
                 this.CCC.SendKey<int, uint>(1, 2);
                 this.CCC.SendKey<int, uint>(1, 3);
@@ -252,35 +282,6 @@ namespace Benchmark
                 this.CCC.SendKey<int, uint>(1, 6);
                 this.CCC.SendKey<int, uint>(1, 7);
                 this.CCC.SendKey<int, uint>(1, 8);
-            }
-
-            return;
-        }
-
-        [Benchmark]
-        public void Class_OpenSend_Key2()
-        {
-            using (var c = this.CCC.OpenKey2<int, uint>(null, 1, x => { }))
-            {
-                this.CCC.SendKey2<int, uint>(1, 3);
-            }
-
-            return;
-        }
-
-        [Benchmark]
-        public void Class_OpenSend8_Key2()
-        {
-            using (var c = this.CCC.OpenKey2<int, uint>(null, 1, x => { }))
-            {
-                this.CCC.SendKey2<int, uint>(1, 1);
-                this.CCC.SendKey2<int, uint>(1, 2);
-                this.CCC.SendKey2<int, uint>(1, 3);
-                this.CCC.SendKey2<int, uint>(1, 4);
-                this.CCC.SendKey2<int, uint>(1, 5);
-                this.CCC.SendKey2<int, uint>(1, 6);
-                this.CCC.SendKey2<int, uint>(1, 7);
-                this.CCC.SendKey2<int, uint>(1, 8);
             }
 
             return;
