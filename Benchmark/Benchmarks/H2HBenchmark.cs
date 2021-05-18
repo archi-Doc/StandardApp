@@ -60,7 +60,7 @@ namespace Benchmark
             return;
         }
 
-        /*[Benchmark]
+        [Benchmark]
         public void MP_OpenSend()
         {
             var sub = this.Provider.GetService<ISubscriber<int>>()!;
@@ -180,7 +180,7 @@ namespace Benchmark
             }
 
             return;
-        }*/
+        }
 
         /*[Benchmark]
         public void CCO_OpenSend()
