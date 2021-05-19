@@ -36,7 +36,7 @@ namespace StandardApp.Views
             this.mainViewService = mainViewService;
             this.mainViewService.SetWindow(this);
 
-            Radio.OpenTwoWayAsync<DialogParam, MessageBoxResult>(this, this.CrossChannel_Dialog);
+            Radio.OpenTwoWayAsync<DialogParam, MessageBoxResult>(this.CrossChannel_Dialog, this);
 
             try
             {
