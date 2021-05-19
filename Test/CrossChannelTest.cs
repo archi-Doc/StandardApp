@@ -1,7 +1,7 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using System;
-using Arc.CrossChannel;
+using CrossChannel;
 using Xunit;
 
 #pragma warning disable SA1201 // Elements should appear in the correct order
@@ -18,23 +18,23 @@ namespace Test.CrossChannelTest
         [Fact]
         public void Test_CrossChannel()
         {
-            CrossChannel.Send<int>(2);
+            Radio.Send<int>(2);
 
             this.Test_CrossChannel_Create();
             this.Test_CrossChannel_Create();
-            var i = CrossChannel.SendTwoWay<int, int>(3);
+            var i = Radio.SendTwoWay<int, int>(3);
             Assert.Equal(2, i.Length);
             Assert.Equal(6, i[0]);
             Assert.Equal(6, i[1]);
 
             GC.Collect();
 
-            i = CrossChannel.SendTwoWay<int, int>(43);
+            i = Radio.SendTwoWay<int, int>(43);
             Assert.Empty(i);
 
             this.Test_CrossChannel_Create();
 
-            i = CrossChannel.SendTwoWay<int, int>(4);
+            i = Radio.SendTwoWay<int, int>(4);
             Assert.Single(i);
             Assert.Equal(8, i[0]);
         }
@@ -52,20 +52,20 @@ namespace Test.CrossChannelTest
             this.Test_Dispose1();
             GC.Collect();
 
-            CrossChannel.Open<int>(new object(), x => { });
+            Radio.Open<int>(new object(), x => { });
 
             this.Test_Dispose2();
             GC.Collect();
 
-            CrossChannel.OpenKey<int, int>(new object(), 0, x => { });
-            CrossChannel.OpenKey<int, int>(new object(), 0, x => { });
+            Radio.OpenKey<int, int>(new object(), 0, x => { });
+            Radio.OpenKey<int, int>(new object(), 0, x => { });
         }
 
         private void Test_Dispose1()
         {
             for (var n = 0; n < 31; n++)
             {
-                CrossChannel.Open<int>(new object(), x => { });
+                Radio.Open<int>(new object(), x => { });
             }
         }
 
@@ -73,7 +73,7 @@ namespace Test.CrossChannelTest
         {
             for (var n = 0; n < 31; n++)
             {
-                CrossChannel.OpenKey<int, int>(new object(), 0, x => { });
+                Radio.OpenKey<int, int>(new object(), 0, x => { });
             }
         }
     }
@@ -82,7 +82,7 @@ namespace Test.CrossChannelTest
     {
         public TestClass_CrossChannel()
         {
-            CrossChannel.OpenTwoWay<int, int>(this, this.Function);
+            Radio.OpenTwoWay<int, int>(this, this.Function);
         }
 
         public int Function(int x)

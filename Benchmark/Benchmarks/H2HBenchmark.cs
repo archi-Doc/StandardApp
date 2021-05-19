@@ -1,8 +1,8 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
-using Arc.CrossChannel;
 using Arc.WeakDelegate;
 using BenchmarkDotNet.Attributes;
+using CrossChannel;
 using DryIoc;
 using MessagePipe;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,9 +34,9 @@ namespace Benchmark
         [Benchmark]
         public void CC_OpenSend()
         {
-            using (var c = CrossChannel.Open<int>(null, x => { }))
+            using (var c = Radio.Open<int>(null, x => { }))
             {
-                CrossChannel.Send<int>(1);
+                Radio.Send<int>(1);
             }
 
             return;
@@ -45,16 +45,16 @@ namespace Benchmark
         [Benchmark]
         public void CC_OpenSend8()
         {
-            using (var c = CrossChannel.Open<int>(null, x => { }))
+            using (var c = Radio.Open<int>(null, x => { }))
             {
-                CrossChannel.Send<int>(1);
-                CrossChannel.Send<int>(2);
-                CrossChannel.Send<int>(3);
-                CrossChannel.Send<int>(4);
-                CrossChannel.Send<int>(5);
-                CrossChannel.Send<int>(6);
-                CrossChannel.Send<int>(7);
-                CrossChannel.Send<int>(8);
+                Radio.Send<int>(1);
+                Radio.Send<int>(2);
+                Radio.Send<int>(3);
+                Radio.Send<int>(4);
+                Radio.Send<int>(5);
+                Radio.Send<int>(6);
+                Radio.Send<int>(7);
+                Radio.Send<int>(8);
             }
 
             return;
@@ -123,9 +123,9 @@ namespace Benchmark
         [Benchmark]
         public void CC_OpenSend_Key()
         {
-            using (var d = CrossChannel.OpenKey<int, int>(null, 3, x => { }))
+            using (var d = Radio.OpenKey<int, int>(null, 3, x => { }))
             {
-                CrossChannel.SendKey<int, int>(3, 3);
+                Radio.SendKey<int, int>(3, 3);
             }
 
             return;
@@ -134,16 +134,16 @@ namespace Benchmark
         [Benchmark]
         public void CC_OpenSend8_Key()
         {
-            using (var c = CrossChannel.OpenKey<int, int>(null, 3, x => { }))
+            using (var c = Radio.OpenKey<int, int>(null, 3, x => { }))
             {
-                CrossChannel.SendKey<int, int>(3, 1);
-                CrossChannel.SendKey<int, int>(3, 2);
-                CrossChannel.SendKey<int, int>(3, 3);
-                CrossChannel.SendKey<int, int>(3, 4);
-                CrossChannel.SendKey<int, int>(3, 5);
-                CrossChannel.SendKey<int, int>(3, 6);
-                CrossChannel.SendKey<int, int>(3, 7);
-                CrossChannel.SendKey<int, int>(3, 8);
+                Radio.SendKey<int, int>(3, 1);
+                Radio.SendKey<int, int>(3, 2);
+                Radio.SendKey<int, int>(3, 3);
+                Radio.SendKey<int, int>(3, 4);
+                Radio.SendKey<int, int>(3, 5);
+                Radio.SendKey<int, int>(3, 6);
+                Radio.SendKey<int, int>(3, 7);
+                Radio.SendKey<int, int>(3, 8);
             }
 
             return;

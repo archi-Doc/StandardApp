@@ -4,7 +4,7 @@ using System;
 using System.Collections.Concurrent;
 using Arc.WeakDelegate;
 
-namespace Arc.CrossChannel
+namespace CrossChannel
 {
     /// <summary>
     /// Channel class to receive a message.<br/>
@@ -165,7 +165,7 @@ namespace Arc.CrossChannel
                     var empty = this.List.Remove(this);
                     this.WeakDelegate?.MarkForDeletion();
 
-                    if (empty && this.Collection.Count >= CrossChannel.Const.HoldDictionaryThreshold)
+                    if (empty && this.Collection.Count >= Radio.Const.HoldDictionaryThreshold)
                     {
                         this.Collection.Dictionary.TryRemove(this.Key, out _);
                         this.Collection.Count--;
@@ -238,7 +238,7 @@ namespace Arc.CrossChannel
                     var empty = this.List.Remove(this);
                     this.WeakDelegate?.MarkForDeletion();
 
-                    if (empty && this.Collection.Count >= CrossChannel.Const.HoldDictionaryThreshold)
+                    if (empty && this.Collection.Count >= Radio.Const.HoldDictionaryThreshold)
                     {
                         this.Collection.Dictionary.TryRemove(this.Key, out _);
                         this.Collection.Count--;

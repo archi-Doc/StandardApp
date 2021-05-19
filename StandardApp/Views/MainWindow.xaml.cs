@@ -12,6 +12,7 @@ using Arc.Mvvm;
 using Arc.Text;
 using Arc.WinAPI;
 using Arc.WPF;
+using CrossChannel;
 using StandardApp.ViewServices;
 
 #pragma warning disable SA1403 // File may only contain a single namespace
@@ -35,7 +36,7 @@ namespace StandardApp.Views
             this.mainViewService = mainViewService;
             this.mainViewService.SetWindow(this);
 
-            CrossChannel.OpenTwoWayAsync<DialogParam, MessageBoxResult>(this, this.CrossChannel_Dialog);
+            Radio.OpenTwoWayAsync<DialogParam, MessageBoxResult>(this, this.CrossChannel_Dialog);
 
             try
             {

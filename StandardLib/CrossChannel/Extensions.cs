@@ -1,14 +1,11 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace Arc.CrossChannel
+namespace CrossChannel
 {
-    internal static partial class CrossChannelExtensions
+    internal static partial class Extensions
     {
         internal static int Send<TMessage>(this FastList<XChannel_Message<TMessage>> list, TMessage message)
         {// Thread safe
@@ -344,7 +341,7 @@ namespace Arc.CrossChannel
                     }
                 }
 
-                if (list.Shrink() && collection.Count >= CrossChannel.Const.HoldDictionaryThreshold)
+                if (list.Shrink() && collection.Count >= Radio.Const.HoldDictionaryThreshold)
                 {
                     collection.Dictionary.TryRemove(x.Key, out _);
                     collection.Count--;
@@ -373,7 +370,7 @@ namespace Arc.CrossChannel
                     }
                 }
 
-                if (list.Shrink() && collection.Count >= CrossChannel.Const.HoldDictionaryThreshold)
+                if (list.Shrink() && collection.Count >= Radio.Const.HoldDictionaryThreshold)
                 {
                     collection.Dictionary.TryRemove(x.Key, out _);
                     collection.Count--;

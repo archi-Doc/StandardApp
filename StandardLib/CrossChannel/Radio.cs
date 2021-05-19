@@ -3,9 +3,9 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Arc.CrossChannel
+namespace CrossChannel
 {
-    public static class CrossChannel
+    public static class Radio
     {
         public static class Const
         {
@@ -40,10 +40,10 @@ namespace Arc.CrossChannel
             return channel;
         }
 
-        public static XChannel OpenAsync<TMessage>(object? weakReference, Func<TMessage, Task> method) => CrossChannel.OpenTwoWay<TMessage, Task>(weakReference, method);
+        public static XChannel OpenAsync<TMessage>(object? weakReference, Func<TMessage, Task> method) => Radio.OpenTwoWay<TMessage, Task>(weakReference, method);
 
         public static XChannel OpenAsyncKey<TKey, TMessage>(object? weakReference, TKey key, Func<TMessage, Task> method)
-            where TKey : notnull => CrossChannel.OpenTwoWayKey<TKey, TMessage, Task>(weakReference, key, method);
+            where TKey : notnull => Radio.OpenTwoWayKey<TKey, TMessage, Task>(weakReference, key, method);
 
         public static XChannel OpenKey<TKey, TMessage>(object? weakReference, TKey key, Action<TMessage> method)
             where TKey : notnull
@@ -78,7 +78,7 @@ namespace Arc.CrossChannel
             return channel;
         }
 
-        public static XChannel OpenTwoWayAsync<TMessage, TResult>(object? weakReference, Func<TMessage, Task<TResult>> method) => CrossChannel.OpenTwoWay<TMessage, Task<TResult>>(weakReference, method);
+        public static XChannel OpenTwoWayAsync<TMessage, TResult>(object? weakReference, Func<TMessage, Task<TResult>> method) => Radio.OpenTwoWay<TMessage, Task<TResult>>(weakReference, method);
 
         /// <summary>
         /// Open a channel to receive a message and send a result asynchronously.
@@ -94,7 +94,7 @@ namespace Arc.CrossChannel
         /// <returns>A new instance of XChannel.<br/>
         /// You need to call <see cref="XChannel.Dispose()"/> when the channel is no longer necessary, unless the weak reference is specified.</returns>
         public static XChannel OpenTwoWayAsyncKey<TKey, TMessage, TResult>(object? weakReference, TKey key, Func<TMessage, Task<TResult>> method)
-             where TKey : notnull => CrossChannel.OpenTwoWayKey<TKey, TMessage, Task<TResult>>(weakReference, key, method);
+             where TKey : notnull => Radio.OpenTwoWayKey<TKey, TMessage, Task<TResult>>(weakReference, key, method);
 
         public static XChannel OpenTwoWayKey<TKey, TMessage, TResult>(object? weakReference, TKey key, Func<TMessage, TResult> method)
             where TKey : notnull

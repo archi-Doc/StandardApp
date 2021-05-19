@@ -4,9 +4,9 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
-namespace Arc.CrossChannel
+namespace CrossChannel
 {
-    public class CrossChannelClass
+    public class RadioClass
     {
         public XChannel Open<TMessage>(object? weakReference, Action<TMessage> method)
         {
@@ -14,7 +14,7 @@ namespace Arc.CrossChannel
                 typeof(TMessage),
                 x => new FastList<XChannel_Message<TMessage>>());
 
-            if (list.CleanupCount++ >= CrossChannel.Const.CleanupListThreshold)
+            if (list.CleanupCount++ >= Radio.Const.CleanupListThreshold)
             {
                 lock (list)
                 {
@@ -39,7 +39,7 @@ namespace Arc.CrossChannel
                 new Identifier_KeyMessage(typeof(TKey), typeof(TMessage)),
                 x => new XCollection_KeyMessage<TKey, TMessage>());
 
-            if (collection.CleanupCount++ >= CrossChannel.Const.CleanupDictionaryThreshold)
+            if (collection.CleanupCount++ >= Radio.Const.CleanupDictionaryThreshold)
             {
                 lock (collection)
                 {
@@ -58,7 +58,7 @@ namespace Arc.CrossChannel
                 new Identifier_MessageResult(typeof(TMessage), typeof(TResult)),
                 x => new FastList<XChannel_MessageResult<TMessage, TResult>>());
 
-            if (list.CleanupCount++ >= CrossChannel.Const.CleanupListThreshold)
+            if (list.CleanupCount++ >= Radio.Const.CleanupListThreshold)
             {
                 lock (list)
                 {
@@ -83,7 +83,7 @@ namespace Arc.CrossChannel
                 new Identifier_KeyMessageResult(typeof(TKey), typeof(TMessage), typeof(TResult)),
                 x => new XCollection_KeyMessageResult<TKey, TMessage, TResult>());
 
-            if(collection.CleanupCount++ >= CrossChannel.Const.CleanupDictionaryThreshold)
+            if(collection.CleanupCount++ >= Radio.Const.CleanupDictionaryThreshold)
             {
                 lock (collection)
                 {

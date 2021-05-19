@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
-namespace Arc.CrossChannel
+namespace CrossChannel
 {
     // NOT thread safe, highly customized for XChannel.
     internal sealed class FastList<T> : IDisposable
