@@ -52,20 +52,20 @@ namespace Test.CrossChannelTest
             this.Test_Dispose1();
             GC.Collect();
 
-            Radio.Open<int>(new object(), x => { });
+            Radio.Open<int>(x => { }, new object());
 
             this.Test_Dispose2();
             GC.Collect();
 
-            Radio.OpenKey<int, int>(new object(), 0, x => { });
-            Radio.OpenKey<int, int>(new object(), 0, x => { });
+            Radio.OpenKey<int, int>(0, x => { }, new object());
+            Radio.OpenKey<int, int>(0, x => { }, new object());
         }
 
         private void Test_Dispose1()
         {
             for (var n = 0; n < 31; n++)
             {
-                Radio.Open<int>(new object(), x => { });
+                Radio.Open<int>(x => { }, new object());
             }
         }
 
@@ -73,7 +73,7 @@ namespace Test.CrossChannelTest
         {
             for (var n = 0; n < 31; n++)
             {
-                Radio.OpenKey<int, int>(new object(), 0, x => { });
+                Radio.OpenKey<int, int>(0, x => { }, new object());
             }
         }
     }
@@ -82,7 +82,7 @@ namespace Test.CrossChannelTest
     {
         public TestClass_CrossChannel()
         {
-            Radio.OpenTwoWay<int, int>(this, this.Function);
+            Radio.OpenTwoWay<int, int>(this.Function, this);
         }
 
         public int Function(int x)

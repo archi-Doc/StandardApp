@@ -34,7 +34,7 @@ namespace Benchmark
         [Benchmark]
         public void CC_OpenSend()
         {
-            using (var c = Radio.Open<int>(null, x => { }))
+            using (var c = Radio.Open<int>(x => { }))
             {
                 Radio.Send<int>(1);
             }
@@ -45,7 +45,7 @@ namespace Benchmark
         [Benchmark]
         public void CC_OpenSend8()
         {
-            using (var c = Radio.Open<int>(null, x => { }))
+            using (var c = Radio.Open<int>(x => { }))
             {
                 Radio.Send<int>(1);
                 Radio.Send<int>(2);
@@ -123,7 +123,7 @@ namespace Benchmark
         [Benchmark]
         public void CC_OpenSend_Key()
         {
-            using (var d = Radio.OpenKey<int, int>(null, 3, x => { }))
+            using (var d = Radio.OpenKey<int, int>(3, x => { }))
             {
                 Radio.SendKey<int, int>(3, 3);
             }
@@ -134,7 +134,7 @@ namespace Benchmark
         [Benchmark]
         public void CC_OpenSend8_Key()
         {
-            using (var c = Radio.OpenKey<int, int>(null, 3, x => { }))
+            using (var c = Radio.OpenKey<int, int>(3, x => { }))
             {
                 Radio.SendKey<int, int>(3, 1);
                 Radio.SendKey<int, int>(3, 2);

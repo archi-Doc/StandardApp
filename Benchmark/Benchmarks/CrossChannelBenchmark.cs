@@ -15,7 +15,7 @@ namespace Benchmark
     [Config(typeof(BenchmarkConfig))]
     public class CrossChannelBenchmark
     {
-        public RadioClass CCC { get; } = new();
+        public RadioClass TestRadio { get; } = new();
 
         public CrossChannelBenchmark()
         {
@@ -36,7 +36,7 @@ namespace Benchmark
         [Benchmark]
         public void OpenSend()
         {
-            using (var c = Radio.Open<uint>(null, x => { }))
+            using (var c = Radio.Open<uint>(x => { }))
             {
                 Radio.Send<uint>(3);
             }
@@ -47,7 +47,7 @@ namespace Benchmark
         [Benchmark]
         public void OpenSend8()
         {
-            using (var c = Radio.Open<uint>(null, x => { }))
+            using (var c = Radio.Open<uint>(x => { }))
             {
                 Radio.Send<uint>(1);
                 Radio.Send<uint>(2);
@@ -72,7 +72,7 @@ namespace Benchmark
         [Benchmark]
         public void OpenSend_Weak()
         {
-            using (var c = Radio.Open<uint>(new object(), WeakActionTest))
+            using (var c = Radio.Open<uint>(WeakActionTest, new object()))
             {
                 Radio.Send<uint>(3);
             }
@@ -83,7 +83,7 @@ namespace Benchmark
         [Benchmark]
         public void OpenSend8_Weak()
         {
-            using (var c = Radio.Open<uint>(new object(), WeakActionTest))
+            using (var c = Radio.Open<uint>(WeakActionTest, new object()))
             {
                 Radio.Send<uint>(1);
                 Radio.Send<uint>(2);
@@ -108,7 +108,7 @@ namespace Benchmark
         [Benchmark]
         public void OpenSend_Key()
         {
-            using (var d = Radio.OpenKey<int, uint>(null, 3, x => { }))
+            using (var d = Radio.OpenKey<int, uint>(3, x => { }))
             {
                 Radio.SendKey<int, uint>(3, 3);
             }
@@ -119,7 +119,7 @@ namespace Benchmark
         [Benchmark]
         public void OpenSend8_Key()
         {
-            using (var c = Radio.OpenKey<int, uint>(null, 3, x => { }))
+            using (var c = Radio.OpenKey<int, uint>(3, x => { }))
             {
                 Radio.SendKey<int, uint>(3, 1);
                 Radio.SendKey<int, uint>(3, 2);
@@ -137,7 +137,7 @@ namespace Benchmark
         [Benchmark]
         public void OpenSend_TwoWay()
         {
-            using (var c = Radio.OpenTwoWay<int, int>(null, x => x))
+            using (var c = Radio.OpenTwoWay<int, int>(x => x))
             {
                 Radio.SendTwoWay<int, int>(1);
             }
@@ -148,7 +148,7 @@ namespace Benchmark
         [Benchmark]
         public void OpenSend8_TwoWay()
         {
-            using (var c = Radio.OpenTwoWay<int, int>(null, x => x))
+            using (var c = Radio.OpenTwoWay<int, int>(x => x))
             {
                 Radio.SendTwoWay<int, int>(1);
                 Radio.SendTwoWay<int, int>(2);
@@ -166,7 +166,7 @@ namespace Benchmark
         [Benchmark]
         public void OpenSend_TwoWayKey()
         {
-            using (var d = Radio.OpenTwoWayKey<int, uint, uint>(null, 3, x => x))
+            using (var d = Radio.OpenTwoWayKey<int, uint, uint>(3, x => x))
             {
                 Radio.SendTwoWayKey<int, uint, uint>(3, 3);
             }
@@ -177,7 +177,7 @@ namespace Benchmark
         [Benchmark]
         public void OpenSend8_TwoWayKey()
         {
-            using (var c = Radio.OpenTwoWayKey<int, uint, uint>(null, 3, x => x))
+            using (var c = Radio.OpenTwoWayKey<int, uint, uint>(3, x => x))
             {
                 Radio.SendTwoWayKey<int, uint, uint>(3, 1);
                 Radio.SendTwoWayKey<int, uint, uint>(3, 2);
@@ -195,16 +195,16 @@ namespace Benchmark
         [Benchmark]
         public void Class_Send()
         {
-            this.CCC.Send<int>(3);
+            this.TestRadio.Send<int>(3);
             return;
         }
 
         [Benchmark]
         public void Class_OpenSend()
         {
-            using (var c = this.CCC.Open<uint>(null, x => { }))
+            using (var c = this.TestRadio.Open<uint>(null, x => { }))
             {
-                this.CCC.Send<uint>(3);
+                this.TestRadio.Send<uint>(3);
             }
 
             return;
@@ -213,16 +213,16 @@ namespace Benchmark
         [Benchmark]
         public void Class_OpenSend8()
         {
-            using (var c = this.CCC.Open<uint>(null, x => { }))
+            using (var c = this.TestRadio.Open<uint>(null, x => { }))
             {
-                this.CCC.Send<uint>(1);
-                this.CCC.Send<uint>(2);
-                this.CCC.Send<uint>(3);
-                this.CCC.Send<uint>(4);
-                this.CCC.Send<uint>(5);
-                this.CCC.Send<uint>(6);
-                this.CCC.Send<uint>(7);
-                this.CCC.Send<uint>(8);
+                this.TestRadio.Send<uint>(1);
+                this.TestRadio.Send<uint>(2);
+                this.TestRadio.Send<uint>(3);
+                this.TestRadio.Send<uint>(4);
+                this.TestRadio.Send<uint>(5);
+                this.TestRadio.Send<uint>(6);
+                this.TestRadio.Send<uint>(7);
+                this.TestRadio.Send<uint>(8);
             }
 
             return;
@@ -231,9 +231,9 @@ namespace Benchmark
         [Benchmark]
         public void Class_OpenSend_Key()
         {
-            using (var c = this.CCC.OpenKey<int, uint>(null, 1, x => { }))
+            using (var c = this.TestRadio.OpenKey<int, uint>(null, 1, x => { }))
             {
-                this.CCC.SendKey<int, uint>(1, 3);
+                this.TestRadio.SendKey<int, uint>(1, 3);
             }
 
             return;
@@ -242,16 +242,16 @@ namespace Benchmark
         [Benchmark]
         public void Class_OpenSend8_Key()
         {
-            using (var c = this.CCC.OpenKey<int, uint>(null, 1, x => { }))
+            using (var c = this.TestRadio.OpenKey<int, uint>(null, 1, x => { }))
             {
-                this.CCC.SendKey<int, uint>(1, 1);
-                this.CCC.SendKey<int, uint>(1, 2);
-                this.CCC.SendKey<int, uint>(1, 3);
-                this.CCC.SendKey<int, uint>(1, 4);
-                this.CCC.SendKey<int, uint>(1, 5);
-                this.CCC.SendKey<int, uint>(1, 6);
-                this.CCC.SendKey<int, uint>(1, 7);
-                this.CCC.SendKey<int, uint>(1, 8);
+                this.TestRadio.SendKey<int, uint>(1, 1);
+                this.TestRadio.SendKey<int, uint>(1, 2);
+                this.TestRadio.SendKey<int, uint>(1, 3);
+                this.TestRadio.SendKey<int, uint>(1, 4);
+                this.TestRadio.SendKey<int, uint>(1, 5);
+                this.TestRadio.SendKey<int, uint>(1, 6);
+                this.TestRadio.SendKey<int, uint>(1, 7);
+                this.TestRadio.SendKey<int, uint>(1, 8);
             }
 
             return;
@@ -260,9 +260,9 @@ namespace Benchmark
         [Benchmark]
         public void Class_OpenSend_TwoWay()
         {
-            using (var c = this.CCC.OpenTwoWay<int, int>(null, x => x))
+            using (var c = this.TestRadio.OpenTwoWay<int, int>(null, x => x))
             {
-                this.CCC.SendTwoWay<int, int>(3);
+                this.TestRadio.SendTwoWay<int, int>(3);
             }
 
             return;
@@ -271,16 +271,16 @@ namespace Benchmark
         [Benchmark]
         public void Class_OpenSend8_TwoWay()
         {
-            using (var c = this.CCC.OpenTwoWay<int, int>(null, x => x))
+            using (var c = this.TestRadio.OpenTwoWay<int, int>(null, x => x))
             {
-                this.CCC.SendTwoWay<int, int>(1);
-                this.CCC.SendTwoWay<int, int>(2);
-                this.CCC.SendTwoWay<int, int>(3);
-                this.CCC.SendTwoWay<int, int>(4);
-                this.CCC.SendTwoWay<int, int>(5);
-                this.CCC.SendTwoWay<int, int>(6);
-                this.CCC.SendTwoWay<int, int>(7);
-                this.CCC.SendTwoWay<int, int>(8);
+                this.TestRadio.SendTwoWay<int, int>(1);
+                this.TestRadio.SendTwoWay<int, int>(2);
+                this.TestRadio.SendTwoWay<int, int>(3);
+                this.TestRadio.SendTwoWay<int, int>(4);
+                this.TestRadio.SendTwoWay<int, int>(5);
+                this.TestRadio.SendTwoWay<int, int>(6);
+                this.TestRadio.SendTwoWay<int, int>(7);
+                this.TestRadio.SendTwoWay<int, int>(8);
             }
 
             return;
@@ -289,9 +289,9 @@ namespace Benchmark
         [Benchmark]
         public void Class_OpenSend_TwoWayKey()
         {
-            using (var c = this.CCC.OpenTwoWayKey<int, int, int>(null, 1, x => x))
+            using (var c = this.TestRadio.OpenTwoWayKey<int, int, int>(null, 1, x => x))
             {
-                this.CCC.SendTwoWayKey<int, int, int>(1, 3);
+                this.TestRadio.SendTwoWayKey<int, int, int>(1, 3);
             }
 
             return;
@@ -300,16 +300,16 @@ namespace Benchmark
         [Benchmark]
         public void Class_OpenSend8_TwoWayKey()
         {
-            using (var c = this.CCC.OpenTwoWayKey<int, int, int>(null, 1, x => x))
+            using (var c = this.TestRadio.OpenTwoWayKey<int, int, int>(null, 1, x => x))
             {
-                this.CCC.SendTwoWayKey<int, int, int>(1, 1);
-                this.CCC.SendTwoWayKey<int, int, int>(1, 2);
-                this.CCC.SendTwoWayKey<int, int, int>(1, 3);
-                this.CCC.SendTwoWayKey<int, int, int>(1, 4);
-                this.CCC.SendTwoWayKey<int, int, int>(1, 5);
-                this.CCC.SendTwoWayKey<int, int, int>(1, 6);
-                this.CCC.SendTwoWayKey<int, int, int>(1, 7);
-                this.CCC.SendTwoWayKey<int, int, int>(1, 8);
+                this.TestRadio.SendTwoWayKey<int, int, int>(1, 1);
+                this.TestRadio.SendTwoWayKey<int, int, int>(1, 2);
+                this.TestRadio.SendTwoWayKey<int, int, int>(1, 3);
+                this.TestRadio.SendTwoWayKey<int, int, int>(1, 4);
+                this.TestRadio.SendTwoWayKey<int, int, int>(1, 5);
+                this.TestRadio.SendTwoWayKey<int, int, int>(1, 6);
+                this.TestRadio.SendTwoWayKey<int, int, int>(1, 7);
+                this.TestRadio.SendTwoWayKey<int, int, int>(1, 8);
             }
 
             return;

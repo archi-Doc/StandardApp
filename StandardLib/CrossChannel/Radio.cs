@@ -18,13 +18,13 @@ namespace CrossChannel
         /// Open a channel to receive a message.
         /// </summary>
         /// <typeparam name="TMessage">The type of the message.</typeparam>
+        /// <param name="method">The delegate that is called when the message is sent.</param>
         /// <param name="weakReference">A weak reference of the object.<br/>
         /// The channel will be automatically closed when the object is garbage collected.<br/>
         /// To achieve maximum performance, you can set this value to null (DON'T forget close the channel manually).</param>
-        /// <param name="method">The delegate that is called when the message is sent.</param>
         /// <returns>A new instance of XChannel.<br/>
         /// You need to call <see cref="XChannel.Dispose()"/> when the channel is no longer necessary, unless the weak reference is specified.</returns>
-        public static XChannel Open<TMessage>(object? weakReference, Action<TMessage> method)
+        public static XChannel Open<TMessage>(Action<TMessage> method, object? weakReference = null)
         {
             var list = Cache_Message<TMessage>.List;
             if (list.CleanupCount++ >= Const.CleanupListThreshold)
@@ -40,12 +40,12 @@ namespace CrossChannel
             return channel;
         }
 
-        public static XChannel OpenAsync<TMessage>(object? weakReference, Func<TMessage, Task> method) => Radio.OpenTwoWay<TMessage, Task>(weakReference, method);
+        public static XChannel OpenAsync<TMessage>(Func<TMessage, Task> method, object? weakReference = null) => Radio.OpenTwoWay<TMessage, Task>(method, weakReference);
 
-        public static XChannel OpenAsyncKey<TKey, TMessage>(object? weakReference, TKey key, Func<TMessage, Task> method)
-            where TKey : notnull => Radio.OpenTwoWayKey<TKey, TMessage, Task>(weakReference, key, method);
+        public static XChannel OpenAsyncKey<TKey, TMessage>(TKey key, Func<TMessage, Task> method, object? weakReference = null)
+            where TKey : notnull => Radio.OpenTwoWayKey<TKey, TMessage, Task>(key, method, weakReference);
 
-        public static XChannel OpenKey<TKey, TMessage>(object? weakReference, TKey key, Action<TMessage> method)
+        public static XChannel OpenKey<TKey, TMessage>(TKey key, Action<TMessage> method, object? weakReference = null)
             where TKey : notnull
         {
             var collection = Cache_KeyMessage<TKey, TMessage>.Collection;
@@ -62,7 +62,7 @@ namespace CrossChannel
             return channel;
         }
 
-        public static XChannel OpenTwoWay<TMessage, TResult>(object? weakReference, Func<TMessage, TResult> method)
+        public static XChannel OpenTwoWay<TMessage, TResult>(Func<TMessage, TResult> method, object? weakReference = null)
         {
             var list = Cache_MessageResult<TMessage, TResult>.List;
             if (list.CleanupCount++ >= Const.CleanupListThreshold)
@@ -78,7 +78,7 @@ namespace CrossChannel
             return channel;
         }
 
-        public static XChannel OpenTwoWayAsync<TMessage, TResult>(object? weakReference, Func<TMessage, Task<TResult>> method) => Radio.OpenTwoWay<TMessage, Task<TResult>>(weakReference, method);
+        public static XChannel OpenTwoWayAsync<TMessage, TResult>(Func<TMessage, Task<TResult>> method, object? weakReference = null) => Radio.OpenTwoWay<TMessage, Task<TResult>>(method, weakReference);
 
         /// <summary>
         /// Open a channel to receive a message and send a result asynchronously.
@@ -86,17 +86,17 @@ namespace CrossChannel
         /// <typeparam name="TKey">The type of the key.</typeparam>
         /// <typeparam name="TMessage">The type of the message.</typeparam>
         /// <typeparam name="TResult">The type of the result.</typeparam>
+        /// <param name="key">Specify a key to limit the channels to receive the message.</param>
+        /// <param name="method">The delegate that is called when the message is sent.</param>
         /// <param name="weakReference">A weak reference of the object.<br/>
         /// The channel will be automatically closed when the object is garbage collected.<br/>
         /// To achieve maximum performance, you can set this value to null (DON'T forget close the channel manually).</param>
-        /// <param name="key">Specify a key to limit the channels to receive the message.</param>
-        /// <param name="method">The delegate that is called when the message is sent.</param>
         /// <returns>A new instance of XChannel.<br/>
         /// You need to call <see cref="XChannel.Dispose()"/> when the channel is no longer necessary, unless the weak reference is specified.</returns>
-        public static XChannel OpenTwoWayAsyncKey<TKey, TMessage, TResult>(object? weakReference, TKey key, Func<TMessage, Task<TResult>> method)
-             where TKey : notnull => Radio.OpenTwoWayKey<TKey, TMessage, Task<TResult>>(weakReference, key, method);
+        public static XChannel OpenTwoWayAsyncKey<TKey, TMessage, TResult>(TKey key, Func<TMessage, Task<TResult>> method, object? weakReference = null)
+             where TKey : notnull => Radio.OpenTwoWayKey<TKey, TMessage, Task<TResult>>(key, method, weakReference);
 
-        public static XChannel OpenTwoWayKey<TKey, TMessage, TResult>(object? weakReference, TKey key, Func<TMessage, TResult> method)
+        public static XChannel OpenTwoWayKey<TKey, TMessage, TResult>(TKey key, Func<TMessage, TResult> method, object? weakReference = null)
             where TKey : notnull
         {
             var collection = Cache_KeyMessageResult<TKey, TMessage, TResult>.Collection;
