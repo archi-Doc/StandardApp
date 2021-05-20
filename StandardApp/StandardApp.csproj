@@ -33,6 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Arc.CrossChannel" Version="0.2.0" />
     <PackageReference Include="CrossLink" Version="0.12.0" />
     <PackageReference Include="DryIoc.dll" Version="4.7.6" />
     <PackageReference Include="FastExpressionCompiler" Version="3.1.0" />

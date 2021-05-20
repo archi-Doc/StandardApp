@@ -7,8 +7,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Application;
-using Arc.CrossChannel;
-using Arc.Mvvm;
 using Arc.Text;
 using Arc.WinAPI;
 using Arc.WPF;
