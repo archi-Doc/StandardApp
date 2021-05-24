@@ -289,6 +289,37 @@ namespace StandardApp
             }
         }
 
+        private DelegateCommand? testCrossChannel2;
+
+        public DelegateCommand TestCrossChannel2
+        {
+            get
+            {
+                return this.testCrossChannel2 ??= new DelegateCommand(
+                    async () =>
+                    { // CrossChannel version of DialogBox. View service is more preferable.
+                        var p = default(DialogParam);
+                        p.Message = "CrossChannel test.\r\nYes or No.";
+                        p.Button = MessageBoxButton.YesNo;
+                        p.Image = MessageBoxImage.Information;
+                        var result = await Radio.SendTwoWayAsync<DialogParam, MessageBoxResult>(p);
+
+                        if (result[0] == MessageBoxResult.Yes)
+                        {
+                            p.C4Name = "dialog.yes";
+                            p.Button = MessageBoxButton.OK;
+                            await Radio.SendTwoWayAsync<DialogParam, MessageBoxResult>(p);
+                        }
+                        else
+                        {
+                            p.C4Name = "dialog.no";
+                            p.Button = MessageBoxButton.OK;
+                            await Radio.SendTwoWayAsync<DialogParam, MessageBoxResult>(p);
+                        }
+                    });
+            }
+        }
+
         private DelegateCommand? dCommand;
 
         public DelegateCommand TestCommand

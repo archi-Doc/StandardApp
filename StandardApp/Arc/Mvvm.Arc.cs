@@ -11,6 +11,7 @@ using System.Threading;
 using System.Windows.Input;
 
 #pragma warning disable CS8600
+#pragma warning disable SA1602 // Enumeration items should be documented
 
 namespace Arc.Mvvm
 {
@@ -394,7 +395,7 @@ namespace Arc.Mvvm
         private Func<bool> canExecuteMethod;
 
         /// <summary>
-        /// Creates a new instance of <see cref="DelegateCommand"/> with the <see cref="Action"/> to invoke on execution.
+        /// Initializes a new instance of the <see cref="DelegateCommand"/> class.
         /// </summary>
         /// <param name="executeMethod">The <see cref="Action"/> to invoke when <see cref="ICommand.Execute(object)"/> is called.</param>
         public DelegateCommand(Action executeMethod)
@@ -403,8 +404,7 @@ namespace Arc.Mvvm
         }
 
         /// <summary>
-        /// Creates a new instance of <see cref="DelegateCommand"/> with the <see cref="Action"/> to invoke on execution
-        /// and a <see langword="Func" /> to query for determining if the command can execute.
+        /// Initializes a new instance of the <see cref="DelegateCommand"/> class.
         /// </summary>
         /// <param name="executeMethod">The <see cref="Action"/> to invoke when <see cref="ICommand.Execute"/> is called.</param>
         /// <param name="canExecuteMethod">The <see cref="Func{TResult}"/> to invoke when <see cref="ICommand.CanExecute"/> is called.</param>
@@ -511,7 +511,7 @@ namespace Arc.Mvvm
         private Func<T?, bool> canExecuteMethod;
 
         /// <summary>
-        /// Initializes a new instance of <see cref="DelegateCommand{T}"/>.
+        /// Initializes a new instance of the <see cref="DelegateCommand{T}"/> class.
         /// </summary>
         /// <param name="executeMethod">Delegate to execute when Execute is called on the command. This can be null to just hook up a CanExecute delegate.</param>
         /// <remarks><see cref="CanExecute(T)"/> will always return true.</remarks>
@@ -521,7 +521,7 @@ namespace Arc.Mvvm
         }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="DelegateCommand{T}"/>.
+        /// Initializes a new instance of the <see cref="DelegateCommand{T}"/> class.
         /// </summary>
         /// <param name="executeMethod">Delegate to execute when Execute is called on the command. This can be null to just hook up a CanExecute delegate.</param>
         /// <param name="canExecuteMethod">Delegate to execute when CanExecute is called on the command. This can be null.</param>
