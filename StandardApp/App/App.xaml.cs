@@ -110,7 +110,7 @@ namespace Application
         {// Register your types
             // Views
             App.Container.Register<MainWindow>(Reuse.Singleton);
-            App.Container.Register<SettingsWindow>(Reuse.Singleton);
+            App.Container.Register<SettingsWindow>(Reuse.Transient);
 
             // ViewServices
             App.Container.Register<IMainViewService, MainViewService>(Reuse.Singleton);
