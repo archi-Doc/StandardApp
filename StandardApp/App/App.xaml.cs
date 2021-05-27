@@ -113,7 +113,7 @@ namespace Application
             App.Container.Register<SettingsWindow>(Reuse.Transient);
 
             // ViewServices
-            App.Container.Register<IMainViewService, MainViewService>(Reuse.Singleton);
+            App.Container.RegisterMapping<IMainViewService, MainWindow>(); // App.Container.RegisterMany<MainWindow>(Reuse.Singleton);
 
             // ViewModels
             App.Container.Register<MainViewModel>(Reuse.Singleton);

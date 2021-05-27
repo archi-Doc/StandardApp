@@ -15,9 +15,9 @@ namespace StandardApp.ViewServices
 {
     public interface IMainViewService
     {
-        void SetWindow(Window window);
+        // void SetWindow(Window window);
 
-        void SetClosingWindow(Window? closingWindow); // Avoid an exception which occurs when Close () is called while the Window Close confirmation dialog is displayed.
+        // void SetClosingWindow(Window? closingWindow); // Avoid an exception which occurs when Close () is called while the Window Close confirmation dialog is displayed.
 
         void Notification(NotificationMessage msg); // Notification Message
 
@@ -28,7 +28,7 @@ namespace StandardApp.ViewServices
         void CustomDialog(DialogParam p); // Csustom Dialog
     }
 
-    internal class MainViewService : IMainViewService
+    /*internal class MainViewService : IMainViewService
     {
         private Window? window;
         private Window? closingWindow;
@@ -146,9 +146,9 @@ Released under the MIT license
             var dlg = new Arc.WPF.Dialog(this.window, p);
             var result = await dlg.ShowDialogAsync();
             return result;
-            /*var tcs = new TaskCompletionSource<MessageBoxResult>();
-            await this.Dispatcher.InvokeAsync(() => { dlg.ShowDialog(); tcs.SetResult(dlg.Result); }); // Avoid dead lock.
-            return tcs.Task.Result;*/
+            // var tcs = new TaskCompletionSource<MessageBoxResult>();
+            // await this.Dispatcher.InvokeAsync(() => { dlg.ShowDialog(); tcs.SetResult(dlg.Result); }); // Avoid dead lock.
+            // return tcs.Task.Result;
         }
 
         public void CustomDialog(DialogParam p)
@@ -197,5 +197,5 @@ Released under the MIT license
         }
 
         private static Exception ThrowNotInitialized() => throw new InvalidOperationException("Call Initialize() before use.");
-    }
+    }*/
 }

@@ -21,11 +21,11 @@ namespace StandardApp
     [CrossLinkObject]
     public partial class MainViewModel
     {
-        private IMainViewService viewService;
-
         public AppOptions Options => App.Options;
 
         public TestItem.GoshujinClass TestGoshujin { get; } = App.Settings.TestItems;
+
+        private IMainViewService ViewService => App.Resolve<IMainViewService>(); // To avoid a circular dependency, get an instance when necessary.
 
         [Link(AutoNotify = true)]
         private bool hideDialogButton;
@@ -154,7 +154,7 @@ namespace StandardApp
                         if (param != null)
                         {
                             var id = (MessageId)Enum.Parse(typeof(MessageId), param);
-                            this.viewService.MessageID(id);
+                            this.ViewService.MessageID(id);
                         }
                     });
             }
@@ -209,18 +209,18 @@ namespace StandardApp
                         p.C4Name = "dialog.message";
                         p.Button = MessageBoxButton.YesNo;
                         p.Image = MessageBoxImage.Question;
-                        var result = await this.viewService.Dialog(p);
+                        var result = await this.ViewService.Dialog(p);
                         if (result == MessageBoxResult.Yes)
                         {
                             p.C4Name = "dialog.yes";
                             p.Button = MessageBoxButton.OK;
-                            await this.viewService.Dialog(p);
+                            await this.ViewService.Dialog(p);
                         }
                         else
                         {
                             p.C4Name = "dialog.no";
                             p.Button = MessageBoxButton.OK;
-                            await this.viewService.Dialog(p);
+                            await this.ViewService.Dialog(p);
                         }
                     });
             }
@@ -239,7 +239,7 @@ namespace StandardApp
                         p.C4Name = "app.name";
                         p.Button = MessageBoxButton.OK;
                         p.Image = MessageBoxImage.Information;
-                        this.viewService.CustomDialog(p);
+                        this.ViewService.CustomDialog(p);
                     });
             }
         }
@@ -250,9 +250,8 @@ namespace StandardApp
 
         public DateTime Time1 { get; private set; } = DateTime.Now;
 
-        public MainViewModel(IMainViewService mainViewService)
+        public MainViewModel()
         {
-            this.viewService = mainViewService;
             // this.TestCommand = new RelayCommand(this.TestExecute, () => { return this.commandFlag; });
             this.TestCommand2 = new DelegateCommand(this.TestExecute2);
             this.TestCommand3 = new DelegateCommand(this.TestExecute3);
@@ -325,7 +324,7 @@ namespace StandardApp
                         App.Options.BrushCollection.Brush1.Change(Colors.Green);
                     }
 
-                    this.viewService.Notification(new NotificationMessage("notification."));
+                    this.ViewService.Notification(new NotificationMessage("notification."));
                 }, () => this.CommandFlag).ObservesProperty(() => this.CommandFlag);
             }
         }
@@ -335,7 +334,7 @@ namespace StandardApp
             Task.Run(() =>
             {
                 System.Threading.Thread.Sleep(1000);
-                this.viewService.MessageID(MessageId.ExitWithoutConfirmation);
+                this.ViewService.MessageID(MessageId.ExitWithoutConfirmation);
                 return;
             });
         }
@@ -344,7 +343,7 @@ namespace StandardApp
         {
             var p = default(DialogParam);
             p.C4Name = "app.description";
-            this.viewService.Dialog(p);
+            this.ViewService.Dialog(p);
             return;
         }
     }
