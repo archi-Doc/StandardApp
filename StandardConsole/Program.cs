@@ -4,7 +4,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
-using ImTools;
 using Serilog;
 using SimpleCommandLine;
 
@@ -15,7 +14,7 @@ namespace StandardConsole
     public class TestOptions
     {
         [SimpleOption("number", "n")]
-        public int Number { get; set; } = 3000;
+        public int Number { get; set; } = 2000;
     }
 
     [SimpleCommand("test")]
@@ -61,6 +60,8 @@ namespace StandardConsole
 
         public static async Task Main(string[] args)
         {
+            ManualResetEvent mainTermination = new(false);
+
             // Simple Commands
             var commandTypes = new Type[]
             {
@@ -78,14 +79,16 @@ namespace StandardConsole
             Container.ValidateAndThrow();
 
             AppDomain.CurrentDomain.ProcessExit += (s, e) =>
-            {
-                Log.Information("exit (ProcessExit)");
+            {// Console window closing or process terminated.
+                // Log.Information("exit (ProcessExit)");
                 Container.Resolve<IAppService>().Terminate();
+                mainTermination.WaitOne(2000);
             };
 
             Console.CancelKeyPress += (s, e) =>
-            {
-                Log.Information("exit (Ctrl+C)");
+            {// Ctrl+C pressed
+                // Log.Information("exit (Ctrl+C)");
+                e.Cancel = true;
                 Container.Resolve<IAppService>().Terminate();
             };
 
@@ -97,6 +100,8 @@ namespace StandardConsole
             };
 
             await SimpleParser.ParseAndRunAsync(commandTypes, args, parserOptions);
+
+            mainTermination.Set();
         }
     }
 }
