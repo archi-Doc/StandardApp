@@ -3,6 +3,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Arc.Threading;
 using DryIoc;
 using Serilog;
 using SimpleCommandLine;
@@ -11,57 +12,12 @@ using SimpleCommandLine;
 
 namespace StandardConsole
 {
-    public class TestOptions
-    {
-        [SimpleOption("number", "n")]
-        public int Number { get; set; } = 2000;
-    }
-
-    [SimpleCommand("test")]
-    public class TestCommand : ISimpleCommandAsync<TestOptions>
-    {
-        public TestCommand(IAppService appService)
-        {
-            this.AppService = appService;
-        }
-
-        public async Task Run(TestOptions option, string[] args)
-        {
-            this.AppService.EnterCommand(string.Empty);
-
-            Console.WriteLine("Test command:");
-            Console.WriteLine($"Number is {option.Number}");
-            try
-            {
-                await Task.Delay(option.Number, this.AppService.CancellationToken);
-            }
-            catch
-            {
-            }
-
-            this.AppService.ExitCommand();
-        }
-
-        public IAppService AppService { get; }
-    }
-
-    [SimpleCommand("test2")]
-    public class TestCommand2 : ISimpleCommand
-    {
-        public void Run(string[] args)
-        {
-            Console.WriteLine("Test command2:");
-        }
-    }
-
     public class Program
     {
         public static Container Container { get; } = new();
 
         public static async Task Main(string[] args)
         {
-            ManualResetEvent mainTermination = new(false);
-
             // Simple Commands
             var commandTypes = new Type[]
             {
@@ -78,18 +34,16 @@ namespace StandardConsole
 
             Container.ValidateAndThrow();
 
-            AppDomain.CurrentDomain.ProcessExit += (s, e) =>
+            AppDomain.CurrentDomain.ProcessExit += async (s, e) =>
             {// Console window closing or process terminated.
-                // Log.Information("exit (ProcessExit)");
-                Container.Resolve<IAppService>().Terminate();
-                mainTermination.WaitOne(2000);
+                ThreadCore.Root.Terminate(); // Send a termination signal to the root.
+                ThreadCore.Root.TerminationEvent.WaitOne(2000); // Wait until the termination process is complete (#1).
             };
 
             Console.CancelKeyPress += (s, e) =>
             {// Ctrl+C pressed
-                // Log.Information("exit (Ctrl+C)");
                 e.Cancel = true;
-                Container.Resolve<IAppService>().Terminate();
+                ThreadCore.Root.Terminate(); // Send a termination signal to the root.
             };
 
             var parserOptions = SimpleParserOptions.Standard with
@@ -99,9 +53,9 @@ namespace StandardConsole
                 RequireStrictOptionName = true
             };
 
-            await SimpleParser.ParseAndRunAsync(commandTypes, args, parserOptions);
-
-            mainTermination.Set();
+            await SimpleParser.ParseAndRunAsync(commandTypes, args, parserOptions); // Main process
+            await ThreadCore.Root.WaitForTermination(-1); // Wait for the termination infinitely.
+            ThreadCore.Root.TerminationEvent.Set(); // The termination process is complete (#1).
         }
     }
 }

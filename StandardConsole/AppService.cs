@@ -12,10 +12,6 @@ namespace StandardConsole
         void EnterCommand(string directory);
 
         void ExitCommand();
-
-        void Terminate();
-
-        CancellationToken CancellationToken { get; }
     }
 
     public class AppService : IAppService
@@ -42,14 +38,5 @@ namespace StandardConsole
             Log.Information("terminated");
             Log.CloseAndFlush();
         }
-
-        public void Terminate()
-        {
-            this.cancellationTokenSource.Cancel();
-        }
-
-        public CancellationToken CancellationToken => this.cancellationTokenSource.Token;
-
-        private CancellationTokenSource cancellationTokenSource = new();
     }
 }

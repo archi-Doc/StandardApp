@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arc.CrossChannel" Version="0.3.0" />
+    <PackageReference Include="Arc.CrossChannel" Version="0.3.1" />
     <PackageReference Include="BenchmarkDotNet" Version="0.13.0" />
     <PackageReference Include="DryIoc.dll" Version="4.8.0" />
     <PackageReference Include="MessagePipe" Version="1.6.1" />
