@@ -149,6 +149,11 @@ Released under the MIT license
             this.Close();
         }
 
+        private void SettingsButtonFolder(object sender, RoutedEventArgs e)
+        {
+            this.ViewService.MessageID(MessageId.DataFolder);
+        }
+
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
         }

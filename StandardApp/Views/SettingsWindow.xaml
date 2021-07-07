@@ -27,14 +27,18 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
 
-                        <Label Grid.Row="0" Grid.Column="0" Content="{Arc:C4 settings.language}" HorizontalAlignment="Right" />
-                        <ComboBox Grid.Row="0" Grid.Column="1"  x:Name="comboBox" ItemsSource="{Binding CultureList}" SelectedItem="{Binding CurrentCulture}">
+                        <Label Grid.Row="0" Grid.Column="0" Content="{Arc:C4 settings.folder}" HorizontalAlignment="Right" />
+                        <Button Grid.Row="0" Grid.Column="1" x:Name="button_settings_open" Content="{Arc:C4 settings.folder.open}" Width="auto" Height="auto"  HorizontalAlignment="Left" VerticalAlignment="Top" Click="SettingsButtonFolder" />
+
+                        <Label Grid.Row="1" Grid.Column="0" Content="{Arc:C4 settings.language}" HorizontalAlignment="Right" />
+                        <ComboBox Grid.Row="1" Grid.Column="1"  x:Name="comboBox" ItemsSource="{Binding CultureList}" SelectedItem="{Binding CurrentCulture}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Converter={StaticResource CultureToStringConverter}}"/>
@@ -42,8 +46,8 @@
                             </ComboBox.ItemTemplate>
                         </ComboBox>
 
-                        <Label Grid.Row="1" Grid.Column="0" Content="{Arc:C4 settings.displayscaling}" HorizontalAlignment="Right" />
-                        <ComboBox Grid.Row="1" Grid.Column="1"  x:Name="comboBox2"  ItemsSource="{Binding DisplayScaling}" SelectedItem="{Binding CurrentDisplayScaling}">
+                        <Label Grid.Row="2" Grid.Column="0" Content="{Arc:C4 settings.displayscaling}" HorizontalAlignment="Right" />
+                        <ComboBox Grid.Row="2" Grid.Column="1"  x:Name="comboBox2"  ItemsSource="{Binding DisplayScaling}" SelectedItem="{Binding CurrentDisplayScaling}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Converter={StaticResource DisplayScalingToStringConverter}}"/>

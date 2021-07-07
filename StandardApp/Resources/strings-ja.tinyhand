@@ -12,6 +12,8 @@ dialog.exit = "終了してもよろしいですか？"
 settings.title = "設定/情報"
 settings.tab.general = "全般"
 settings.tab.information = "情報"
+settings.folder = "設定フォルダ"
+settings.folder.open = "開く"
 settings.language = "表示言語"
 settings.displayscaling = "表示倍率"
 

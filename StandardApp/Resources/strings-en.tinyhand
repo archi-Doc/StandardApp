@@ -12,6 +12,8 @@ dialog.exit = "Are you sure you want to exit?"
 settings.title = "Settings/Info"
 settings.tab.general = "General"
 settings.tab.information = "Information"
+settings.folder = "Settings folder"
+settings.folder.open = "Open"
 settings.language = "Language"
 settings.displayscaling = "Scaling"
 
