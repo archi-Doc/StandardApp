@@ -159,6 +159,12 @@ namespace Benchmark
         }
 
         [Benchmark]
+        public object Get_DictionaryWithoutLock()
+        {
+            return this.TypeDictionary[typeof(int)];
+        }
+
+        [Benchmark]
         public object Get_TypeKeyDictionary()
         {
             lock (this.TypeKeyDictionary)
@@ -170,7 +176,7 @@ namespace Benchmark
         [Benchmark]
         public object Get_ThreadsafeHashtable()
         {
-                return this.ThreadsafeTypeKeyHashtable[typeof(int)];
+            return this.ThreadsafeTypeKeyHashtable[typeof(int)];
         }
     }
 }
