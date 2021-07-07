@@ -242,6 +242,7 @@ namespace Application
             catch
             {
                 App.Settings.Culture = AppConst.DefaultCulture;
+                App.C4.ChangeCulture(App.Settings.Culture);
             }
 
             Bootstrap();
