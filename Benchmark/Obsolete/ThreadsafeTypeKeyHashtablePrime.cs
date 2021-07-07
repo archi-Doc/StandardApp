@@ -12,7 +12,7 @@ using System.Threading;
 
 namespace Arc.CrossChannel
 {
-    public class ThreadsafeTypeKeyHashtable
+    public class ThreadsafeTypeKeyHashtablePrime
     {
         internal const int HashPrime = 101;
         private const int InitialSize = 3;
@@ -32,17 +32,17 @@ namespace Arc.CrossChannel
         private volatile int version;
         private volatile bool isWriterInProgress;
 
-        public ThreadsafeTypeKeyHashtable()
+        public ThreadsafeTypeKeyHashtablePrime()
             : this(0, 1.0f)
         {
         }
 
-        public ThreadsafeTypeKeyHashtable(int capacity)
+        public ThreadsafeTypeKeyHashtablePrime(int capacity)
             : this(capacity, 1.0f)
         {
         }
 
-        public ThreadsafeTypeKeyHashtable(int capacity, float loadFactor)
+        public ThreadsafeTypeKeyHashtablePrime(int capacity, float loadFactor)
         {
             if (capacity < 0)
             {
@@ -453,7 +453,7 @@ namespace Arc.CrossChannel
 
             for (int i = min | 1; i < int.MaxValue; i += 2)
             {
-                if (IsPrime(i) && ((i - 1) % ThreadsafeTypeKeyHashtable.HashPrime != 0))
+                if (IsPrime(i) && ((i - 1) % ThreadsafeTypeKeyHashtablePrime.HashPrime != 0))
                 {
                     return i;
                 }

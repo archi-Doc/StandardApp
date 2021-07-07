@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Arc.CrossChannel;
+using Benchmark.Internal;
 using BenchmarkDotNet.Attributes;
 
 #pragma warning disable SA1649 // File name should match first type name
@@ -24,7 +25,9 @@ namespace Benchmark
 
         public TypeKeyDictionary<object> TypeKeyDictionary { get; private set; } = default!;
 
-        public ThreadsafeTypeKeyHashtable ThreadsafeTypeKeyHashtable { get; private set; } = default!;
+        public ThreadsafeTypeKeyHashtablePrime ThreadsafeTypeKeyHashtablePrime { get; private set; } = default!;
+
+        internal ThreadsafeTypeKeyHashtable<object> ThreadsafeTypeKeyHashtable { get; private set; } = default!;
 
         public HashtableBenchmark()
         {
@@ -51,6 +54,7 @@ namespace Benchmark
             this.TypeHashtable = new();
             this.TypeDictionary = new();
             this.TypeKeyDictionary = new();
+            this.ThreadsafeTypeKeyHashtablePrime = new();
             this.ThreadsafeTypeKeyHashtable = new();
             foreach (var x in this.Types) // typeof(int).Assembly.GetTypes()
             {
@@ -58,7 +62,8 @@ namespace Benchmark
                 this.TypeHashtable.Add(x, x);
                 this.TypeDictionary.Add(x, x);
                 this.TypeKeyDictionary.Add(x, x);
-                this.ThreadsafeTypeKeyHashtable.Add(x, x);
+                this.ThreadsafeTypeKeyHashtablePrime.Add(x, x);
+                this.ThreadsafeTypeKeyHashtable.TryAdd(x, x);
             }
         }
 
@@ -123,15 +128,27 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public ThreadsafeTypeKeyHashtable CreateAndAdd_ThreadsafeHashtable()
+        public ThreadsafeTypeKeyHashtablePrime CreateAndAdd_ThreadsafeHashtablePrime()
         {
-            var c = new ThreadsafeTypeKeyHashtable();
+            var c = new ThreadsafeTypeKeyHashtablePrime();
             foreach (var x in this.Types)
             {
                 lock (c)
                 {
                     c.Add(x, x);
                 }
+            }
+
+            return c;
+        }
+
+        [Benchmark]
+        public ThreadsafeTypeKeyHashtable<object> CreateAndAdd_ThreadsafeHashtable()
+        {
+            var c = new ThreadsafeTypeKeyHashtable<object>();
+            foreach (var x in this.Types)
+            {
+                c.TryAdd(x, x);
             }
 
             return c;
@@ -174,9 +191,16 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public object Get_ThreadsafeHashtable()
+        public object Get_ThreadsafeHashtablePrime()
         {
-            return this.ThreadsafeTypeKeyHashtable[typeof(int)];
+            return this.ThreadsafeTypeKeyHashtablePrime[typeof(int)];
+        }
+
+        [Benchmark]
+        public object? Get_ThreadsafeHashtable()
+        {
+            this.ThreadsafeTypeKeyHashtable.TryGetValue(typeof(int), out var obj);
+            return obj;
         }
     }
 }
