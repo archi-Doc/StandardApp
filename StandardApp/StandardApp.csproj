@@ -34,17 +34,17 @@
 
   <ItemGroup>
     <PackageReference Include="Arc.CrossChannel" Version="0.3.1" />
-    <PackageReference Include="CrossLink" Version="0.13.0" />
-    <PackageReference Include="DryIoc.dll" Version="4.8.0" />
+    <PackageReference Include="CrossLink" Version="0.14.0" />
+    <PackageReference Include="DryIoc.dll" Version="4.8.1" />
     <PackageReference Include="FastExpressionCompiler" Version="3.2.0" />
     <PackageReference Include="Serilog" Version="2.10.0" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="4.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Tinyhand" Version="0.15.1" />
+    <PackageReference Include="Tinyhand" Version="0.19.2" />
   </ItemGroup>
 
 </Project>
