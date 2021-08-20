@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net5.0-windows10.0.18362.0</TargetFramework>
+    <TargetFramework>net6.0-windows10.0.19041.0</TargetFramework>
     <UseWPF>true</UseWPF>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <StartupObject>Application.App</StartupObject>
@@ -33,10 +33,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arc.CrossChannel" Version="0.3.1" />
-    <PackageReference Include="CrossLink" Version="0.14.0" />
+    <PackageReference Include="Arc.CrossChannel" Version="0.4.0" />
+    <PackageReference Include="CrossLink" Version="0.15.0" />
     <PackageReference Include="DryIoc.dll" Version="4.8.1" />
-    <PackageReference Include="FastExpressionCompiler" Version="3.2.0" />
+    <PackageReference Include="FastExpressionCompiler" Version="3.2.1" />
     <PackageReference Include="Serilog" Version="2.10.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
@@ -44,7 +44,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Tinyhand" Version="0.19.2" />
+    <PackageReference Include="Tinyhand" Version="0.20.0" />
   </ItemGroup>
 
 </Project>
