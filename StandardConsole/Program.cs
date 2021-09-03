@@ -34,7 +34,7 @@ namespace StandardConsole
 
             Container.ValidateAndThrow();
 
-            AppDomain.CurrentDomain.ProcessExit += async (s, e) =>
+            AppDomain.CurrentDomain.ProcessExit += (s, e) =>
             {// Console window closing or process terminated.
                 ThreadCore.Root.Terminate(); // Send a termination signal to the root.
                 ThreadCore.Root.TerminationEvent.WaitOne(2000); // Wait until the termination process is complete (#1).
@@ -54,7 +54,7 @@ namespace StandardConsole
             };
 
             await SimpleParser.ParseAndRunAsync(commandTypes, args, parserOptions); // Main process
-            await ThreadCore.Root.WaitForTermination(-1); // Wait for the termination infinitely.
+            await ThreadCore.Root.WaitAsyncForTermination(-1); // Wait for the termination infinitely.
             ThreadCore.Root.TerminationEvent.Set(); // The termination process is complete (#1).
         }
     }

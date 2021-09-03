@@ -46,7 +46,7 @@ namespace StandardConsole
                 }
             });
 
-            await c.WaitForTermination(-1);
+            await c.WaitAsyncForTermination(-1);
             this.AppService.ExitCommand();
         }
 
