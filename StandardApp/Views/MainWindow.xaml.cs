@@ -10,11 +10,11 @@ using System.Windows.Input;
 using System.Windows.Media;
 using Application;
 using Arc.Mvvm;
-using Arc.Text;
 using Arc.WinAPI;
 using Arc.WPF;
 using CrossChannel;
 using StandardApp.ViewServices;
+using Tinyhand;
 
 #pragma warning disable SA1403 // File may only contain a single namespace
 #pragma warning disable SA1649 // File name should match first type name
@@ -81,7 +81,7 @@ public partial class MainWindow : Window, IMainViewService
                     App.Settings.Culture = "ja";
                 }
 
-                App.C4.ChangeCulture(App.Settings.Culture);
+                App.KeyString.ChangeCulture(App.Settings.Culture);
                 Arc.WPF.C4Updater.C4Update();
             }
             else if (id == MessageId.Exit)
@@ -223,7 +223,7 @@ Released under the MIT license
         if (App.SessionEnding == false)
         {
             var dlg = new Arc.WPF.Dialog(this);
-            dlg.Message = C4.Instance["dialog.exit"];
+            dlg.Message = KeyString.Instance.Get("dialog.exit");
             dlg.Button = MessageBoxButton.YesNo; // button
             dlg.Result = MessageBoxResult.Yes; // focus
             dlg.Image = MessageBoxImage.Warning;

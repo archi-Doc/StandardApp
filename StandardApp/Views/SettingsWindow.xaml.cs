@@ -38,7 +38,7 @@ public partial class SettingsWindow : Window
             return (this.licenseTextCommand != null) ? this.licenseTextCommand : this.licenseTextCommand = new DelegateCommand<string>(
                 (name) =>
                 {// execute
-                    var lic = App.C4.Get(name);
+                    var lic = App.KeyString.Get(name);
                     if (lic != null)
                     {
                         this.information_license.Text = lic;
@@ -122,7 +122,7 @@ Released under the MIT license
         if (App.Settings.Culture != this.CurrentCulture)
         {// Change culture
             App.Settings.Culture = this.CurrentCulture;
-            App.C4.ChangeCulture(App.Settings.Culture);
+            App.KeyString.ChangeCulture(App.Settings.Culture);
             Arc.WPF.C4Updater.C4Update();
         }
 

@@ -9,7 +9,7 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using Arc.Text;
+using Tinyhand;
 
 #pragma warning disable SA1201 // Elements should appear in the correct order
 #pragma warning disable SA1202 // Elements should be ordered by access
@@ -91,10 +91,10 @@ public partial class DialogTextBox : Window
     {
         this.InitializeComponent();
 
-        this.captionOK = C4.Instance.Get("dialog.ok") ?? "O K";
-        this.captionCancel = C4.Instance.Get("dialog.cancel") ?? "Cancel";
-        this.captionYes = C4.Instance.Get("dialog.yes") ?? "Yes";
-        this.captionNo = C4.Instance.Get("dialog.no") ?? "No";
+        this.captionOK = KeyString.Instance.GetOrAlternative("dialog.ok", "O K");
+        this.captionCancel = KeyString.Instance.GetOrAlternative("dialog.cancel", "Cancel");
+        this.captionYes = KeyString.Instance.GetOrAlternative("dialog.yes", "Yes");
+        this.captionNo = KeyString.Instance.GetOrAlternative("dialog.no", "No");
 
         // settings
         this.FontSize = owner.FontSize;
@@ -112,7 +112,7 @@ public partial class DialogTextBox : Window
         // set param
         if (p.C4Name != null)
         {
-            this.fMessage = C4.Instance.Get(p.C4Name) ?? string.Empty;
+            this.fMessage = KeyString.Instance.GetOrEmpty(p.C4Name);
         }
 
         if (this.fMessage == null || this.fMessage == string.Empty)

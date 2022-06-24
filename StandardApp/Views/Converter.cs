@@ -22,7 +22,7 @@ public class DateTimeToStringConverter : IValueConverter
                 return string.Empty;
             }
 
-            return dt.ToString(App.C4["app.datetime"]);
+            return dt.ToString(App.KeyString.Get("app.datetime"));
         }
 
         return System.Windows.DependencyProperty.UnsetValue;
@@ -71,12 +71,12 @@ public class CultureToStringConverter : IValueConverter
             switch ((string)value)
             {
                 case "en": // eglish
-                    return App.C4["language.en"];
+                    return App.KeyString.Get("language.en");
                 case "ja": // japanese
-                    return App.C4["language.ja"];
+                    return App.KeyString.Get("language.ja");
 
                 default: // default = english
-                    return App.C4["language.en"];
+                    return App.KeyString.Get("language.en");
             }
         }
 #if XAMARIN

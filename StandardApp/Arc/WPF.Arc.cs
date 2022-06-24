@@ -13,7 +13,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using Arc.Text;
+using Tinyhand;
 
 #pragma warning disable SA1204 // Static elements should appear before instance elements
 #pragma warning disable SA1611 // Element parameters should be documented
@@ -89,7 +89,7 @@ public class C4FormatConverter : IMultiValueConverter
 {
     public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
     {
-        var format = C4.Instance[(string)parameter];
+        var format = KeyString.Instance.GetOrIdentifier((string)parameter);
         if (format == null)
         {
             return "null";

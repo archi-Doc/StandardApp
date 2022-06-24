@@ -9,7 +9,7 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Markup;
 using Application;
-using Arc.Text;
+using Tinyhand;
 
 #pragma warning disable SA1201 // Elements should appear in the correct order
 #pragma warning disable SA1204 // Static elements should appear before instance elements
@@ -45,7 +45,7 @@ public class C4Extension : MarkupExtension
             }
         }
 
-        return C4.Instance[this.key];
+        return KeyString.Instance.GetOrIdentifier(this.key);
     }
 }
 
@@ -77,10 +77,7 @@ public class C4BindingSource : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    public object? Value
-    {
-        get { return C4.Instance[this.key]; }
-    }
+    public object? Value => KeyString.Instance.GetOrIdentifier(this.key);
 
     public void CultureChanged()
     {
@@ -280,7 +277,7 @@ public static class C4Updater
                             {
                                 DependencyObject? obj = target as DependencyObject;
                                 DependencyProperty? prop = x.TargetProperty as DependencyProperty;
-                                Action updateAction = () => obj?.SetValue(prop, C4.Instance[x.Key]);
+                                Action updateAction = () => obj?.SetValue(prop, KeyString.Instance.GetOrIdentifier(x.Key));
 
                                 // Check whether the target object can be accessed from the
                                 // current thread, and use Dispatcher.Invoke if it can't
@@ -301,7 +298,7 @@ public static class C4Updater
                                 System.Reflection.PropertyInfo? prop = x.TargetProperty as System.Reflection.PropertyInfo;
                                 if (prop != null)
                                 {
-                                    prop.SetValue(target, C4.Instance[x.Key]);
+                                    prop.SetValue(target, KeyString.Instance.GetOrIdentifier(x.Key));
                                 }
                             }
                         }

@@ -8,7 +8,6 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Threading;
-using Arc.Text;
 using Arc.WPF;
 using DryIoc; // alternative: SimpleInjector
 using Serilog;
@@ -42,7 +41,7 @@ public static partial class App
 
     public static Container Container { get; } = new DryIoc.Container(); // DI container
 
-    public static C4 C4 { get; } = C4.Instance;
+    public static KeyString KeyString { get; } = KeyString.Instance;
 
     public static AppSettings Settings { get; private set; } = default!;
 
@@ -152,10 +151,12 @@ public static partial class App
         // C4
         try
         {
-            App.C4.SetDefaultCulture(AppConst.DefaultCulture); // default culture
-            App.C4.LoadAssembly("ja", "Resources.license.tinyhand"); // license
-            App.C4.LoadAssembly("ja", "Resources.strings-ja.tinyhand");
-            App.C4.LoadAssembly("en", "Resources.strings-en.tinyhand");
+            App.KeyString.SetDefaultCulture(AppConst.DefaultCulture); // default culture
+
+            var asm = System.Reflection.Assembly.GetExecutingAssembly();
+            App.KeyString.LoadAssembly("ja", asm, "Resources.license.tinyhand"); // license
+            App.KeyString.LoadAssembly("ja", asm, "Resources.strings-ja.tinyhand");
+            App.KeyString.LoadAssembly("en", asm, "Resources.strings-en.tinyhand");
         }
         catch
         {
@@ -173,7 +174,7 @@ public static partial class App
         }
 
         // Title
-        Title = App.C4["app.name"] + " " + App.Version;
+        Title = App.KeyString.Get("app.name") + " " + App.Version;
 
         // Prevents multiple instances.
         if (!appMutex.WaitOne(0, false))
@@ -237,12 +238,12 @@ public static partial class App
                 }
             }
 
-            App.C4.ChangeCulture(App.Settings.Culture);
+            App.KeyString.ChangeCulture(App.Settings.Culture);
         }
         catch
         {
             App.Settings.Culture = AppConst.DefaultCulture;
-            App.C4.ChangeCulture(App.Settings.Culture);
+            App.KeyString.ChangeCulture(App.Settings.Culture);
         }
 
         Bootstrap();
