@@ -8,112 +8,111 @@ using BenchmarkDotNet.Attributes;
 #pragma warning disable SA1307 // Accessible fields should begin with upper-case letter
 #pragma warning disable SA1503 // Braces should not be omitted
 
-namespace Benchmark
+namespace Benchmark;
+
+[Reconstructable]
+[Arc.Visceral.Obsolete.Reconstructable]
+public partial class ChildClass
 {
-    [Reconstructable]
-    [Arc.Visceral.Obsolete.Reconstructable]
-    public partial class ChildClass
+    public int a;
+    public int b;
+}
+
+public partial class ChildClass2 : IReconstructable, Arc.Visceral.Obsolete.IReconstructable
+{
+    public int a2;
+    public int b2;
+
+    public void OnAfterReconstruct()
     {
-        public int a;
-        public int b;
+        this.a2 = 2;
+        this.b2 = 3;
     }
 
-    public partial class ChildClass2 : IReconstructable, Arc.Visceral.Obsolete.IReconstructable
+    public void Reconstruct()
     {
-        public int a2;
-        public int b2;
+        this.a2 = 2;
+        this.b2 = 3;
+    }
+}
 
-        public void OnAfterReconstruct()
-        {
-            this.a2 = 2;
-            this.b2 = 3;
-        }
+public partial class TestClass : IReconstructable, Arc.Visceral.Obsolete.IReconstructable
+{
+    public int x;
+    public string? y;
+    public ChildClass? ca;
+    public ChildClass cb = default!;
+    public ChildClass2 cc = default!;
 
-        public void Reconstruct()
-        {
-            this.a2 = 2;
-            this.b2 = 3;
-        }
+    public void OnAfterReconstruct()
+    {
     }
 
-    public partial class TestClass : IReconstructable, Arc.Visceral.Obsolete.IReconstructable
+    public void Reconstruct()
     {
-        public int x;
-        public string? y;
-        public ChildClass? ca;
-        public ChildClass cb = default!;
-        public ChildClass2 cc = default!;
+    }
+}
 
-        public void OnAfterReconstruct()
-        {
-        }
+[Config(typeof(BenchmarkConfig))]
+public class ReconstructTest
+{
+    private TestClass tc = default!;
 
-        public void Reconstruct()
-        {
-        }
+    public ReconstructTest()
+    {
+        ReconstructLoader.Load();
     }
 
-    [Config(typeof(BenchmarkConfig))]
-    public class ReconstructTest
+    [GlobalSetup]
+    public void Setup()
     {
-        private TestClass tc = default!;
+        this.tc = new TestClass();
+    }
 
-        public ReconstructTest()
-        {
-            ReconstructLoader.Load();
-        }
+    [Benchmark]
+    public Arc.Visceral.Obsolete.ReconstructFunc<TestClass>? BuildReconstruct()
+    {
+        var builder = Arc.Visceral.Obsolete.Reconstruct.BuildCode<TestClass>();
+        return builder;
+    }
 
-        [GlobalSetup]
-        public void Setup()
-        {
-            this.tc = new TestClass();
-        }
+    [Benchmark]
+    public TestClass TestReconstruct_Obsolete()
+    {
+        Arc.Visceral.Obsolete.Reconstruct.Do(this.tc);
+        this.tc.cc.a2 = -1;
+        Arc.Visceral.Obsolete.Reconstruct.Do(this.tc);
+        return this.tc;
+    }
 
-        [Benchmark]
-        public Arc.Visceral.Obsolete.ReconstructFunc<TestClass>? BuildReconstruct()
-        {
-            var builder = Arc.Visceral.Obsolete.Reconstruct.BuildCode<TestClass>();
-            return builder;
-        }
+    [Benchmark]
+    public TestClass TestReconstruct()
+    {
+        Reconstruct.Do(this.tc);
+        this.tc.cc.a2 = -1;
+        Reconstruct.Do(this.tc);
+        return this.tc;
+    }
 
-        [Benchmark]
-        public TestClass TestReconstruct_Obsolete()
-        {
-            Arc.Visceral.Obsolete.Reconstruct.Do(this.tc);
-            this.tc.cc.a2 = -1;
-            Arc.Visceral.Obsolete.Reconstruct.Do(this.tc);
-            return this.tc;
-        }
+    [Benchmark]
+    public TestClass TestRaw()
+    {
+        if (this.tc.y == null) this.tc.y = string.Empty;
+        if (this.tc.ca == null) this.tc.ca = new ChildClass();
+        if (this.tc.cb == null) this.tc.cb = new ChildClass();
+        if (this.tc.cc == null) this.tc.cc = new ChildClass2();
+        this.tc.cc.OnAfterReconstruct();
+        this.tc.OnAfterReconstruct();
 
-        [Benchmark]
-        public TestClass TestReconstruct()
-        {
-            Reconstruct.Do(this.tc);
-            this.tc.cc.a2 = -1;
-            Reconstruct.Do(this.tc);
-            return this.tc;
-        }
+        this.tc.cc.a2 = -1;
 
-        [Benchmark]
-        public TestClass TestRaw()
-        {
-            if (this.tc.y == null) this.tc.y = string.Empty;
-            if (this.tc.ca == null) this.tc.ca = new ChildClass();
-            if (this.tc.cb == null) this.tc.cb = new ChildClass();
-            if (this.tc.cc == null) this.tc.cc = new ChildClass2();
-            this.tc.cc.OnAfterReconstruct();
-            this.tc.OnAfterReconstruct();
+        if (this.tc.y == null) this.tc.y = string.Empty;
+        if (this.tc.ca == null) this.tc.ca = new ChildClass();
+        if (this.tc.cb == null) this.tc.cb = new ChildClass();
+        if (this.tc.cc == null) this.tc.cc = new ChildClass2();
+        this.tc.cc.OnAfterReconstruct();
+        this.tc.OnAfterReconstruct();
 
-            this.tc.cc.a2 = -1;
-
-            if (this.tc.y == null) this.tc.y = string.Empty;
-            if (this.tc.ca == null) this.tc.ca = new ChildClass();
-            if (this.tc.cb == null) this.tc.cb = new ChildClass();
-            if (this.tc.cc == null) this.tc.cc = new ChildClass2();
-            this.tc.cc.OnAfterReconstruct();
-            this.tc.OnAfterReconstruct();
-
-            return this.tc;
-        }
+        return this.tc;
     }
 }

@@ -8,42 +8,41 @@ using System.Windows.Media;
 using Arc.WPF;
 using Tinyhand;
 
-namespace StandardApp
-{
-    [TinyhandObject]
-    public partial class AppOptions
-    { // Application Options
-        public AppOptions()
-        {
-        }
+namespace StandardApp;
 
-        [Key(0)]
-        public BrushOption BrushTest { get; set; } = new(Colors.Red);
-
-        [Key(1)]
-        public BrushCollection BrushCollection { get; set; } = default!; // Brush Collection
+[TinyhandObject]
+public partial class AppOptions
+{ // Application Options
+    public AppOptions()
+    {
     }
 
-    [TinyhandObject]
-    public partial class BrushCollection : ITinyhandSerializationCallback
+    [Key(0)]
+    public BrushOption BrushTest { get; set; } = new(Colors.Red);
+
+    [Key(1)]
+    public BrushCollection BrushCollection { get; set; } = default!; // Brush Collection
+}
+
+[TinyhandObject]
+public partial class BrushCollection : ITinyhandSerializationCallback
+{
+    [Key(0)]
+    public BrushOption Brush1 { get; set; } = new(Colors.BurlyWood);
+
+    public BrushOption this[string name]
     {
-        [Key(0)]
-        public BrushOption Brush1 { get; set; } = new(Colors.BurlyWood);
-
-        public BrushOption this[string name]
+        get
         {
-            get
-            {
-                return this.Brush1;
-            }
+            return this.Brush1;
         }
+    }
 
-        public void OnBeforeSerialize()
-        {
-        }
+    public void OnBeforeSerialize()
+    {
+    }
 
-        public void OnAfterDeserialize()
-        {
-        }
+    public void OnAfterDeserialize()
+    {
     }
 }

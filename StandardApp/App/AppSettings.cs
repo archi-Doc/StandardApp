@@ -9,34 +9,33 @@ using Arc.WinAPI;
 using Arc.WPF;
 using Tinyhand;
 
-namespace StandardApp
-{
-    [TinyhandObject]
-    public partial class AppSettings : ITinyhandSerializationCallback
-    {// Application Settings
-        [Key(0)]
-        public bool LoadError { get; set; } // True if a load error occured.
+namespace StandardApp;
 
-        [Key(1)]
-        public DipWindowPlacement WindowPlacement { get; set; } = default!;
+[TinyhandObject]
+public partial class AppSettings : ITinyhandSerializationCallback
+{// Application Settings
+    [Key(0)]
+    public bool LoadError { get; set; } // True if a load error occured.
 
-        [Key(2)]
-        public string Culture { get; set; } = AppConst.DefaultCulture; // Default culture
+    [Key(1)]
+    public DipWindowPlacement WindowPlacement { get; set; } = default!;
 
-        [Key(3)]
-        public double DisplayScaling { get; set; } = 1.0d; // Display Scaling
+    [Key(2)]
+    public string Culture { get; set; } = AppConst.DefaultCulture; // Default culture
 
-        [Key(4)]
-        public TestItem.GoshujinClass TestItems { get; set; } = default!;
+    [Key(3)]
+    public double DisplayScaling { get; set; } = 1.0d; // Display Scaling
 
-        public void OnAfterDeserialize()
-        {
-            Transformer.Instance.ScaleX = this.DisplayScaling;
-            Transformer.Instance.ScaleY = this.DisplayScaling;
-        }
+    [Key(4)]
+    public TestItem.GoshujinClass TestItems { get; set; } = default!;
 
-        public void OnBeforeSerialize()
-        {
-        }
+    public void OnAfterDeserialize()
+    {
+        Transformer.Instance.ScaleX = this.DisplayScaling;
+        Transformer.Instance.ScaleY = this.DisplayScaling;
+    }
+
+    public void OnBeforeSerialize()
+    {
     }
 }

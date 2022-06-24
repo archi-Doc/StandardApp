@@ -7,14 +7,13 @@ using System.Text;
 using System.Threading.Tasks;
 using SimpleCommandLine;
 
-namespace StandardConsole
+namespace StandardConsole;
+
+[SimpleCommand("test2")]
+public class TestCommand2 : ISimpleCommand
 {
-    [SimpleCommand("test2")]
-    public class TestCommand2 : ISimpleCommand
+    public void Run(string[] args)
     {
-        public void Run(string[] args)
-        {
-            Console.WriteLine("Test command2:");
-        }
+        Console.WriteLine("Test command2:");
     }
 }

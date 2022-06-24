@@ -3,10 +3,9 @@
 using System;
 using Tinyhand;
 
-namespace ConsoleApp1
+namespace ConsoleApp1;
+
+[TinyhandGeneratorOption(AttachDebugger = false, GenerateToFile = false)]
+internal class GeneratorOption
 {
-    [TinyhandGeneratorOption(AttachDebugger = false, GenerateToFile = false)]
-    internal class GeneratorOption
-    {
-    }
 }

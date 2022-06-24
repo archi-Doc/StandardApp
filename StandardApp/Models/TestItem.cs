@@ -8,33 +8,32 @@ using System.Threading.Tasks;
 using CrossLink;
 using Tinyhand;
 
-namespace StandardApp
+namespace StandardApp;
+
+[TinyhandObject]
+[CrossLinkObject]
+public partial class TestItem
 {
-    [TinyhandObject]
-    [CrossLinkObject]
-    public partial class TestItem
+    [KeyAsName]
+    [Link(AutoNotify = true)]
+    private DateTime dateTime;
+
+    [KeyAsName]
+    [Link(Type = ChainType.Ordered, AutoNotify = true)]
+    private int id;
+
+    [IgnoreMember]
+    public int Selection { get; set; }
+
+    [Link(Type = ChainType.Observable, Name = "Observable", Primary = true)]
+    [Link(Type = ChainType.QueueList, Name = "Queue")]
+    public TestItem(int id, DateTime dt)
     {
-        [KeyAsName]
-        [Link(AutoNotify = true)]
-        private DateTime dateTime;
+        this.id = id;
+        this.dateTime = dt;
+    }
 
-        [KeyAsName]
-        [Link(Type = ChainType.Ordered, AutoNotify = true)]
-        private int id;
-
-        [IgnoreMember]
-        public int Selection { get; set; }
-
-        [Link(Type = ChainType.Observable, Name = "Observable", Primary = true)]
-        [Link(Type = ChainType.QueueList, Name = "Queue")]
-        public TestItem(int id, DateTime dt)
-        {
-            this.id = id;
-            this.dateTime = dt;
-        }
-
-        public TestItem()
-        {
-        }
+    public TestItem()
+    {
     }
 }
