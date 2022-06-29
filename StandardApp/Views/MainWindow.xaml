@@ -27,7 +27,7 @@
             <StackPanel Margin="4">
                 <TextBlock x:Name="textBlock" HorizontalAlignment="Left" Height="Auto" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Width="106" Margin="4"/>
                 <TextBox x:Name="textBox" HorizontalAlignment="Left" Height="30" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="126" Margin="4"/>
-                <TextBlock x:Name="textBlock1" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top" Height="20" Width="178" Text="{Arc:Format {Arc:C4Binding time.text}, {Binding Time1}}" Margin="4"></TextBlock>
+                <TextBlock x:Name="textBlock1" HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Top" Height="20" Width="178" Text="{Arc:Format {Arc:C4Binding TimeText}, {Binding Time1}}" Margin="4"></TextBlock>
                 <Button x:Name="button_disable" Content="disable/enable" HorizontalAlignment="Left" Height="auto" VerticalAlignment="Top" Width="auto" Command="{Binding TestCommand4}"/>
                 <StackPanel Orientation="Horizontal">
                     <TextBox x:Name="textBox2" HorizontalAlignment="Left" Height="18" Margin ="4" TextWrapping="Wrap" Text="{Binding Number1}" VerticalAlignment="Top" Width="55"/>
@@ -41,47 +41,40 @@
                     <Arc:ListViewDD.View>
                         <GridView>
                             <GridViewColumn DisplayMemberBinding="{Binding Id}" Width="50" >
-                                <GridViewColumnHeader Content="{Arc:C4 listview.header.id}"/>
+                                <GridViewColumnHeader Content="{Arc:C4 ListView.Header.Id}"/>
                             </GridViewColumn>
                             <GridViewColumn DisplayMemberBinding="{Binding DateTime, Converter={StaticResource DateTimeToStringConverter}}" Width="150" >
-                                <GridViewColumnHeader Content="{Arc:C4 listview.header.time}"/>
+                                <GridViewColumnHeader Content="{Arc:C4 ListView.Header.Time}"/>
                             </GridViewColumn>
                         </GridView>
                     </Arc:ListViewDD.View>
                     <ListView.ContextMenu>
                         <ContextMenu>
-                            <MenuItem Header="{Arc:C4 listview.menu.increment}" Command="{Binding CommandListViewIncrement}" ToolTip="{Arc:C4 listview.menu.increment.tt}"/>
+                            <MenuItem Header="{Arc:C4 ListView.Menu.Increment}" Command="{Binding CommandListViewIncrement}" ToolTip="{Arc:C4 listview.menu.increment.tt}"/>
                             <Separator />
-                            <MenuItem Header="{Arc:C4 listview.menu.decrement}" Command="{Binding CommandListViewDecrement}" ToolTip="{Arc:C4 listview.menu.increment.tt}" />
+                            <MenuItem Header="{Arc:C4 ListView.Menu.Decrement}" Command="{Binding CommandListViewDecrement}" ToolTip="{Arc:C4 listview.menu.increment.tt}" />
                         </ContextMenu>
                     </ListView.ContextMenu>
                 </Arc:ListViewDD>
 
                 <StackPanel Orientation="Horizontal">
-                    <Button x:Name="button8" Content="{Arc:C4 button.additem}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="auto" Height="auto" Command="{Binding CommandAddItem}" />
-                    <Button x:Name="button9" Content="{Arc:C4 button.clearitem}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="auto" Height="auto" Command="{Binding CommandClearItem}" />
+                    <Button x:Name="button8" Content="{Arc:C4 Button.AddItem}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="auto" Height="auto" Command="{Binding CommandAddItem}" />
+                    <Button x:Name="button9" Content="{Arc:C4 Button.ClearItem}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="auto" Height="auto" Command="{Binding CommandClearItem}" />
                 </StackPanel>
-
             </StackPanel>
-
-
-
-
-
         </Grid>
 
         <Grid ShowGridLines="False" Grid.Row="0" Grid.Column="1" >
-
             <StackPanel>
-                <Button x:Name="button" Content="{Arc:C4 button}" HorizontalAlignment="Left" Height="auto"  VerticalAlignment="Top" Width="auto" Command="{Binding TestCommand}" ToolTip="{Arc:C4 tooltip.button}"  Background="Aqua" />
+                <Button x:Name="button" Content="{Arc:C4 Button.Text}" HorizontalAlignment="Left" Height="auto"  VerticalAlignment="Top" Width="auto" Command="{Binding TestCommand}" ToolTip="{Arc:C4 tooltip.button}"  Background="Aqua" />
                 <Button x:Name="button1" Content="switch language" HorizontalAlignment="Left" Height="auto" VerticalAlignment="Top" Width="auto" Command="{Binding CommandMessageId}" CommandParameter="SwitchCulture"  Background="{Binding Options.BrushCollection.Brush1.Brush}" />
                 <Button x:Name="button2" Content="dialog test" HorizontalAlignment="Left" VerticalAlignment="Top" Width="auto" Height="auto" Command="{Binding TestCommand3}" Visibility="{Binding HideDialogButton, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverted}"/>
                 <Button x:Name="button6" Content="dialog test2" HorizontalAlignment="Left" VerticalAlignment="Top" Width="auto" Height="auto" Command="{Binding TestCommand5}" Visibility="{Binding HideDialogButton, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverted}"/>
                 <Button x:Name="button7" Content="dialog test3" HorizontalAlignment="Left" VerticalAlignment="Top" Width="auto" Height="auto" Command="{Binding TestCommand6}" Visibility="{Binding HideDialogButton, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverted}"/>
                 <Button x:Name="button3" Content="task" HorizontalAlignment="Left" Height="auto" VerticalAlignment="Top" Width="auto" Command="{Binding TestCommand2}"/>
                 <Button x:Name="button4" Content="info" HorizontalAlignment="Left" Height="auto" VerticalAlignment="Top" Width="auto" Command="{Binding CommandMessageId}" CommandParameter="Information"/>
-                <Button x:Name="buttonSettings" Content="{Arc:C4 button.settings}"  HorizontalAlignment="Left" Height="auto" VerticalAlignment="Top" Width="auto"  Command="{Binding CommandMessageId}" CommandParameter="Settings" />
-                <Button x:Name="buttonDataFolder" Content="{Arc:C4 button.datafolder}"  HorizontalAlignment="Left" Height="auto" VerticalAlignment="Top" Width="auto"  Command="{Binding CommandMessageId}" CommandParameter="DataFolder" />
+                <Button x:Name="buttonSettings" Content="{Arc:C4 Button.Settings}"  HorizontalAlignment="Left" Height="auto" VerticalAlignment="Top" Width="auto"  Command="{Binding CommandMessageId}" CommandParameter="Settings" />
+                <Button x:Name="buttonDataFolder" Content="{Arc:C4 Button.DataFolder}"  HorizontalAlignment="Left" Height="auto" VerticalAlignment="Top" Width="auto"  Command="{Binding CommandMessageId}" CommandParameter="DataFolder" />
                 <Button x:Name="buttonCrossChannel" Content="CrossChannel"  HorizontalAlignment="Left" Height="auto" VerticalAlignment="Top" Width="auto"  Command="{Binding TestCrossChannel}"/>
                 <Button x:Name="buttonCrossChannel2" Content="CrossChannel2"  HorizontalAlignment="Left" Height="auto" VerticalAlignment="Top" Width="auto"  Command="{Binding TestCrossChannel2}"/>
                 <Button x:Name="button5" Content="exit without confirmation" HorizontalAlignment="Left" Height="auto"  VerticalAlignment="Top" Width="auto" Command="{Binding CommandMessageId}" CommandParameter="ExitWithoutConfirmation"/>

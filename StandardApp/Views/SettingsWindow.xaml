@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:StandardApp.Views"
         xmlns:Arc="clr-namespace:Arc.WPF"
         mc:Ignorable="d"
-        Title="{Arc:C4 settings.title}" ResizeMode="NoResize" SizeToContent="WidthAndHeight"
+        Title="{Arc:C4 Settings.Title}" ResizeMode="NoResize" SizeToContent="WidthAndHeight"
         SourceInitialized="Window_SourceInitialized" KeyDown="Window_KeyDown">
     <Window.Resources>
         <ResourceDictionary>
@@ -18,11 +18,11 @@
     <Grid x:Name="settingsGrid" Height="400" Width="400">
         <DockPanel Background="WhiteSmoke">
             <WrapPanel  DockPanel.Dock="Bottom" Height="auto" HorizontalAlignment="Right" >
-                <Button x:Name="button_settings_ok" Content="{Arc:C4 dialog.ok}" Margin="8,4,8,8"  Padding="10,2,10,2" Click="SettingsButtonOk" />
-                <Button x:Name="button_settings_cancel" Content="{Arc:C4 dialog.cancel}" Margin="8,4,8,8" Padding="10,2,10,2" Click="SettingsButtonCancel"/>
+                <Button x:Name="button_settings_ok" Content="{Arc:C4 Dialog.Ok}" Margin="8,4,8,8"  Padding="10,2,10,2" Click="SettingsButtonOk" />
+                <Button x:Name="button_settings_cancel" Content="{Arc:C4 Dialog.Cancel}" Margin="8,4,8,8" Padding="10,2,10,2" Click="SettingsButtonCancel"/>
             </WrapPanel>
             <TabControl x:Name="tabControl" DockPanel.Dock="Bottom" Background="WhiteSmoke" Margin="4" Height="auto">
-                <TabItem Header="{Arc:C4 settings.tab.general}">
+                <TabItem Header="{Arc:C4 Settings.Tab.General}">
                     <Grid Background="WhiteSmoke" Margin="4">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
@@ -34,10 +34,10 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
 
-                        <Label Grid.Row="0" Grid.Column="0" Content="{Arc:C4 settings.folder}" HorizontalAlignment="Right" />
-                        <Button Grid.Row="0" Grid.Column="1" x:Name="button_settings_open" Content="{Arc:C4 settings.folder.open}" Width="auto" Height="auto"  HorizontalAlignment="Left" VerticalAlignment="Top" Click="SettingsButtonFolder" />
+                        <Label Grid.Row="0" Grid.Column="0" Content="{Arc:C4 Settings.Folder}" HorizontalAlignment="Right" />
+                        <Button Grid.Row="0" Grid.Column="1" x:Name="button_settings_open" Content="{Arc:C4 Settings.OpenFolder}" Width="auto" Height="auto"  HorizontalAlignment="Left" VerticalAlignment="Top" Click="SettingsButtonFolder" />
 
-                        <Label Grid.Row="1" Grid.Column="0" Content="{Arc:C4 settings.language}" HorizontalAlignment="Right" />
+                        <Label Grid.Row="1" Grid.Column="0" Content="{Arc:C4 Settings.Language}" HorizontalAlignment="Right" />
                         <ComboBox Grid.Row="1" Grid.Column="1"  x:Name="comboBox" ItemsSource="{Binding CultureList}" SelectedItem="{Binding CurrentCulture}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
@@ -46,7 +46,7 @@
                             </ComboBox.ItemTemplate>
                         </ComboBox>
 
-                        <Label Grid.Row="2" Grid.Column="0" Content="{Arc:C4 settings.displayscaling}" HorizontalAlignment="Right" />
+                        <Label Grid.Row="2" Grid.Column="0" Content="{Arc:C4 Settings.DisplayScaling}" HorizontalAlignment="Right" />
                         <ComboBox Grid.Row="2" Grid.Column="1"  x:Name="comboBox2"  ItemsSource="{Binding DisplayScaling}" SelectedItem="{Binding CurrentDisplayScaling}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
@@ -57,7 +57,7 @@
 
                     </Grid>
                 </TabItem>
-                <TabItem Header="{Arc:C4 settings.tab.information}">
+                <TabItem Header="{Arc:C4 Settings.Tab.Information}">
 
                     <Grid Background="WhiteSmoke" Margin="4">
                         <Grid.RowDefinitions>

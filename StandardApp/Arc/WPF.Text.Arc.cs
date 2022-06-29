@@ -49,6 +49,37 @@ public class C4Extension : MarkupExtension
     }
 }
 
+[MarkupExtensionReturnType(typeof(string))]
+public class C5Extension : MarkupExtension
+{ // Text-based C4 markup extension. GUI thread only.
+    private ulong key;
+
+    public C5Extension(ulong key)
+    {
+        this.key = key;
+    }
+
+    public override object ProvideValue(IServiceProvider serviceProvider)
+    {
+        IProvideValueTarget? target = serviceProvider.GetService(typeof(IProvideValueTarget)) as IProvideValueTarget;
+
+        if ((target != null) && (target.TargetObject != null))
+        {
+            if (target.TargetObject.GetType().FullName == "System.Windows.SharedDp")
+            {
+                return this;
+            }
+
+            if (target.TargetProperty != null)
+            { // Add ExtensionObject (used in C4Update).
+                // Arc.WPF.C4Updater.C4AddExtensionObject(target.TargetObject, target.TargetProperty, this.key);
+            }
+        }
+
+        return HashedString.Get(this.key);
+    }
+}
+
 public class C4BindingExtension : MarkupExtension
 { // Binding-based C4 markup extension. GUI thread only.
     private string key;

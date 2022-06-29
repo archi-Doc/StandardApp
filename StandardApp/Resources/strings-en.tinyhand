@@ -5,7 +5,7 @@ Test2 = "Test2"
 
 App = {
     Name = "StandardApp" // Name
-    Description = null
+    Description = "Standard application"
     DateTime = "MM/dd H:mm:ss"
 }
 
@@ -28,7 +28,7 @@ General = "General"
 Information = "Information"
 }
 Folder = "Settings folder"
-FolderOpen = "Open"
+OpenFolder = "Open"
 Language = "Language"
 DisplayScaling = "Scaling"
 }
@@ -42,7 +42,9 @@ Language = {
 Button = {
     Text = "Notification message"
     Settings = "Settings"
-    Datafolder = "DataFolder"
+    DataFolder = "DataFolder"
+    AddItem = "Add"
+    ClearItem = "Clear"
 }
 Tooltip = {
     Button = "This is a button."
@@ -50,11 +52,6 @@ Tooltip = {
 }
 
 TimeText = "Current time is {0:MM/dd H:mm:ss}."
-
-Button = {
-    AddItem = "Add"
-    ClearItem = "Clear"
-}
 
 ListView = {
 // ListView
