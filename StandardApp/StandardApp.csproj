@@ -11,14 +11,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Resources\license.tinyhand" />
-    <None Remove="Resources\strings-en.tinyhand" />
-    <None Remove="Resources\strings-en.xml" />
-    <None Remove="Resources\strings-ja.tinyhand" />
-    <None Remove="Resources\strings-ja.xml" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Remove="Generated\*" />
   </ItemGroup>
 

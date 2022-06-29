@@ -1,0 +1,39 @@
+// identifier = "string" /* null: Use the default value. */
+app.name = "StandardApp"
+app.description = null
+app.datetime = "MM/dd H:mm:ss"
+dialog.ok = "O K"
+dialog.cancel = "Cancel"
+dialog.yes = "Yes"
+dialog.no = "No"
+dialog.exit = "Are you sure you want to exit?"
+
+// settings
+settings.title = "Settings/Info"
+settings.tab.general = "General"
+settings.tab.information = "Information"
+settings.folder = "Settings folder"
+settings.folder.open = "Open"
+settings.language = "Language"
+settings.displayscaling = "Scaling"
+
+// other
+language.en = "English (英語）"
+language.ja = "Japanese (日本語)"
+
+button = "Notification message"
+button.settings = "Settings"
+button.datafolder = "DataFolder"
+tooltip.button = "This is a button."
+tooltip.sample = "Sample"
+dialog.message = "Yes or no?"
+
+time.text = "Current time is {0:MM/dd H:mm:ss}."
+
+// List view
+button.additem = "Add"
+button.clearitem = "Clear"
+listview.header.id = "Id"
+listview.header.time = "Time"
+listview.menu.increment = "increment"
+listview.menu.decrement = "decrement"
