@@ -45,7 +45,7 @@ public class C4Extension : MarkupExtension
             }
         }
 
-        return KeyString.Instance.GetOrIdentifier(this.key);
+        return HashedString.GetOrIdentifier(this.key);
     }
 }
 
@@ -77,7 +77,7 @@ public class C4BindingSource : INotifyPropertyChanged
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    public object? Value => KeyString.Instance.GetOrIdentifier(this.key);
+    public object? Value => HashedString.GetOrIdentifier(this.key);
 
     public void CultureChanged()
     {
@@ -277,7 +277,13 @@ public static class C4Updater
                             {
                                 DependencyObject? obj = target as DependencyObject;
                                 DependencyProperty? prop = x.TargetProperty as DependencyProperty;
-                                Action updateAction = () => obj?.SetValue(prop, KeyString.Instance.GetOrIdentifier(x.Key));
+                                Action updateAction = () =>
+                                {
+                                    if (obj != null && x.Key != null)
+                                    {
+                                        obj.SetValue(prop, HashedString.GetOrIdentifier(x.Key));
+                                    }
+                                };
 
                                 // Check whether the target object can be accessed from the
                                 // current thread, and use Dispatcher.Invoke if it can't
@@ -296,9 +302,9 @@ public static class C4Updater
                             else
                             {
                                 System.Reflection.PropertyInfo? prop = x.TargetProperty as System.Reflection.PropertyInfo;
-                                if (prop != null)
+                                if (prop != null && x.Key != null)
                                 {
-                                    prop.SetValue(target, KeyString.Instance.GetOrIdentifier(x.Key));
+                                    prop.SetValue(target, HashedString.GetOrIdentifier(x.Key));
                                 }
                             }
                         }

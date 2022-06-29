@@ -21,7 +21,7 @@ namespace Arc.WPF;
 
 public struct DialogParam
 { // Dialog Parameter
-    public string C4Name; // 1st: C4Name
+    public ulong Hashed; // 1st: C4Name
     public string Message; // 2nd: Message
     public MessageBoxButton Button;
     public MessageBoxImage Image;
@@ -76,10 +76,10 @@ public partial class Dialog : Window
     {
         this.InitializeComponent();
 
-        this.captionOK = KeyString.Instance.GetOrAlternative("dialog.ok", "O K");
-        this.captionCancel = KeyString.Instance.GetOrAlternative("dialog.cancel", "Cancel");
-        this.captionYes = KeyString.Instance.GetOrAlternative("dialog.yes", "Yes");
-        this.captionNo = KeyString.Instance.GetOrAlternative("dialog.no", "No");
+        this.captionOK = HashedString.GetOrAlternative("Dialog.Ok", "O K");
+        this.captionCancel = HashedString.GetOrAlternative("Dialog.Cancel", "Cancel");
+        this.captionYes = HashedString.GetOrAlternative("Dialog.Yes", "Yes");
+        this.captionNo = HashedString.GetOrAlternative("Dialog.No", "No");
 
         // settings
         this.FontSize = owner.FontSize;
@@ -96,9 +96,9 @@ public partial class Dialog : Window
     public Dialog(Window owner, DialogParam p)
         : this(owner)
     {
-        if (p.C4Name != null)
+        if (p.Hashed != 0)
         {
-            this.fMessage = KeyString.Instance.GetOrEmpty(p.C4Name);
+            this.fMessage = HashedString.GetOrEmpty(p.Hashed);
         }
 
         if (this.fMessage == string.Empty)

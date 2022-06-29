@@ -81,7 +81,7 @@ public partial class MainWindow : Window, IMainViewService
                     App.Settings.Culture = "ja";
                 }
 
-                App.KeyString.ChangeCulture(App.Settings.Culture);
+                HashedString.ChangeCulture(App.Settings.Culture);
                 Arc.WPF.C4Updater.C4Update();
             }
             else if (id == MessageId.Exit)
@@ -223,7 +223,7 @@ Released under the MIT license
         if (App.SessionEnding == false)
         {
             var dlg = new Arc.WPF.Dialog(this);
-            dlg.Message = KeyString.Instance.Get("dialog.exit");
+            dlg.Message = HashedString.Get("Dialog.Exit");
             dlg.Button = MessageBoxButton.YesNo; // button
             dlg.Result = MessageBoxResult.Yes; // focus
             dlg.Image = MessageBoxImage.Warning;

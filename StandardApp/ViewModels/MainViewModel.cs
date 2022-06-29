@@ -206,19 +206,19 @@ public partial class MainViewModel
                 { // execute
                     // TestCommand4.Execute(null);
                     var p = default(DialogParam);
-                    p.C4Name = "dialog.message";
+                    p.Hashed = Hashed.Dialog.Message;
                     p.Button = MessageBoxButton.YesNo;
                     p.Image = MessageBoxImage.Question;
                     var result = await this.ViewService.Dialog(p);
                     if (result == MessageBoxResult.Yes)
                     {
-                        p.C4Name = "dialog.yes";
+                        p.Hashed = Hashed.Dialog.Yes;
                         p.Button = MessageBoxButton.OK;
                         await this.ViewService.Dialog(p);
                     }
                     else
                     {
-                        p.C4Name = "dialog.no";
+                        p.Hashed = Hashed.Dialog.No;
                         p.Button = MessageBoxButton.OK;
                         await this.ViewService.Dialog(p);
                     }
@@ -236,7 +236,7 @@ public partial class MainViewModel
                 () =>
                 { // execute
                     var p = default(DialogParam);
-                    p.C4Name = "app.name";
+                    p.Hashed = Hashed.App.Name;
                     p.Button = MessageBoxButton.OK;
                     p.Image = MessageBoxImage.Information;
                     this.ViewService.CustomDialog(p);
@@ -274,13 +274,13 @@ public partial class MainViewModel
 
                     if (result[0] == MessageBoxResult.Yes)
                     {
-                        p.C4Name = "dialog.yes";
+                        p.Hashed = Hashed.Dialog.Yes;
                         p.Button = MessageBoxButton.OK;
                         await Radio.SendTwoWayAsync<DialogParam, MessageBoxResult>(p);
                     }
                     else
                     {
-                        p.C4Name = "dialog.no";
+                        p.Hashed = Hashed.Dialog.No;
                         p.Button = MessageBoxButton.OK;
                         await Radio.SendTwoWayAsync<DialogParam, MessageBoxResult>(p);
                     }
@@ -342,7 +342,7 @@ public partial class MainViewModel
     private void TestExecute3()
     {
         var p = default(DialogParam);
-        p.C4Name = "app.description";
+        p.Hashed = Hashed.App.Description;
         this.ViewService.Dialog(p);
         return;
     }

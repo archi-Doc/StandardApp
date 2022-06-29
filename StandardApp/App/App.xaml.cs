@@ -1,6 +1,9 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
-using System;
+#pragma warning disable SA1208 // System using directives should be placed before other using directives
+#pragma warning disable SA1210 // Using directives should be ordered alphabetically by namespace
+global using System;
+global using Tinyhand;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -14,10 +17,8 @@ using Serilog;
 using StandardApp;
 using StandardApp.Views;
 using StandardApp.ViewServices;
-using Tinyhand;
 
 #pragma warning disable SA1401 // Fields should be private
-#pragma warning disable SA1402 // File may only contain a single type
 #pragma warning disable SA1600 // Elements should be documented
 
 namespace Application;
@@ -40,8 +41,6 @@ public static partial class App
     public static Dispatcher UI { get; } = Dispatcher.CurrentDispatcher; // UI dispatcher
 
     public static Container Container { get; } = new DryIoc.Container(); // DI container
-
-    public static KeyString KeyString { get; } = KeyString.Instance;
 
     public static AppSettings Settings { get; private set; } = default!;
 
@@ -151,12 +150,12 @@ public static partial class App
         // C4
         try
         {
-            App.KeyString.SetDefaultCulture(AppConst.DefaultCulture); // default culture
+            HashedString.SetDefaultCulture(AppConst.DefaultCulture); // default culture
 
             var asm = System.Reflection.Assembly.GetExecutingAssembly();
-            App.KeyString.LoadAssembly("ja", asm, "Resources.license.tinyhand"); // license
-            App.KeyString.LoadAssembly("ja", asm, "Resources.strings-ja.tinyhand");
-            App.KeyString.LoadAssembly("en", asm, "Resources.strings-en.tinyhand");
+            HashedString.LoadAssembly("ja", asm, "Resources.license.tinyhand"); // license
+            HashedString.LoadAssembly("ja", asm, "Resources.strings-ja.tinyhand");
+            HashedString.LoadAssembly("en", asm, "Resources.strings-en.tinyhand");
         }
         catch
         {
@@ -174,7 +173,7 @@ public static partial class App
         }
 
         // Title
-        Title = App.KeyString.Get("app.name") + " " + App.Version;
+        Title = HashedString.Get(Hashed.App.Name) + " " + App.Version;
 
         // Prevents multiple instances.
         if (!appMutex.WaitOne(0, false))
@@ -238,12 +237,12 @@ public static partial class App
                 }
             }
 
-            App.KeyString.ChangeCulture(App.Settings.Culture);
+            HashedString.ChangeCulture(App.Settings.Culture);
         }
         catch
         {
             App.Settings.Culture = AppConst.DefaultCulture;
-            App.KeyString.ChangeCulture(App.Settings.Culture);
+            HashedString.ChangeCulture(App.Settings.Culture);
         }
 
         Bootstrap();

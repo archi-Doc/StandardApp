@@ -71,7 +71,7 @@ public interface IMainViewService
                     App.Settings.Culture = "ja";
                 }
 
-                App.KeyString.ChangeCulture(App.Settings.Culture);
+                HashedString.ChangeCulture(App.Settings.Culture);
                 Arc.WPF.C4Updater.C4Update();
             }
             else if (id == MessageId.Exit)

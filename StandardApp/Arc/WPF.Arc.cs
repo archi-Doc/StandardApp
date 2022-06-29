@@ -89,7 +89,7 @@ public class C4FormatConverter : IMultiValueConverter
 {
     public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
     {
-        var format = KeyString.Instance.GetOrIdentifier((string)parameter);
+        var format = HashedString.GetOrIdentifier((string)parameter);
         if (format == null)
         {
             return "null";
