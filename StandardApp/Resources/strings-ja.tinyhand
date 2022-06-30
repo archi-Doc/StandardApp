@@ -24,7 +24,7 @@ Dialog =
 Settings = {
     Title = "設定/情報"
     Tab = {
-        General = "General"
+        General = "一般"
         Information = "情報"
     }
     Folder = "設定フォルダ"
