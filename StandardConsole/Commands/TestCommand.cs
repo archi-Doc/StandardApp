@@ -26,7 +26,7 @@ public class TestCommand : ISimpleCommandAsync<TestOptions>
         this.AppService = appService;
     }
 
-    public async Task Run(TestOptions option, string[] args)
+    public async Task RunAsync(TestOptions option, string[] args)
     {
         this.AppService.EnterCommand(string.Empty);
 

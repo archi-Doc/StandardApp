@@ -37,14 +37,14 @@ public class DelegateBenchmark
     {
         this.testClass = new DelegateTestClass();
         this.func = this.testClass.TestFunction;
-        this.weakFunc = new WeakFunc<int, int>(this.testClass.TestFunction);
-        this.weakFuncLambda = new WeakFunc<uint, uint>(x => x * 3);
+        this.weakFunc = new WeakFunc<int, int>(this.testClass, this.testClass.TestFunction);
+        this.weakFuncLambda = new WeakFunc<uint, uint>(this.testClass, x => x * 3);
     }
 
     [Benchmark]
     public WeakFunc<int, int> Prepare_WeakFunc()
     {
-        return new WeakFunc<int, int>(this.testClass.TestFunction);
+        return new WeakFunc<int, int>(this.testClass, this.testClass.TestFunction);
     }
 
     /*[Benchmark]

@@ -11,14 +11,14 @@ using Application;
 using Arc.Mvvm;
 using Arc.WPF;
 using CrossChannel;
-using CrossLink;
 using StandardApp.ViewServices;
+using ValueLink;
 
 #pragma warning disable SA1201 // Elements should appear in the correct order
 
 namespace StandardApp;
 
-[CrossLinkObject]
+[ValueLinkObject]
 public partial class MainViewModel
 {
     public AppOptions Options => App.Options;
@@ -43,7 +43,7 @@ public partial class MainViewModel
         {
             this.SetProperty(ref this.number1, value);
             // this.SetProperty(ref this.number1, value); // this.Set(() => this.Number1, ref this.number1, value);
-            this.Number3 = this.Number1 + this.Number2;
+            this.Number3Value = this.Number1 + this.Number2;
         }
     }
 
@@ -59,7 +59,7 @@ public partial class MainViewModel
         set
         {
             this.SetProperty(ref this.number2, value);
-            this.Number3 = this.Number1 + this.Number2;
+            this.Number3Value = this.Number1 + this.Number2;
         }
     }
 
@@ -84,7 +84,7 @@ public partial class MainViewModel
                     }
 
                     var last = this.TestGoshujin.IdChain.Last;
-                    var id = last == null ? 0 : last.Id + 1;
+                    var id = last == null ? 0 : last.IdValue + 1;
                     var item = new TestItem(id, DateTime.UtcNow);
                     item.Goshujin = this.TestGoshujin;
                 });
@@ -116,7 +116,7 @@ public partial class MainViewModel
                 {
                     foreach (var x in this.TestGoshujin.ObservableChain.Where(x => x.Selection == 2))
                     {
-                        x.Id++;
+                        x.IdValue++;
                     }
                 }));
         }
@@ -133,9 +133,9 @@ public partial class MainViewModel
                 {
                     foreach (var x in this.TestGoshujin.ObservableChain.Where(x => x.Selection == 2))
                     {
-                        if (x.Id > 0)
+                        if (x.IdValue > 0)
                         {
-                            x.Id--;
+                            x.IdValue--;
                         }
                     }
                 }));
@@ -172,10 +172,10 @@ public partial class MainViewModel
             return this.testCommand4 ??= new DelegateCommand(
                 async () =>
                 { // execute
-                    this.HideDialogButton = !this.HideDialogButton;
+                    this.HideDialogButtonValue = !this.HideDialogButtonValue;
                     await Task.Delay(1000);
-                    this.CommandFlag = this.CommandFlag ? false : true;
-                    this.Number4++;
+                    this.CommandFlagValue = this.CommandFlagValue ? false : true;
+                    this.Number4Value++;
 
                     // this.TestCommand.RaiseCanExecuteChanged(); // ObservesProperty(() => this.CommandFlag)
                 });
@@ -325,7 +325,7 @@ public partial class MainViewModel
                 }
 
                 this.ViewService.Notification(new NotificationMessage("notification."));
-            }, () => this.CommandFlag).ObservesProperty(() => this.CommandFlag);
+            }, () => this.CommandFlagValue).ObservesProperty(() => this.CommandFlagValue);
         }
     }
 

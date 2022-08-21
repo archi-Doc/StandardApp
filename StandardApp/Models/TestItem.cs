@@ -5,21 +5,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CrossLink;
 using Tinyhand;
+using ValueLink;
 
 namespace StandardApp;
 
 [TinyhandObject]
-[CrossLinkObject]
+[ValueLinkObject]
 public partial class TestItem
 {
     [KeyAsName]
-    [Link(AutoNotify = true)]
+    [Link(AutoNotify = true, Accessibility = ValueLinkAccessibility.Public)]
     private DateTime dateTime;
 
     [KeyAsName]
-    [Link(Type = ChainType.Ordered, AutoNotify = true)]
+    [Link(Type = ChainType.Ordered, AutoNotify = true, Accessibility = ValueLinkAccessibility.Public)]
     private int id;
 
     [IgnoreMember]
