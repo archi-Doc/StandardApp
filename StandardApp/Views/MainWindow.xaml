@@ -32,7 +32,7 @@
                 <StackPanel Orientation="Horizontal">
                     <TextBox x:Name="textBox2" HorizontalAlignment="Left" Height="18" Margin ="4" TextWrapping="Wrap" Text="{Binding Number1}" VerticalAlignment="Top" Width="55"/>
                     <TextBox x:Name="textBox3" HorizontalAlignment="Left" Height="18" Margin ="4" TextWrapping="Wrap" Text="{Binding Number2}" VerticalAlignment="Top" Width="55"/>
-                    <TextBox x:Name="textBox4" HorizontalAlignment="Left" Height="18" Margin ="4" TextWrapping="Wrap" Text="{Binding Number3}" VerticalAlignment="Top" Width="55" IsEnabled="False"/>
+                    <TextBox x:Name="textBox4" HorizontalAlignment="Left" Height="18" Margin ="4" TextWrapping="Wrap" Text="{Binding Number3Value}" VerticalAlignment="Top" Width="55" IsEnabled="False"/>
                 </StackPanel>
 
                 <TextBox x:Name="textBox5" HorizontalAlignment="Left" Height="18" Margin="4" TextWrapping="Wrap" Text="{Binding Number4}" VerticalAlignment="Top" Width="55" IsEnabled="False"/>
@@ -40,10 +40,10 @@
                 <Arc:ListViewDD Height="150" Margin="4" x:Name="listView" ItemsSource="{Binding TestGoshujin.ObservableChain}" SelectionChanged="ListView_SelectionChanged">
                     <Arc:ListViewDD.View>
                         <GridView>
-                            <GridViewColumn DisplayMemberBinding="{Binding Id}" Width="50" >
+                            <GridViewColumn DisplayMemberBinding="{Binding IdValue}" Width="50" >
                                 <GridViewColumnHeader Content="{Arc:C4 ListView.Header.Id}"/>
                             </GridViewColumn>
-                            <GridViewColumn DisplayMemberBinding="{Binding DateTime, Converter={StaticResource DateTimeToStringConverter}}" Width="150" >
+                            <GridViewColumn DisplayMemberBinding="{Binding DateTimeValue, Converter={StaticResource DateTimeToStringConverter}}" Width="150" >
                                 <GridViewColumnHeader Content="{Arc:C4 ListView.Header.Time}"/>
                             </GridViewColumn>
                         </GridView>
