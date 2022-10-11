@@ -314,18 +314,19 @@ public partial class MainViewModel
         {
             return this.dCommand ??= new DelegateCommand(
                 () =>
-            {
-                if (App.Options.BrushCollection.Brush1.Brush?.Color == Colors.Green)
                 {
-                    App.Options.BrushCollection.Brush1.Change(Colors.Red);
-                }
-                else
-                {
-                    App.Options.BrushCollection.Brush1.Change(Colors.Green);
-                }
+                    if (App.Options.BrushCollection.Brush1.Brush?.Color == Colors.Green)
+                    {
+                        App.Options.BrushCollection.Brush1.Change(Colors.Red);
+                    }
+                    else
+                    {
+                        App.Options.BrushCollection.Brush1.Change(Colors.Green);
+                    }
 
-                this.ViewService.Notification(new NotificationMessage("notification."));
-            }, () => this.CommandFlagValue).ObservesProperty(() => this.CommandFlagValue);
+                    this.ViewService.Notification(new NotificationMessage("notification."));
+                },
+                () => this.CommandFlagValue).ObservesProperty(() => this.CommandFlagValue);
         }
     }
 

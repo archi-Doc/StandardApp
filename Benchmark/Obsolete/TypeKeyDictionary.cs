@@ -115,9 +115,9 @@ public class TypeKeyDictionary<T>
         set
         {
             var result = this.Add(key, value);
-            if (!result.newlyAdded)
+            if (!result.NewlyAdded)
             {
-                this.nodes[result.nodeIndex].Value = value;
+                this.nodes[result.NodeIndex].Value = value;
             }
         }
     }
@@ -219,7 +219,7 @@ public class TypeKeyDictionary<T>
     /// <param name="value">The value of the element to add.</param>
     /// <returns>nodeIndex: the added <see cref="TypeKeyDictionary{T}.Node"/>.<br/>
     /// newlyAdded:true if the new key is inserted.</returns>
-    public (int nodeIndex, bool newlyAdded) Add(Type key, T value) => this.Probe(key, value);
+    public (int NodeIndex, bool NewlyAdded) Add(Type key, T value) => this.Probe(key, value);
 
     /// <summary>
     /// Removes a specified node from the collection.
@@ -268,7 +268,7 @@ public class TypeKeyDictionary<T>
     /// <param name="key">The element to add to the set.</param>
     /// <returns>node: the added <see cref="TypeKeyDictionary{T}.Node"/>.<br/>
     /// newlyAdded: true if the new key is inserted.</returns>
-    private (int nodeIndex, bool newlyAdded) Probe(Type key, T value)
+    private (int NodeIndex, bool NewlyAdded) Probe(Type key, T value)
     {
         if (this.nodeCount == this.nodes.Length)
         {

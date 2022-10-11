@@ -50,7 +50,7 @@ public class Program
         {
             ServiceProvider = Container,
             RequireStrictCommandName = false,
-            RequireStrictOptionName = true
+            RequireStrictOptionName = true,
         };
 
         await SimpleParser.ParseAndRunAsync(commandTypes, args, parserOptions); // Main process

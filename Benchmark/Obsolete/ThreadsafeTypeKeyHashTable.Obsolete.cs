@@ -57,12 +57,12 @@ public class ThreadsafeTypeKeyHashtable
         get
         {// Thread safe
             var result = this.FindNode(key);
-            if (result.index == -1)
+            if (result.Index == -1)
             {
                 throw new KeyNotFoundException();
             }
 
-            return result.value;
+            return result.Value;
         }
 
         set
@@ -70,9 +70,9 @@ public class ThreadsafeTypeKeyHashtable
             lock (this.writerLock)
             {
                 var result = this.Probe(key, value);
-                if (!result.newlyAdded)
+                if (!result.NewlyAdded)
                 {
-                    this.nodes[result.nodeIndex].Value = value;
+                    this.nodes[result.NodeIndex].Value = value;
                 }
             }
         }
@@ -113,7 +113,7 @@ public class ThreadsafeTypeKeyHashtable
     /// <param name="value">The value of the element to add.</param>
     /// <returns>nodeIndex: the added <see cref="ThreadsafeTypeKeyHashtable.Node"/>.<br/>
     /// newlyAdded:true if the new key is inserted.</returns>
-    public (int nodeIndex, bool newlyAdded) Add(Type key, object? value)
+    public (int NodeIndex, bool NewlyAdded) Add(Type key, object? value)
     {
         lock (this.writerLock)
         {
@@ -133,13 +133,13 @@ public class ThreadsafeTypeKeyHashtable
         lock (this.writerLock)
         {
             var result = this.FindNode(key);
-            if (result.index == -1)
+            if (result.Index == -1)
             {
                 return false;
             }
 
-            Volatile.Write(ref this.nodes[result.index].Key, typeof(DeletedClass));
-            Volatile.Write(ref this.nodes[result.index].Value, null);
+            Volatile.Write(ref this.nodes[result.Index].Key, typeof(DeletedClass));
+            Volatile.Write(ref this.nodes[result.Index].Value, null);
             return true;
         }
     }
@@ -150,7 +150,7 @@ public class ThreadsafeTypeKeyHashtable
     /// <param name="key">The key to search in a collection.</param>
     /// <returns>The node index with the specified key( -1: if not found), value.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private (int index, object? value) FindNode(Type key)
+    private (int Index, object? Value) FindNode(Type key)
     {// Thread safe
         var table = this.nodes;
         var hashMask = table.Length - 1;
@@ -178,7 +178,7 @@ public class ThreadsafeTypeKeyHashtable
     /// <param name="key">The element to add to the set.</param>
     /// <returns>node: the added <see cref="ThreadsafeTypeKeyHashtable.Node"/>.<br/>
     /// newlyAdded: true if the new key is inserted.</returns>
-    private (int nodeIndex, bool newlyAdded) Probe(Type key, object? value)
+    private (int NodeIndex, bool NewlyAdded) Probe(Type key, object? value)
     {// writerLock required.
         if (this.Count >= (this.nodes.Length >> 1))
         {

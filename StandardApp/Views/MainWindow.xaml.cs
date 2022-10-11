@@ -41,7 +41,8 @@ public partial class MainWindow : Window, IMainViewService
             {
                 var result = App.UI.InvokeAsync<MessageBoxResult>(() => MessageBox.Show(x, "test", MessageBoxButton.OKCancel));
                 return result.Task;
-            }, this);
+            },
+            this);
 
         try
         {
