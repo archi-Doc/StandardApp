@@ -1,39 +1,18 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Arc.Threading;
-using DryIoc;
-using Serilog;
+using Arc.Unit;
+using Microsoft.Extensions.DependencyInjection;
 using SimpleCommandLine;
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 
 namespace StandardConsole;
 
 public class Program
 {
-    public static Container Container { get; } = new();
-
-    public static async Task Main(string[] args)
+    public static async Task Main()
     {
-        // Simple Commands
-        var commandTypes = new Type[]
-        {
-            typeof(TestCommand),
-            typeof(TestCommand2),
-        };
-
-        // DI Container
-        Container.Register<IAppService, AppService>(Reuse.Singleton);
-        foreach (var x in commandTypes)
-        {
-            Container.Register(x, Reuse.Singleton);
-        }
-
-        Container.ValidateAndThrow();
-
         AppDomain.CurrentDomain.ProcessExit += (s, e) =>
         {// Console window closing or process terminated.
             ThreadCore.Root.Terminate(); // Send a termination signal to the root.
@@ -46,15 +25,19 @@ public class Program
             ThreadCore.Root.Terminate(); // Send a termination signal to the root.
         };
 
-        var parserOptions = SimpleParserOptions.Standard with
-        {
-            ServiceProvider = Container,
-            RequireStrictCommandName = false,
-            RequireStrictOptionName = true,
-        };
+        var builder = new ConsoleUnit.Builder()
+            .Configure(context =>
+            {
+                // Add Command
+            });
 
-        await SimpleParser.ParseAndRunAsync(commandTypes, args, parserOptions); // Main process
+        var args = SimpleParserHelper.GetCommandLineArguments();
+        var unit = builder.Build();
+        await unit.RunAsync(new(args));
+
+        ThreadCore.Root.Terminate();
         await ThreadCore.Root.WaitForTerminationAsync(-1); // Wait for the termination infinitely.
+        unit.Context.ServiceProvider.GetService<UnitLogger>()?.FlushAndTerminate();
         ThreadCore.Root.TerminationEvent.Set(); // The termination process is complete (#1).
     }
 }
