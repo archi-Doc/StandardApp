@@ -61,6 +61,10 @@ public partial class BrushOption : BindableBase, ITinyhandSerializationCallback
         }
     }
 
+    public void OnAfterReconstruct()
+    {
+    }
+
     public void OnBeforeSerialize()
     { // Before data is saved.
         if (this.Brush != null)

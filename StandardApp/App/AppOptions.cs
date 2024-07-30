@@ -45,4 +45,8 @@ public partial class BrushCollection : ITinyhandSerializationCallback
     public void OnAfterDeserialize()
     {
     }
+
+    public void OnAfterReconstruct()
+    {
+    }
 }
