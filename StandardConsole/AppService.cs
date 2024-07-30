@@ -3,7 +3,8 @@
 using System;
 using System.IO;
 using System.Threading;
-using Serilog;
+using Arc.Unit;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace StandardConsole;
 
@@ -16,6 +17,11 @@ public interface IAppService
 
 public class AppService : IAppService
 {
+    public AppService(ILogger<TestCommand> logger)
+    {
+        this.logger = logger;
+    }
+
     public void EnterCommand(string directory)
     {
         // Logger: Debug, Information, Warning, Error, Fatal
@@ -35,7 +41,9 @@ public class AppService : IAppService
 
     public void ExitCommand()
     {
-        Log.Information("terminated");
+        this.logger.TryGet()?.Log("terminated");
         Log.CloseAndFlush();
     }
+
+    private readonly ILogger logger;
 }

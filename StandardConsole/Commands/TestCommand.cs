@@ -3,7 +3,7 @@
 using System;
 using System.Threading.Tasks;
 using Arc.Threading;
-using Serilog;
+using Arc.Unit;
 using SimpleCommandLine;
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
@@ -19,14 +19,15 @@ public class TestOptions
 [SimpleCommand("test")]
 public class TestCommand : ISimpleCommandAsync<TestOptions>
 {
-    public TestCommand(IAppService appService)
+    public TestCommand(IAppService appService, ILogger<TestCommand> logger)
     {
-        this.AppService = appService;
+        this.appService = appService;
+        this.logger = logger;
     }
 
     public async Task RunAsync(TestOptions option, string[] args)
     {
-        this.AppService.EnterCommand(string.Empty);
+        this.appService.EnterCommand(string.Empty);
 
         Console.WriteLine("Test command:");
         Console.WriteLine($"Number is {option.Number}");
@@ -40,13 +41,14 @@ public class TestCommand : ISimpleCommandAsync<TestOptions>
             }
             catch
             {
-                Log.Information("canceled");
+                this.logger.TryGet()?.Log("canceled");
             }
         });
 
         await c.WaitForTerminationAsync(-1);
-        this.AppService.ExitCommand();
+        this.appService.ExitCommand();
     }
 
-    public IAppService AppService { get; }
+    private readonly IAppService appService;
+    private readonly ILogger logger;
 }
