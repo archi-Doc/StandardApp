@@ -38,4 +38,8 @@ public partial class AppSettings : ITinyhandSerializationCallback
     public void OnBeforeSerialize()
     {
     }
+
+    public void OnAfterReconstruct()
+    {
+    }
 }
