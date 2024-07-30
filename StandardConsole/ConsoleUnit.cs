@@ -58,7 +58,7 @@ public class ConsoleUnit : UnitBase, IUnitPreparable, IUnitExecutable
                 var logfile = "Logs/Log.txt";
                 options.Path = Path.Combine(context.RootDirectory, logfile);
                 options.MaxLogCapacity = 2;
-                options.ClearLogsAtStartup = true;
+                options.ClearLogsAtStartup = false;
             });
 
             this.SetupOptions<ConsoleLoggerOptions>((context, options) =>
@@ -70,7 +70,7 @@ public class ConsoleUnit : UnitBase, IUnitPreparable, IUnitExecutable
 
     public class Unit : BuiltUnit
     {// Unit class for customizing behaviors.
-        public record Param(string[] Args);
+        public record Param(string Args);
 
         public Unit(UnitContext context)
             : base(context)
@@ -110,7 +110,7 @@ public class ConsoleUnit : UnitBase, IUnitPreparable, IUnitExecutable
 
         public ILogWriter? Filter(LogFilterParameter param)
         {// Log source/Event id/LogLevel -> Filter() -> ILog
-            if (param.LogSourceType == typeof(ConsoleCommand))
+            if (param.LogSourceType == typeof(TestCommand))
             {
                 // return null; // No log
                 if (param.LogLevel == LogLevel.Error)

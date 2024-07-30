@@ -5,14 +5,13 @@ using System.Threading.Tasks;
 using Arc.Threading;
 using Arc.Unit;
 using Microsoft.Extensions.DependencyInjection;
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+using SimpleCommandLine;
 
 namespace StandardConsole;
 
 public class Program
 {
-    public static async Task Main(string[] args)
+    public static async Task Main()
     {
         AppDomain.CurrentDomain.ProcessExit += (s, e) =>
         {// Console window closing or process terminated.
@@ -30,10 +29,9 @@ public class Program
             .Configure(context =>
             {
                 // Add Command
-                context.AddCommand(typeof(TestCommand));
-                context.AddCommand(typeof(TestCommand2));
             });
 
+        var args = SimpleParserHelper.GetCommandLineArguments();
         var unit = builder.Build();
         await unit.RunAsync(new(args));
 
