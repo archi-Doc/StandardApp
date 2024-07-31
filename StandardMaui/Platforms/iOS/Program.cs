@@ -1,4 +1,6 @@
-﻿using ObjCRuntime;
+﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
+
+using ObjCRuntime;
 using UIKit;
 
 namespace StandardMaui;

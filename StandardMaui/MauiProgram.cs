@@ -1,6 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
+﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
+
+using Microsoft.Extensions.Logging;
 
 namespace StandardMaui;
+
 public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
@@ -15,7 +18,7 @@ public static class MauiProgram
             });
 
 #if DEBUG
-		builder.Logging.AddDebug();
+        builder.Logging.AddDebug();
 #endif
 
         return builder.Build();

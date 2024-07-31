@@ -1,24 +1,29 @@
-﻿namespace StandardMaui;
+﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
+
+namespace StandardMaui;
 
 public partial class MainPage : ContentPage
 {
-    int count = 0;
+    private int count = 0;
 
     public MainPage()
     {
-        InitializeComponent();
+        this.InitializeComponent();
     }
 
     private void OnCounterClicked(object sender, EventArgs e)
     {
-        count++;
+        this.count++;
 
-        if (count == 1)
-            CounterBtn.Text = $"Clicked {count} time";
+        if (this.count == 1)
+        {
+            this.CounterBtn.Text = $"Clicked {this.count} time";
+        }
         else
-            CounterBtn.Text = $"Clicked {count} times";
+        {
+            this.CounterBtn.Text = $"Clicked {this.count} times";
+        }
 
-        SemanticScreenReader.Announce(CounterBtn.Text);
+        SemanticScreenReader.Announce(this.CounterBtn.Text);
     }
 }
-

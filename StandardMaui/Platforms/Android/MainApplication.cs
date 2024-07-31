@@ -1,7 +1,10 @@
-﻿using Android.App;
+﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
+
+using Android.App;
 using Android.Runtime;
 
 namespace StandardMaui;
+
 [Application]
 public class MainApplication : MauiApplication
 {

@@ -1,4 +1,6 @@
-﻿using Foundation;
+﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
+
+using Foundation;
 
 namespace StandardMaui;
 [Register("AppDelegate")]
