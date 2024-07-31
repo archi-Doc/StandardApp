@@ -3,6 +3,7 @@
 using Foundation;
 
 namespace StandardMaui;
+
 [Register("AppDelegate")]
 public class AppDelegate : MauiUIApplicationDelegate
 {
