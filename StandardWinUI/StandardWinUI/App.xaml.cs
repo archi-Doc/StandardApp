@@ -38,12 +38,21 @@ public partial class App : Application
         this.InitializeComponent();
     }
 
+    #region FieldAndProperty
+
+    private static System.Threading.Mutex appMutex = new System.Threading.Mutex(false, AppConstants.MutexName);
+
+    #endregion
+
     /// <summary>
     /// Invoked when the application is launched.
     /// </summary>
     /// <param name="args">Details about the launch request and process.</param>
     protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
     {
+        // this.Exit();
+        // return;
+
         this.window = new MainWindow();
         this.window.Activate();
     }
