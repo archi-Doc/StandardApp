@@ -8,6 +8,7 @@
     <Platforms>x86;x64;ARM64</Platforms>
     <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
     <UseWinUI>true</UseWinUI>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,4 +16,30 @@
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240627000" />
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Generated\*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="..\..\stylecop.json" Link="stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Texts\License.tinyhand" />
+    <EmbeddedResource Include="Resources\Texts\Text-en.tinyhand" />
+    <EmbeddedResource Include="Resources\Texts\Text-ja.tinyhand" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Arc.Crypto" Version="1.24.2" />
+    <PackageReference Include="Arc.Unit" Version="0.15.0" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Tinyhand" Version="0.78.2" />
+    <PackageReference Include="ValueLink" Version="0.61.2" />
+  </ItemGroup>
+  
 </Project>
