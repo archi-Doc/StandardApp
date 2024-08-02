@@ -1,3 +1,5 @@
+// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,6 +19,7 @@ using Windows.Foundation.Collections;
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
 namespace StandardWinUI;
+
 /// <summary>
 /// An empty window that can be used on its own or navigated to within a Frame.
 /// </summary>
@@ -29,6 +32,6 @@ public sealed partial class MainWindow : Window
 
     private void myButton_Click(object sender, RoutedEventArgs e)
     {
-        myButton.Content = "Clicked";
+        this.myButton.Content = "Clicked";
     }
 }
