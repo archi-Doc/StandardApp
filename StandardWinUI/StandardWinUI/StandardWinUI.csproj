@@ -10,7 +10,7 @@
     <UseWinUI>true</UseWinUI>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
-    <StartupObject>StandardWinUI.Program</StartupObject>
+    <StartupObject>StandardWinUI.App</StartupObject>
     <DefineConstants>DISABLE_XAML_GENERATED_MAIN</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Page Remove="App\App.xaml" />
+    <Page Remove="App\AppClass.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -35,7 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ApplicationDefinition Include="App\App.xaml" />
+    <ApplicationDefinition Include="App\AppClass.xaml" />
   </ItemGroup>
 
   <ItemGroup>

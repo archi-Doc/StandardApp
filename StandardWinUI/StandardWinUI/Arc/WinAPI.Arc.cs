@@ -4,9 +4,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
-using Microsoft.UI.Composition;
 using Microsoft.UI.Xaml;
-using Windows.Foundation;
 
 #pragma warning disable SA1011 // Closing square brackets should be spaced correctly
 #pragma warning disable SA1201 // Elements should appear in the correct order
@@ -19,24 +17,6 @@ using Windows.Foundation;
 #pragma warning disable SA1649 // File name should match first type name
 
 namespace Arc.WinAPI;
-
-public static class Extensions
-{
-    public static ushort ToLoWord(this IntPtr dword)
-    {
-        return (ushort)((uint)dword & 0xffff);
-    }
-
-    public static ushort ToHiWord(this IntPtr dword)
-    {
-        return (ushort)((uint)dword >> 16);
-    }
-}
-
-public static class Const
-{
-    public const string SHELL_IDLIST_STRING = "Shell IDList Array";
-}
 
 public partial class Methods
 {
@@ -414,22 +394,18 @@ public partial class Methods
         }
     }
 
+    /*
     /// <summary>
     /// Get the cursor position (relative to control coordinate).
     /// </summary>
     /// <returns>Cursor position.</returns>
-    /*internal static Point GetNowPosition(Visual v)
+    internal static Point GetNowPosition(Visual v)
     {
         POINT32 p;
 
         GetCursorPos(out p);
         return v.PointFromScreen(new Point(p.X, p.Y));
-        /*var source = HwndSource.FromVisual(v) as HwndSource;
-        var hwnd = source.Handle;
-
-        ScreenToClient(hwnd, ref p);
-        return new Point(p.X, p.Y);*/
-    //}
+    }*/
 
     [DllImport("kernel32.dll")]
     internal static extern IntPtr LoadLibrary(string lpFileName);
@@ -557,7 +533,7 @@ public partial class Methods
     public static void RemoveIcon(Window window)
     {
         // Get this window's handle
-        IntPtr hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);//
+        IntPtr hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
 
         // Change the extended window style to not show a window icon
         int extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
