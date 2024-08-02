@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Arc.Threading;
+using Arc.Unit;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -13,6 +15,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Shapes;
+using SimpleCommandLine;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
@@ -36,6 +39,21 @@ public partial class App : Application
     public App()
     {
         this.InitializeComponent();
+
+        /*var builder = new AppUnit.Builder()
+            .Configure(context =>
+            {
+                // Add Command
+            });
+
+        var args = SimpleParserHelper.GetCommandLineArguments();
+        var unit = builder.Build();*/
+        // await unit.RunAsync(new(args));
+
+        // ThreadCore.Root.Terminate();
+        // await ThreadCore.Root.WaitForTerminationAsync(-1); // Wait for the termination infinitely.
+        // unit.Context.ServiceProvider.GetService<UnitLogger>()?.FlushAndTerminate();
+        // ThreadCore.Root.TerminationEvent.Set(); // The termination process is complete (#1).
     }
 
     #region FieldAndProperty
