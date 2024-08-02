@@ -9,8 +9,12 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Arc.Threading;
+using Arc.Unit;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
+using SimpleCommandLine;
 using Tinyhand;
 
 #pragma warning disable SA1202
@@ -54,6 +58,7 @@ public static partial class App
 
     private static Mutex appMutex = new(false, MutexName);
     private static DispatcherQueue uiDispatcherQueue = default!;
+    private static IServiceProvider serviceProvider = default!;
 
     #endregion
 
@@ -100,8 +105,7 @@ public static partial class App
             return; // Exit.
         }
 
-        // Unit
-
+        AppUnit.Unit? unit = default;
         try
         {
             WinRT.ComWrappersSupport.InitializeComWrappers();
@@ -111,14 +115,33 @@ public static partial class App
                 uiDispatcherQueue = DispatcherQueue.GetForCurrentThread();
                 var context = new DispatcherQueueSynchronizationContext(uiDispatcherQueue);
                 SynchronizationContext.SetSynchronizationContext(context);
-                var app = new AppClass();
+
+                var builder = new AppUnit.Builder();
+                unit = builder.Build();
+                serviceProvider = unit.Context.ServiceProvider;
+                serviceProvider.GetService<AppClass>();
             });
         }
         finally
         {
+            ThreadCore.Root.Terminate();
+            await ThreadCore.Root.WaitForTerminationAsync(-1); // Wait for the termination infinitely.
+            unit?.Context.ServiceProvider.GetService<UnitLogger>()?.FlushAndTerminate();
+
             appMutex.ReleaseMutex();
             appMutex.Close();
         }
+    }
+
+    public static T GetService<T>()
+        where T : class
+    {
+        if (serviceProvider.GetService(typeof(T)) is not T service)
+        {
+            throw new ArgumentException($"{typeof(T)} needs to be registered in Configure within AppUnit.cs.");
+        }
+
+        return service;
     }
 
     // <summary>
@@ -171,8 +194,7 @@ public static partial class App
         catch
         {
             // not UWP
-            DataFolder = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), AppDataFolder);
+            DataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), AppDataFolder);
         }
 
         try
