@@ -18,4 +18,15 @@ public sealed partial class MainWindow : Window
     {
         this.myButton.Content = "Clicked";
     }
+
+    private void openDataDirectory_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            System.Diagnostics.Process.Start("Explorer.exe", App.DataFolder);
+        }
+        catch
+        {
+        }
+    }
 }
