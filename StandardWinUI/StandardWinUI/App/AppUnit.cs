@@ -1,10 +1,12 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
+using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Arc.Threading;
 using Arc.Unit;
+using CrystalData;
 using SimpleCommandLine;
 using Windows.UI.ApplicationSettings;
 
@@ -71,6 +73,27 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
             {// ConsoleLoggerOptions
                 options.Formatter.EnableColor = true;
             });
+
+            this.AddBuilder(CrystalBuilder());
+        }
+
+        private static CrystalControl.Builder CrystalBuilder()
+        {
+            return new CrystalControl.Builder()
+                .ConfigureCrystal(context =>
+                {
+                    context.AddCrystal<AppSettings>(new()
+                    {
+                        NumberOfFileHistories = 0,
+                        FileConfiguration = new GlobalFileConfiguration(AppSettings.Filename),
+                    });
+
+                    context.AddCrystal<AppOptions>(new()
+                    {
+                        NumberOfFileHistories = 0,
+                        FileConfiguration = new GlobalFileConfiguration(AppOptions.Filename),
+                    });
+                });
         }
     }
 

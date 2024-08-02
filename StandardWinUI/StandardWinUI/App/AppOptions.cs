@@ -9,6 +9,8 @@ namespace StandardWinUI;
 [TinyhandObject]
 public partial class AppOptions
 { // Application Options
+    public const string Filename = "AppOptions.tinyhand";
+
     public AppOptions()
     {
     }

@@ -11,8 +11,7 @@ using Windows.UI;
 namespace Arc.WPF;
 
 [TinyhandObject]
-[INotifyPropertyChanged]
-public partial class BrushOption : ITinyhandSerializationCallback
+public partial class BrushOption : ObservableObject, ITinyhandSerializationCallback
 { // Constructor -> (OnAfterDeserialize()) -> Prepare() -> ... -> OnBeforeSerialize()
     private Color initialColor;
 

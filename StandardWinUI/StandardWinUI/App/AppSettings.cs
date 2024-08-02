@@ -8,6 +8,8 @@ namespace StandardWinUI;
 [TinyhandObject]
 public partial class AppSettings : ITinyhandSerializationCallback
 {// Application Settings
+    public const string Filename = "AppSettings.tinyhand";
+
     [Key(0)]
     public bool LoadError { get; set; } // True if a load error occured.
 
