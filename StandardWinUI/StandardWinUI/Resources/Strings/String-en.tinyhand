@@ -4,8 +4,8 @@ Test1 = "Test1"
 Test2 = "Test2"
 
 App = {
-    Name = "StandardApp" // Name
-    Description = "Standard application"
+    Name = "StandardWinUI" // Name
+    Description = "Standard WinUI"
     DateTime = "MM/dd H:mm:ss"
 }
 
