@@ -1,9 +1,10 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
-using System.Windows.Media;
 using Arc.WPF;
+using Microsoft.UI;
+using Tinyhand;
 
-namespace StandardApp;
+namespace StandardWinUI;
 
 [TinyhandObject]
 public partial class AppOptions
