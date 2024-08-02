@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Arc.Threading;
 using Arc.Unit;
 using SimpleCommandLine;
+using Windows.UI.ApplicationSettings;
 
 namespace StandardWinUI;
 
@@ -20,7 +21,11 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
             this.Configure(context =>
             {
                 context.AddSingleton<AppUnit>();
-                context.CreateInstance<AppUnit>();
+                context.AddSingleton<AppClass>();
+                // context.CreateInstance<AppUnit>();
+
+                // Views and ViewModels
+                context.AddTransient<MainWindow>();
 
                 // Command
                 // context.AddCommand(typeof(TestCommand));
@@ -48,9 +53,10 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
                 });
             });
 
-            this.SetupOptions<UnitOptions>((context, options) =>
-            {// UnitOptions
-                options.DataDirectory = "test";
+            this.Preload(context =>
+            {
+                context.RootDirectory = App.DataFolder;
+                context.DataDirectory = App.DataFolder;
             });
 
             this.SetupOptions<FileLoggerOptions>((context, options) =>
