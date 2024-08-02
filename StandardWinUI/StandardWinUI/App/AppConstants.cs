@@ -3,7 +3,7 @@
 namespace StandardWinUI;
 
 public static class AppConstants
-{
+{ // TODO: Change the values to your own.
     public const string MutexName = "Arc.StandardWinUI";
     public const string AppDataFolder = "Arc\\StandardApp";
     public const string AppDataFile = "App.tinyhand";

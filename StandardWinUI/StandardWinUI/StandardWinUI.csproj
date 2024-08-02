@@ -4,11 +4,12 @@
     <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <RootNamespace>StandardWinUI</RootNamespace>
-    <ApplicationManifest>App.manifest</ApplicationManifest>
+    <ApplicationManifest>App\App.manifest</ApplicationManifest>
     <Platforms>x86;x64;ARM64</Platforms>
     <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
     <UseWinUI>true</UseWinUI>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -40,10 +41,6 @@
     </PackageReference>
     <PackageReference Include="Tinyhand" Version="0.78.2" />
     <PackageReference Include="ValueLink" Version="0.61.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Views\" />
   </ItemGroup>
   
 </Project>
