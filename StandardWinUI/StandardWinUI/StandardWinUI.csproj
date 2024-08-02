@@ -10,7 +10,7 @@
     <UseWinUI>true</UseWinUI>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
-    <StartupObject>App.Program</StartupObject>
+    <StartupObject>StandardWinUI.Program</StartupObject>
     <DefineConstants>DISABLE_XAML_GENERATED_MAIN</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
@@ -27,7 +27,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Page Remove="App\App.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <AdditionalFiles Include="..\..\stylecop.json" Link="stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ApplicationDefinition Include="App\App.xaml" />
   </ItemGroup>
 
   <ItemGroup>
