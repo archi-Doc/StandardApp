@@ -3,6 +3,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI;
 using Microsoft.UI.Xaml.Media;
+using StandardWinUI;
 using Tinyhand;
 using Windows.UI;
 
@@ -26,10 +27,13 @@ public partial class BrushOption : ObservableObject, ITinyhandSerializationCallb
     public BrushOption(Color initialColor)
     {
         this.initialColor = initialColor;
-        if (this.Brush == null)
+        App.TryEnqueueOnUI(() =>
         {
-            this.Brush = new SolidColorBrush(initialColor);
-        }
+            if (this.Brush == null)
+            {
+                this.Brush = new SolidColorBrush(initialColor);
+            }
+        });
     }
 
     [Key(0)]

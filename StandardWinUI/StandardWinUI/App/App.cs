@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arc.Threading;
 using Arc.Unit;
+using CrystalData;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
