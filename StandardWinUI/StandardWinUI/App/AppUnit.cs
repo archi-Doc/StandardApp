@@ -1,12 +1,8 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
-using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Arc.Threading;
-using Arc.Unit;
-using CrystalData;
 using SimpleCommandLine;
 using StandardWinUI.ViewModels;
 using StandardWinUI.Views;
@@ -43,7 +39,9 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
                 context.ClearLoggerResolver();
                 context.AddLoggerResolver(x =>
                 {// Log source/level -> Resolver() -> Output/filter
-                    if (x.LogLevel <= LogLevel.Debug)
+                    x.SetOutput<FileLogger<FileLoggerOptions>>();
+
+                    /*if (x.LogLevel <= LogLevel.Debug)
                     {
                         x.SetOutput<ConsoleLogger>();
                         return;
@@ -51,10 +49,11 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
 
                     x.SetOutput<ConsoleAndFileLogger>();
 
-                    /*if (x.LogSourceType == typeof(TestCommand))
+                    if (x.LogSourceType == typeof(TestCommand))
                     {
                         x.SetFilter<ExampleLogFilter>();
-                    }*/
+                    }
+                    */
                 });
             });
 
@@ -72,10 +71,10 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
                 options.ClearLogsAtStartup = false;
             });
 
-            this.SetupOptions<ConsoleLoggerOptions>((context, options) =>
+            /*this.SetupOptions<ConsoleLoggerOptions>((context, options) =>
             {// ConsoleLoggerOptions
                 options.Formatter.EnableColor = true;
-            });
+            });*/
 
             this.AddBuilder(CrystalBuilder());
         }

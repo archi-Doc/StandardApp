@@ -51,9 +51,6 @@ public static partial class App
         }
     }
 
-    [LibraryImport("Microsoft.ui.xaml.dll")]
-    private static partial void XamlCheckProcessRequirements();
-
     #region FieldAndProperty
 
     public static string Version { get; private set; } = string.Empty;
@@ -76,8 +73,8 @@ public static partial class App
     [STAThread]
     private static void Main(string[] args)
     {
-        PrepareDataFolder();
         LoadStrings();
+        PrepareDataFolder();
         PrepareVersionAndTitle();
         if (PreventMultipleInstances())
         {
@@ -175,6 +172,9 @@ public static partial class App
             }
         }
     }
+
+    [LibraryImport("Microsoft.ui.xaml.dll")]
+    private static partial void XamlCheckProcessRequirements();
 
     private static void PrepareDataFolder()
     {
