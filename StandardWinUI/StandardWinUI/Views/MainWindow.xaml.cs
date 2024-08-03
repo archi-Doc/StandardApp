@@ -3,7 +3,7 @@
 using Microsoft.UI.Xaml;
 using StandardWinUI.ViewModels;
 
-namespace StandardWinUI;
+namespace StandardWinUI.Views;
 
 /// <summary>
 /// An empty window that can be used on its own or navigated to within a Frame.

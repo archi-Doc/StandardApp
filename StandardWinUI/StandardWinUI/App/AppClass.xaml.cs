@@ -4,6 +4,7 @@ using Arc.Unit;
 using CrystalData;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
+using StandardWinUI.Views;
 
 namespace StandardWinUI;
 

@@ -9,6 +9,7 @@ using Arc.Unit;
 using CrystalData;
 using SimpleCommandLine;
 using StandardWinUI.ViewModels;
+using StandardWinUI.Views;
 using Windows.UI.ApplicationSettings;
 
 namespace StandardWinUI;

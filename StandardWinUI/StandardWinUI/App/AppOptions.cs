@@ -1,6 +1,6 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
-using Arc.WPF;
+using Arc.Views;
 using Microsoft.UI;
 using Tinyhand;
 

@@ -9,7 +9,7 @@ using Windows.UI;
 
 #pragma warning disable SA1649 // File name should match first type name
 
-namespace Arc.WPF;
+namespace Arc.Views;
 
 [TinyhandObject]
 public partial class BrushOption : ObservableObject, ITinyhandSerializationCallback

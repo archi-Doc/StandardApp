@@ -15,7 +15,6 @@ using CrystalData;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
-using SimpleCommandLine;
 using Tinyhand;
 
 #pragma warning disable SA1202
