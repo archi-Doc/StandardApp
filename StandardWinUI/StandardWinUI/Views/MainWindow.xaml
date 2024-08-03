@@ -4,12 +4,16 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:StandardWinUI"
+    xmlns:Arc="using:Arc.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
     <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <TextBlock x:Name="textBlock" Height="Auto" TextWrapping="Wrap" Text="{Arc:C4 Source= App.Name}" Margin="4"/>
+        <TextBlock x:Name="textBlock2" Height="Auto" TextWrapping="Wrap" Text="{Arc:C4 Source= App.Description}" Margin="4"/>
         <Button x:Name="myButton" Click="myButton_Click">Click Me</Button>
-        <Button x:Name="openDataDirectory" Click="openDataDirectory_Click">OpenDataDirectory</Button>
+        <Button x:Name="openDataDirectory" Command="{x:Bind ViewModel.OpenDataDirectoryCommand}">OpenDataDirectory</Button>
+        <Button x:Name="switchLanguage" Command="{x:Bind ViewModel.SwitchLanguageCommand}">Switch language</Button>
     </StackPanel>
 </Window>

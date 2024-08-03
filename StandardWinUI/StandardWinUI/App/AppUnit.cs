@@ -8,6 +8,7 @@ using Arc.Threading;
 using Arc.Unit;
 using CrystalData;
 using SimpleCommandLine;
+using StandardWinUI.ViewModels;
 using Windows.UI.ApplicationSettings;
 
 namespace StandardWinUI;
@@ -28,6 +29,7 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
 
                 // Views and ViewModels
                 context.AddTransient<MainWindow>();
+                context.AddTransient<MainViewModel>();
 
                 // Command
                 // context.AddCommand(typeof(TestCommand));

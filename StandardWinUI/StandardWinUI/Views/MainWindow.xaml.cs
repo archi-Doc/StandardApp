@@ -1,6 +1,7 @@
 // Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using Microsoft.UI.Xaml;
+using StandardWinUI.ViewModels;
 
 namespace StandardWinUI;
 
@@ -9,24 +10,16 @@ namespace StandardWinUI;
 /// </summary>
 public sealed partial class MainWindow : Window
 {
+    internal MainViewModel ViewModel { get; }
+
     public MainWindow()
     {
+        this.ViewModel = App.GetService<MainViewModel>();
         this.InitializeComponent();
     }
 
     private void myButton_Click(object sender, RoutedEventArgs e)
     {
         this.myButton.Content = "Clicked";
-    }
-
-    private void openDataDirectory_Click(object sender, RoutedEventArgs e)
-    {
-        try
-        {
-            System.Diagnostics.Process.Start("Explorer.exe", App.DataFolder);
-        }
-        catch
-        {
-        }
     }
 }

@@ -120,7 +120,11 @@ public static partial class App
                 var builder = new AppUnit.Builder();
                 unit = builder.Build();
                 serviceProvider = unit.Context.ServiceProvider;
-                serviceProvider.GetService<AppClass>();
+
+                var crystalizer = serviceProvider.GetRequiredService<Crystalizer>();
+                crystalizer.PrepareAndLoadAll(false).Wait();
+
+                serviceProvider.GetRequiredService<AppClass>();
             });
         }
         finally

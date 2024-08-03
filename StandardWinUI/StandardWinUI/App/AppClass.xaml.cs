@@ -23,9 +23,6 @@ public partial class AppClass : Application
     /// <param name="args">Details about the launch request and process.</param>
     protected override async void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
     {
-        var crystalizer = App.GetService<Crystalizer>();
-        await crystalizer.PrepareAndLoadAll(false);
-
         this.window = App.GetService<MainWindow>();
         this.window.Activate();
     }
