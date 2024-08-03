@@ -1,5 +1,6 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
+using System.Runtime.CompilerServices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI;
 using Microsoft.UI.Xaml.Media;
@@ -10,63 +11,64 @@ using Windows.UI;
 namespace Arc.Views;
 
 [TinyhandObject]
-public partial class BrushOption : ObservableObject, ITinyhandSerializationCallback
+public partial class BrushOption : ObservableObject
 { // Constructor -> (OnAfterDeserialize()) -> Prepare() -> ... -> OnBeforeSerialize()
-    private Color initialColor;
-
-    [ObservableProperty]
-    private SolidColorBrush? brush;
-
     public BrushOption()
         : this(Colors.Black)
     {
     }
 
-    public BrushOption(Color initialColor)
+    public BrushOption(Color color)
     {
-        this.initialColor = initialColor;
-        App.TryEnqueueOnUI(() =>
+        this.initialColorInt = ColorToInt(color);
+        this.ColorInt = this.initialColorInt;
+    }
+
+    private int initialColorInt;
+    private SolidColorBrush? brush; // [ObservableProperty]
+
+    [IgnoreMember]
+    public SolidColorBrush Brush
+    {
+        get => this.brush ??= this.ColorChanged ? new(IntToColor(this.ColorInt)) : new(IntToColor(this.initialColorInt));
+        set
         {
-            if (this.Brush == null)
+            if (!global::System.Collections.Generic.EqualityComparer<SolidColorBrush>.Default.Equals(this.brush, value))
             {
-                this.Brush = new SolidColorBrush(initialColor);
+                this.brush = value;
+                this.OnPropertyChanged(nameof(BrushOption.Brush));
             }
-        });
+        }
     }
 
     [Key(0)]
-    public bool ChangedFlag { get; set; } // true:changed, false:default
+    public bool ColorChanged { get; set; } // true:changed, false:default
 
     [Key(1)]
-    public int BrushColor { get; set; }
+    public int ColorInt { get; set; }
 
     public void Change(Color color)
     {
+        this.ColorChanged = true;
+        this.ColorInt = ColorToInt(color);
         this.Brush = new SolidColorBrush(color);
-        this.ChangedFlag = true;
     }
 
-    public void OnAfterDeserialize()
-    { // After data has loaded.
-        if (this.ChangedFlag)
-        {
-            this.Brush = new SolidColorBrush(Color.FromArgb((byte)(this.BrushColor >> 24), (byte)(this.BrushColor >> 16), (byte)(this.BrushColor >> 8), (byte)this.BrushColor));
-        }
-    }
-
-    public void OnAfterReconstruct()
+    public void Reset()
     {
+        if (this.ColorChanged)
+        {
+            this.ColorChanged = false;
+            this.ColorInt = this.initialColorInt;
+            this.Brush = new SolidColorBrush(IntToColor(this.ColorInt));
+        }
     }
 
-    public void OnBeforeSerialize()
-    { // Before data is saved.
-        if (this.Brush != null)
-        {
-            //this.BrushColor = (this.Brush.Color.A << 24) | (this.Brush.Color.R << 16) | (this.Brush.Color.G << 8) | this.Brush.Color.B;
-        }
-        else
-        {
-            this.BrushColor = 0;
-        }
-    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static int ColorToInt(Color color)
+        => (int)color.A << 24 | (int)color.R << 16 | (int)color.G << 8 | (int)color.B;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static Color IntToColor(int colorInt)
+        => Color.FromArgb((byte)(colorInt >> 24), (byte)(colorInt >> 16), (byte)(colorInt >> 8), (byte)colorInt);
 }
