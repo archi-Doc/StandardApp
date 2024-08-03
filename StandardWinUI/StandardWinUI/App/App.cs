@@ -103,15 +103,24 @@ public static partial class App
                 PrepareCulture();
                 GetService<AppClass>();
             });
+
+            Task.Run(async () =>
+            {// 'await task' does not work property.
+                if (crystalizer is not null)
+                {
+                    await crystalizer.SaveAllAndTerminate();
+                }
+
+                ThreadCore.Root.Terminate();
+                await ThreadCore.Root.WaitForTerminationAsync(-1);
+                if (unit?.Context.ServiceProvider.GetService<UnitLogger>() is { } unitLogger)
+                {
+                    await unitLogger.FlushAndTerminate();
+                }
+            }).Wait();
         }
         finally
         {
-            crystalizer?.SaveAllAndTerminate().Wait(); // 'await task' does not work property.
-
-            ThreadCore.Root.Terminate();
-            ThreadCore.Root.WaitForTerminationAsync(-1).Wait(); // 'await task' does not work property.
-            unit?.Context.ServiceProvider.GetService<UnitLogger>()?.FlushAndTerminate().Wait(); // 'await task' does not work property.
-
             appMutex.ReleaseMutex();
             appMutex.Close();
         }

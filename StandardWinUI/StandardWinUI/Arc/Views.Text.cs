@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Markup;
 
@@ -224,75 +225,28 @@ public static class C4Updater
 
     public static void Update()
     { // C4を更新する。
-        StandardWinUI.App.TryEnqueueOnUI(() =>
+        App.TryEnqueueOnUI(() =>
         {
             // GC.Collect();
             lock (extensionObjectsCS)
             {
                 foreach (var x in extensionObjects)
                 {
-                    object? target = x.TargetObject?.Target;
-                    if (target != null)
+                    if (x.Key is null)
                     {
-                        if (x.TargetProperty != null)
-                        { // target object
-                            if (x.TargetProperty is DependencyProperty)
-                            {
-                                DependencyObject? obj = target as DependencyObject;
-                                DependencyProperty? prop = x.TargetProperty as DependencyProperty;
-                                if (obj != null && x.Key != null)
-                                {
-                                    obj.SetValue(prop, HashedString.GetOrIdentifier(x.Key));
-                                }
-
-                                /*Action updateAction = () =>
-                                {
-                                    if (obj != null && x.Key != null)
-                                    {
-                                        obj.SetValue(prop, HashedString.GetOrIdentifier(x.Key));
-                                    }
-                                };
-
-                                // Check whether the target object can be accessed from the
-                                // current thread, and use Dispatcher.Invoke if it can't
-                                if (obj != null)
-                                {
-                                    if (obj.CheckAccess())
-                                    {
-                                        updateAction();
-                                    }
-                                    else
-                                    {
-                                        obj.Dispatcher.Invoke(updateAction);
-                                    }
-                                }*/
-                            }
-                            else
-                            {
-                                var prop = x.TargetProperty as System.Reflection.PropertyInfo;
-                                if (prop != null && x.Key != null)
-                                {
-                                    prop.SetValue(target, HashedString.GetOrIdentifier(x.Key));
-                                }
-
-                                if (x.Key is not null)
-                                {
-                                    if (x.TargetProperty is ProvideValueTargetProperty targetProperty)
-                                    {
-                                        targetProperty.
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        { // C4BindingSource
-                            var s = (C4BindingSource)target;
-                            s.CultureChanged();
-                        }
+                        continue;
                     }
-                    else
-                    { // no target
+
+                    var target = x.TargetObject?.Target;
+                    if (target is TextBlock textBlock)
+                    {
+                        textBlock.Text = HashedString.GetOrIdentifier(x.Key);
                     }
+
+                    /*{ // C4BindingSource
+                        var s = (C4BindingSource)target;
+                        s.CultureChanged();
+                    }*/
                 }
 
                 // C4Clean();
