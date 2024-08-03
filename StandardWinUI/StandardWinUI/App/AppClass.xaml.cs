@@ -1,7 +1,10 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using Arc.Unit;
+using CrystalData;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
+using StandardWinUI.Views;
 
 namespace StandardWinUI;
 
@@ -19,7 +22,7 @@ public partial class AppClass : Application
     /// Invoked when the application is launched.
     /// </summary>
     /// <param name="args">Details about the launch request and process.</param>
-    protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
+    protected override async void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
     {
         this.window = App.GetService<MainWindow>();
         this.window.Activate();

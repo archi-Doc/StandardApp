@@ -1,22 +1,25 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
-using System.Windows.Media;
-using Arc.WPF;
+using Arc.Views;
+using Microsoft.UI;
+using Tinyhand;
 
-namespace StandardApp;
+namespace StandardWinUI;
 
 [TinyhandObject]
 public partial class AppOptions
 { // Application Options
+    public const string Filename = "AppOptions.tinyhand";
+
     public AppOptions()
     {
     }
 
-    [Key(0)]
-    public BrushOption BrushTest { get; set; } = new(Colors.Red);
+    // [Key(0)]
+    // public BrushOption BrushTest { get; set; } = new(Colors.Red);
 
-    [Key(1)]
-    public BrushCollection BrushCollection { get; set; } = default!; // Brush Collection
+    // [Key(1)]
+    // public BrushCollection BrushCollection { get; set; } = default!; // Brush Collection
 }
 
 [TinyhandObject]

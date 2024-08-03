@@ -1,21 +1,27 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
-namespace StandardWinUI;
+#pragma warning disable SA1208
+#pragma warning disable SA1210
 
-using System;
+global using System;
+global using StandardWinUI;
+global using Arc.Threading;
+global using Arc.Unit;
+global using CrystalData;
+global using Microsoft.Extensions.DependencyInjection;
+global using Tinyhand;
+
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Arc.Threading;
-using Arc.Unit;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
-using SimpleCommandLine;
-using Tinyhand;
+using System.Globalization;
+
+namespace StandardWinUI;
 
 #pragma warning disable SA1202
 
@@ -55,6 +61,10 @@ public static partial class App
     public static string Title { get; private set; } = string.Empty;
 
     public static string DataFolder { get; private set; } = string.Empty;
+
+    public static AppSettings Settings { get; private set; } = default!;
+
+    public static AppOptions Options { get; private set; } = default!;
 
     private static Mutex appMutex = new(false, MutexName);
     private static DispatcherQueue uiDispatcherQueue = default!;
@@ -106,6 +116,7 @@ public static partial class App
         }
 
         AppUnit.Unit? unit = default;
+        Crystalizer? crystalizer = default;
         try
         {
             WinRT.ComWrappersSupport.InitializeComWrappers();
@@ -119,11 +130,50 @@ public static partial class App
                 var builder = new AppUnit.Builder();
                 unit = builder.Build();
                 serviceProvider = unit.Context.ServiceProvider;
-                serviceProvider.GetService<AppClass>();
+
+                crystalizer = serviceProvider.GetRequiredService<Crystalizer>();
+                crystalizer.PrepareAndLoadAll(false).Wait();
+
+                // Load
+                Settings = crystalizer.GetCrystal<AppSettings>().Data;
+                Options = crystalizer.GetCrystal<AppOptions>().Data;
+
+                // Set culture
+                try
+                {
+                    if (Settings.Culture == string.Empty)
+                    {
+                        if (CultureInfo.CurrentUICulture.Name != "ja-JP")
+                        {
+                            Settings.Culture = "en"; // English
+                        }
+                    }
+
+                    HashedString.ChangeCulture(App.Settings.Culture);
+                }
+                catch
+                {
+                    Settings.Culture = App.DefaultCulture;
+                    HashedString.ChangeCulture(Settings.Culture);
+                }
+
+                // App
+                serviceProvider.GetRequiredService<AppClass>();
             });
         }
         finally
         {
+            try
+            {
+                if (crystalizer is not null)
+                {
+                    //await crystalizer.SaveAllAndTerminate();
+                }
+            }
+            catch
+            {
+            }
+
             ThreadCore.Root.Terminate();
             await ThreadCore.Root.WaitForTerminationAsync(-1); // Wait for the termination infinitely.
             unit?.Context.ServiceProvider.GetService<UnitLogger>()?.FlushAndTerminate();
