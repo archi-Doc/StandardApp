@@ -1,14 +1,10 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Markup;
-using Tinyhand;
-// using Windows.UI.Xaml.Markup;
 
 #pragma warning disable SA1201 // Elements should appear in the correct order
 #pragma warning disable SA1204 // Static elements should appear before instance elements

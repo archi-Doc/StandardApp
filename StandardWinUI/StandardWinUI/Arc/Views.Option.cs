@@ -3,8 +3,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI;
 using Microsoft.UI.Xaml.Media;
-using StandardWinUI;
-using Tinyhand;
 using Windows.UI;
 
 #pragma warning disable SA1649 // File name should match first type name

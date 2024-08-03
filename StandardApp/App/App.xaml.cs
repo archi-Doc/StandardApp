@@ -84,7 +84,6 @@ public static partial class App
         }
         catch
         {
-            // hack because of this: https://github.com/dotnet/corefx/issues/10361
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 url = url.Replace("&", "^&");
