@@ -234,19 +234,19 @@ public static class C4Updater
                 {
                     if (x.Key is null)
                     {
+                        if (x.TargetObject?.Target is C4BindingSource c4BindingSource)
+                        { // C4BindingSource
+                            c4BindingSource.CultureChanged();
+                        }
+
                         continue;
                     }
 
                     var target = x.TargetObject?.Target;
                     if (target is TextBlock textBlock)
-                    {
+                    {// TextBlock
                         textBlock.Text = HashedString.GetOrIdentifier(x.Key);
                     }
-
-                    /*{ // C4BindingSource
-                        var s = (C4BindingSource)target;
-                        s.CultureChanged();
-                    }*/
                 }
 
                 // C4Clean();
