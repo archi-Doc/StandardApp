@@ -163,18 +163,12 @@ public static partial class App
         }
         finally
         {
-            try
+            ThreadCore.Root.Terminate();
+            if (crystalizer is not null)
             {
-                if (crystalizer is not null)
-                {
-                    //await crystalizer.SaveAllAndTerminate();
-                }
-            }
-            catch
-            {
+                await crystalizer.SaveAllAndTerminate();
             }
 
-            ThreadCore.Root.Terminate();
             await ThreadCore.Root.WaitForTerminationAsync(-1); // Wait for the termination infinitely.
             unit?.Context.ServiceProvider.GetService<UnitLogger>()?.FlushAndTerminate();
 

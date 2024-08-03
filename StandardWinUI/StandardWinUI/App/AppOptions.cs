@@ -15,8 +15,8 @@ public partial class AppOptions
     {
     }
 
-    // [Key(0)]
-    // public BrushOption BrushTest { get; set; } = new(Colors.Red);
+    [Key(0)]
+    public BrushOption BrushTest { get; set; } = new(Colors.Red);
 
     // [Key(1)]
     // public BrushCollection BrushCollection { get; set; } = default!; // Brush Collection
