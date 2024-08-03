@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Markup;
 
@@ -36,7 +37,7 @@ public class C4Extension : MarkupExtension
 
             if (target.TargetProperty is not null)
             { // Add ExtensionObject (used in C4Update).
-                C4Updater.C4AddExtensionObject(target.TargetObject, target.TargetProperty, this.Source);
+                C4Updater.AddExtensionObject(target.TargetObject, target.TargetProperty, this.Source);
             }
         }
 
@@ -65,7 +66,7 @@ public class C4BindingSource : INotifyPropertyChanged
     public C4BindingSource(string key)
     {
         this.key = key;
-        C4Updater.C4AddExtensionObject(this, null, null);
+        C4Updater.AddExtensionObject(this, null, null);
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -190,19 +191,18 @@ public class GCCountChecker
 }
 
 public static class C4Updater
-{ // toolset
-    private static object extensionObjectsCS = new object(); // 同期オブジェクト
-    private static LinkedList<C4ExtensionObject> extensionObjects = new LinkedList<C4ExtensionObject>();
+{
+    private static object syncObject = new object(); // 同期オブジェクト
+    private static LinkedList<ExtensionObject> extensionObjects = new LinkedList<ExtensionObject>();
     private static GCCountChecker extensionObjectChecker = new GCCountChecker(16); // 16回に1回の頻度でチェック（使用されなくなったオブジェクトを解放する）。
 
-    // C4ExtensionObject: C4Extensionのオブジェクトの更新用
-    public class C4ExtensionObject
+    private class ExtensionObject
     {
         public WeakReference TargetObject; // target object or C4BindingSource
         public object? TargetProperty; // valid: target object, null: C4BindingSource
         public string? Key;
 
-        public C4ExtensionObject(WeakReference targetObject, object? targetProperty, string? key)
+        public ExtensionObject(WeakReference targetObject, object? targetProperty, string? key)
         {
             this.TargetObject = targetObject;
             this.TargetProperty = targetProperty;
@@ -210,80 +210,41 @@ public static class C4Updater
         }
     }
 
-    public static void C4AddExtensionObject(object targetObject, object? targetProperty, string? key)
-    { // ExtensionObjectを追加する。マークアップ拡張から呼ばれる。
-        lock (extensionObjectsCS)
+    public static void AddExtensionObject(object targetObject, object? targetProperty, string? key)
+    {
+        lock (syncObject)
         {
-            extensionObjects.AddLast(new C4ExtensionObject(new WeakReference(targetObject), targetProperty, key));
+            extensionObjects.AddLast(new ExtensionObject(new WeakReference(targetObject), targetProperty, key));
             if (extensionObjectChecker.Check())
             {
-                C4Clean();
+                Clean();
             }
         }
     }
 
     public static void Update()
-    { // C4を更新する。
-        StandardWinUI.App.TryEnqueueOnUI(() =>
+    { // Update C4
+        App.TryEnqueueOnUI(() =>
         {
             // GC.Collect();
-            lock (extensionObjectsCS)
+            lock (syncObject)
             {
                 foreach (var x in extensionObjects)
                 {
-                    object? target = x.TargetObject?.Target;
-                    if (target != null)
+                    if (x.Key is null)
                     {
-                        if (x.TargetProperty != null)
-                        { // target object
-                            if (x.TargetProperty is DependencyProperty)
-                            {
-                                DependencyObject? obj = target as DependencyObject;
-                                DependencyProperty? prop = x.TargetProperty as DependencyProperty;
-                                if (obj != null && x.Key != null)
-                                {
-                                    obj.SetValue(prop, HashedString.GetOrIdentifier(x.Key));
-                                }
-
-                                /*Action updateAction = () =>
-                                {
-                                    if (obj != null && x.Key != null)
-                                    {
-                                        obj.SetValue(prop, HashedString.GetOrIdentifier(x.Key));
-                                    }
-                                };
-
-                                // Check whether the target object can be accessed from the
-                                // current thread, and use Dispatcher.Invoke if it can't
-                                if (obj != null)
-                                {
-                                    if (obj.CheckAccess())
-                                    {
-                                        updateAction();
-                                    }
-                                    else
-                                    {
-                                        obj.Dispatcher.Invoke(updateAction);
-                                    }
-                                }*/
-                            }
-                            else
-                            {
-                                System.Reflection.PropertyInfo? prop = x.TargetProperty as System.Reflection.PropertyInfo;
-                                if (prop != null && x.Key != null)
-                                {
-                                    prop.SetValue(target, HashedString.GetOrIdentifier(x.Key));
-                                }
-                            }
-                        }
-                        else
+                        if (x.TargetObject?.Target is C4BindingSource c4BindingSource)
                         { // C4BindingSource
-                            var s = (C4BindingSource)target;
-                            s.CultureChanged();
+                            c4BindingSource.CultureChanged();
                         }
+
+                        continue;
                     }
-                    else
-                    { // no target
+
+                    var target = x.TargetObject?.Target;
+                    if (target is TextBlock textBlock)
+                    {// TextBlock
+                        textBlock.Text = HashedString.GetOrIdentifier(x.Key);
                     }
                 }
 
@@ -292,9 +253,9 @@ public static class C4Updater
         });
     }
 
-    private static void C4Clean()
+    private static void Clean()
     { // 使用されていないオブジェクトを解放する。内部で使用。
-        LinkedListNode<C4ExtensionObject>? x, y;
+        LinkedListNode<ExtensionObject>? x, y;
         x = extensionObjects.First;
         while (x != null)
         {
