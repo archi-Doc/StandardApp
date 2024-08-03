@@ -69,54 +69,22 @@ public static partial class App
     private static Mutex appMutex = new(false, MutexName);
     private static DispatcherQueue uiDispatcherQueue = default!;
     private static IServiceProvider serviceProvider = default!;
+    private static Crystalizer? crystalizer = default;
 
     #endregion
 
     [STAThread]
-    private static async Task Main(string[] args)
+    private static void Main(string[] args)
     {
         PrepareDataFolder();
         LoadStrings();
-
-        // Version
-        try
+        PrepareVersionAndTitle();
+        if (PreventMultipleInstances())
         {
-            var version = Windows.ApplicationModel.Package.Current.Id.Version;
-            Version = $"{version.Major}.{version.Minor}.{version.Build}";
-        }
-        catch
-        {
-            Version = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? string.Empty;
-        }
-
-        // Title
-        Title = HashedString.Get(Hashed.App.Name) + " " + Version;
-
-        // Prevents multiple instances.
-        if (!appMutex.WaitOne(0, false))
-        {
-            appMutex.Close(); // Release mutex.
-
-            var prevProcess = Arc.WinAPI.Methods.GetPreviousProcess();
-            if (prevProcess != null)
-            {
-                var handle = prevProcess.MainWindowHandle; // The window handle that associated with the previous process.
-                if (handle == IntPtr.Zero)
-                {
-                    handle = Arc.WinAPI.Methods.GetWindowHandle(prevProcess.Id, Title); // Get handle.
-                }
-
-                if (handle != IntPtr.Zero)
-                {
-                    Arc.WinAPI.Methods.ActivateWindow(handle);
-                }
-            }
-
-            return; // Exit.
+            return;
         }
 
         AppUnit.Unit? unit = default;
-        Crystalizer? crystalizer = default;
         try
         {
             WinRT.ComWrappersSupport.InitializeComWrappers();
@@ -131,46 +99,18 @@ public static partial class App
                 unit = builder.Build();
                 serviceProvider = unit.Context.ServiceProvider;
 
-                crystalizer = serviceProvider.GetRequiredService<Crystalizer>();
-                crystalizer.PrepareAndLoadAll(false).Wait();
-
-                // Load
-                Settings = crystalizer.GetCrystal<AppSettings>().Data;
-                Options = crystalizer.GetCrystal<AppOptions>().Data;
-
-                // Set culture
-                try
-                {
-                    if (Settings.Culture == string.Empty)
-                    {
-                        if (CultureInfo.CurrentUICulture.Name != "ja-JP")
-                        {
-                            Settings.Culture = "en"; // English
-                        }
-                    }
-
-                    HashedString.ChangeCulture(App.Settings.Culture);
-                }
-                catch
-                {
-                    Settings.Culture = App.DefaultCulture;
-                    HashedString.ChangeCulture(Settings.Culture);
-                }
-
-                // App
-                serviceProvider.GetRequiredService<AppClass>();
+                PrepareCrystalizer();
+                PrepareCulture();
+                GetService<AppClass>();
             });
         }
         finally
         {
-            ThreadCore.Root.Terminate();
-            if (crystalizer is not null)
-            {
-                await crystalizer.SaveAllAndTerminate();
-            }
+            crystalizer?.SaveAllAndTerminate().Wait(); // 'await task' does not work property.
 
-            await ThreadCore.Root.WaitForTerminationAsync(-1); // Wait for the termination infinitely.
-            unit?.Context.ServiceProvider.GetService<UnitLogger>()?.FlushAndTerminate();
+            ThreadCore.Root.Terminate();
+            ThreadCore.Root.WaitForTerminationAsync(-1).Wait(); // 'await task' does not work property.
+            unit?.Context.ServiceProvider.GetService<UnitLogger>()?.FlushAndTerminate().Wait(); // 'await task' does not work property.
 
             appMutex.ReleaseMutex();
             appMutex.Close();
@@ -247,6 +187,81 @@ public static partial class App
         }
         catch
         {
+        }
+    }
+
+    private static void PrepareVersionAndTitle()
+    {
+        // Version
+        try
+        {
+            var version = Windows.ApplicationModel.Package.Current.Id.Version;
+            Version = $"{version.Major}.{version.Minor}.{version.Build}";
+        }
+        catch
+        {
+            Version = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? string.Empty;
+        }
+
+        // Title
+        Title = HashedString.Get(Hashed.App.Name) + " " + Version;
+    }
+
+    private static bool PreventMultipleInstances()
+    {
+        if (appMutex.WaitOne(0, false))
+        {
+            return false;
+        }
+
+        appMutex.Close(); // Release mutex.
+
+        var prevProcess = Arc.WinAPI.Methods.GetPreviousProcess();
+        if (prevProcess != null)
+        {
+            var handle = prevProcess.MainWindowHandle; // The window handle that associated with the previous process.
+            if (handle == IntPtr.Zero)
+            {
+                handle = Arc.WinAPI.Methods.GetWindowHandle(prevProcess.Id, Title); // Get handle.
+            }
+
+            if (handle != IntPtr.Zero)
+            {
+                Arc.WinAPI.Methods.ActivateWindow(handle);
+            }
+        }
+
+        return true;
+    }
+
+    private static void PrepareCrystalizer()
+    {
+        crystalizer = GetService<Crystalizer>();
+        crystalizer.PrepareAndLoadAll(false).Wait();
+
+        // Load settings and options.
+        Settings = crystalizer.GetCrystal<AppSettings>().Data;
+        Options = crystalizer.GetCrystal<AppOptions>().Data;
+    }
+
+    private static void PrepareCulture()
+    {
+        try
+        {
+            if (Settings.Culture == string.Empty)
+            {
+                if (CultureInfo.CurrentUICulture.Name != "ja-JP")
+                {
+                    Settings.Culture = "en"; // English
+                }
+            }
+
+            HashedString.ChangeCulture(App.Settings.Culture);
+        }
+        catch
+        {
+            Settings.Culture = App.DefaultCulture;
+            HashedString.ChangeCulture(Settings.Culture);
         }
     }
 }

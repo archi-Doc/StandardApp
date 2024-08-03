@@ -17,7 +17,6 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
-    <PackageReference Include="CrystalData" Version="0.17.3" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.756" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240627000" />
     <Manifest Include="$(ApplicationManifest)" />
@@ -47,7 +46,9 @@
 
   <ItemGroup>
     <PackageReference Include="Arc.Crypto" Version="1.24.2" />
+    <PackageReference Include="Arc.Threading" Version="0.28.1" />
     <PackageReference Include="Arc.Unit" Version="0.15.0" />
+    <PackageReference Include="CrystalData" Version="0.17.3" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

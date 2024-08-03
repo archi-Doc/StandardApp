@@ -269,10 +269,18 @@ public static class C4Updater
                             }
                             else
                             {
-                                System.Reflection.PropertyInfo? prop = x.TargetProperty as System.Reflection.PropertyInfo;
+                                var prop = x.TargetProperty as System.Reflection.PropertyInfo;
                                 if (prop != null && x.Key != null)
                                 {
                                     prop.SetValue(target, HashedString.GetOrIdentifier(x.Key));
+                                }
+
+                                if (x.Key is not null)
+                                {
+                                    if (x.TargetProperty is ProvideValueTargetProperty targetProperty)
+                                    {
+                                        targetProperty.
+                                    }
                                 }
                             }
                         }

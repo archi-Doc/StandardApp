@@ -62,7 +62,7 @@ public partial class BrushOption : ObservableObject, ITinyhandSerializationCallb
     { // Before data is saved.
         if (this.Brush != null)
         {
-            this.BrushColor = (this.Brush.Color.A << 24) | (this.Brush.Color.R << 16) | (this.Brush.Color.G << 8) | this.Brush.Color.B;
+            //this.BrushColor = (this.Brush.Color.A << 24) | (this.Brush.Color.R << 16) | (this.Brush.Color.G << 8) | this.Brush.Color.B;
         }
         else
         {
