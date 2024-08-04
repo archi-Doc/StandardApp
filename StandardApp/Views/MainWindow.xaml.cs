@@ -24,7 +24,7 @@ namespace StandardApp.Views;
 /// <summary>
 /// Main Window.
 /// </summary>
-public partial class MainWindow : Window, IMainViewService
+public partial class MainWindow : StandardWindow, IMainViewService
 {
     private MainViewModel vm; // ViewModel
     private Window? closingWindow = null; // Avoid an exception which occurs when Close () is called while the Window Close confirmation dialog is displayed.
