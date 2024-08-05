@@ -1,7 +1,5 @@
 // Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
-using System.Net.Sockets;
-using System.Threading.Tasks;
 using Arc.Views;
 using Arc.WinAPI;
 using CommunityToolkit.WinUI;
@@ -28,11 +26,30 @@ public sealed partial class MainWindow : WinUIEx.WindowEx
         this.Activated += this.MainWindow_Activated;
         this.Closed += this.MainWindow_Closed;
         this.AppWindow.Closing += this.AppWindow_Closing;
+
+        // Set window placement
+        var windowPlacement = App.Settings.WindowPlacement;
+        if (windowPlacement.IsValid)
+        {
+            var hwnd = this.GetWindowHandle();
+            Arc.WinAPI.Methods.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);
+            var wp = windowPlacement.ToWINDOWPLACEMENT2(dpiX, dpiY);
+            wp.length = System.Runtime.InteropServices.Marshal.SizeOf(typeof(WINDOWPLACEMENT));
+            wp.flags = 0;
+            wp.showCmd = wp.showCmd == SW.SHOWMAXIMIZED ? SW.SHOWMAXIMIZED : SW.SHOWNORMAL; // SW.HIDE
+            Arc.WinAPI.Methods.SetWindowPlacement(hwnd, ref wp);
+        }
     }
 
-    private void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)
+    private async void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)
     {
-        //args.Cancel = true;
+        args.Cancel = true; // Since the Closing function isn't awaiting, I'll cancel first. Sorry for writing such crappy code.
+
+        var result = await this.ShowMessageDialogAsync(0, Hashed.Dialog.Exit, Hashed.Dialog.Yes, Hashed.Dialog.No);
+        if (result == Hashed.Dialog.Yes)
+        {
+            App.Exit();
+        }
     }
 
     #region FieldAndProperty
@@ -45,22 +62,11 @@ public sealed partial class MainWindow : WinUIEx.WindowEx
 
     private void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
     {
-        var windowPlacement = App.Settings.WindowPlacement;
-        if (windowPlacement.IsValid)
-        { // Change the UI before this code. The window will be displayed shortly.
-            var hwnd = this.GetWindowHandle();
-            Arc.WinAPI.Methods.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);
-            var wp = windowPlacement.ToWINDOWPLACEMENT2(dpiX, dpiY);
-            wp.length = System.Runtime.InteropServices.Marshal.SizeOf(typeof(WINDOWPLACEMENT));
-            wp.flags = 0;
-            wp.showCmd = wp.showCmd == SW.SHOWMINIMIZED ? SW.SHOWNORMAL : wp.showCmd;
-            Arc.WinAPI.Methods.SetWindowPlacement(hwnd, ref wp);
-        }
     }
 
     private void MainWindow_Closed(object sender, WindowEventArgs args)
     {
-        // Exit1 (Window is still visible)
+        // Exit1
         var hwnd = this.GetWindowHandle();
         Arc.WinAPI.Methods.GetWindowPlacement(hwnd, out var wp);
         Arc.WinAPI.Methods.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);

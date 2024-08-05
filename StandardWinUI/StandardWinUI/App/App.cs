@@ -66,7 +66,8 @@ public static partial class App
     private static Mutex appMutex = new(false, MutexName);
     private static DispatcherQueue uiDispatcherQueue = default!;
     private static IServiceProvider serviceProvider = default!;
-    private static Crystalizer? crystalizer = default;
+    private static Crystalizer? crystalizer;
+    private static AppClass? appClass;
 
     #endregion
 
@@ -98,7 +99,7 @@ public static partial class App
 
                 PrepareCrystalizer();
                 PrepareCulture();
-                GetService<AppClass>();
+                appClass = GetService<AppClass>();
             });
 
             Task.Run(async () =>
@@ -132,6 +133,11 @@ public static partial class App
         }
 
         return service;
+    }
+
+    public static void Exit()
+    {
+        appClass?.Exit();
     }
 
     // <summary>
