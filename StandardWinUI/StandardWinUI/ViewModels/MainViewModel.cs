@@ -1,14 +1,7 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using StandardWinUI;
-using Tinyhand;
 
 namespace StandardWinUI.ViewModels;
 
@@ -52,6 +45,6 @@ internal partial class MainViewModel : ObservableObject
         }
 
         HashedString.ChangeCulture(this.appSettings.Culture);
-        Arc.Views.C4Updater.Update();
+        Arc.WinUI.C4.Refresh();
     }
 }

@@ -180,24 +180,20 @@ public partial class Methods
     /// <returns>Process.</returns>
     internal static Process? GetPreviousProcess()
     {
-        Process curProcess = Process.GetCurrentProcess();
-        Process[] allProcesses = Process.GetProcessesByName(curProcess.ProcessName);
+        var curProcess = Process.GetCurrentProcess();
+        var allProcesses = Process.GetProcessesByName(curProcess.ProcessName);
 
-        foreach (Process checkProcess in allProcesses)
+        foreach (var checkProcess in allProcesses)
         {
-            // 自分自身のプロセスIDは無視する
             if (checkProcess.Id != curProcess.Id)
             {
-                // プロセスのフルパス名を比較して同じアプリケーションか検証
                 if (string.Compare(checkProcess.MainModule?.FileName, curProcess.MainModule?.FileName, true) == 0)
                 {
-                    // 同じフルパス名のプロセスを取得
                     return checkProcess;
                 }
             }
         }
 
-        // 同じアプリケーションのプロセスが見つからない！
         return null;
     }
 
@@ -225,71 +221,6 @@ public partial class Methods
         SetForegroundWindow(hWnd);
     }
 
-    internal static void ActivateWindowForce(IntPtr hWnd)
-    {
-        if (hWnd == IntPtr.Zero)
-        {
-            return;
-        }
-
-        if (!IsWindowVisible(hWnd))
-        {
-            SendMessage(hWnd, 0x0018 /*WM_SHOWWINDOW*/, IntPtr.Zero, new IntPtr(3 /*SW_PARENTOPENING*/));
-            ShowWindowAsync(hWnd, (int)ShowCommands.SW_SHOW);
-        }
-
-        if (IsIconic(hWnd))
-        { // Restore the window if iconic.
-            ShowWindowAsync(hWnd, (int)ShowCommands.SW_RESTORE);
-        }
-
-        // Get a window handle of the foreground window.
-        IntPtr forehWnd = GetForegroundWindow();
-        if (forehWnd == hWnd)
-        {
-            return;
-        }
-
-        // Get a thread id.
-        uint foreThread = GetWindowThreadProcessId(forehWnd, out var _);
-
-        // Get own thread id.
-        uint thisThread = GetCurrentThreadId();
-
-        uint timeout = 200000;
-        if (foreThread != thisThread)
-        {
-            // ForegroundLockTimeoutの現在の設定を取得
-            // Visual Studio 2010, 2012起動後は、レジストリと違う値を返す
-            SystemParametersInfoGet(SPI_GETFOREGROUNDLOCKTIMEOUT, 0, ref timeout, 0);
-
-            // ForegroundLockTimeoutの値を0にする
-            // (SPIF_UPDATEINIFILE | SPIF_SENDCHANGE)を使いたいが、
-            //  timeoutがレジストリと違う値だと戻せなくなるので使わない
-            SystemParametersInfoSet(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, 0, 0);
-
-            // 入力処理機構にアタッチする
-            AttachThreadInput(thisThread, foreThread, true);
-        }
-
-        // Move the window to the top.
-        SetForegroundWindow(hWnd);
-        SetWindowPos(hWnd, (IntPtr)HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW | SWP_ASYNCWINDOWPOS);
-        BringWindowToTop(hWnd);
-        ShowWindowAsync(hWnd, (int)ShowCommands.SW_SHOW);
-        SetFocus(hWnd);
-
-        if (foreThread != thisThread)
-        {
-            // ForegroundLockTimeoutの値を元に戻す
-            // ここでも(SPIF_UPDATEINIFILE | SPIF_SENDCHANGE)は使わない
-            SystemParametersInfoSet(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, timeout, 0);
-
-            // detach
-            AttachThreadInput(thisThread, foreThread, false);
-        }
-    }
-
     internal static IntPtr GetWindowHandle(int pid, string title)
     {
         var result = IntPtr.Zero;
@@ -313,12 +244,6 @@ public partial class Methods
 
                     var text = builder.ToString();
                     var className = clsName.ToString();
-
-                    /*There could be multiple handle associated with our pid,
-                       so we return the first handle that satisfy:
-                       1) the handle title/ caption matches our window title,
-                       2) the window class name starts with HwndWrapper (WPF specific)
-                       3) the window has WS_EX_APPWINDOW style */
 
                     if (title == text && className.StartsWith("HwndWrapper") && IsApplicationWindow(hWnd))
                     {
@@ -393,19 +318,6 @@ public partial class Methods
         }
     }
 
-    /*
-    /// <summary>
-    /// Get the cursor position (relative to control coordinate).
-    /// </summary>
-    /// <returns>Cursor position.</returns>
-    internal static Point GetNowPosition(Visual v)
-    {
-        POINT32 p;
-
-        GetCursorPos(out p);
-        return v.PointFromScreen(new Point(p.X, p.Y));
-    }*/
-
     [DllImport("kernel32.dll")]
     internal static extern IntPtr LoadLibrary(string lpFileName);
 
@@ -415,10 +327,6 @@ public partial class Methods
     [DllImport("kernel32.dll")]
     internal static extern bool FreeLibrary(IntPtr hLibModule);
 
-    [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
-    internal static extern int SHFileOperation([In] ref SHFILEOPSTRUCT lpFileOp);
-
-    // 外部プロセスのメイン・ウィンドウを起動するためのWin32 API
     [DllImport("user32.dll")]
     internal static extern bool SetForegroundWindow(IntPtr hWnd);
 
@@ -485,11 +393,9 @@ public partial class Methods
     [DllImport("user32.dll", CharSet = CharSet.Auto)]
     internal static extern bool GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
 
-    // キー操作、マウス操作をシミュレート(擬似的に操作する)
     [DllImport("user32.dll", SetLastError = true)]
     internal static extern uint SendInput(uint nInputs, INPUT[] pInputs, int cbsize);
 
-    // 仮想キーコードをスキャンコードに変換
     [DllImport("user32.dll", EntryPoint = "MapVirtualKeyA")]
     internal static extern int MapVirtualKey(int wCode, int wMapType);
 
@@ -511,7 +417,6 @@ public partial class Methods
     [DllImport("user32.dll")]
     internal static extern IntPtr SendMessage(IntPtr hwnd, uint msg, IntPtr wParam, IntPtr lParam);
 
-    // ShowWindowAsync関数のパラメータに渡す定義値
     private const int GWL_EXSTYLE = -20;
     private const int WS_EX_DLGMODALFRAME = 0x0001;
 
@@ -604,42 +509,6 @@ public enum FOFunc : uint
     FO_COPY = 0x0002,
     FO_DELETE = 0x0003,
     FO_RENAME = 0x0004,
-}
-
-public enum FOFlags : ushort
-{
-    FOF_MULTIDESTFILES = 0x0001,
-    FOF_CONFIRMMOUSE = 0x0002,
-    FOF_SILENT = 0x0004,  // don't create progress/report
-    FOF_RENAMEONCOLLISION = 0x0008,
-    FOF_NOCONFIRMATION = 0x0010,  // Don't prompt the user.
-    FOF_WANTMAPPINGHANDLE = 0x0020,  // Fill in SHFILEOPSTRUCT.hNameMappings
-    FOF_ALLOWUNDO = 0x0040, // Must be freed using SHFreeNameMappings
-    FOF_FILESONLY = 0x0080,  // on *.*, do only files
-    FOF_SIMPLEPROGRESS = 0x0100,  // means don't show names of files
-    FOF_NOCONFIRMMKDIR = 0x0200,  // don't confirm making any needed dirs
-    FOF_NOERRORUI = 0x0400,  // don't put up error UI
-    FOF_NOCOPYSECURITYATTRIBS = 0x0800,  // dont copy NT file Security Attributes
-    FOF_NORECURSION = 0x1000,  // don't recurse into directories.
-    FOF_NO_CONNECTED_ELEMENTS = 0x2000,  // don't operate on connected elements.
-    FOF_WANTNUKEWARNING = 0x4000,  // during delete operation, warn if nuking instead of recycling (partially overrides FOF_NOCONFIRMATION)
-    FOF_NORECURSEREPARSE = 0x8000,  // treat reparse points as objects, not containers
-}
-
-[StructLayout(LayoutKind.Sequential)]
-public struct SHFILEOPSTRUCT
-{
-    public IntPtr hwnd;
-    public FOFunc wFunc;
-    [MarshalAs(UnmanagedType.LPWStr)]
-    public string pFrom;
-    [MarshalAs(UnmanagedType.LPWStr)]
-    public string pTo;
-    public FOFlags fFlags;
-    public bool fAnyOperationsAborted;
-    public IntPtr hNameMappings;
-    [MarshalAs(UnmanagedType.LPWStr)]
-    public string lpszProgressTitle;
 }
 
 [StructLayout(LayoutKind.Sequential)]

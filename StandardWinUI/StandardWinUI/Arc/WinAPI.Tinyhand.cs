@@ -15,8 +15,7 @@ namespace Arc.WinAPI;
 [TinyhandObject]
 public partial class DipWindowPlacement
 { // Device Independent, 1/96 inch
-    [Key(0)]
-    public int Length { get; set; }
+    private const int WindowPlacementLength = 44;
 
     [Key(1)]
     public int Flags { get; set; }
@@ -37,9 +36,19 @@ public partial class DipWindowPlacement
     {
     }
 
+    public DipWindowPlacement(WINDOWPLACEMENT wp, double dpiX, double dpiY)
+    {
+        this.Flags = wp.flags;
+        this.ShowCmd = wp.showCmd;
+        this.MinPosition.FromPOINT2(wp.minPosition);
+        this.MaxPosition.FromPOINT2(wp.maxPosition);
+        this.NormalPosition.FromRECT2(wp.normalPosition, dpiX, dpiY);
+    }
+
+    public bool IsValid => this.NormalPosition.Width > 0 && this.NormalPosition.Height > 0;
+
     public void FromWINDOWPLACEMENT(WINDOWPLACEMENT wp, double dpiX, double dpiY)
     {
-        this.Length = wp.length;
         this.Flags = wp.flags;
         this.ShowCmd = wp.showCmd;
         this.MinPosition.FromPOINT(wp.minPosition, dpiX, dpiY);
@@ -51,7 +60,7 @@ public partial class DipWindowPlacement
     {
         return new WINDOWPLACEMENT
         {
-            length = this.Length,
+            length = WindowPlacementLength,
             flags = this.Flags,
             showCmd = this.ShowCmd,
             minPosition = this.MinPosition.ToPOINT(dpiX, dpiY),
@@ -60,21 +69,11 @@ public partial class DipWindowPlacement
         };
     }
 
-    public void FromWINDOWPLACEMENT2(WINDOWPLACEMENT wp, double dpiX, double dpiY)
-    {
-        this.Length = wp.length;
-        this.Flags = wp.flags;
-        this.ShowCmd = wp.showCmd;
-        this.MinPosition.FromPOINT2(wp.minPosition);
-        this.MaxPosition.FromPOINT2(wp.maxPosition);
-        this.NormalPosition.FromRECT2(wp.normalPosition, dpiX, dpiY);
-    }
-
     public WINDOWPLACEMENT ToWINDOWPLACEMENT2(double dpiX, double dpiY)
     {
         return new WINDOWPLACEMENT
         {
-            length = this.Length,
+            length = WindowPlacementLength,
             flags = this.Flags,
             showCmd = this.ShowCmd,
             minPosition = this.MinPosition.ToPOINT2(),
