@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Window
+<Arc:StandardWindow
     x:Class="StandardWinUI.Views.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -18,4 +18,4 @@
             <Button x:Name="switchLanguage" Command="{x:Bind ViewModel.SwitchLanguageCommand}">Switch language</Button>
         </StackPanel>
     </Viewbox>
-</Window>
+</Arc:StandardWindow>

@@ -12,7 +12,7 @@ using Microsoft.UI.Xaml;
 
 namespace Arc.Views;
 
-public class Transformer
+/*public class Transformer
 {
     private const double MinimumScale = 0.25; // Minimum value of scale.
     private readonly double marginX = SystemParameters.ResizeFrameVerticalBorderWidth * 2;
@@ -560,4 +560,4 @@ public class Transformer
 
         public bool TransformUpdated { get; set; } // New Transform is set.
     }
-}
+}*/
