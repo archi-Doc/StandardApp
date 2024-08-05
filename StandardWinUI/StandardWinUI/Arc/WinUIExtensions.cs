@@ -1,9 +1,13 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Arc.WinAPI;
+using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Windows.System;
 using WinUIEx;
 
 namespace Arc.WinUI;
@@ -79,5 +83,28 @@ public static class WinUIExtensions
         Arc.WinAPI.Methods.GetWindowPlacement(hwnd, out var wp);
         Arc.WinAPI.Methods.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);
         return new(wp, dpiX, dpiY);
+    }
+
+    public static void SetIconFromEmbeddedResource(this Window window, string resourceName, Assembly? assembly = default)
+    {
+        try
+        {
+            assembly??= Assembly.GetEntryAssembly();
+            if (assembly is null)
+            {
+                return;
+            }
+
+            var rName = assembly.GetManifestResourceNames().FirstOrDefault(s => s.EndsWith(resourceName, StringComparison.InvariantCultureIgnoreCase));
+            var icon = new Icon(assembly.GetManifestResourceStream(rName));
+
+            var windowHandle = WinRT.Interop.WindowNative.GetWindowHandle(window);
+            var windowId = Win32Interop.GetWindowIdFromWindow(windowHandle);
+            window.AppWindow.SetIcon(Win32Interop.GetIconIdFromIcon(icon.Handle));
+        }
+        catch ()
+        {
+
+        }
     }
 }

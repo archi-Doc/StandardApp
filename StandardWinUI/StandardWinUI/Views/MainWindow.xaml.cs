@@ -26,6 +26,7 @@ public sealed partial class MainWindow : WinUIEx.WindowEx
         this.Activated += this.MainWindow_Activated;
         this.Closed += this.MainWindow_Closed;
         this.AppWindow.Closing += this.AppWindow_Closing;
+        this.AppWindow.SetIcon("Resources.App.ico");
 
         this.LoadWindowPlacement(App.Settings.WindowPlacement);
     }
