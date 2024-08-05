@@ -1,6 +1,5 @@
 // Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
-using Arc.WinAPI;
 using Arc.WinUI;
 using CommunityToolkit.WinUI;
 using Microsoft.UI.Windowing;
@@ -17,10 +16,9 @@ namespace StandardWinUI.Views;
 /// </summary>
 public sealed partial class MainWindow : WinUIEx.WindowEx
 {
-    public MainWindow(AppSettings appSettings)
+    public MainWindow()
     {
         this.ViewModel = App.GetService<MainViewModel>();
-        this.appSettings = appSettings;
         this.InitializeComponent();
 
         this.Activated += this.MainWindow_Activated;
@@ -34,9 +32,9 @@ public sealed partial class MainWindow : WinUIEx.WindowEx
             var hwnd = this.GetWindowHandle();
             Arc.WinAPI.Methods.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);
             var wp = windowPlacement.ToWINDOWPLACEMENT2(dpiX, dpiY);
-            wp.length = System.Runtime.InteropServices.Marshal.SizeOf(typeof(WINDOWPLACEMENT));
+            wp.length = System.Runtime.InteropServices.Marshal.SizeOf(typeof(Arc.WinAPI.WINDOWPLACEMENT));
             wp.flags = 0;
-            wp.showCmd = wp.showCmd == SW.SHOWMAXIMIZED ? SW.SHOWMAXIMIZED : SW.SHOWNORMAL; // SW.HIDE
+            wp.showCmd = wp.showCmd == Arc.WinAPI.SW.SHOWMAXIMIZED ? Arc.WinAPI.SW.SHOWMAXIMIZED : Arc.WinAPI.SW.SHOWNORMAL;
             Arc.WinAPI.Methods.SetWindowPlacement(hwnd, ref wp);
         }
     }
@@ -56,8 +54,6 @@ public sealed partial class MainWindow : WinUIEx.WindowEx
 
     internal MainViewModel ViewModel { get; }
 
-    private readonly AppSettings appSettings;
-
     #endregion
 
     private void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
@@ -75,26 +71,8 @@ public sealed partial class MainWindow : WinUIEx.WindowEx
 
     private async void myButton_Click(object sender, RoutedEventArgs e)
     {
-        /*var children = ((FrameworkElement)this.Content).FindChildren();
-        foreach (var x in children)
-        {
-            // x.ActualHeight
-        }
-        var content = this.Content;
-        var count = VisualTreeHelper.GetChildrenCount(content);
-        for (var i = 0; i < count; i++)
-        {
-            var child = VisualTreeHelper.GetChild(content, i);
-        }*/
-        // await this.ShowMessageDialogAsync("test", "test2");
-        this.IsMaximizable = false;
         this.myButton.Content = "Clicked";
-        // this.Content.Scale = new(2);
 
-        // var grid = (Grid)this.Content;
-        // grid.Scale = new(2);
-
-        // this.MoveAndResize();
         if (this.Content is FrameworkElement element)
         {
             if (element.FindChild<Viewbox>() is { } viewbox)

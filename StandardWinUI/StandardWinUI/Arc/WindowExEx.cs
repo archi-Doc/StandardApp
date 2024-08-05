@@ -18,7 +18,7 @@ public static class WindowExEx
         }
 
         var textBlock = new TextBlock() { Text = HashedString.Get(content), TextWrapping = TextWrapping.Wrap, };
-        textBlock.FontSize *= 2;
+        textBlock.FontSize *= App.Settings.DisplayScaling;
         dialog.Content = textBlock;
         if (title != 0)
         {

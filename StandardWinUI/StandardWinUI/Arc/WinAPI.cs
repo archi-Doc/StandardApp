@@ -327,9 +327,6 @@ public partial class Methods
     [DllImport("kernel32.dll")]
     internal static extern bool FreeLibrary(IntPtr hLibModule);
 
-    [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
-    internal static extern int SHFileOperation([In] ref SHFILEOPSTRUCT lpFileOp);
-
     [DllImport("user32.dll")]
     internal static extern bool SetForegroundWindow(IntPtr hWnd);
 
@@ -420,7 +417,6 @@ public partial class Methods
     [DllImport("user32.dll")]
     internal static extern IntPtr SendMessage(IntPtr hwnd, uint msg, IntPtr wParam, IntPtr lParam);
 
-    // ShowWindowAsync関数のパラメータに渡す定義値
     private const int GWL_EXSTYLE = -20;
     private const int WS_EX_DLGMODALFRAME = 0x0001;
 
@@ -513,42 +509,6 @@ public enum FOFunc : uint
     FO_COPY = 0x0002,
     FO_DELETE = 0x0003,
     FO_RENAME = 0x0004,
-}
-
-public enum FOFlags : ushort
-{
-    FOF_MULTIDESTFILES = 0x0001,
-    FOF_CONFIRMMOUSE = 0x0002,
-    FOF_SILENT = 0x0004,  // don't create progress/report
-    FOF_RENAMEONCOLLISION = 0x0008,
-    FOF_NOCONFIRMATION = 0x0010,  // Don't prompt the user.
-    FOF_WANTMAPPINGHANDLE = 0x0020,  // Fill in SHFILEOPSTRUCT.hNameMappings
-    FOF_ALLOWUNDO = 0x0040, // Must be freed using SHFreeNameMappings
-    FOF_FILESONLY = 0x0080,  // on *.*, do only files
-    FOF_SIMPLEPROGRESS = 0x0100,  // means don't show names of files
-    FOF_NOCONFIRMMKDIR = 0x0200,  // don't confirm making any needed dirs
-    FOF_NOERRORUI = 0x0400,  // don't put up error UI
-    FOF_NOCOPYSECURITYATTRIBS = 0x0800,  // dont copy NT file Security Attributes
-    FOF_NORECURSION = 0x1000,  // don't recurse into directories.
-    FOF_NO_CONNECTED_ELEMENTS = 0x2000,  // don't operate on connected elements.
-    FOF_WANTNUKEWARNING = 0x4000,  // during delete operation, warn if nuking instead of recycling (partially overrides FOF_NOCONFIRMATION)
-    FOF_NORECURSEREPARSE = 0x8000,  // treat reparse points as objects, not containers
-}
-
-[StructLayout(LayoutKind.Sequential)]
-public struct SHFILEOPSTRUCT
-{
-    public IntPtr hwnd;
-    public FOFunc wFunc;
-    [MarshalAs(UnmanagedType.LPWStr)]
-    public string pFrom;
-    [MarshalAs(UnmanagedType.LPWStr)]
-    public string pTo;
-    public FOFlags fFlags;
-    public bool fAnyOperationsAborted;
-    public IntPtr hNameMappings;
-    [MarshalAs(UnmanagedType.LPWStr)]
-    public string lpszProgressTitle;
 }
 
 [StructLayout(LayoutKind.Sequential)]
