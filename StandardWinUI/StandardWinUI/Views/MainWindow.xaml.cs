@@ -3,7 +3,9 @@
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Arc.Views;
+using Arc.WinAPI;
 using CommunityToolkit.WinUI;
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
@@ -17,12 +19,52 @@ namespace StandardWinUI.Views;
 /// </summary>
 public sealed partial class MainWindow : WinUIEx.WindowEx
 {
-    internal MainViewModel ViewModel { get; }
-
-    public MainWindow()
+    public MainWindow(AppSettings appSettings)
     {
         this.ViewModel = App.GetService<MainViewModel>();
+        this.appSettings = appSettings;
         this.InitializeComponent();
+
+        this.Activated += this.MainWindow_Activated;
+        this.Closed += this.MainWindow_Closed;
+        this.AppWindow.Closing += this.AppWindow_Closing;
+    }
+
+    private void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)
+    {
+        //args.Cancel = true;
+    }
+
+    #region FieldAndProperty
+
+    internal MainViewModel ViewModel { get; }
+
+    private readonly AppSettings appSettings;
+
+    #endregion
+
+    private void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
+    {
+        var windowPlacement = App.Settings.WindowPlacement;
+        if (windowPlacement.IsValid)
+        { // Change the UI before this code. The window will be displayed shortly.
+            var hwnd = this.GetWindowHandle();
+            Arc.WinAPI.Methods.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);
+            var wp = windowPlacement.ToWINDOWPLACEMENT2(dpiX, dpiY);
+            wp.length = System.Runtime.InteropServices.Marshal.SizeOf(typeof(WINDOWPLACEMENT));
+            wp.flags = 0;
+            wp.showCmd = wp.showCmd == SW.SHOWMINIMIZED ? SW.SHOWNORMAL : wp.showCmd;
+            Arc.WinAPI.Methods.SetWindowPlacement(hwnd, ref wp);
+        }
+    }
+
+    private void MainWindow_Closed(object sender, WindowEventArgs args)
+    {
+        // Exit1 (Window is still visible)
+        var hwnd = this.GetWindowHandle();
+        Arc.WinAPI.Methods.GetWindowPlacement(hwnd, out var wp);
+        Arc.WinAPI.Methods.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);
+        App.Settings.WindowPlacement.FromWINDOWPLACEMENT2(wp, dpiX, dpiY);
     }
 
     private async void myButton_Click(object sender, RoutedEventArgs e)
@@ -46,6 +88,7 @@ public sealed partial class MainWindow : WinUIEx.WindowEx
         // var grid = (Grid)this.Content;
         // grid.Scale = new(2);
 
+        // this.MoveAndResize();
         if (this.Content is FrameworkElement element)
         {
             if (element.FindChild<Viewbox>() is { } viewbox)
