@@ -36,6 +36,15 @@ public partial class DipWindowPlacement
     {
     }
 
+    public DipWindowPlacement(WINDOWPLACEMENT wp, double dpiX, double dpiY)
+    {
+        this.Flags = wp.flags;
+        this.ShowCmd = wp.showCmd;
+        this.MinPosition.FromPOINT2(wp.minPosition);
+        this.MaxPosition.FromPOINT2(wp.maxPosition);
+        this.NormalPosition.FromRECT2(wp.normalPosition, dpiX, dpiY);
+    }
+
     public bool IsValid => this.NormalPosition.Width > 0 && this.NormalPosition.Height > 0;
 
     public void FromWINDOWPLACEMENT(WINDOWPLACEMENT wp, double dpiX, double dpiY)
@@ -58,15 +67,6 @@ public partial class DipWindowPlacement
             maxPosition = this.MaxPosition.ToPOINT(dpiX, dpiY),
             normalPosition = this.NormalPosition.ToRECT(dpiX, dpiY),
         };
-    }
-
-    public void FromWINDOWPLACEMENT2(WINDOWPLACEMENT wp, double dpiX, double dpiY)
-    {
-        this.Flags = wp.flags;
-        this.ShowCmd = wp.showCmd;
-        this.MinPosition.FromPOINT2(wp.minPosition);
-        this.MaxPosition.FromPOINT2(wp.maxPosition);
-        this.NormalPosition.FromRECT2(wp.normalPosition, dpiX, dpiY);
     }
 
     public WINDOWPLACEMENT ToWINDOWPLACEMENT2(double dpiX, double dpiY)

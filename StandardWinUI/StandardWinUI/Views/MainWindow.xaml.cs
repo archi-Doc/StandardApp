@@ -1,5 +1,6 @@
 // Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
+using System.Threading.Tasks;
 using Arc.WinUI;
 using CommunityToolkit.WinUI;
 using Microsoft.UI.Windowing;
@@ -18,25 +19,15 @@ public sealed partial class MainWindow : WinUIEx.WindowEx
 {
     public MainWindow()
     {
-        this.ViewModel = App.GetService<MainViewModel>();
         this.InitializeComponent();
+        this.ViewModel = App.GetService<MainViewModel>();
+        Transformer.Register(this);
 
         this.Activated += this.MainWindow_Activated;
         this.Closed += this.MainWindow_Closed;
         this.AppWindow.Closing += this.AppWindow_Closing;
 
-        // Set window placement
-        var windowPlacement = App.Settings.WindowPlacement;
-        if (windowPlacement.IsValid)
-        {
-            var hwnd = this.GetWindowHandle();
-            Arc.WinAPI.Methods.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);
-            var wp = windowPlacement.ToWINDOWPLACEMENT2(dpiX, dpiY);
-            wp.length = System.Runtime.InteropServices.Marshal.SizeOf(typeof(Arc.WinAPI.WINDOWPLACEMENT));
-            wp.flags = 0;
-            wp.showCmd = wp.showCmd == Arc.WinAPI.SW.SHOWMAXIMIZED ? Arc.WinAPI.SW.SHOWMAXIMIZED : Arc.WinAPI.SW.SHOWNORMAL;
-            Arc.WinAPI.Methods.SetWindowPlacement(hwnd, ref wp);
-        }
+        this.LoadWindowPlacement(App.Settings.WindowPlacement);
     }
 
     private async void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)
@@ -63,24 +54,16 @@ public sealed partial class MainWindow : WinUIEx.WindowEx
     private void MainWindow_Closed(object sender, WindowEventArgs args)
     {
         // Exit1
-        var hwnd = this.GetWindowHandle();
-        Arc.WinAPI.Methods.GetWindowPlacement(hwnd, out var wp);
-        Arc.WinAPI.Methods.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);
-        App.Settings.WindowPlacement.FromWINDOWPLACEMENT2(wp, dpiX, dpiY);
+        App.Settings.WindowPlacement = this.SaveWindowPlacement();
     }
 
     private async void myButton_Click(object sender, RoutedEventArgs e)
     {
         this.myButton.Content = "Clicked";
 
-        if (this.Content is FrameworkElement element)
-        {
-            if (element.FindChild<Viewbox>() is { } viewbox)
-            {
-                viewbox.Stretch = Stretch.Uniform;
-                viewbox.Width = viewbox.ActualWidth * 1.5;
-                viewbox.Height = viewbox.ActualHeight * 1.5;
-            }
-        }
+        App.Settings.DisplayScaling *= 1.2;
+        Transformer.Refresh();
+        App.Settings.DisplayScaling /= 1.2;
+        Transformer.Refresh();
     }
 }

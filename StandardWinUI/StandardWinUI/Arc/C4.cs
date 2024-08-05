@@ -35,7 +35,7 @@ public class C4Extension : MarkupExtension
 
             if (target.TargetProperty is not null)
             { // Add ExtensionObject (used in C4Update).
-                C4Updater.AddExtensionObject(target.TargetObject, target.TargetProperty, this.Source);
+                C4.AddExtensionObject(target.TargetObject, target.TargetProperty, this.Source);
             }
         }
 
@@ -64,7 +64,7 @@ public class C4BindingSource : INotifyPropertyChanged
     public C4BindingSource(string key)
     {
         this.key = key;
-        C4Updater.AddExtensionObject(this, null, null);
+        C4.AddExtensionObject(this, null, null);
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -188,7 +188,7 @@ public class GCCountChecker
     }
 }
 
-public static class C4Updater
+public static class C4
 {
     private static object syncObject = new object(); // 同期オブジェクト
     private static LinkedList<ExtensionObject> extensionObjects = new LinkedList<ExtensionObject>();
@@ -220,8 +220,8 @@ public static class C4Updater
         }
     }
 
-    public static void Update()
-    { // Update C4
+    public static void Refresh()
+    { // Refresh C4
         App.TryEnqueueOnUI(() =>
         {
             // GC.Collect();
@@ -252,7 +252,7 @@ public static class C4Updater
     }
 
     private static void Clean()
-    { // 使用されていないオブジェクトを解放する。内部で使用。
+    {
         LinkedListNode<ExtensionObject>? x, y;
         x = extensionObjects.First;
         while (x != null)

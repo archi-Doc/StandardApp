@@ -45,6 +45,6 @@ internal partial class MainViewModel : ObservableObject
         }
 
         HashedString.ChangeCulture(this.appSettings.Culture);
-        Arc.WinUI.C4Updater.Update();
+        Arc.WinUI.C4.Refresh();
     }
 }

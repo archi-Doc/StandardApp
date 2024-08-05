@@ -1,15 +1,18 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using System.Threading.Tasks;
+using Arc.WinAPI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using WinUIEx;
 
 namespace Arc.WinUI;
 
-public static class WindowExEx
+public static class WinUIExtensions
 {
-    public static async Task<ulong> ShowMessageDialogAsync(this WindowEx window, ulong title, ulong content, ulong defaultCommand = 0, ulong cancelCommand = 0, ulong secondaryCommand = 0)
+    private const string OkString = "OK";
+
+    public static async Task<ulong> ShowMessageDialogAsync(this Window window, ulong title, ulong content, ulong defaultCommand = 0, ulong cancelCommand = 0, ulong secondaryCommand = 0)
     {
         var dialog = new ContentDialog() { XamlRoot = window.Content.XamlRoot };
         if (window.Content is FrameworkElement element)
@@ -31,7 +34,7 @@ public static class WindowExEx
         }
         else
         {
-            dialog.PrimaryButtonText = "OK";
+            dialog.PrimaryButtonText = OkString;
         }
 
         if (secondaryCommand != 0)
@@ -45,7 +48,7 @@ public static class WindowExEx
         }
 
         var dialogTask = dialog.ShowAsync(ContentDialogPlacement.InPlace);
-        window.BringToFront();
+        HwndExtensions.SetForegroundWindow(window.GetWindowHandle());
         var result = await dialogTask;
         return result switch
         {
@@ -54,5 +57,27 @@ public static class WindowExEx
             ContentDialogResult.None => cancelCommand,
             _ => 0,
         };
+    }
+
+    public static void LoadWindowPlacement(this Window window, DipWindowPlacement windowPlacement)
+    {
+        if (windowPlacement.IsValid)
+        {
+            var hwnd = window.GetWindowHandle();
+            Arc.WinAPI.Methods.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);
+            var wp = windowPlacement.ToWINDOWPLACEMENT2(dpiX, dpiY);
+            wp.length = System.Runtime.InteropServices.Marshal.SizeOf(typeof(Arc.WinAPI.WINDOWPLACEMENT));
+            wp.flags = 0;
+            wp.showCmd = wp.showCmd == Arc.WinAPI.SW.SHOWMAXIMIZED ? Arc.WinAPI.SW.SHOWMAXIMIZED : Arc.WinAPI.SW.SHOWNORMAL;
+            Arc.WinAPI.Methods.SetWindowPlacement(hwnd, ref wp);
+        }
+    }
+
+    public static DipWindowPlacement SaveWindowPlacement(this Window window)
+    {
+        var hwnd = window.GetWindowHandle();
+        Arc.WinAPI.Methods.GetWindowPlacement(hwnd, out var wp);
+        Arc.WinAPI.Methods.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);
+        return new(wp, dpiX, dpiY);
     }
 }
