@@ -3,7 +3,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Data;
 
-namespace Arc.Views;
+namespace Arc.WinUI;
 
 public class BooleanToVisibilityConverter : IValueConverter
 {

@@ -1,6 +1,6 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
-using Arc.Views;
+using Arc.WinUI;
 using Microsoft.UI;
 
 namespace StandardWinUI;

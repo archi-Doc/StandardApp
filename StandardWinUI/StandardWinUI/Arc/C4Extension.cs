@@ -7,12 +7,10 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Markup;
 
-#pragma warning disable SA1201 // Elements should appear in the correct order
 #pragma warning disable SA1204 // Static elements should appear before instance elements
 #pragma warning disable SA1401 // Fields should be private
-#pragma warning disable SA1649 // File name should match first type name
 
-namespace Arc.Views;
+namespace Arc.WinUI;
 
 [MarkupExtensionReturnType(ReturnType = typeof(string))]
 public class C4Extension : MarkupExtension

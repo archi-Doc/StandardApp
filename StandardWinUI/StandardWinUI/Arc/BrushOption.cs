@@ -6,9 +6,7 @@ using Microsoft.UI;
 using Microsoft.UI.Xaml.Media;
 using Windows.UI;
 
-#pragma warning disable SA1649 // File name should match first type name
-
-namespace Arc.Views;
+namespace Arc.WinUI;
 
 [TinyhandObject]
 public partial class BrushOption : ObservableObject

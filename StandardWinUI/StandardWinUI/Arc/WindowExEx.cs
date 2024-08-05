@@ -5,7 +5,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using WinUIEx;
 
-namespace Arc.Views;
+namespace Arc.WinUI;
 
 public static class WindowExEx
 {
