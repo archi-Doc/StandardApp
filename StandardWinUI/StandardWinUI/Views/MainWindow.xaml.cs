@@ -1,12 +1,9 @@
 // Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
-using System.Threading.Tasks;
 using Arc.WinUI;
 using CommunityToolkit.WinUI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
 using StandardWinUI.ViewModels;
 using WinUIEx;
 
@@ -22,6 +19,8 @@ public sealed partial class MainWindow : WinUIEx.WindowEx
         this.InitializeComponent();
         this.ViewModel = App.GetService<MainViewModel>();
         Transformer.Register(this);
+        this.SetApplicationIcon();
+        // this.RemoveIcon();
 
         this.Activated += this.MainWindow_Activated;
         this.Closed += this.MainWindow_Closed;

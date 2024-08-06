@@ -17,8 +17,21 @@ using Microsoft.UI.Xaml;
 
 namespace Arc.WinAPI;
 
+public enum ImageType
+{
+    Bitmap,
+    Icon,
+    Cursor,
+}
+
 public partial class Methods
 {
+    [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+    public static extern IntPtr LoadImage(IntPtr hInst, string lpszName, ImageType uType, int cxDesired, int cyDesired, uint fuLoad);
+
+    [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    public static extern IntPtr GetModuleHandle(IntPtr lpModuleName);
+
     [DllImport("shell32.dll")]
     internal static extern IntPtr ILCombine(IntPtr pidl1, IntPtr pidl2);
 
@@ -417,38 +430,22 @@ public partial class Methods
     [DllImport("user32.dll")]
     internal static extern IntPtr SendMessage(IntPtr hwnd, uint msg, IntPtr wParam, IntPtr lParam);
 
-    private const int GWL_EXSTYLE = -20;
-    private const int WS_EX_DLGMODALFRAME = 0x0001;
+    internal const int GWL_EXSTYLE = -20;
+    internal const int WS_EX_DLGMODALFRAME = 0x0001;
 
-    private const int SWP_NOSIZE = 0x0001;
-    private const int SWP_NOMOVE = 0x0002;
-    private const int SWP_NOZORDER = 0x0004;
-    private const int SWP_FRAMECHANGED = 0x0020;
-    private const int SWP_SHOWWINDOW = 0x0040;
-    private const int SWP_ASYNCWINDOWPOS = 0x4000;
+    internal const int SWP_NOSIZE = 0x0001;
+    internal const int SWP_NOMOVE = 0x0002;
+    internal const int SWP_NOZORDER = 0x0004;
+    internal const int SWP_FRAMECHANGED = 0x0020;
+    internal const int SWP_SHOWWINDOW = 0x0040;
+    internal const int SWP_ASYNCWINDOWPOS = 0x4000;
 
-    private const int HWND_TOP = 0;
-    private const int HWND_BOTTOM = 1;
-    private const int HWND_TOPMOST = -1;
-    private const int HWND_NOTOPMOST = -2;
+    internal const int HWND_TOP = 0;
+    internal const int HWND_BOTTOM = 1;
+    internal const int HWND_TOPMOST = -1;
+    internal const int HWND_NOTOPMOST = -2;
 
-    private const uint WM_SETICON = 0x0080;
-
-    public static void RemoveIcon(Window window)
-    {
-        // Get this window's handle
-        IntPtr hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
-
-        // Change the extended window style to not show a window icon
-        int extendedStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
-        SetWindowLong(hwnd, GWL_EXSTYLE, extendedStyle | WS_EX_DLGMODALFRAME);
-
-        // Update the window's non-client area to reflect the changes
-        SetWindowPos(hwnd, IntPtr.Zero, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
-
-        SendMessage(hwnd, WM_SETICON, new IntPtr(1), IntPtr.Zero);
-        SendMessage(hwnd, WM_SETICON, IntPtr.Zero, IntPtr.Zero);
-    }
+    internal const uint WM_SETICON = 0x0080;
 }
 
 public enum ShowCommands : int
