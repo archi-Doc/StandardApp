@@ -237,12 +237,12 @@ public static partial class App
             var handle = prevProcess.MainWindowHandle; // The window handle that associated with the previous process.
             if (handle == IntPtr.Zero)
             {
-                handle = Arc.WinAPI.Methods.GetWindowHandle(prevProcess.Id, Title); // Get handle.
+                handle = Arc.Internal.Methods.GetWindowHandle(prevProcess.Id, Title); // Get handle.
             }
 
             if (handle != IntPtr.Zero)
             {
-                Arc.WinAPI.Methods.ActivateWindow(handle);
+                Arc.Internal.Methods.ActivateWindow(handle);
             }
         }
 
