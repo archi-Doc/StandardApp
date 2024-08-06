@@ -231,7 +231,7 @@ public static partial class App
 
         appMutex.Close(); // Release mutex.
 
-        var prevProcess = Arc.WinAPI.Methods.GetPreviousProcess();
+        var prevProcess = Arc.Internal.Methods.GetPreviousProcess();
         if (prevProcess != null)
         {
             var handle = prevProcess.MainWindowHandle; // The window handle that associated with the previous process.

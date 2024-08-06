@@ -70,9 +70,9 @@ public static class WinUIExtensions
             var hwnd = window.GetWindowHandle();
             Arc.Internal.Methods.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);
             var wp = windowPlacement.ToWINDOWPLACEMENT2(dpiX, dpiY);
-            wp.length = System.Runtime.InteropServices.Marshal.SizeOf(typeof(Arc.Internal.WINDOWPLACEMENT));
+            wp.length = System.Runtime.InteropServices.Marshal.SizeOf(typeof(Arc.WinUI.WINDOWPLACEMENT));
             wp.flags = 0;
-            wp.showCmd = wp.showCmd == Arc.Internal.SW.SHOWMAXIMIZED ? Arc.Internal.SW.SHOWMAXIMIZED : Arc.Internal.SW.SHOWNORMAL;
+            wp.showCmd = wp.showCmd == Arc.WinUI.SW.SHOWMAXIMIZED ? Arc.WinUI.SW.SHOWMAXIMIZED : Arc.WinUI.SW.SHOWNORMAL;
             Arc.Internal.Methods.SetWindowPlacement(hwnd, ref wp);
         }
     }
