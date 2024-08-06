@@ -1,5 +1,6 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
+using System;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -7,7 +8,6 @@ using Arc.WinAPI;
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Windows.System;
 using WinUIEx;
 
 namespace Arc.WinUI;
@@ -85,26 +85,69 @@ public static class WinUIExtensions
         return new(wp, dpiX, dpiY);
     }
 
-    public static void SetIconFromEmbeddedResource(this Window window, string resourceName, Assembly? assembly = default)
+    /*public static void SetIconFromEmbeddedResource(this Window window, string resourceName, Assembly? assembly = default)
     {
         try
         {
-            assembly??= Assembly.GetEntryAssembly();
+            assembly ??= Assembly.GetEntryAssembly();
             if (assembly is null)
             {
                 return;
             }
 
-            var rName = assembly.GetManifestResourceNames().FirstOrDefault(s => s.EndsWith(resourceName, StringComparison.InvariantCultureIgnoreCase));
-            var icon = new Icon(assembly.GetManifestResourceStream(rName));
+            var name = assembly.GetManifestResourceNames().FirstOrDefault(s => s.EndsWith(resourceName, StringComparison.InvariantCultureIgnoreCase));
+            if (name is null)
+            {
+                return;
+            }
 
-            var windowHandle = WinRT.Interop.WindowNative.GetWindowHandle(window);
-            var windowId = Win32Interop.GetWindowIdFromWindow(windowHandle);
-            window.AppWindow.SetIcon(Win32Interop.GetIconIdFromIcon(icon.Handle));
+            var moduleHandle = Arc.WinAPI.Methods.GetModuleHandle(new IntPtr(0));
+            var iconHandle = Arc.WinAPI.Methods.LoadImage(moduleHandle, "#32512", ImageType.Icon, 16, 16, 0); // ApplicationIcon
+            var iconId = Microsoft.UI.Win32Interop.GetIconIdFromIcon(iconHandle);
+
+            // var icon = new System.Drawing.Icon(assembly.GetManifestResourceStream(rName));
+            window.AppWindow.SetIcon(iconId);
+            //window.SetTaskBarIcon()
         }
-        catch ()
+        catch
         {
-
         }
+    }*/
+
+    public static void SetApplicationIcon(this Window window)
+    {
+        try
+        {
+            var assembly = Assembly.GetEntryAssembly();
+            if (assembly is null)
+            {
+                return;
+            }
+
+            var moduleHandle = Arc.WinAPI.Methods.GetModuleHandle(new IntPtr(0));
+            var iconHandle = Arc.WinAPI.Methods.LoadImage(moduleHandle, "#32512", ImageType.Icon, 16, 16, 0); // ApplicationIcon
+            var iconId = Microsoft.UI.Win32Interop.GetIconIdFromIcon(iconHandle);
+
+            window.AppWindow.SetIcon(iconId);
+        }
+        catch
+        {
+        }
+    }
+
+    public static void RemoveIcon(this Window window)
+    {
+        // Get this window's handle
+        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
+
+        // Change the extended window style to not show a window icon
+        var extendedStyle = Methods.GetWindowLong(hwnd, Methods.GWL_EXSTYLE);
+        Methods.SetWindowLong(hwnd, Methods.GWL_EXSTYLE, extendedStyle | Methods.WS_EX_DLGMODALFRAME);
+
+        // Update the window's non-client area to reflect the changes
+        Methods.SetWindowPos(hwnd, IntPtr.Zero, 0, 0, 0, 0, Methods.SWP_NOMOVE | Methods.SWP_NOSIZE | Methods.SWP_NOZORDER | Methods.SWP_FRAMECHANGED);
+
+        Methods.SendMessage(hwnd, Methods.WM_SETICON, new IntPtr(1), IntPtr.Zero);
+        Methods.SendMessage(hwnd, Methods.WM_SETICON, IntPtr.Zero, IntPtr.Zero);
     }
 }
