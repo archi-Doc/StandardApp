@@ -9,6 +9,13 @@ App = {
     DateTime = "MM/dd H:mm:ss"
 }
 
+Navigation = {
+    Home = "ホーム"
+    Settings = "設定"
+    Information = "情報"
+    Exit = "終了"
+}
+
 // dialog
 Dialog = 
 {

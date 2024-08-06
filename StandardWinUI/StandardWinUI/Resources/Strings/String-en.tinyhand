@@ -9,6 +9,13 @@ App = {
     DateTime = "MM/dd H:mm:ss"
 }
 
+Navigation = {
+    Home = "Home"
+    Settings = "Settings"
+    Information = "Information"
+    Exit = "Exit"
+}
+
 // dialog
 Dialog =
 {
