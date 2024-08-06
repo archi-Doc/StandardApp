@@ -10,7 +10,13 @@ using Microsoft.UI.Xaml.Media;
 
 namespace Arc.WinUI;
 
-public class Transformer
+/// <summary>
+/// A class for managing window scaling.<br/>
+/// 1. Add &lt;Viewbox x ="transformer" Stretch="None"&gt; at the top level in Window.xaml.<br/>
+/// 2. In the constructor of the Window, call Transformer.Register(this).<br/>
+/// 3. Change Transformer.DisplayScaling and call Transformer.Refresh().
+/// </summary>
+public static class Transformer
 {
     public static double DisplayScaling { get; set; } = 1.0d;
 

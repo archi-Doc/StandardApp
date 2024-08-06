@@ -60,9 +60,15 @@ public sealed partial class MainWindow : WinUIEx.WindowEx
     {
         this.myButton.Content = "Clicked";
 
-        App.Settings.DisplayScaling *= 1.2;
+        Transformer.DisplayScaling *= 1.2;
         Transformer.Refresh();
-        App.Settings.DisplayScaling /= 1.2;
+    }
+
+    private async void myButton_Click2(object sender, RoutedEventArgs e)
+    {
+        this.myButton.Content = "Clicked2";
+
+        Transformer.DisplayScaling *= 0.9;
         Transformer.Refresh();
     }
 }

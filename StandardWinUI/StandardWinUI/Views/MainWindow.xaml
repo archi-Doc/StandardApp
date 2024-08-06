@@ -15,6 +15,7 @@
             <TextBlock x:Name="textBlock" Height="Auto" TextWrapping="Wrap" Text="{Arc:C4 Source= App.Name}" Margin="4"/>
             <TextBlock x:Name="textBlock2" Height="Auto" TextWrapping="Wrap" Text="{Arc:C4Binding Source= App.Description}" Margin="4"/>
             <Button x:Name="myButton" Click="myButton_Click">Click Me</Button>
+            <Button x:Name="myButton2" Click="myButton_Click2">Click Me2</Button>
             <Button x:Name="openDataDirectory" Command="{x:Bind ViewModel.OpenDataDirectoryCommand}">OpenDataDirectory</Button>
             <Button x:Name="switchLanguage" Command="{x:Bind ViewModel.SwitchLanguageCommand}">Switch language</Button>
         </StackPanel>
