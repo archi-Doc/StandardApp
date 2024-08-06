@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using SimpleCommandLine;
 using StandardWinUI.ViewModels;
 using StandardWinUI.Views;
-using Windows.UI.ApplicationSettings;
 
 namespace StandardWinUI;
 
@@ -41,19 +40,18 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
                 {// Log source/level -> Resolver() -> Output/filter
                     x.SetOutput<FileLogger<FileLoggerOptions>>();
 
-                    /*if (x.LogLevel <= LogLevel.Debug)
-                    {
-                        x.SetOutput<ConsoleLogger>();
-                        return;
-                    }
+                    // if (x.LogLevel <= LogLevel.Debug)
+                    // {
+                    //    x.SetOutput<ConsoleLogger>();
+                    //    return;
+                    // }
 
-                    x.SetOutput<ConsoleAndFileLogger>();
+                    // x.SetOutput<ConsoleAndFileLogger>();
 
-                    if (x.LogSourceType == typeof(TestCommand))
-                    {
-                        x.SetFilter<ExampleLogFilter>();
-                    }
-                    */
+                    // if (x.LogSourceType == typeof(TestCommand))
+                    // {
+                    //    x.SetFilter<ExampleLogFilter>();
+                    // }
                 });
             });
 
@@ -70,11 +68,6 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
                 options.MaxLogCapacity = 2;
                 options.ClearLogsAtStartup = false;
             });
-
-            /*this.SetupOptions<ConsoleLoggerOptions>((context, options) =>
-            {// ConsoleLoggerOptions
-                options.Formatter.EnableColor = true;
-            });*/
 
             this.AddBuilder(CrystalBuilder());
         }
@@ -126,7 +119,6 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
             };
 
             // Main
-            // await SimpleParser.ParseAndRunAsync(this.Context.Commands, "example -string test", parserOptions);
             await SimpleParser.ParseAndRunAsync(this.Context.Commands, param.Args, parserOptions);
 
             this.Context.SendStop(new());
@@ -143,7 +135,7 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
 
         public ILogWriter? Filter(LogFilterParameter param)
         {// Log source/Event id/LogLevel -> Filter() -> ILog
-            /*if (param.LogSourceType == typeof(TestCommand))
+            if (param.LogSourceType == typeof(AppClass))
             {
                 // return null; // No log
                 if (param.LogLevel == LogLevel.Error)
@@ -154,7 +146,7 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
                 {
                     return param.Context.TryGet<ConsoleAndFileLogger>(LogLevel.Error); // Fatal -> Error
                 }
-            }*/
+            }
 
             return param.OriginalLogger;
         }
