@@ -12,7 +12,7 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Install dependencies
-      run: dotnet restore
+      run: dotnet restore Arc.WinUI
     - name: Build
       run: dotnet build Arc.WinUI/Arc.WinUI.csproj --configuration Release --no-restore
 #    - name: Test
