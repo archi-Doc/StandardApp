@@ -9,9 +9,9 @@ using Application;
 using Arc.Mvvm;
 using Arc.WPF;
 using DryIoc;
-using StandardApp.Views;
+using StandardWPF.Views;
 
-namespace StandardApp.ViewServices;
+namespace StandardWPF.ViewServices;
 
 public interface IMainViewService
 {

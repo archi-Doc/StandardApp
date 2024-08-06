@@ -13,13 +13,13 @@ using Arc.Mvvm;
 using Arc.WinAPI;
 using Arc.WPF;
 using CrossChannel;
-using StandardApp.ViewServices;
+using StandardWPF.ViewServices;
 using Tinyhand;
 
 #pragma warning disable SA1403 // File may only contain a single namespace
 #pragma warning disable SA1649 // File name should match first type name
 
-namespace StandardApp.Views;
+namespace StandardWPF.Views;
 
 /// <summary>
 /// Main Window.

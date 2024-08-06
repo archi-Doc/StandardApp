@@ -3,7 +3,7 @@
 using System.Windows.Media;
 using Arc.WPF;
 
-namespace StandardApp;
+namespace StandardWPF;
 
 [TinyhandObject]
 public partial class AppOptions

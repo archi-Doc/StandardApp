@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Tinyhand;
 using ValueLink;
 
-namespace StandardApp;
+namespace StandardWPF;
 
 [TinyhandObject]
 [ValueLinkObject]

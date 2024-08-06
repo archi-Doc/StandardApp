@@ -1,5 +1,5 @@
 // identifier = "string" /* null: Use the default value. */
-app.name = "StandardApp"
+app.name = "StandardWPF"
 app.description = null
 app.datetime = "MM/dd H:mm:ss"
 dialog.ok = "O K"

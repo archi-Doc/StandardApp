@@ -14,9 +14,9 @@ using System.Windows.Threading;
 using Arc.WPF;
 using DryIoc; // alternative: SimpleInjector
 using Serilog;
-using StandardApp;
-using StandardApp.Views;
-using StandardApp.ViewServices;
+using StandardWPF;
+using StandardWPF.Views;
+using StandardWPF.ViewServices;
 
 #pragma warning disable SA1401 // Fields should be private
 #pragma warning disable SA1600 // Elements should be documented

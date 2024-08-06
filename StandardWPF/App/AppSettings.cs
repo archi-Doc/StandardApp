@@ -9,7 +9,7 @@ using Arc.WinAPI;
 using Arc.WPF;
 using Tinyhand;
 
-namespace StandardApp;
+namespace StandardWPF;
 
 [TinyhandObject]
 public partial class AppSettings : ITinyhandSerializationCallback

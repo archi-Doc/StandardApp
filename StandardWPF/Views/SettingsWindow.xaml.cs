@@ -8,11 +8,11 @@ using System.Windows.Input;
 using Application;
 using Arc.Mvvm;
 using Arc.WPF;
-using StandardApp.ViewServices;
+using StandardWPF.ViewServices;
 
 #pragma warning disable SA1201 // Elements should appear in the correct order
 
-namespace StandardApp.Views;
+namespace StandardWPF.Views;
 
 /// <summary>
 /// SettingsWindow.

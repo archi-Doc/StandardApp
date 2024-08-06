@@ -11,12 +11,12 @@ using Application;
 using Arc.Mvvm;
 using Arc.WPF;
 using CrossChannel;
-using StandardApp.ViewServices;
+using StandardWPF.ViewServices;
 using ValueLink;
 
 #pragma warning disable SA1201 // Elements should appear in the correct order
 
-namespace StandardApp;
+namespace StandardWPF;
 
 [ValueLinkObject]
 public partial class MainViewModel

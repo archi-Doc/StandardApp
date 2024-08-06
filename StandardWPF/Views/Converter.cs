@@ -8,7 +8,7 @@ using Application;
 
 #pragma warning disable SA1649 // File name should match first type name
 
-namespace StandardApp.Views;
+namespace StandardWPF.Views;
 
 public class DateTimeToStringConverter : IValueConverter
 {// DateTime to String

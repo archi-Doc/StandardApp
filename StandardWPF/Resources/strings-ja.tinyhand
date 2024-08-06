@@ -4,7 +4,7 @@ Test1 = "てすと1"
 Test2 = null
 
 App = {
-    Name = "StandardApp" // Name
+    Name = "StandardWPF" // Name
     Description = "説明文"
     DateTime = "MM/dd H:mm:ss"
 }
