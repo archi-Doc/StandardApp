@@ -220,35 +220,37 @@ public static class C4
         }
     }
 
+    /// <summary>
+    /// Updates the display of C4.<br/>
+    /// Please call from the UI thread.<br/>
+    /// If not on the UI thread, consider using App.TryEnqueueOnUI().
+    /// </summary>
     public static void Refresh()
-    { // Refresh C4
-        App.TryEnqueueOnUI(() =>
+    {
+      // GC.Collect();
+        lock (syncObject)
         {
-            // GC.Collect();
-            lock (syncObject)
+            foreach (var x in extensionObjects)
             {
-                foreach (var x in extensionObjects)
+                if (x.Key is null)
                 {
-                    if (x.Key is null)
-                    {
-                        if (x.TargetObject?.Target is C4BindingSource c4BindingSource)
-                        { // C4BindingSource
-                            c4BindingSource.CultureChanged();
-                        }
-
-                        continue;
+                    if (x.TargetObject?.Target is C4BindingSource c4BindingSource)
+                    { // C4BindingSource
+                        c4BindingSource.CultureChanged();
                     }
 
-                    var target = x.TargetObject?.Target;
-                    if (target is TextBlock textBlock)
-                    {// TextBlock
-                        textBlock.Text = HashedString.GetOrIdentifier(x.Key);
-                    }
+                    continue;
                 }
 
-                // C4Clean();
+                var target = x.TargetObject?.Target;
+                if (target is TextBlock textBlock)
+                {// TextBlock
+                    textBlock.Text = HashedString.GetOrIdentifier(x.Key);
+                }
             }
-        });
+
+            // C4Clean();
+        }
     }
 
     private static void Clean()

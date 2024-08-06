@@ -8,7 +8,6 @@ using Arc.Internal;
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using WinUIEx;
 
 namespace Arc.WinUI;
 
@@ -25,7 +24,7 @@ public static class WinUIExtensions
         }
 
         var textBlock = new TextBlock() { Text = HashedString.Get(content), TextWrapping = TextWrapping.Wrap, };
-        textBlock.FontSize *= App.Settings.DisplayScaling;
+        textBlock.FontSize *= Transformer.DisplayScaling;
         dialog.Content = textBlock;
         if (title != 0)
         {
@@ -52,7 +51,7 @@ public static class WinUIExtensions
         }
 
         var dialogTask = dialog.ShowAsync(ContentDialogPlacement.InPlace);
-        HwndExtensions.SetForegroundWindow(window.GetWindowHandle());
+        Methods.SetForegroundWindow(WinRT.Interop.WindowNative.GetWindowHandle(window));
         var result = await dialogTask;
         return result switch
         {
@@ -67,7 +66,7 @@ public static class WinUIExtensions
     {
         if (windowPlacement.IsValid)
         {
-            var hwnd = window.GetWindowHandle();
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
             Arc.Internal.Methods.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);
             var wp = windowPlacement.ToWINDOWPLACEMENT2(dpiX, dpiY);
             wp.length = System.Runtime.InteropServices.Marshal.SizeOf(typeof(Arc.WinUI.WINDOWPLACEMENT));
@@ -79,7 +78,7 @@ public static class WinUIExtensions
 
     public static DipWindowPlacement SaveWindowPlacement(this Window window)
     {
-        var hwnd = window.GetWindowHandle();
+        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
         Arc.Internal.Methods.GetWindowPlacement(hwnd, out var wp);
         Arc.Internal.Methods.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);
         return new(wp, dpiX, dpiY);

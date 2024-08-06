@@ -385,8 +385,6 @@ public partial class Methods
     [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
 
-    /* GetWindowHandle */
-
     internal delegate bool EnumWindowsProc(IntPtr hWnd, int lParam);
 
     [DllImport("user32.dll")]

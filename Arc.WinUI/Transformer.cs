@@ -7,12 +7,13 @@ using CommunityToolkit.WinUI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-using WinUIEx;
 
 namespace Arc.WinUI;
 
 public class Transformer
 {
+    public static double DisplayScaling { get; set; } = 1.0d;
+
     private const string TransformerName = "transformer";
     private static Dictionary<IntPtr, Item> dictionary = new();
 
@@ -23,15 +24,15 @@ public class Transformer
         public void LoadedEventHandler(object sender, RoutedEventArgs e)
         {
             if (sender is Viewbox viewbox &&
-                this.previousScale != App.Settings.DisplayScaling)
+                this.previousScale != DisplayScaling)
             {
-                var ratio = App.Settings.DisplayScaling / this.previousScale;
+                var ratio = DisplayScaling / this.previousScale;
 
                 viewbox.Stretch = Stretch.Uniform;
                 viewbox.Width = viewbox.ActualWidth * ratio;
                 viewbox.Height = viewbox.ActualHeight * ratio;
 
-                this.previousScale = App.Settings.DisplayScaling;
+                this.previousScale = DisplayScaling;
             }
         }
     }
@@ -48,7 +49,7 @@ public class Transformer
                 {
                     lock (dictionary)
                     {
-                        var handle = window.GetWindowHandle();
+                        var handle = WinRT.Interop.WindowNative.GetWindowHandle(window);
                         if (!dictionary.ContainsKey(handle))
                         {
                             var item = new Item(new(viewbox));

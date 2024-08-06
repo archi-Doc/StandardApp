@@ -3,7 +3,6 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
-using static Arc.Internal.Methods;
 
 #pragma warning disable SA1201 // Elements should appear in the correct order
 #pragma warning disable SA1307 // Accessible fields should begin with upper-case letter
