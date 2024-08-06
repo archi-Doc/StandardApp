@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <OutputType>WinExe</OutputType>
     <LangVersion>latest</LangVersion>
     <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
