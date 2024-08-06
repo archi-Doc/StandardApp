@@ -193,6 +193,7 @@ dotnet_diagnostic.SA1302.severity = suggestion
 dotnet_diagnostic.SA1124.severity = suggestion
 dotnet_diagnostic.SA1010.severity = silent
 
+dotnet_diagnostic.NETSDK1206.severity = silent
 
 [*.{cs,vb}]
 csharp_style_namespace_declarations=file_scoped:warning

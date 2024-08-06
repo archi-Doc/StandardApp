@@ -5,6 +5,7 @@
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <Platforms>AnyCPU</Platforms>
     <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
+    <NoWarn>$(NoWarn);NETSDK1206</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
     <PackageId>Arc.WinUI</PackageId>

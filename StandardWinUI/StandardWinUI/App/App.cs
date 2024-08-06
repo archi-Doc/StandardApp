@@ -51,6 +51,27 @@ public static partial class App
         }
     }
 
+    private static void PrepareCulture()
+    {
+        try
+        {
+            if (Settings.Culture == string.Empty)
+            {
+                if (CultureInfo.CurrentUICulture.Name != "ja-JP")
+                {
+                    Settings.Culture = "en"; // English
+                }
+            }
+
+            HashedString.ChangeCulture(App.Settings.Culture);
+        }
+        catch
+        {
+            Settings.Culture = App.DefaultCulture;
+            HashedString.ChangeCulture(Settings.Culture);
+        }
+    }
+
     #region FieldAndProperty
 
     public static string Version { get; private set; } = string.Empty;
@@ -77,7 +98,7 @@ public static partial class App
         LoadStrings();
         PrepareDataFolder();
         PrepareVersionAndTitle();
-        if (PreventMultipleInstances())
+        if (Arc.WinUI.Helper.PreventMultipleInstances(appMutex, Title))
         {
             return;
         }
@@ -147,38 +168,6 @@ public static partial class App
     public static void TryEnqueueOnUI(DispatcherQueueHandler callback)
         => uiDispatcherQueue.TryEnqueue(callback);
 
-    /// <summary>
-    /// Open url with default browser.
-    /// </summary>
-    /// <param name="url">URL.</param>
-    public static void OpenBrowser(string url)
-    {
-        try
-        {
-            Process.Start(url);
-        }
-        catch
-        {
-            // hack because of this: https://github.com/dotnet/corefx/issues/10361
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                url = url.Replace("&", "^&");
-                Process.Start(new ProcessStartInfo("cmd", $"/c start {url}") { CreateNoWindow = true });
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                Process.Start("xdg-open", url);
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                Process.Start("open", url);
-            }
-            else
-            {
-            }
-        }
-    }
-
     [LibraryImport("Microsoft.ui.xaml.dll")]
     private static partial void XamlCheckProcessRequirements();
 
@@ -222,33 +211,6 @@ public static partial class App
         Title = HashedString.Get(Hashed.App.Name) + " " + Version;
     }
 
-    private static bool PreventMultipleInstances()
-    {
-        if (appMutex.WaitOne(0, false))
-        {
-            return false;
-        }
-
-        appMutex.Close(); // Release mutex.
-
-        var prevProcess = Arc.Internal.Methods.GetPreviousProcess();
-        if (prevProcess != null)
-        {
-            var handle = prevProcess.MainWindowHandle; // The window handle that associated with the previous process.
-            if (handle == IntPtr.Zero)
-            {
-                handle = Arc.Internal.Methods.GetWindowHandle(prevProcess.Id, Title); // Get handle.
-            }
-
-            if (handle != IntPtr.Zero)
-            {
-                Arc.Internal.Methods.ActivateWindow(handle);
-            }
-        }
-
-        return true;
-    }
-
     private static void PrepareCrystalizer()
     {
         crystalizer = GetService<Crystalizer>();
@@ -257,27 +219,6 @@ public static partial class App
         // Load settings and options.
         Settings = crystalizer.GetCrystal<AppSettings>().Data;
         Options = crystalizer.GetCrystal<AppOptions>().Data;
-    }
-
-    private static void PrepareCulture()
-    {
-        try
-        {
-            if (Settings.Culture == string.Empty)
-            {
-                if (CultureInfo.CurrentUICulture.Name != "ja-JP")
-                {
-                    Settings.Culture = "en"; // English
-                }
-            }
-
-            HashedString.ChangeCulture(App.Settings.Culture);
-        }
-        catch
-        {
-            Settings.Culture = App.DefaultCulture;
-            HashedString.ChangeCulture(Settings.Culture);
-        }
     }
 }
 #endif
