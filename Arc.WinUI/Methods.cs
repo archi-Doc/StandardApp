@@ -40,10 +40,9 @@ public static class Helper
         }
     }
 
-    public static bool PreventMultipleInstances(Mutex? mutex, string title)
+    public static bool PreventMultipleInstances(Mutex mutex, string title)
     {
-        if (mutex is null ||
-            mutex.WaitOne(0, false))
+        if (mutex.WaitOne(0, false))
         {
             return false;
         }

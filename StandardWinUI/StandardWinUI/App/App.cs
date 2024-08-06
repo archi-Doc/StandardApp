@@ -1,7 +1,9 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
+#pragma warning disable SA1202
 #pragma warning disable SA1208
 #pragma warning disable SA1210
+#pragma warning disable SA1514
 
 global using System;
 global using StandardWinUI;
@@ -11,7 +13,6 @@ global using CrystalData;
 global using Microsoft.Extensions.DependencyInjection;
 global using Tinyhand;
 
-using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -23,25 +24,26 @@ using System.Globalization;
 
 namespace StandardWinUI;
 
-#pragma warning disable SA1202
-
 #if DISABLE_XAML_GENERATED_MAIN
 
 public static partial class App
-{
-    public const string MutexName = "Arc.StandardWinUI";
-    public const string AppDataFolder = "Arc\\StandardWinUI";
-    public const string AppDataFile = "App.tinyhand";
-    public const string DefaultCulture = "en";
-    public const double DefaultFontSize = 14;
+{ // TODO: Rename 'StandardWinUI' and modify the app-specific constants, icons and images.
+    public const string MutexName = "Arc.StandardWinUI"; // The name of the mutex used to prevent multiple instances of the application. Specify 'string.Empty' to allow multiple instances.
+    public const string AppDataFolder = "Arc\\StandardWinUI"; // The folder name for application data.
+    public const string AppDataFile = "App.tinyhand"; // The file name for application data.
+    public const string DefaultCulture = "en"; // The default culture for the application.
+    public const double DefaultFontSize = 14; // The default font size for the application.
 
+    /// <summary>
+    /// Loads the localized strings for the application.
+    /// </summary>
     private static void LoadStrings()
     {
         try
         {
             HashedString.SetDefaultCulture(DefaultCulture); // default culture
 
-            var asm = System.Reflection.Assembly.GetExecutingAssembly();
+            var asm = Assembly.GetExecutingAssembly();
             HashedString.LoadAssembly("ja", asm, "Resources.Strings.License.tinyhand"); // license
             HashedString.LoadAssembly("ja", asm, "Resources.Strings.String-ja.tinyhand");
             HashedString.LoadAssembly("en", asm, "Resources.Strings.String-en.tinyhand");
@@ -51,6 +53,9 @@ public static partial class App
         }
     }
 
+    /// <summary>
+    /// Prepares the culture for the application.
+    /// </summary>
     private static void PrepareCulture()
     {
         try
@@ -74,17 +79,32 @@ public static partial class App
 
     #region FieldAndProperty
 
+    /// <summary>
+    /// Gets the version of the application.
+    /// </summary>
     public static string Version { get; private set; } = string.Empty;
 
+    /// <summary>
+    /// Gets the title of the application.
+    /// </summary>
     public static string Title { get; private set; } = string.Empty;
 
+    /// <summary>
+    /// Gets the folder path for application data.
+    /// </summary>
     public static string DataFolder { get; private set; } = string.Empty;
 
+    /// <summary>
+    /// Gets the settings for the application.
+    /// </summary>
     public static AppSettings Settings { get; private set; } = default!;
 
+    /// <summary>
+    /// Gets the options for the application.
+    /// </summary>
     public static AppOptions Options { get; private set; } = default!;
 
-    private static Mutex appMutex = new(false, MutexName);
+    private static Mutex? appMutex = string.IsNullOrEmpty(MutexName) ? default : new(false, MutexName);
     private static DispatcherQueue uiDispatcherQueue = default!;
     private static IServiceProvider serviceProvider = default!;
     private static Crystalizer? crystalizer;
@@ -92,13 +112,18 @@ public static partial class App
 
     #endregion
 
+    /// <summary>
+    /// The entry point of the application.
+    /// </summary>
+    /// <param name="args">The command-line arguments.</param>
     [STAThread]
     private static void Main(string[] args)
     {
         LoadStrings();
         PrepareDataFolder();
         PrepareVersionAndTitle();
-        if (Arc.WinUI.Helper.PreventMultipleInstances(appMutex, Title))
+        if (appMutex is not null &&
+            Arc.WinUI.Helper.PreventMultipleInstances(appMutex, Title))
         {
             return;
         }
@@ -140,11 +165,19 @@ public static partial class App
         }
         finally
         {
-            appMutex.ReleaseMutex();
-            appMutex.Close();
+            if (appMutex is not null)
+            {
+                appMutex.ReleaseMutex();
+                appMutex.Close();
+            }
         }
     }
 
+    /// <summary>
+    /// Retrieves a service of type <typeparamref name="T"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of the service.</typeparam>
+    /// <returns>The service instance.</returns>
     public static T GetService<T>()
         where T : class
     {
@@ -156,15 +189,18 @@ public static partial class App
         return service;
     }
 
+    /// <summary>
+    /// Exits the application.
+    /// </summary>
     public static void Exit()
     {
         appClass?.Exit();
     }
 
-    // <summary>
-    // Executes an action on the UI thread.
-    // </summary>
-    // <param name="action">The action that will be executed on the UI thread.</param>
+    /// <summary>
+    /// Executes an action on the UI thread.
+    /// </summary>
+    /// <param name="callback">The action that will be executed on the UI thread.</param>
     public static void TryEnqueueOnUI(DispatcherQueueHandler callback)
         => uiDispatcherQueue.TryEnqueue(callback);
 

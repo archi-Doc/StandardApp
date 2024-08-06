@@ -1,8 +1,5 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
-using Arc.Unit;
-using CrystalData;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using StandardWinUI.Views;
 
