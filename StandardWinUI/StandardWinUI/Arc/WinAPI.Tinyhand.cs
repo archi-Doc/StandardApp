@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 #pragma warning disable SA1600 // Elements should be documented
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
-namespace Arc.WinAPI;
+namespace Arc.WinUI;
 
 [TinyhandObject]
 public partial class DipWindowPlacement
@@ -193,90 +193,4 @@ public partial class DipRect
     {
         return new RECT((int)this.Left, (int)this.Top, (int)(this.Left + (this.Width * dpiX / 96)), (int)(this.Top + (this.Height * dpiY / 96)));
     }
-}
-
-/// <summary>
-/// Arc.WinAPI Methods.
-/// </summary>
-public partial class Methods
-{
-    [DllImport("user32.dll")]
-    internal static extern bool SetWindowPlacement(IntPtr hWnd, [In] ref WINDOWPLACEMENT lpwndpl);
-
-    [DllImport("user32.dll")]
-    internal static extern bool GetWindowPlacement(IntPtr hWnd, out WINDOWPLACEMENT lpwndpl);
-}
-
-[TinyhandObject]
-[Serializable]
-[StructLayout(LayoutKind.Sequential)]
-public partial struct WINDOWPLACEMENT
-{
-    [Key(0)]
-    public int length;
-    [Key(1)]
-    public int flags;
-    [Key(2)]
-    public SW showCmd;
-    [Key(3)]
-    public POINT minPosition;
-    [Key(4)]
-    public POINT maxPosition;
-    [Key(5)]
-    public RECT normalPosition;
-}
-
-[TinyhandObject]
-[Serializable]
-[StructLayout(LayoutKind.Sequential)]
-public partial struct POINT
-{
-    [Key(0)]
-    public int X;
-    [Key(1)]
-    public int Y;
-
-    public POINT(int x, int y)
-    {
-        this.X = x;
-        this.Y = y;
-    }
-}
-
-[TinyhandObject]
-[Serializable]
-[StructLayout(LayoutKind.Sequential)]
-public partial struct RECT
-{
-    [Key(0)]
-    public int Left;
-    [Key(1)]
-    public int Top;
-    [Key(2)]
-    public int Right;
-    [Key(3)]
-    public int Bottom;
-
-    public RECT(int left, int top, int right, int bottom)
-    {
-        this.Left = left;
-        this.Top = top;
-        this.Right = right;
-        this.Bottom = bottom;
-    }
-}
-
-public enum SW
-{
-    HIDE = 0,
-    SHOWNORMAL = 1,
-    SHOWMINIMIZED = 2,
-    SHOWMAXIMIZED = 3,
-    SHOWNOACTIVATE = 4,
-    SHOW = 5,
-    MINIMIZE = 6,
-    SHOWMINNOACTIVE = 7,
-    SHOWNA = 8,
-    RESTORE = 9,
-    SHOWDEFAULT = 10,
 }

@@ -3,7 +3,6 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
-using Microsoft.UI.Xaml;
 
 #pragma warning disable SA1011 // Closing square brackets should be spaced correctly
 #pragma warning disable SA1201 // Elements should appear in the correct order
@@ -15,7 +14,81 @@ using Microsoft.UI.Xaml;
 #pragma warning disable SA1611 // Element parameters should be documented
 #pragma warning disable SA1649 // File name should match first type name
 
-namespace Arc.WinAPI;
+namespace Arc.Internal;
+
+[TinyhandObject]
+[Serializable]
+[StructLayout(LayoutKind.Sequential)]
+public partial struct WINDOWPLACEMENT
+{
+    [Key(0)]
+    public int length;
+    [Key(1)]
+    public int flags;
+    [Key(2)]
+    public SW showCmd;
+    [Key(3)]
+    public POINT minPosition;
+    [Key(4)]
+    public POINT maxPosition;
+    [Key(5)]
+    public RECT normalPosition;
+}
+
+[TinyhandObject]
+[Serializable]
+[StructLayout(LayoutKind.Sequential)]
+public partial struct POINT
+{
+    [Key(0)]
+    public int X;
+    [Key(1)]
+    public int Y;
+
+    public POINT(int x, int y)
+    {
+        this.X = x;
+        this.Y = y;
+    }
+}
+
+[TinyhandObject]
+[Serializable]
+[StructLayout(LayoutKind.Sequential)]
+public partial struct RECT
+{
+    [Key(0)]
+    public int Left;
+    [Key(1)]
+    public int Top;
+    [Key(2)]
+    public int Right;
+    [Key(3)]
+    public int Bottom;
+
+    public RECT(int left, int top, int right, int bottom)
+    {
+        this.Left = left;
+        this.Top = top;
+        this.Right = right;
+        this.Bottom = bottom;
+    }
+}
+
+public enum SW
+{
+    HIDE = 0,
+    SHOWNORMAL = 1,
+    SHOWMINIMIZED = 2,
+    SHOWMAXIMIZED = 3,
+    SHOWNOACTIVATE = 4,
+    SHOW = 5,
+    MINIMIZE = 6,
+    SHOWMINNOACTIVE = 7,
+    SHOWNA = 8,
+    RESTORE = 9,
+    SHOWDEFAULT = 10,
+}
 
 public enum ImageType
 {
@@ -26,6 +99,12 @@ public enum ImageType
 
 public partial class Methods
 {
+    [DllImport("user32.dll")]
+    public static extern bool SetWindowPlacement(IntPtr hWnd, [In] ref WINDOWPLACEMENT lpwndpl);
+
+    [DllImport("user32.dll")]
+    public static extern bool GetWindowPlacement(IntPtr hWnd, out WINDOWPLACEMENT lpwndpl);
+
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
     public static extern IntPtr LoadImage(IntPtr hInst, string lpszName, ImageType uType, int cxDesired, int cyDesired, uint fuLoad);
 
@@ -173,8 +252,8 @@ public partial class Methods
             uint x = 96;
             uint y = 96;
 
-            var hmonitor = Arc.WinAPI.Methods.MonitorFromWindow(hwnd, MonitorDefaultTo.MONITOR_DEFAULTTONEAREST);
-            Arc.WinAPI.Methods.GetDpiForMonitor(hmonitor, MonitorDpiType.Default, ref x, ref y);
+            var hmonitor = Arc.Internal.Methods.MonitorFromWindow(hwnd, MonitorDefaultTo.MONITOR_DEFAULTTONEAREST);
+            Arc.Internal.Methods.GetDpiForMonitor(hmonitor, MonitorDpiType.Default, ref x, ref y);
             dpiX = x;
             dpiY = y;
             return true;

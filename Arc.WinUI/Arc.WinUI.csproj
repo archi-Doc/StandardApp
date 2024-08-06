@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <PackageId>Arc.WinUI</PackageId>
+    <Authors>archi-Doc</Authors>
+    <Product>Arc.WinUI</Product>
+    <Description>A set of classes and extension methods for creating WinUI applications.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/archi-Doc/StandardApp</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/archi-Doc/StandardApp</RepositoryUrl>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+</Project>

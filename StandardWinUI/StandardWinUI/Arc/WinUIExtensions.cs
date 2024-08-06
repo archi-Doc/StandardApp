@@ -4,7 +4,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Arc.WinAPI;
+using Arc.Internal;
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -68,20 +68,20 @@ public static class WinUIExtensions
         if (windowPlacement.IsValid)
         {
             var hwnd = window.GetWindowHandle();
-            Arc.WinAPI.Methods.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);
+            Arc.Internal.Methods.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);
             var wp = windowPlacement.ToWINDOWPLACEMENT2(dpiX, dpiY);
-            wp.length = System.Runtime.InteropServices.Marshal.SizeOf(typeof(Arc.WinAPI.WINDOWPLACEMENT));
+            wp.length = System.Runtime.InteropServices.Marshal.SizeOf(typeof(Arc.Internal.WINDOWPLACEMENT));
             wp.flags = 0;
-            wp.showCmd = wp.showCmd == Arc.WinAPI.SW.SHOWMAXIMIZED ? Arc.WinAPI.SW.SHOWMAXIMIZED : Arc.WinAPI.SW.SHOWNORMAL;
-            Arc.WinAPI.Methods.SetWindowPlacement(hwnd, ref wp);
+            wp.showCmd = wp.showCmd == Arc.Internal.SW.SHOWMAXIMIZED ? Arc.Internal.SW.SHOWMAXIMIZED : Arc.Internal.SW.SHOWNORMAL;
+            Arc.Internal.Methods.SetWindowPlacement(hwnd, ref wp);
         }
     }
 
     public static DipWindowPlacement SaveWindowPlacement(this Window window)
     {
         var hwnd = window.GetWindowHandle();
-        Arc.WinAPI.Methods.GetWindowPlacement(hwnd, out var wp);
-        Arc.WinAPI.Methods.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);
+        Arc.Internal.Methods.GetWindowPlacement(hwnd, out var wp);
+        Arc.Internal.Methods.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);
         return new(wp, dpiX, dpiY);
     }
 
@@ -101,8 +101,8 @@ public static class WinUIExtensions
                 return;
             }
 
-            var moduleHandle = Arc.WinAPI.Methods.GetModuleHandle(new IntPtr(0));
-            var iconHandle = Arc.WinAPI.Methods.LoadImage(moduleHandle, "#32512", ImageType.Icon, 16, 16, 0); // ApplicationIcon
+            var moduleHandle = Arc.Internal.Methods.GetModuleHandle(new IntPtr(0));
+            var iconHandle = Arc.Internal.Methods.LoadImage(moduleHandle, "#32512", ImageType.Icon, 16, 16, 0); // ApplicationIcon
             var iconId = Microsoft.UI.Win32Interop.GetIconIdFromIcon(iconHandle);
 
             // var icon = new System.Drawing.Icon(assembly.GetManifestResourceStream(rName));
@@ -124,8 +124,8 @@ public static class WinUIExtensions
                 return;
             }
 
-            var moduleHandle = Arc.WinAPI.Methods.GetModuleHandle(new IntPtr(0));
-            var iconHandle = Arc.WinAPI.Methods.LoadImage(moduleHandle, "#32512", ImageType.Icon, 16, 16, 0); // ApplicationIcon
+            var moduleHandle = Arc.Internal.Methods.GetModuleHandle(new IntPtr(0));
+            var iconHandle = Arc.Internal.Methods.LoadImage(moduleHandle, "#32512", ImageType.Icon, 16, 16, 0); // ApplicationIcon
             var iconId = Microsoft.UI.Win32Interop.GetIconIdFromIcon(iconHandle);
 
             window.AppWindow.SetIcon(iconId);

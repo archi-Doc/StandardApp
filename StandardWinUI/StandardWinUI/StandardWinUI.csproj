@@ -61,4 +61,8 @@
     <PackageReference Include="WinUIEx" Version="2.3.4" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\Arc.WinUI\Arc.WinUI.csproj" />
+  </ItemGroup>
+
 </Project>
