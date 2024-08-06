@@ -5,14 +5,11 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace StandardWinUI.ViewModels;
 
-internal partial class MainViewModel : ObservableObject
+internal partial class NaviViewModel : ObservableObject
 {
-    public MainViewModel(AppSettings appSettings)
+    public NaviViewModel()
     {
-        this.appSettings = appSettings;
     }
-
-    private readonly AppSettings appSettings;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(TextUpper))]
@@ -35,16 +32,16 @@ internal partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void SwitchLanguage()
     {
-        if (this.appSettings.Culture == "ja")
+        if (App.Settings.Culture == "ja")
         {
-            this.appSettings.Culture = "en";
+            App.Settings.Culture = "en";
         }
         else
         {
-            this.appSettings.Culture = "ja";
+            App.Settings.Culture = "ja";
         }
 
-        HashedString.ChangeCulture(this.appSettings.Culture);
+        HashedString.ChangeCulture(App.Settings.Culture);
         Arc.WinUI.C4.Refresh();
     }
 }

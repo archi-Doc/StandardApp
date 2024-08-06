@@ -24,8 +24,10 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
                 // context.CreateInstance<AppUnit>();
 
                 // Views and ViewModels
-                context.AddTransient<MainWindow>();
-                context.AddTransient<MainViewModel>();
+                context.AddTransient<SimpleWindow>();
+                context.AddTransient<SimpleViewModel>();
+                context.AddTransient<NaviWindow>();
+                context.AddTransient<NaviViewModel>();
 
                 // Command
                 // context.AddCommand(typeof(TestCommand));

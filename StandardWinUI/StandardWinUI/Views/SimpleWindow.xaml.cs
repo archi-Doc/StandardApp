@@ -12,18 +12,19 @@ namespace StandardWinUI.Views;
 /// <summary>
 /// An empty window that can be used on its own or navigated to within a Frame.
 /// </summary>
-public sealed partial class MainWindow : WinUIEx.WindowEx
+public sealed partial class SimpleWindow : WinUIEx.WindowEx
 {
-    public MainWindow()
+    public SimpleWindow()
     {
         this.InitializeComponent();
-        this.ViewModel = App.GetService<MainViewModel>();
+        this.ViewModel = App.GetService<SimpleViewModel>();
         Transformer.Register(this);
+        this.Title = App.Title;
         this.SetApplicationIcon();
         // this.RemoveIcon();
 
-        this.Activated += this.MainWindow_Activated;
-        this.Closed += this.MainWindow_Closed;
+        this.Activated += this.SimpleWindow_Activated;
+        this.Closed += this.SimpleWindow_Closed;
         this.AppWindow.Closing += this.AppWindow_Closing;
 
         this.LoadWindowPlacement(App.Settings.WindowPlacement);
@@ -42,15 +43,15 @@ public sealed partial class MainWindow : WinUIEx.WindowEx
 
     #region FieldAndProperty
 
-    internal MainViewModel ViewModel { get; }
+    internal SimpleViewModel ViewModel { get; }
 
     #endregion
 
-    private void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
+    private void SimpleWindow_Activated(object sender, WindowActivatedEventArgs args)
     {
     }
 
-    private void MainWindow_Closed(object sender, WindowEventArgs args)
+    private void SimpleWindow_Closed(object sender, WindowEventArgs args)
     {
         // Exit1
         App.Settings.WindowPlacement = this.SaveWindowPlacement();
@@ -58,7 +59,7 @@ public sealed partial class MainWindow : WinUIEx.WindowEx
 
     private async void myButton_Click(object sender, RoutedEventArgs e)
     {
-        this.myButton.Content = "Clicked";
+        // this.myButton.Content = "Clicked";
 
         Transformer.DisplayScaling *= 1.2;
         Transformer.Refresh();
@@ -66,7 +67,7 @@ public sealed partial class MainWindow : WinUIEx.WindowEx
 
     private async void myButton_Click2(object sender, RoutedEventArgs e)
     {
-        this.myButton.Content = "Clicked2";
+        // this.myButton.Content = "Clicked2";
 
         Transformer.DisplayScaling *= 0.9;
         Transformer.Refresh();
