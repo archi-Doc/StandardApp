@@ -6,20 +6,17 @@ using CommunityToolkit.WinUI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media.Animation;
 using StandardWinUI.ViewModels;
 using WinUIEx;
 
 namespace StandardWinUI.Views;
 
-/// <summary>
-/// An empty window that can be used on its own or navigated to within a Frame.
-/// </summary>
 public sealed partial class NaviWindow : WinUIEx.WindowEx
 {
     public NaviWindow()
     {
         this.InitializeComponent();
-        this.ViewModel = App.GetService<NaviViewModel>();
         Transformer.Register(this);
         this.Title = App.Title;
         this.SetApplicationIcon();
@@ -30,6 +27,7 @@ public sealed partial class NaviWindow : WinUIEx.WindowEx
         this.AppWindow.Closing += this.AppWindow_Closing;
 
         this.LoadWindowPlacement(App.Settings.WindowPlacement);
+        this.nvHome.IsSelected = true;
     }
 
     private async void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)
@@ -49,13 +47,10 @@ public sealed partial class NaviWindow : WinUIEx.WindowEx
 
     #region FieldAndProperty
 
-    internal NaviViewModel ViewModel { get; }
-
     #endregion
 
     private void NaviWindow_Activated(object sender, WindowActivatedEventArgs args)
     {
-        this.nvHome.IsSelected = true;
     }
 
     private void NaviWindow_Closed(object sender, WindowEventArgs args)
@@ -70,16 +65,16 @@ public sealed partial class NaviWindow : WinUIEx.WindowEx
         switch (selectedItem.Tag)
         {
             case "Home":
-                // this.ViewModel.NavigateToHome();
+                // this.contentFrame.Navigate(typeof(HomePage), null, new SuppressNavigationTransitionInfo());
+                this.contentFrame.Navigate(typeof(HomePage));
                 break;
             case "Settings":
-                // this.ViewModel.NavigateToSettings();
+                this.contentFrame.Navigate(typeof(SettingsPage));
                 break;
             case "Information":
-                // this.ViewModel.NavigateToAbout();
+                this.contentFrame.Navigate(typeof(InformationPage));
                 break;
 
-            // await this.TryExit();
             default:
                 break;
         }

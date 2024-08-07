@@ -27,7 +27,12 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
                 context.AddTransient<SimpleWindow>();
                 context.AddTransient<SimpleViewModel>();
                 context.AddTransient<NaviWindow>();
-                context.AddTransient<NaviViewModel>();
+                context.AddTransient<HomePage>();
+                context.AddTransient<HomeViewModel>();
+                context.AddTransient<SettingsPage>();
+                context.AddTransient<SettingsViewModel>();
+                context.AddTransient<InformationPage>();
+                context.AddTransient<InformationViewModel>();
 
                 // Command
                 // context.AddCommand(typeof(TestCommand));

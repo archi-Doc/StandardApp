@@ -10,14 +10,14 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <NavigationView x:Name="navigationView" OpenPaneLength="180" PaneDisplayMode="Left" IsTabStop="False" SelectionChanged="nvSample_SelectionChanged" IsSettingsVisible="False" IsBackButtonVisible="Collapsed">
+    <NavigationView x:Name="navigationView" Background="WhiteSmoke" OpenPaneLength="180" PaneDisplayMode="Left" IsTabStop="False" SelectionChanged="nvSample_SelectionChanged" IsSettingsVisible="False" IsBackButtonVisible="Collapsed">
         <NavigationView.MenuItems>
             <NavigationViewItem x:Name="nvHome" Icon="Home" Content="{Arc:C4 Source=Navigation.Home}" Tag="Home" />
             <NavigationViewItem x:Name="nvSettings" Icon="Setting" Content="{Arc:C4 Source=Navigation.Settings}" Tag="Settings" />
             <NavigationViewItem x:Name="nvInformation" Icon="ContactInfo" Content="{Arc:C4 Source=Navigation.Information}" Tag="Information" />
             <NavigationViewItem x:Name="nvExit" Icon="Cancel" Content="{Arc:C4 Source=Navigation.Exit}" Tag="Exit" Tapped="nvExit_Tapped"  SelectsOnInvoked="False"/>
         </NavigationView.MenuItems>
-        <Frame x:Name="contentFrame"/>
+        <Frame x:Name="contentFrame" Padding="12"/>
     </NavigationView>
 
 </winex:WindowEx>
