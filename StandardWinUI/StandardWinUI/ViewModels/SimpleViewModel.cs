@@ -5,7 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace StandardWinUI.ViewModels;
 
-internal partial class SimpleViewModel : ObservableObject
+public partial class SimpleViewModel : ObservableObject
 {
     public SimpleViewModel(AppSettings appSettings)
     {

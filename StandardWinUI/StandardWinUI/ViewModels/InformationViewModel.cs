@@ -4,7 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace StandardWinUI.ViewModels;
 
-internal partial class InformationViewModel : ObservableObject
+public partial class InformationViewModel : ObservableObject
 {
     public InformationViewModel()
     {

@@ -10,8 +10,8 @@ public sealed partial class HomePage : Page
     public HomePage()
     {
         this.InitializeComponent();
-        this.viewModel = App.GetService<HomeViewModel>();
+        this.ViewModel = App.GetService<HomeViewModel>();
     }
 
-    private readonly HomeViewModel viewModel;
+    public HomeViewModel ViewModel { get; }
 }

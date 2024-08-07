@@ -10,8 +10,8 @@ public sealed partial class SettingsPage : Page
     public SettingsPage()
     {
         this.InitializeComponent();
-        this.viewModel = App.GetService<SettingsViewModel>();
+        this.ViewModel = App.GetService<SettingsViewModel>();
     }
 
-    private readonly SettingsViewModel viewModel;
+    public SettingsViewModel ViewModel { get; }
 }

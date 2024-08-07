@@ -43,7 +43,7 @@ public sealed partial class SimpleWindow : WinUIEx.WindowEx
 
     #region FieldAndProperty
 
-    internal SimpleViewModel ViewModel { get; }
+    public SimpleViewModel ViewModel { get; }
 
     #endregion
 

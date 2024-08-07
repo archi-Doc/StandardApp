@@ -29,15 +29,10 @@ Dialog =
 
 // settings
 Settings = {
-Title = "Settings/Info"
-Tab = {
-General = "General"
-Information = "Information"
-}
-Folder = "Settings folder"
-OpenFolder = "Open"
+DataFolder = "Data folder"
+Open = "Open"
 Language = "Language"
-DisplayScaling = "Scaling"
+DisplayScaling = "Display scaling"
 }
 
 // other

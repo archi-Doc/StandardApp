@@ -29,15 +29,10 @@ Dialog =
 
 // settings
 Settings = {
-    Title = "設定/情報"
-    Tab = {
-        General = "一般"
-        Information = "情報"
-    }
-    Folder = "設定フォルダ"
-    OpenFolder = "開く"
-    Language = "表示言語"
-    DisplayScaling = "表示倍率"
+DataFolder = "データフォルダ"
+Open = "開く"
+Language = "表示言語"
+DisplayScaling = "表示倍率"
 }
 
 // other
