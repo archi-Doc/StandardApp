@@ -8,22 +8,17 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid>
+    <Grid Padding="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <TextBlock x:Name="textBlock" Grid.Row="0" TextWrapping="WrapWholeWords" Margin="12"/>
 
-        <NavigationView x:Name="nvSample" Grid.Row="1" Header="This is Header Text" PaneDisplayMode="Top">
-            <NavigationView.MenuItems>
-                <NavigationViewItem  Content="Menu Item1" Tag="SamplePage1" />
-                <NavigationViewItem  Content="Menu Item2" Tag="SamplePage2" />
-                <NavigationViewItem  Content="Menu Item3" Tag="SamplePage3" />
-                <NavigationViewItem  Content="Menu Item4" Tag="SamplePage4" />
-            </NavigationView.MenuItems>
-            <TextBlock>Content goes here</TextBlock>
+        <NavigationView x:Name="navigationView" Grid.Row="1" PaneDisplayMode="Left" OpenPaneLength="120" IsSettingsVisible="False" IsBackButtonVisible="Collapsed" IsPaneToggleButtonVisible="False" FontSize="9">
+            <TextBox IsReadOnly="True" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
         </NavigationView>
+        
     </Grid>
 </Page>

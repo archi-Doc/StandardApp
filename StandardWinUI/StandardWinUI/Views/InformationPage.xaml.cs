@@ -38,11 +38,31 @@ public sealed partial class InformationPage : Page
         this.textBlock.Inlines.Add(titleRun);
         this.textBlock.Inlines.Add(copyrightRun);
         this.textBlock.Inlines.Add(hyperlink);
+
+        // License
+        this.AddLicense("License.CommunityToolkit", "Community Toolkit");
     }
 
     private readonly InformationViewModel viewModel;
 
     private void nvSample5_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
+    }
+
+    private void AddLicense(string key, string title)
+    {
+        /*var license = HashedString.GetOrEmpty(key);
+        if (string.IsNullOrEmpty(license))
+        {
+            return;
+        }*/
+
+        var item = new NavigationViewItem()
+        {
+            Content = title,
+            Tag = key,
+        };
+
+        this.navigationView.MenuItems.Add(item);
     }
 }

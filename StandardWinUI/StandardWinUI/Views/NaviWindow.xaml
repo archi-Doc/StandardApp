@@ -17,7 +17,7 @@
             <NavigationViewItem x:Name="nvInformation" Icon="ContactInfo" Content="{Arc:C4 Source=Navigation.Information}" Tag="Information" />
             <NavigationViewItem x:Name="nvExit" Icon="Cancel" Content="{Arc:C4 Source=Navigation.Exit}" Tag="Exit" Tapped="nvExit_Tapped"  SelectsOnInvoked="False"/>
         </NavigationView.MenuItems>
-        <Frame x:Name="contentFrame" Padding="12"/>
+        <Frame x:Name="contentFrame"/>
     </NavigationView>
 
 </winex:WindowEx>
