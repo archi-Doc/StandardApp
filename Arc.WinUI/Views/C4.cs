@@ -247,6 +247,10 @@ public static class C4
                 {// TextBlock
                     textBlock.Text = HashedString.GetOrIdentifier(x.Key);
                 }
+                else if (target is MenuFlyoutItem menuFlyoutItem)
+                {
+                    menuFlyoutItem.Text = HashedString.GetOrIdentifier(x.Key);
+                }
             }
 
             // C4Clean();

@@ -1,8 +1,11 @@
 // Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using System.Collections.Generic;
+using Arc.WinUI;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Data;
+using Microsoft.UI.Xaml.Markup;
 using StandardWinUI.ViewModels;
 
 namespace StandardWinUI.Views;
@@ -16,7 +19,7 @@ public sealed partial class SettingsPage : Page
 
         this.AddLanguage("Language.En", "en");
         this.AddLanguage("Language.Ja", "ja");
-        this.ViewModel.Prepare();
+        // this.ViewModel.Prepare();
     }
 
     public SettingsViewModel ViewModel { get; }
@@ -33,16 +36,16 @@ public sealed partial class SettingsPage : Page
 
         var item = new MenuFlyoutItem
         {
-            Text = result,
+            // DataContext = this.ViewModel,
+            Text = HashedString.GetOrIdentifier(key), // $"{{Arc:C4 Source=Settings.Language}}",
             Tag = language,
-            /*Command = new RelayCommand(() =>
-            {
-                this.ViewModel.Language = language;
-            }),*/
+            Command = this.ViewModel.SelectLanguageCommand,
             CommandParameter = language,
         };
 
+        C4.AddExtensionObject(item, MenuFlyoutItem.TextProperty, key);
         this.menuLanguage.Items.Add(item);
+
         this.languageToName[language] = result;
         this.languageToName[result] = language;
     }

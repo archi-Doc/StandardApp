@@ -11,10 +11,8 @@ public partial class SettingsViewModel : ObservableObject
 {
     public SettingsViewModel()
     {
-    }
+        this.Language = App.Settings.Culture;
 
-    public void Prepare()
-    {
         this.AddLanguage("Language.En", "en");
         this.AddLanguage("Language.Ja", "ja");
     }
@@ -29,12 +27,28 @@ public partial class SettingsViewModel : ObservableObject
         catch
         {
         }
+
+        if (App.Settings.Culture == "ja")
+        {
+            App.Settings.Culture = "en";
+        }
+        else
+        {
+            App.Settings.Culture = "ja";
+        }
+
+        HashedString.ChangeCulture(App.Settings.Culture);
+        Arc.WinUI.C4.Refresh();
     }
 
     [RelayCommand]
-    private void SelectLanguage()
+    private void SelectLanguage(string key)
     {
+        this.Language = this.language;
     }
+
+    [ObservableProperty]
+    private string language = string.Empty;
 
     private Dictionary<string, string> languageToName = new();
     private Dictionary<string, string> nameToLanguage = new();

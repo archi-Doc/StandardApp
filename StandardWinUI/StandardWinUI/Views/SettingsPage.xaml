@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:StandardWinUI.Views"
     xmlns:Arc="using:Arc.WinUI"
+    xmlns:Arc2="using:CommunityToolkit.Common"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
@@ -24,9 +25,12 @@
         <Button Grid.Row="0" Grid.Column="1" Content="{Arc:C4 Source=Settings.Open}" VerticalAlignment="Center" Command="{x:Bind ViewModel.OpenDataDirectoryCommand}" />
 
         <TextBlock Grid.Row="1" Grid.Column="0" Text="{Arc:C4 Source=Settings.Language}" Padding="10" />
-        <DropDownButton x:Name="dropdownLanguage" Grid.Row="1" Grid.Column="1">
+        <DropDownButton x:Name="dropdownLanguage" Grid.Row="1" Grid.Column="1" Content="{x:Bind ViewModel.Language, Mode=TwoWay}">
             <DropDownButton.Flyout>
-                <MenuFlyout x:Name="menuLanguage" Placement="Bottom" />
+                <Arc:MenuFlyoutEx x:Name="menuLanguage" Placement="Bottom">
+                    <MenuFlyoutItem Text="Send"/>
+                    <MenuFlyoutItem Text="{Arc:C4 Source=Settings.Language}"/>
+                </Arc:MenuFlyoutEx>
             </DropDownButton.Flyout>
         </DropDownButton>
 
