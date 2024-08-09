@@ -7,17 +7,19 @@ using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
-using StandardWinUI.ViewModels;
+using StandardWinUI;
+using StandardWinUI.Views;
 using WinUIEx;
 
-namespace StandardWinUI.Views;
+namespace StandardWinUI.PresentationState;
 
-public sealed partial class NaviWindow : WinUIEx.WindowEx, IMessageDialog
+public partial class NaviWindow : Window, IMessageDialog
 {
     public NaviWindow()
     {
         this.InitializeComponent();
-        Transformer.Register(this);
+        this.InitializeArc();
+
         this.Title = App.Title;
         this.SetApplicationIcon();
         // this.RemoveIcon();

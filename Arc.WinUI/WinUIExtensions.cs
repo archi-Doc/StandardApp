@@ -1,5 +1,7 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Threading.Tasks;
 using Arc.Internal;
@@ -11,6 +13,70 @@ namespace Arc.WinUI;
 public static class WinUIExtensions
 {
     private const string OkString = "OK";
+
+    private static object syncWindows = new();
+    private static List<WeakReference<Window>> windows = new();
+
+    public static bool TryGetWindow(this UIElement element, [MaybeNullWhen(false)] out Window window)
+    {
+        var content = element.XamlRoot.Content;
+        lock (syncWindows)
+        {
+            for (var i = 0; i < windows.Count; i++)
+            {
+                var item = windows[i];
+                if (item.TryGetTarget(out var target))
+                {
+                    if (target.Content == content)
+                    {
+                        window = target;
+                        return true;
+                    }
+                }
+                else
+                {
+                    windows.RemoveAt(i);
+                }
+            }
+        }
+
+        window = default;
+        return false;
+    }
+
+    private static int FindWindowInternal(Window window)
+    {
+        for (var i = 0; i < windows.Count; i++)
+        {
+            var item = windows[i];
+            if (item.TryGetTarget(out var target))
+            {
+                if (target == window)
+                {
+                    return i;
+                }
+            }
+            else
+            {
+                windows.RemoveAt(i);
+            }
+        }
+
+        return -1;
+    }
+
+    public static void InitializeArc(this Window window)
+    {
+        lock (syncWindows)
+        {
+            if (FindWindowInternal(window) == -1)
+            {
+                windows.Add(new WeakReference<Window>(window));
+            }
+        }
+
+        Transformer.Register(window);
+    }
 
     public static async Task<ulong> ShowMessageDialogAsync(this Window window, ulong title, ulong content, ulong defaultCommand = 0, ulong cancelCommand = 0, ulong secondaryCommand = 0)
     {
