@@ -5,8 +5,14 @@ using Microsoft.UI.Xaml;
 
 namespace Arc.WinUI;
 
+/// <summary>
+/// Represents a base class for state objects.
+/// </summary>
 public abstract class StateObject : ObservableObject
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="StateObject"/> class.
+    /// </summary>
     public StateObject()
         : base()
     {
@@ -18,11 +24,21 @@ public abstract class StateObject : ObservableObject
 
     #endregion
 
+    /// <summary>
+    /// Initializes the state object with the specified presentation object.
+    /// </summary>
+    /// <param name="presentationObject">The presentation object.</param>
     public void InitializeState(object presentationObject)
     {
         this.presentationObject = presentationObject;
     }
 
+    /// <summary>
+    /// Gets the presentation service of the specified type.
+    /// </summary>
+    /// <typeparam name="TPresentationService">The type of the presentation service.</typeparam>
+    /// <returns>The presentation service of the specified type.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the presentation object or its parents do not implement the specified presentation service.</exception>
     public TPresentationService GetPresentationService<TPresentationService>()
         where TPresentationService : IPresentationService
     {

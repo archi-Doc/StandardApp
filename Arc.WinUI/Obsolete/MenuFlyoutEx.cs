@@ -7,7 +7,7 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace Arc.WinUI;
 
-public class MenuFlyoutEx : MenuFlyout
+/*public class MenuFlyoutEx : MenuFlyout
 {
     public static readonly DependencyProperty ItemsSourceProperty =
         DependencyProperty.Register(
@@ -57,4 +57,4 @@ public class MenuFlyoutEx : MenuFlyout
             menuFlyoutEx.Items.Add(menuFlyoutItem);
         }
     }
-}
+}*/
