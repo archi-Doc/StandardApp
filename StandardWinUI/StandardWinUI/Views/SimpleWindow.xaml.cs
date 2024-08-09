@@ -17,8 +17,8 @@ public sealed partial class SimpleWindow : WinUIEx.WindowEx
     public SimpleWindow()
     {
         this.InitializeComponent();
+        this.InitializePresentation();
         this.ViewModel = App.GetService<SimpleViewModel>();
-        Transformer.Register(this);
         this.Title = App.Title;
         this.SetApplicationIcon();
         // this.RemoveIcon();

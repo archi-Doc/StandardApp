@@ -2,8 +2,6 @@
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Media;
-using Tinyhand.Tree;
 
 namespace Arc.WinUI;
 
@@ -14,7 +12,13 @@ public abstract class StateObject : ObservableObject
     {
     }
 
-    public void Initialize(object presentationObject)
+    #region FieldAndProperty
+
+    private object? presentationObject;
+
+    #endregion
+
+    public void InitializeState(object presentationObject)
     {
         this.presentationObject = presentationObject;
     }
@@ -40,25 +44,9 @@ public abstract class StateObject : ObservableObject
             }
         }
 
-        /*if (this.presentationObject is TPresentationService service)
-        {
-            return service;
-        }
-        else if (this.presentationObject is FrameworkElement frameworkElement)
-        {
-            if (frameworkElement.XamlRoot is TPresentationService service2)
-            {
-                return service2;
-            }
-            else if (frameworkElement is TPresentationService service3)
-            {
-                return service3;
-            }
-        }
+        throw new InvalidOperationException($"'{this.presentationObject.GetType().Name}' and its parents do not implement '{typeof(TPresentationService).Name}'");
 
-        throw new InvalidOperationException($"'{this.presentationObject.GetType().Name}' and its parents do not implement '{typeof(TPresentationService).Name}'");*/
-
-        var obj = this.presentationObject;
+        /*var obj = this.presentationObject;
         while (true)
         {
             if (obj is TPresentationService service2)
@@ -78,8 +66,6 @@ public abstract class StateObject : ObservableObject
             {
                 throw new InvalidOperationException($"'{this.presentationObject.GetType().Name}' and its parents do not implement '{typeof(TPresentationService).Name}'");
             }
-        }
+        }*/
     }
-
-    private object? presentationObject;
 }

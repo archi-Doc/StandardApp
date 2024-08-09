@@ -194,7 +194,7 @@ public static partial class App
             where TStatObject : StateObject
     {
         var stateObject = GetService<TStatObject>();
-        stateObject.Initialize(presentationObject);
+        stateObject.InitializeState(presentationObject);
         return stateObject;
     }
 

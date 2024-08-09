@@ -17,6 +17,12 @@ public static class WinUIExtensions
     private static object syncWindows = new();
     private static List<WeakReference<Window>> windows = new();
 
+    /// <summary>
+    /// Tries to get the <see cref="Window"/> associated with the specified <see cref="UIElement"/>.
+    /// </summary>
+    /// <param name="element">The <see cref="UIElement"/> to get the associated <see cref="Window"/> for.</param>
+    /// <param name="window">When this method returns, contains the associated <see cref="Window"/>, if found; otherwise, the default value.</param>
+    /// <returns><c>true</c> if the associated <see cref="Window"/> is found; otherwise, <c>false</c>.</returns>
     public static bool TryGetWindow(this UIElement element, [MaybeNullWhen(false)] out Window window)
     {
         var content = element.XamlRoot.Content;
@@ -44,35 +50,32 @@ public static class WinUIExtensions
         return false;
     }
 
-    private static int FindWindowInternal(Window window)
-    {
-        for (var i = 0; i < windows.Count; i++)
-        {
-            var item = windows[i];
-            if (item.TryGetTarget(out var target))
-            {
-                if (target == window)
-                {
-                    return i;
-                }
-            }
-            else
-            {
-                windows.RemoveAt(i);
-            }
-        }
-
-        return -1;
-    }
-
-    public static void InitializeArc(this Window window)
+    /// <summary>
+    /// Initializes the presentation for the specified window.
+    /// </summary>
+    /// <param name="window">The window to initialize the presentation for.</param>
+    public static void InitializePresentation(this Window window)
     {
         lock (syncWindows)
         {
-            if (FindWindowInternal(window) == -1)
+            for (var i = 0; i < windows.Count; i++)
             {
-                windows.Add(new WeakReference<Window>(window));
+                var item = windows[i];
+                if (item.TryGetTarget(out var target))
+                {
+                    if (target == window)
+                    {// Found
+                        return;
+                    }
+                }
+                else
+                {
+                    windows.RemoveAt(i);
+                }
             }
+
+            // Not found
+            windows.Add(new WeakReference<Window>(window));
         }
 
         Transformer.Register(window);
@@ -211,5 +214,26 @@ public static class WinUIExtensions
 
         Methods.SendMessage(hwnd, Methods.WM_SETICON, new IntPtr(1), IntPtr.Zero);
         Methods.SendMessage(hwnd, Methods.WM_SETICON, IntPtr.Zero, IntPtr.Zero);
+    }
+
+    private static int FindWindowInternal(Window window)
+    {
+        for (var i = 0; i < windows.Count; i++)
+        {
+            var item = windows[i];
+            if (item.TryGetTarget(out var target))
+            {
+                if (target == window)
+                {
+                    return i;
+                }
+            }
+            else
+            {
+                windows.RemoveAt(i);
+            }
+        }
+
+        return -1;
     }
 }

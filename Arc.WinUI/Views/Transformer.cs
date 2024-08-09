@@ -23,7 +23,7 @@ public static class Transformer
     private const string TransformerName = "transformer";
     private static Dictionary<IntPtr, Item> dictionary = new();
 
-    private record Item(WeakReference ViewboxReference)
+    private record Item(WeakReference<Viewbox> ViewboxReference)
     {
         private double previousScale = 1;
 
@@ -76,7 +76,7 @@ public static class Transformer
         {
             foreach (var x in dictionary)
             {
-                if (x.Value.ViewboxReference.Target is Viewbox viewbox)
+                if (x.Value.ViewboxReference.TryGetTarget(out var viewbox))
                 {
                     x.Value.LoadedEventHandler(viewbox, default!);
                     viewbox.UpdateLayout();

@@ -13,12 +13,12 @@ using WinUIEx;
 
 namespace StandardWinUI.PresentationState;
 
-public partial class NaviWindow : Window, IMessageDialog
+public partial class NaviWindow : WindowEx, IMessageDialog
 {
     public NaviWindow()
     {
         this.InitializeComponent();
-        this.InitializeArc();
+        this.InitializePresentation();
 
         this.Title = App.Title;
         this.SetApplicationIcon();
