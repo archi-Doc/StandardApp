@@ -190,8 +190,14 @@ public static partial class App
         return service;
     }
 
+    /// <summary>
+    /// Retrieves a state object of type <typeparamref name="TStatObject"/> and initializes its state with the provided presentation object.
+    /// </summary>
+    /// <typeparam name="TStatObject">The type of the state object.</typeparam>
+    /// <param name="presentationObject">The presentation object used to initialize the state object.</param>
+    /// <returns>The initialized state object.</returns>
     public static TStatObject GetStateObject<TStatObject>(object presentationObject)
-            where TStatObject : StateObject
+        where TStatObject : StateObject
     {
         var stateObject = GetService<TStatObject>();
         stateObject.InitializeState(presentationObject);

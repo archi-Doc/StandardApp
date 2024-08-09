@@ -1,17 +1,17 @@
 // Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using Microsoft.UI.Xaml.Controls;
-using StandardWinUI.ViewModels;
+using StandardWinUI.State;
 
-namespace StandardWinUI.Views;
+namespace StandardWinUI.Presentation;
 
 public sealed partial class HomePage : Page
 {
     public HomePage()
     {
         this.InitializeComponent();
-        this.ViewModel = App.GetService<HomeViewModel>();
+        this.State = App.GetStateObject<HomeState>(this);
     }
 
-    public HomeViewModel ViewModel { get; }
+    public HomeState State { get; }
 }

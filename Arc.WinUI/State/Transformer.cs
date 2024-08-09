@@ -18,7 +18,7 @@ namespace Arc.WinUI;
 /// </summary>
 public static class Transformer
 {
-    public static double DisplayScaling { get; set; } = 1.0d;
+    public static double ViewScale { get; set; } = 1.0d;
 
     private const string TransformerName = "transformer";
     private static Dictionary<IntPtr, Item> dictionary = new();
@@ -30,15 +30,15 @@ public static class Transformer
         public void LoadedEventHandler(object sender, RoutedEventArgs e)
         {
             if (sender is Viewbox viewbox &&
-                this.previousScale != DisplayScaling)
+                this.previousScale != ViewScale)
             {
-                var ratio = DisplayScaling / this.previousScale;
+                var ratio = ViewScale / this.previousScale;
 
                 viewbox.Stretch = Stretch.Uniform;
                 viewbox.Width = viewbox.ActualWidth * ratio;
                 viewbox.Height = viewbox.ActualHeight * ratio;
 
-                this.previousScale = DisplayScaling;
+                this.previousScale = ViewScale;
             }
         }
     }

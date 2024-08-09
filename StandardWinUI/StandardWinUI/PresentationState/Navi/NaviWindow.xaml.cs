@@ -2,23 +2,19 @@
 
 using System.Threading.Tasks;
 using Arc.WinUI;
-using CommunityToolkit.WinUI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media.Animation;
-using StandardWinUI;
-using StandardWinUI.Views;
 using WinUIEx;
 
-namespace StandardWinUI.PresentationState;
+namespace StandardWinUI.Presentation;
 
 public partial class NaviWindow : WindowEx, IMessageDialog
 {
     public NaviWindow()
     {
         this.InitializeComponent();
-        this.InitializePresentation();
+        this.InitializeWindow();
 
         this.Title = App.Title;
         this.SetApplicationIcon();

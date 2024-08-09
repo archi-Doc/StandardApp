@@ -4,10 +4,10 @@ using Arc.WinUI;
 using CommunityToolkit.WinUI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
-using StandardWinUI.ViewModels;
+using StandardWinUI.State;
 using WinUIEx;
 
-namespace StandardWinUI.Views;
+namespace StandardWinUI.Presentation;
 
 /// <summary>
 /// An empty window that can be used on its own or navigated to within a Frame.
@@ -17,8 +17,8 @@ public sealed partial class SimpleWindow : WinUIEx.WindowEx
     public SimpleWindow()
     {
         this.InitializeComponent();
-        this.InitializePresentation();
-        this.ViewModel = App.GetService<SimpleViewModel>();
+        this.InitializeWindow();
+        this.State = App.GetStateObject<SimpleState>(this);
         this.Title = App.Title;
         this.SetApplicationIcon();
         // this.RemoveIcon();
@@ -43,7 +43,7 @@ public sealed partial class SimpleWindow : WinUIEx.WindowEx
 
     #region FieldAndProperty
 
-    public SimpleViewModel ViewModel { get; }
+    public SimpleState State { get; }
 
     #endregion
 
@@ -61,7 +61,7 @@ public sealed partial class SimpleWindow : WinUIEx.WindowEx
     {
         // this.myButton.Content = "Clicked";
 
-        Transformer.DisplayScaling *= 1.2;
+        Transformer.ViewScale *= 1.2;
         Transformer.Refresh();
     }
 
@@ -69,7 +69,7 @@ public sealed partial class SimpleWindow : WinUIEx.WindowEx
     {
         // this.myButton.Content = "Clicked2";
 
-        Transformer.DisplayScaling *= 0.9;
+        Transformer.ViewScale *= 0.9;
         Transformer.Refresh();
     }
 }

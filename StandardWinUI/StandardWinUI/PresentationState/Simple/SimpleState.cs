@@ -1,13 +1,14 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
+using Arc.WinUI;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
-namespace StandardWinUI.ViewModels;
+namespace StandardWinUI.State;
 
-public partial class SimpleViewModel : ObservableObject
+public partial class SimpleState : StateObject
 {
-    public SimpleViewModel(AppSettings appSettings)
+    public SimpleState(AppSettings appSettings)
     {
         this.appSettings = appSettings;
     }

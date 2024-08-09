@@ -1,11 +1,10 @@
 // Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Documents;
-using StandardWinUI.ViewModels;
+using StandardWinUI.State;
 
-namespace StandardWinUI.Views;
+namespace StandardWinUI.Presentation;
 
 public sealed partial class InformationPage : Page
 {
@@ -14,7 +13,7 @@ public sealed partial class InformationPage : Page
     public InformationPage()
     {
         this.InitializeComponent();
-        this.ViewModel = App.GetService<InformationViewModel>();
+        this.State = App.GetStateObject<InformationState>(this);
 
         var titleRun = new Run();
         titleRun.Text = App.Title;
@@ -46,7 +45,7 @@ public sealed partial class InformationPage : Page
         this.AddLicense("License.lz4net", "lz4net");
     }
 
-    public InformationViewModel ViewModel { get; }
+    public InformationState State { get; }
 
     private void nvSample5_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {

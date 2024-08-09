@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Page
-    x:Class="StandardWinUI.Views.SettingsPage"
+    x:Class="StandardWinUI.Presentation.SettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:StandardWinUI.Views"
+    xmlns:local="using:StandardWinUI.Presentation"
     xmlns:Arc="using:Arc.WinUI"
     xmlns:Arc2="using:CommunityToolkit.Common"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -22,15 +22,15 @@
         </Grid.RowDefinitions>
 
         <TextBlock Grid.Row="0" Grid.Column="0" Text="{Arc:C4 Source=Settings.DataFolder}" VerticalAlignment="Center" Padding="10" />
-        <Button Grid.Row="0" Grid.Column="1" Content="{Arc:C4 Source=Settings.Open}" VerticalAlignment="Center" Command="{x:Bind ViewModel.OpenDataDirectoryCommand}" />
+        <Button Grid.Row="0" Grid.Column="1" Content="{Arc:C4 Source=Settings.Open}" VerticalAlignment="Center" Command="{x:Bind State.OpenDataDirectoryCommand}" />
 
         <TextBlock Grid.Row="1" Grid.Column="0" Text="{Arc:C4 Source=Settings.Language}" Padding="10" />
-        <DropDownButton x:Name="dropdownLanguage" Grid.Row="1" Grid.Column="1" Content="{x:Bind ViewModel.Language, Mode=TwoWay}">
+        <DropDownButton x:Name="dropdownLanguage" Grid.Row="1" Grid.Column="1" Content="{x:Bind State.Language, Mode=TwoWay}">
             <DropDownButton.Flyout>
-                <Arc:MenuFlyoutEx x:Name="menuLanguage" Placement="Bottom">
+                <MenuFlyout x:Name="menuLanguage" Placement="Bottom">
                     <MenuFlyoutItem Text="Send"/>
                     <MenuFlyoutItem Text="{Arc:C4 Source=Settings.Language}"/>
-                </Arc:MenuFlyoutEx>
+                </MenuFlyout>
             </DropDownButton.Flyout>
         </DropDownButton>
 

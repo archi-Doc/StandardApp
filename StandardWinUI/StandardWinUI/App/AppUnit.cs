@@ -4,9 +4,8 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using SimpleCommandLine;
-using StandardWinUI.PresentationState;
-using StandardWinUI.ViewModels;
-using StandardWinUI.Views;
+using StandardWinUI.Presentation;
+using StandardWinUI.State;
 
 namespace StandardWinUI;
 
@@ -26,14 +25,14 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
 
                 // Views and ViewModels
                 context.AddTransient<SimpleWindow>();
-                context.AddTransient<SimpleViewModel>();
+                context.AddTransient<SimpleState>();
                 context.AddTransient<NaviWindow>();
                 context.AddTransient<HomePage>();
-                context.AddTransient<HomeViewModel>();
+                context.AddTransient<HomeState>();
                 context.AddTransient<SettingsPage>();
                 context.AddTransient<SettingsState>();
                 context.AddTransient<InformationPage>();
-                context.AddTransient<InformationViewModel>();
+                context.AddTransient<InformationState>();
 
                 // Command
                 // context.AddCommand(typeof(TestCommand));

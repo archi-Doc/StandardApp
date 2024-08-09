@@ -3,23 +3,23 @@
 using System.Collections.Generic;
 using Arc.WinUI;
 using Microsoft.UI.Xaml.Controls;
-using StandardWinUI.ViewModels;
+using StandardWinUI.State;
 
-namespace StandardWinUI.Views;
+namespace StandardWinUI.Presentation;
 
 public sealed partial class SettingsPage : Page
 {
     public SettingsPage()
     {
         this.InitializeComponent();
-        this.ViewModel = App.GetStateObject<SettingsState>(this);
+        this.State = App.GetStateObject<SettingsState>(this);
 
         // language: en, key: Language.En, text: English
         this.AddLanguage("en", "Language.En");
         this.AddLanguage("ja", "Language.Ja");
     }
 
-    public SettingsState ViewModel { get; }
+    public SettingsState State { get; }
 
     private Dictionary<string, string> languageToName = new();
     private Dictionary<string, string> nameToLanguage = new();
@@ -36,7 +36,7 @@ public sealed partial class SettingsPage : Page
             // DataContext = this.ViewModel,
             Text = text, // $"{{Arc:C4 Source=Settings.Language}}",
             Tag = language,
-            Command = this.ViewModel.SelectLanguageCommand,
+            Command = this.State.SelectLanguageCommand,
             CommandParameter = language,
         };
 
