@@ -28,6 +28,15 @@ public partial class NaviWindow : WindowEx, IMessageDialog
         this.nvHome.IsSelected = true;
     }
 
+    #region FieldAndProperty
+
+    #endregion
+
+    Task<ulong> IMessageDialog.Show(ulong title, ulong content, ulong defaultCommand, ulong cancelCommand, ulong secondaryCommand)
+    {
+        return this.ShowMessageDialogAsync(title, content, defaultCommand, cancelCommand, secondaryCommand);
+    }
+
     private async void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)
     {
         args.Cancel = true; // Since the Closing function isn't awaiting, I'll cancel first. Sorry for writing such crappy code.
@@ -42,10 +51,6 @@ public partial class NaviWindow : WindowEx, IMessageDialog
             App.Exit();
         }
     }
-
-    #region FieldAndProperty
-
-    #endregion
 
     private void NaviWindow_Activated(object sender, WindowActivatedEventArgs args)
     {
@@ -81,10 +86,5 @@ public partial class NaviWindow : WindowEx, IMessageDialog
     private async void nvExit_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
     {
         await this.TryExit();
-    }
-
-    Task<ulong> IMessageDialog.Show(ulong title, ulong content, ulong defaultCommand, ulong cancelCommand, ulong secondaryCommand)
-    {
-        return this.ShowMessageDialogAsync(title, content, defaultCommand, cancelCommand, secondaryCommand);
     }
 }
