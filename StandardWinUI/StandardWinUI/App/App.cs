@@ -45,9 +45,9 @@ public static partial class App
             HashedString.SetDefaultCulture(DefaultCulture); // default culture
 
             var asm = Assembly.GetExecutingAssembly();
-            HashedString.LoadAssembly("ja", asm, "Resources.Strings.License.tinyhand"); // license
-            HashedString.LoadAssembly("ja", asm, "Resources.Strings.String-ja.tinyhand");
+            HashedString.LoadAssembly("en", asm, "Resources.Strings.License.tinyhand"); // license
             HashedString.LoadAssembly("en", asm, "Resources.Strings.String-en.tinyhand");
+            HashedString.LoadAssembly("ja", asm, "Resources.Strings.String-ja.tinyhand");
         }
         catch
         {

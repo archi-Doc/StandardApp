@@ -64,6 +64,7 @@ public sealed partial class InformationPage : Page
 
     private void AddLicense(string key, string title, bool isSelected = false)
     {
+        var license = HashedString.GetOrEmpty(key);
         var item = new NavigationViewItem()
         {
             Content = title,
