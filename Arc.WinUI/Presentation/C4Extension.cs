@@ -25,6 +25,7 @@ public class C4Extension : MarkupExtension
     protected override object ProvideValue(IXamlServiceProvider serviceProvider)
     {
         var target = serviceProvider.GetService(typeof(IProvideValueTarget)) as IProvideValueTarget;
+        var dp = serviceProvider.GetService(typeof(DependencyProperty)) as DependencyProperty;
 
         if (target?.TargetObject is not null)
         {
@@ -35,7 +36,7 @@ public class C4Extension : MarkupExtension
 
             if (target.TargetProperty is not null)
             { // Add ExtensionObject (used in C4Update).
-                C4.AddExtensionObject(target.TargetObject, target.TargetProperty, this.Source);
+                Presentation.RegisterC4(target.TargetObject, target.TargetProperty, this.Source);
             }
         }
 
@@ -64,7 +65,7 @@ public class C4BindingSource : INotifyPropertyChanged
     public C4BindingSource(string key)
     {
         this.key = key;
-        C4.AddExtensionObject(this, null, null);
+        Presentation.RegisterC4(this, null, string.Empty);
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -154,91 +155,3 @@ public class FormatExtension : IMarkupExtension<BindingBase>
 
     private IList<BindingBase>? bindings;
 }*/
-
-public static class C4
-{
-    private static object syncObject = new();
-    private static LinkedList<C4Object> extensionObjects = new LinkedList<C4Object>();
-    private static GCCountChecker extensionObjectChecker = new GCCountChecker(16); // 16回に1回の頻度でチェック（使用されなくなったオブジェクトを解放する）。
-
-    private class C4Object
-    {
-        public WeakReference TargetObject; // target object or C4BindingSource
-        public object? TargetProperty; // valid: target object, null: C4BindingSource
-        public string? Key;
-
-        public C4Object(WeakReference targetObject, object? targetProperty, string? key)
-        {
-            this.TargetObject = targetObject;
-            this.TargetProperty = targetProperty;
-            this.Key = key;
-        }
-    }
-
-    public static void AddExtensionObject(object targetObject, object? targetProperty, string? key)
-    {
-        lock (syncObject)
-        {
-            extensionObjects.AddLast(new C4Object(new WeakReference(targetObject), targetProperty, key));
-            if (extensionObjectChecker.Check())
-            {
-                Clean();
-            }
-        }
-    }
-
-    /// <summary>
-    /// Updates the display of C4.<br/>
-    /// Please call from the UI thread.<br/>
-    /// If not on the UI thread, consider using App.TryEnqueueOnUI().
-    /// </summary>
-    public static void RefreshC4()
-    {
-      // GC.Collect();
-        lock (syncObject)
-        {
-            foreach (var x in extensionObjects)
-            {
-                if (x.Key is null)
-                {
-                    if (x.TargetObject?.Target is C4BindingSource c4BindingSource)
-                    { // C4BindingSource
-                        c4BindingSource.CultureChanged();
-                    }
-
-                    continue;
-                }
-
-                var target = x.TargetObject?.Target;
-                if (target is TextBlock textBlock)
-                {// TextBlock
-                    textBlock.Text = HashedString.GetOrIdentifier(x.Key);
-                }
-                else if (target is MenuFlyoutItem menuFlyoutItem)
-                {
-                    menuFlyoutItem.Text = HashedString.GetOrIdentifier(x.Key);
-                }
-            }
-
-            // C4Clean();
-        }
-    }
-
-    private static void Clean()
-    {
-        LinkedListNode<C4Object>? x, y;
-        x = extensionObjects.First;
-        while (x != null)
-        {
-            y = x.Next;
-            if (x.Value.TargetObject.Target == null)
-            {
-                /* if (x.Value.TargetProperty != null) gl.Trace("_C4Clean: removed (target object)");
-                else gl.Trace("_C4Clean: removed (C4BindingSource)"); */
-                extensionObjects.Remove(x);
-            }
-
-            x = y;
-        }
-    }
-}

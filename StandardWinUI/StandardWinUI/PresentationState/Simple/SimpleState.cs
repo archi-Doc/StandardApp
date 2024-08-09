@@ -46,6 +46,6 @@ public partial class SimpleState : StateObject
         }
 
         HashedString.ChangeCulture(this.appSettings.Culture);
-        Arc.WinUI.C4.RefreshC4();
+        Arc.WinUI.Presentation.RefreshC4();
     }
 }
