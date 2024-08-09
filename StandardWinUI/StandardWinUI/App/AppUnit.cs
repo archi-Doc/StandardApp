@@ -30,7 +30,7 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
                 context.AddTransient<HomePage>();
                 context.AddTransient<HomeViewModel>();
                 context.AddTransient<SettingsPage>();
-                context.AddTransient<SettingsViewModel>();
+                context.AddTransient<SettingsState>();
                 context.AddTransient<InformationPage>();
                 context.AddTransient<InformationViewModel>();
 

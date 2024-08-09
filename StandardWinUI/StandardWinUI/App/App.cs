@@ -13,14 +13,15 @@ global using CrystalData;
 global using Microsoft.Extensions.DependencyInjection;
 global using Tinyhand;
 
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Arc.WinUI;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
-using System.Globalization;
 
 namespace StandardWinUI;
 
@@ -187,6 +188,14 @@ public static partial class App
         }
 
         return service;
+    }
+
+    public static TStatObject GetStateObject<TStatObject>(object presentationObject)
+            where TStatObject : StateObject
+    {
+        var stateObject = GetService<TStatObject>();
+        stateObject.Initialize(presentationObject);
+        return stateObject;
     }
 
     /// <summary>

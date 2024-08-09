@@ -2,10 +2,7 @@
 
 using System.Collections.Generic;
 using Arc.WinUI;
-using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Markup;
 using StandardWinUI.ViewModels;
 
 namespace StandardWinUI.Views;
@@ -15,21 +12,21 @@ public sealed partial class SettingsPage : Page
     public SettingsPage()
     {
         this.InitializeComponent();
-        this.ViewModel = App.GetService<SettingsViewModel>();
+        this.ViewModel = App.GetStateObject<SettingsState>(this);
 
-        this.AddLanguage("Language.En", "en");
-        this.AddLanguage("Language.Ja", "ja");
-        // this.ViewModel.Prepare();
+        // language: en, key: Language.En, text: English
+        this.AddLanguage("en", "Language.En");
+        this.AddLanguage("ja", "Language.Ja");
     }
 
-    public SettingsViewModel ViewModel { get; }
+    public SettingsState ViewModel { get; }
 
     private Dictionary<string, string> languageToName = new();
     private Dictionary<string, string> nameToLanguage = new();
 
-    private void AddLanguage(string key, string language)
+    private void AddLanguage(string language, string key)
     {
-        if (!HashedString.TryGet(HashedString.IdentifierToHash(key), out var result))
+        if (!HashedString.TryGet(HashedString.IdentifierToHash(key), out var text))
         {
             return;
         }
@@ -37,7 +34,7 @@ public sealed partial class SettingsPage : Page
         var item = new MenuFlyoutItem
         {
             // DataContext = this.ViewModel,
-            Text = HashedString.GetOrIdentifier(key), // $"{{Arc:C4 Source=Settings.Language}}",
+            Text = text, // $"{{Arc:C4 Source=Settings.Language}}",
             Tag = language,
             Command = this.ViewModel.SelectLanguageCommand,
             CommandParameter = language,
@@ -46,7 +43,7 @@ public sealed partial class SettingsPage : Page
         C4.AddExtensionObject(item, MenuFlyoutItem.TextProperty, key);
         this.menuLanguage.Items.Add(item);
 
-        this.languageToName[language] = result;
-        this.languageToName[result] = language;
+        this.languageToName[language] = text;
+        this.languageToName[text] = language;
     }
 }

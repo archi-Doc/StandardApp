@@ -12,7 +12,7 @@ using WinUIEx;
 
 namespace StandardWinUI.Views;
 
-public sealed partial class NaviWindow : WinUIEx.WindowEx
+public sealed partial class NaviWindow : WinUIEx.WindowEx, IMessageDialog
 {
     public NaviWindow()
     {
@@ -83,5 +83,10 @@ public sealed partial class NaviWindow : WinUIEx.WindowEx
     private async void nvExit_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
     {
         await this.TryExit();
+    }
+
+    Task<ulong> IMessageDialog.Show(ulong title, ulong content, ulong defaultCommand, ulong cancelCommand, ulong secondaryCommand)
+    {
+        return this.ShowMessageDialogAsync(title, content, defaultCommand, cancelCommand, secondaryCommand);
     }
 }
