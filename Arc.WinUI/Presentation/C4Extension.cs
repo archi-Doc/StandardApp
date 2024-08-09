@@ -158,16 +158,16 @@ public class FormatExtension : IMarkupExtension<BindingBase>
 public static class C4
 {
     private static object syncObject = new();
-    private static LinkedList<ExtensionObject> extensionObjects = new LinkedList<ExtensionObject>();
+    private static LinkedList<C4Object> extensionObjects = new LinkedList<C4Object>();
     private static GCCountChecker extensionObjectChecker = new GCCountChecker(16); // 16回に1回の頻度でチェック（使用されなくなったオブジェクトを解放する）。
 
-    private class ExtensionObject
+    private class C4Object
     {
         public WeakReference TargetObject; // target object or C4BindingSource
         public object? TargetProperty; // valid: target object, null: C4BindingSource
         public string? Key;
 
-        public ExtensionObject(WeakReference targetObject, object? targetProperty, string? key)
+        public C4Object(WeakReference targetObject, object? targetProperty, string? key)
         {
             this.TargetObject = targetObject;
             this.TargetProperty = targetProperty;
@@ -179,7 +179,7 @@ public static class C4
     {
         lock (syncObject)
         {
-            extensionObjects.AddLast(new ExtensionObject(new WeakReference(targetObject), targetProperty, key));
+            extensionObjects.AddLast(new C4Object(new WeakReference(targetObject), targetProperty, key));
             if (extensionObjectChecker.Check())
             {
                 Clean();
@@ -192,7 +192,7 @@ public static class C4
     /// Please call from the UI thread.<br/>
     /// If not on the UI thread, consider using App.TryEnqueueOnUI().
     /// </summary>
-    public static void Refresh()
+    public static void RefreshC4()
     {
       // GC.Collect();
         lock (syncObject)
@@ -226,7 +226,7 @@ public static class C4
 
     private static void Clean()
     {
-        LinkedListNode<ExtensionObject>? x, y;
+        LinkedListNode<C4Object>? x, y;
         x = extensionObjects.First;
         while (x != null)
         {
