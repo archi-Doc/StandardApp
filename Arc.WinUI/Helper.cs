@@ -49,18 +49,18 @@ public static class Helper
 
         mutex.Close(); // Release mutex.
 
-        var prevProcess = Arc.Internal.Methods.GetPreviousProcess();
+        var prevProcess = Arc.Internal.WinAPI.GetPreviousProcess();
         if (prevProcess != null)
         {
             var handle = prevProcess.MainWindowHandle; // The window handle that associated with the previous process.
             if (handle == IntPtr.Zero)
             {
-                handle = Arc.Internal.Methods.GetWindowHandle(prevProcess.Id, title); // Get handle.
+                handle = Arc.Internal.WinAPI.GetWindowHandle(prevProcess.Id, title); // Get handle.
             }
 
             if (handle != IntPtr.Zero)
             {
-                Arc.Internal.Methods.ActivateWindow(handle);
+                Arc.Internal.WinAPI.ActivateWindow(handle);
             }
         }
 

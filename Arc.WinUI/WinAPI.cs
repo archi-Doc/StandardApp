@@ -22,7 +22,7 @@ public partial struct WINDOWPLACEMENT
     [Key(1)]
     public int flags;
     [Key(2)]
-    public SW showCmd;
+    public ShowCommand showCmd;
     [Key(3)]
     public POINT minPosition;
     [Key(4)]
@@ -71,7 +71,7 @@ public partial struct RECT
     }
 }
 
-public enum SW
+public enum ShowCommand
 {
     HIDE = 0,
     SHOWNORMAL = 1,
@@ -84,6 +84,7 @@ public enum SW
     SHOWNA = 8,
     RESTORE = 9,
     SHOWDEFAULT = 10,
+    FORCEMINIMIZE = 11,
 }
 
 [TinyhandObject]
@@ -95,7 +96,7 @@ public partial class DipWindowPlacement
     public int Flags { get; set; }
 
     [Key(2)]
-    public SW ShowCmd { get; set; }
+    public ShowCommand ShowCmd { get; set; }
 
     [Key(3)]
     public DipPoint MinPosition { get; set; } = new DipPoint();

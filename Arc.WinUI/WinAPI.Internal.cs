@@ -14,18 +14,58 @@ using Arc.WinUI;
 #pragma warning disable SA1602 // Enumeration items should be documented
 #pragma warning disable SA1611 // Element parameters should be documented
 #pragma warning disable SA1649 // File name should match first type name
+#pragma warning disable CS0649
 
 namespace Arc.Internal;
 
-internal enum ImageType
+internal partial class WinAPI
 {
-    Bitmap,
-    Icon,
-    Cursor,
-}
+    internal const int GWL_EXSTYLE = -20;
+    internal const int WS_EX_DLGMODALFRAME = 0x0001;
 
-internal partial class Methods
-{
+    internal const int SWP_NOSIZE = 0x0001;
+    internal const int SWP_NOMOVE = 0x0002;
+    internal const int SWP_NOZORDER = 0x0004;
+    internal const int SWP_FRAMECHANGED = 0x0020;
+    internal const int SWP_SHOWWINDOW = 0x0040;
+    internal const int SWP_ASYNCWINDOWPOS = 0x4000;
+
+    internal const int HWND_TOP = 0;
+    internal const int HWND_BOTTOM = 1;
+    internal const int HWND_TOPMOST = -1;
+    internal const int HWND_NOTOPMOST = -2;
+
+    internal const uint WM_SETICON = 0x0080;
+
+    internal enum ImageType
+    {
+        Bitmap,
+        Icon,
+        Cursor,
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    internal struct TOKEN_PRIVILEGES
+    {
+        public int PrivilegeCount;
+        public long Luid;
+        public int Attributes;
+    }
+
+    internal enum SIGDN : uint
+    {
+        NORMALDISPLAY = 0x00000000,
+        PARENTRELATIVEPARSING = 0x80018001,
+        DESKTOPABSOLUTEPARSING = 0x80028000,
+        PARENTRELATIVEEDITING = 0x80031001,
+        DESKTOPABSOLUTEEDITING = 0x8004c000,
+        FILESYSPATH = 0x80058000,
+        URL = 0x80068000,
+        PARENTRELATIVEFORADDRESSBAR = 0x8007c001,
+        PARENTRELATIVE = 0x80080001,
+        PARENTRELATIVEFORUI = 0x80094001,
+    }
+
     [DllImport("user32.dll")]
     public static extern bool SetWindowPlacement(IntPtr hWnd, [In] ref WINDOWPLACEMENT lpwndpl);
 
@@ -66,14 +106,6 @@ internal partial class Methods
     [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Auto)]
     internal static extern bool LookupPrivilegeValue(string? lpSystemName, string lpName, out long lpLuid);
 
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    internal struct TOKEN_PRIVILEGES
-    {
-        public int PrivilegeCount;
-        public long Luid;
-        public int Attributes;
-    }
-
     [DllImport("advapi32.dll", SetLastError = true)]
     internal static extern bool AdjustTokenPrivileges(IntPtr tokenHandle, bool disableAllPrivileges, ref TOKEN_PRIVILEGES newState, int bufferLength, IntPtr previousState, IntPtr returnLength);
 
@@ -105,59 +137,8 @@ internal partial class Methods
         CloseHandle(tokenHandle);
     }
 
-    internal enum SIGDN : uint
-    {
-        NORMALDISPLAY = 0x00000000,
-        PARENTRELATIVEPARSING = 0x80018001,
-        DESKTOPABSOLUTEPARSING = 0x80028000,
-        PARENTRELATIVEEDITING = 0x80031001,
-        DESKTOPABSOLUTEEDITING = 0x8004c000,
-        FILESYSPATH = 0x80058000,
-        URL = 0x80068000,
-        PARENTRELATIVEFORADDRESSBAR = 0x8007c001,
-        PARENTRELATIVE = 0x80080001,
-        PARENTRELATIVEFORUI = 0x80094001,
-    }
-
-    /*internal static string[]? GetPathFromIDList(System.Windows.IDataObject dataObject)
-    {
-        string[]? result = null;
-        MemoryStream data = (MemoryStream)dataObject.GetData(Arc.WinAPI.Const.SHELL_IDLIST_STRING);
-        if (data == null)
-        {
-            return result;
-        }
-
-        var b = data.ToArray();
-        IntPtr p = Marshal.AllocHGlobal(b.Length);
-        Marshal.Copy(b, 0, p, b.Length);
-
-        // Get number of items.
-        var cidl = (uint)Marshal.ReadInt32(p);
-        result = new string[cidl];
-
-        // Get parent folder.
-        int offset = sizeof(uint);
-        IntPtr parentpidl = (IntPtr)((int)p + (uint)Marshal.ReadInt32(p, offset));
-        SIGDN sigdn = SIGDN.DESKTOPABSOLUTEPARSING;
-
-        // SHGetNameFromIDList(parentpidl, sigdn, out ts);
-
-        // Get subitems.
-        for (int n = 0; n < cidl; ++n)
-        {
-            offset += sizeof(uint);
-            IntPtr relpidl = (IntPtr)((int)p + (uint)Marshal.ReadInt32(p, offset));
-            IntPtr abspidl = ILCombine(parentpidl, relpidl);
-            SHGetNameFromIDList(abspidl, sigdn, out result[n]);
-            ILFree(abspidl);
-        }
-
-        return result;
-    }*/
-
     [DllImport("shell32.dll")]
-    internal static extern IntPtr ShellExecute(IntPtr hwnd, string lpOperation, string lpFile, string lpParameters, string lpDirectory, ShowCommands nShowCmd);
+    internal static extern IntPtr ShellExecute(IntPtr hwnd, string lpOperation, string lpFile, string lpParameters, string lpDirectory, ShowCommand nShowCmd);
 
     [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     internal static extern IntPtr MonitorFromWindow(IntPtr hwnd, MonitorDefaultTo dwFlags);
@@ -179,8 +160,8 @@ internal partial class Methods
             uint x = 96;
             uint y = 96;
 
-            var hmonitor = Arc.Internal.Methods.MonitorFromWindow(hwnd, MonitorDefaultTo.MONITOR_DEFAULTTONEAREST);
-            Arc.Internal.Methods.GetDpiForMonitor(hmonitor, MonitorDpiType.Default, ref x, ref y);
+            var hmonitor = Arc.Internal.WinAPI.MonitorFromWindow(hwnd, MonitorDefaultTo.MONITOR_DEFAULTTONEAREST);
+            Arc.Internal.WinAPI.GetDpiForMonitor(hmonitor, MonitorDpiType.Default, ref x, ref y);
             dpiX = x;
             dpiY = y;
             return true;
@@ -229,12 +210,12 @@ internal partial class Methods
         if (!IsWindowVisible(hWnd))
         {
             SendMessage(hWnd, 0x0018 /*WM_SHOWWINDOW*/, IntPtr.Zero, new IntPtr(3 /*SW_PARENTOPENING*/));
-            ShowWindowAsync(hWnd, (int)ShowCommands.SW_SHOW);
+            ShowWindowAsync(hWnd, (int)ShowCommand.SHOW);
         }
 
         if (IsIconic(hWnd))
         {
-            ShowWindowAsync(hWnd, (int)ShowCommands.SW_RESTORE);
+            ShowWindowAsync(hWnd, (int)ShowCommand.RESTORE);
         }
 
         SetForegroundWindow(hWnd);
@@ -433,59 +414,23 @@ internal partial class Methods
 
     [DllImport("user32.dll")]
     internal static extern IntPtr SendMessage(IntPtr hwnd, uint msg, IntPtr wParam, IntPtr lParam);
-
-    internal const int GWL_EXSTYLE = -20;
-    internal const int WS_EX_DLGMODALFRAME = 0x0001;
-
-    internal const int SWP_NOSIZE = 0x0001;
-    internal const int SWP_NOMOVE = 0x0002;
-    internal const int SWP_NOZORDER = 0x0004;
-    internal const int SWP_FRAMECHANGED = 0x0020;
-    internal const int SWP_SHOWWINDOW = 0x0040;
-    internal const int SWP_ASYNCWINDOWPOS = 0x4000;
-
-    internal const int HWND_TOP = 0;
-    internal const int HWND_BOTTOM = 1;
-    internal const int HWND_TOPMOST = -1;
-    internal const int HWND_NOTOPMOST = -2;
-
-    internal const uint WM_SETICON = 0x0080;
 }
 
-public enum ShowCommands : int
-{
-    SW_HIDE = 0,
-    SW_SHOWNORMAL = 1,
-    SW_NORMAL = 1,
-    SW_SHOWMINIMIZED = 2,
-    SW_SHOWMAXIMIZED = 3,
-    SW_MAXIMIZE = 3,
-    SW_SHOWNOACTIVATE = 4,
-    SW_SHOW = 5,
-    SW_MINIMIZE = 6,
-    SW_SHOWMINNOACTIVE = 7,
-    SW_SHOWNA = 8,
-    SW_RESTORE = 9,
-    SW_SHOWDEFAULT = 10,
-    SW_FORCEMINIMIZE = 11,
-    SW_MAX = 11,
-}
-
-public enum ProcessDpiAwareness
+internal enum ProcessDpiAwareness
 {
     Unaware,
     Aware,
     PerMonitorAware,
 }
 
-public enum MonitorDefaultTo
+internal enum MonitorDefaultTo
 {
     MONITOR_DEFAULTTONULL = 0,
     MONITOR_DEFAULTTOPRIMARY = 1,
     MONITOR_DEFAULTTONEAREST = 2,
 }
 
-public enum MonitorDpiType
+internal enum MonitorDpiType
 {
     EffectiveDpi = 0,
     AngularDpi = 1,
@@ -494,7 +439,7 @@ public enum MonitorDpiType
 }
 
 [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto, Pack = 4)]
-public class MONITORINFOEX
+internal class MONITORINFOEX
 {
     public int cbSize = Marshal.SizeOf(typeof(MONITORINFOEX));
     public RECT rcMonitor = default;
@@ -504,7 +449,7 @@ public class MONITORINFOEX
     public char[] szDevice = new char[32];
 }
 
-public enum FOFunc : uint
+internal enum FOFunc : uint
 {
     FO_MOVE = 0x0001,
     FO_COPY = 0x0002,
@@ -513,7 +458,7 @@ public enum FOFunc : uint
 }
 
 [StructLayout(LayoutKind.Sequential)]
-public struct POINT32
+internal struct POINT32
 {
     public uint X;
     public uint Y;
@@ -537,8 +482,6 @@ internal struct MOUSEKEYBDHARDWAREINPUT
     [FieldOffset(0)]
     public HARDWAREINPUT Hardware;
 }
-
-#pragma warning disable CS0649
 
 internal struct HARDWAREINPUT
 {
@@ -566,9 +509,7 @@ internal struct MOUSEINPUT
     public IntPtr ExtraInfo;
 }
 
-#pragma warning restore CS0649
-
-public enum InputType : uint
+internal enum InputType : uint
 {
     Mouse = 0, // Mouse event
     Keyboard = 1, // Keyboard event
@@ -576,7 +517,7 @@ public enum InputType : uint
 }
 
 [Flags]
-public enum KeyboardFlag : uint
+internal enum KeyboardFlag : uint
 {
     KeyDown = 0x00, // key down
     ExtendedKey = 0x01, // extended key
@@ -585,7 +526,7 @@ public enum KeyboardFlag : uint
     ScanCode = 0x08, // scancode
 }
 
-public enum VirtualKeyCode
+internal enum VirtualKeyCode
 { // UInt16
     LBUTTON = 0x01,
     RBUTTON = 0x02,
@@ -763,14 +704,14 @@ public enum VirtualKeyCode
 }
 
 [FlagsAttribute]
-public enum EXECUTION_STATE : uint
+internal enum EXECUTION_STATE : uint
 {
     ES_SYSTEM_REQUIRED = 0x00000001,
     ES_DISPLAY_REQUIRED = 0x00000002,
     ES_CONTINUOUS = 0x80000000,
 }
 
-public enum ExitWindows : uint
+internal enum ExitWindows : uint
 {
     EWX_LOGOFF = 0x00,
     EWX_SHUTDOWN = 0x01,
