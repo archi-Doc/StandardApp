@@ -4,7 +4,7 @@ using Arc.WinUI;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
-namespace StandardWinUI.State;
+namespace StandardWinUI.States;
 
 public partial class SimpleState : StateObject
 {

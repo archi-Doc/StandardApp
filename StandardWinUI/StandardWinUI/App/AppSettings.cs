@@ -13,18 +13,18 @@ public partial class AppSettings : ITinyhandSerializationCallback
 
     public string Culture { get; set; } = string.Empty;
 
-    public double DisplayScaling { get; set; } = 1.0d;
+    public double ViewScale { get; set; } = 1.0d;
 
     // public TestItem.GoshujinClass TestItems { get; set; } = default!;
 
     public void OnAfterDeserialize()
     {
-        Presentation.ViewScale = this.DisplayScaling;
+        Presentation.ViewScale = this.ViewScale;
     }
 
     public void OnBeforeSerialize()
     {
-        this.DisplayScaling = Presentation.ViewScale;
+        this.ViewScale = Presentation.ViewScale;
     }
 
     public void OnAfterReconstruct()

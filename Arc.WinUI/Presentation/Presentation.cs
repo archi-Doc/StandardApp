@@ -41,7 +41,7 @@ public static class Presentation
         }
     }
 
-    public static void Refresh()
+    public static void RefreshViewScale()
     {
         List<IntPtr>? toRemove = default;
 

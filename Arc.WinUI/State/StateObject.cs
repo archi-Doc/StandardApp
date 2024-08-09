@@ -55,7 +55,7 @@ public abstract class StateObject : ObservableObject
         {
             if (element.TryGetWindow(out var window) &&
                 window is TPresentationService windowService)
-            {// Since I couldn't retrieve the Window instance holding the UIElement, I'm resorting to a roundabout method. Can someone suggest a better way?
+            {// Since we couldn't retrieve the Window instance holding the UIElement, we're using a workaround. Does anyone have a better solution?
                 return windowService;
             }
         }

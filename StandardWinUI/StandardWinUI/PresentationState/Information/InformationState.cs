@@ -2,7 +2,7 @@
 
 using Arc.WinUI;
 
-namespace StandardWinUI.State;
+namespace StandardWinUI.States;
 
 public partial class InformationState : StateObject
 {

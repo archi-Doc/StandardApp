@@ -7,7 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
-namespace StandardWinUI.State;
+namespace StandardWinUI.States;
 
 public partial class SettingsState : StateObject
 {

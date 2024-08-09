@@ -155,42 +155,9 @@ public class FormatExtension : IMarkupExtension<BindingBase>
     private IList<BindingBase>? bindings;
 }*/
 
-public class GCCountChecker
-{ // カウンタ付きガーベージコレクション差分チェック。カウンタが一定以上になった場合、ガーベージコレクションのカウンタをチェックし、カウンタが変更されていたら、trueを返す。
-    public GCCountChecker(int maxCount = 0)
-    {// maxCount毎にガーベージコレクションのカウンタをチェックする。
-        this.Count = 0;
-        this.MaxCount = maxCount;
-        this.PreviousCount = 0;
-    }
-
-    public int Count { get; private set; } // カウント
-
-    public int MaxCount { get; } // カウント上限
-
-    private int PreviousCount { get; set; } // ガーベージコレクションの前回のカウンタ
-
-    public bool Check()
-    { // カウンタが一定以上になった場合、ガーベージコレクションのカウンタをチェックし、カウンタが変更されていたら、trueを返す。
-        this.Count++;
-        if (this.Count >= this.MaxCount)
-        {
-            this.Count = 0;
-            int x = GC.CollectionCount(0);
-            if (x != this.PreviousCount)
-            {
-                this.PreviousCount = x;
-                return true;
-            }
-        }
-
-        return false;
-    }
-}
-
 public static class C4
 {
-    private static object syncObject = new object(); // 同期オブジェクト
+    private static object syncObject = new();
     private static LinkedList<ExtensionObject> extensionObjects = new LinkedList<ExtensionObject>();
     private static GCCountChecker extensionObjectChecker = new GCCountChecker(16); // 16回に1回の頻度でチェック（使用されなくなったオブジェクトを解放する）。
 

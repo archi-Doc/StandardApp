@@ -4,8 +4,8 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using SimpleCommandLine;
-using StandardWinUI.Presentation;
-using StandardWinUI.State;
+using StandardWinUI.Presentations;
+using StandardWinUI.States;
 
 namespace StandardWinUI;
 

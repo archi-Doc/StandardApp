@@ -4,10 +4,10 @@ using Arc.WinUI;
 using CommunityToolkit.WinUI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
-using StandardWinUI.State;
+using StandardWinUI.States;
 using WinUIEx;
 
-namespace StandardWinUI.Presentation;
+namespace StandardWinUI.Presentations;
 
 /// <summary>
 /// An empty window that can be used on its own or navigated to within a Frame.
@@ -61,15 +61,15 @@ public sealed partial class SimpleWindow : WinUIEx.WindowEx
     {
         // this.myButton.Content = "Clicked";
 
-        Transformer.ViewScale *= 1.2;
-        Transformer.Refresh();
+        Presentation.ViewScale *= 1.2;
+        Presentation.RefreshViewScale();
     }
 
     private async void myButton_Click2(object sender, RoutedEventArgs e)
     {
         // this.myButton.Content = "Clicked2";
 
-        Transformer.ViewScale *= 0.9;
-        Transformer.Refresh();
+        Presentation.ViewScale *= 0.9;
+        Presentation.RefreshViewScale();
     }
 }

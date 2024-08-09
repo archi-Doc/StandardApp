@@ -1,9 +1,9 @@
 // Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using Microsoft.UI.Xaml.Controls;
-using StandardWinUI.State;
+using StandardWinUI.States;
 
-namespace StandardWinUI.Presentation;
+namespace StandardWinUI.Presentations;
 
 public sealed partial class HomePage : Page
 {
