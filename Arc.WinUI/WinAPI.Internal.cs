@@ -17,14 +17,14 @@ using Arc.WinUI;
 
 namespace Arc.Internal;
 
-public enum ImageType
+internal enum ImageType
 {
     Bitmap,
     Icon,
     Cursor,
 }
 
-public partial class Methods
+internal partial class Methods
 {
     [DllImport("user32.dll")]
     public static extern bool SetWindowPlacement(IntPtr hWnd, [In] ref WINDOWPLACEMENT lpwndpl);
