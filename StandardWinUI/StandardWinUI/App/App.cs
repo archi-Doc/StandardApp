@@ -39,6 +39,7 @@ public static class LanguageList
     private const string LanguageFile = "Resources.Strings.String-{0}.tinyhand";
     private static object syncObject = new();
     private static Item[] items = [];
+    private static Arc.Crypto.Utf16Hashtable<string> table = new()
 
     public static Item[] GetArray() => items;
 
