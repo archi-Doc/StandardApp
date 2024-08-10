@@ -71,6 +71,12 @@ public partial class NaviWindow : WindowEx, IMessageDialog
                 // this.contentFrame.Navigate(typeof(HomePage), null, new SuppressNavigationTransitionInfo());
                 this.contentFrame.Navigate(typeof(HomePage));
                 break;
+            case "Presentation":
+                this.contentFrame.Navigate(typeof(PresentationPage));
+                break;
+            case "State":
+                this.contentFrame.Navigate(typeof(StatePage));
+                break;
             case "Settings":
                 this.contentFrame.Navigate(typeof(SettingsPage));
                 break;

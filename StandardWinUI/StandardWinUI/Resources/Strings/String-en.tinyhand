@@ -10,10 +10,17 @@ App = {
 }
 
 Navigation = {
-    Home = "Home"
+    Home = "1. Home"
+    Presentation = "2. Presentation"
+    State = "3. State"
     Settings = "Settings"
     Information = "Information"
     Exit = "Exit"
+}
+
+Presentation = {
+    Enter = "Enter the number:"
+    Button = "Baibain"
 }
 
 // dialog
