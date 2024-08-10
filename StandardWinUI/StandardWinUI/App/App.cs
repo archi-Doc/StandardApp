@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using Arc.WinUI;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
+using System.Linq;
 
 namespace StandardWinUI;
 
@@ -35,16 +36,66 @@ public static class LanguageList
 
     public record struct Item(string Language, string Identifier);
 
+    private const string LanguageFile = "Resources.Strings.String-{0}.tinyhand";
+    private static object syncObject = new();
     private static Item[] items = [];
 
     public static Item[] GetArray() => items;
 
-    public static void Add(string language, string identifier)
+    public static bool TryAdd(string language, string identifier)
     {
+        lock (syncObject)
+        {
+            if (items.Any(x => x.Language == language))
+            {
+                return false;
+            }
+
+            Array.Resize(ref items, items.Length + 1);
+            items[^1] = new(language, identifier);
+            return true;
+        }
     }
 
-    public static string TryGetIdentifier(string language, out string identifier)
+    public static bool TryGetIdentifier(string language, out string identifier)
     {
+        var array = GetArray();
+        foreach (var x in array)
+        {
+            if (x.Language == language)
+            {
+                identifier = x.Identifier;
+                return true;
+            }
+        }
+
+        identifier = string.Empty;
+        return false;
+    }
+
+    public static bool TryGetLanguage(string identifier, out string language)
+    {
+        var array = GetArray();
+        foreach (var x in array)
+        {
+            if (x.Identifier == identifier)
+            {
+                language = x.Language;
+                return true;
+            }
+        }
+
+        language = string.Empty;
+        return false;
+    }
+
+    public static void LoadFromLanguageList(Assembly asm)
+    {
+        var array = LanguageList.GetArray();
+        foreach (var x in array)
+        {
+            HashedString.LoadAssembly(x.Language, asm, "Resources.Strings.String-en.tinyhand");
+        }
     }
 }
 
@@ -64,9 +115,12 @@ public static partial class App
         try
         {
             HashedString.SetDefaultCulture(DefaultCulture); // default culture
+            LanguageList.TryAdd("en", "Language.En");
+            LanguageList.TryAdd("ja", "Language.Ja");
 
             var asm = Assembly.GetExecutingAssembly();
             HashedString.LoadAssembly("en", asm, "Resources.Strings.License.tinyhand"); // license
+            HashedString.LoadFromLanguageList();
             HashedString.LoadAssembly("en", asm, "Resources.Strings.String-en.tinyhand");
             HashedString.LoadAssembly("ja", asm, "Resources.Strings.String-ja.tinyhand");
         }
