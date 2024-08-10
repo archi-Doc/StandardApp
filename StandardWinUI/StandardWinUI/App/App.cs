@@ -27,6 +27,27 @@ namespace StandardWinUI;
 
 #if DISABLE_XAML_GENERATED_MAIN
 
+public static class LanguageList
+{// language: en, identifier: Language.En, text: English
+    static LanguageList()
+    {
+    }
+
+    public record struct Item(string Language, string Identifier);
+
+    private static Item[] items = [];
+
+    public static Item[] GetArray() => items;
+
+    public static void Add(string language, string identifier)
+    {
+    }
+
+    public static string TryGetIdentifier(string language, out string identifier)
+    {
+    }
+}
+
 public static partial class App
 { // TODO: Rename 'StandardWinUI' and modify the app-specific constants, icons and images.
     public const string MutexName = "Arc.StandardWinUI"; // The name of the mutex used to prevent multiple instances of the application. Specify 'string.Empty' to allow multiple instances.

@@ -10,10 +10,17 @@ App = {
 }
 
 Navigation = {
-    Home = "ホーム"
+    Home = "1. Home"
+    Presentation = "2. Presentation"
+    State = "3. State"
     Settings = "設定"
     Information = "情報"
     Exit = "終了"
+}
+
+Presentation = {
+    Enter = "数字を入力してください:"
+    Button = "バイバイン"
 }
 
 // dialog

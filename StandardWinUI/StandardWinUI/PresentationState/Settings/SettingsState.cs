@@ -36,10 +36,10 @@ public partial class SettingsState : StateObject
             App.Settings.Culture = "ja";
         }
 
-        HashedString.ChangeCulture(App.Settings.Culture);
-        Arc.WinUI.Presentation.RefreshC4();
+        // HashedString.ChangeCulture(App.Settings.Culture);
+        // Arc.WinUI.Presentation.RefreshC4();
 
-        this.GetPresentationService<IMessageDialog>().Show(Hashed.App.Name, Hashed.App.Description);
+        // this.GetPresentationService<IMessageDialog>().Show(Hashed.App.Name, Hashed.App.Description);
     }
 
     [RelayCommand]

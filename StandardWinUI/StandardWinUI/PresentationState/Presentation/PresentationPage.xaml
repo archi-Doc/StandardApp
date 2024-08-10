@@ -15,7 +15,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="{Arc:C4 Source=Presentation.Enter}" />
+        <TextBlock Grid.Row="0" Text="{Arc:C4 Source=Presentation.Enter}" Margin="10" />
         <StackPanel Grid.Row="1" Orientation="Horizontal">
             <TextBox x:Name="textBox1" PlaceholderText="Number" Width="120" Margin="10" />
             <Button Content="{Arc:C4 Source=Presentation.Button}" Click="Button_Click" Margin="10" />
