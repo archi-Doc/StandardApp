@@ -15,14 +15,13 @@ public sealed partial class SettingsPage : Page
         this.State = App.GetStateObject<SettingsState>(this);
 
         // language: en, key: Language.En, text: English
-        this.AddLanguage("en", "Language.En");
-        this.AddLanguage("ja", "Language.Ja");
+        foreach (var x in LanguageList.LanguageToIdentifier)
+        {
+            this.AddLanguage(x.Key, x.Value);
+        }
     }
 
     public SettingsState State { get; }
-
-    private Dictionary<string, string> languageToName = new();
-    private Dictionary<string, string> nameToLanguage = new();
 
     private void AddLanguage(string language, string key)
     {
@@ -42,8 +41,5 @@ public sealed partial class SettingsPage : Page
 
         Stringer.Register(item, MenuFlyoutItem.TextProperty, key);
         this.menuLanguage.Items.Add(item);
-
-        this.languageToName[language] = text;
-        this.languageToName[text] = language;
     }
 }

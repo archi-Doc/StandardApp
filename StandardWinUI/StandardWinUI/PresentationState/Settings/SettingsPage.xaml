@@ -25,11 +25,9 @@
         <Button Grid.Row="0" Grid.Column="1" Content="{Arc:Stringer Source=Settings.Open}" VerticalAlignment="Center" Command="{x:Bind State.OpenDataDirectoryCommand}" />
 
         <TextBlock Grid.Row="1" Grid.Column="0" Text="{Arc:Stringer Source=Settings.Language}" Padding="10" />
-        <DropDownButton x:Name="dropdownLanguage" Grid.Row="1" Grid.Column="1" Content="{x:Bind State.Language, Mode=TwoWay}">
+        <DropDownButton x:Name="dropdownLanguage" Grid.Row="1" Grid.Column="1" Content="{x:Bind State.LanguageText, Mode=TwoWay}">
             <DropDownButton.Flyout>
                 <MenuFlyout x:Name="menuLanguage" Placement="Bottom">
-                    <MenuFlyoutItem Text="Send"/>
-                    <MenuFlyoutItem Text="{Arc:Stringer Source=Settings.Language}"/>
                 </MenuFlyout>
             </DropDownButton.Flyout>
         </DropDownButton>

@@ -1,11 +1,8 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
-using System.Collections.Generic;
 using Arc.WinUI;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 
 namespace StandardWinUI.States;
 
@@ -13,7 +10,15 @@ public partial class SettingsState : StateObject
 {
     public SettingsState()
     {
-        this.Language = App.Settings.Culture;
+        this.SetLanguageText();
+    }
+
+    private void SetLanguageText()
+    {
+        if (LanguageList.LanguageToIdentifier.TryGetValue(App.Settings.Culture, out var identifier))
+        {
+            this.LanguageText = HashedString.GetOrEmpty(identifier);
+        }
     }
 
     [RelayCommand]
@@ -27,7 +32,7 @@ public partial class SettingsState : StateObject
         {
         }
 
-        if (App.Settings.Culture == "ja")
+        /*if (App.Settings.Culture == "ja")
         {
             App.Settings.Culture = "en";
         }
@@ -36,8 +41,8 @@ public partial class SettingsState : StateObject
             App.Settings.Culture = "ja";
         }
 
-        // HashedString.ChangeCulture(App.Settings.Culture);
-        // Arc.WinUI.Presentation.RefreshStringer();
+        HashedString.ChangeCulture(App.Settings.Culture);
+        Arc.WinUI.Stringer.Refresh();*/
 
         // this.GetPresentationService<IMessageDialog>().Show(Hashed.App.Name, Hashed.App.Description);
     }
@@ -53,10 +58,9 @@ public partial class SettingsState : StateObject
         App.Settings.Culture = language;
         HashedString.ChangeCulture(App.Settings.Culture);
         Arc.WinUI.Stringer.Refresh();
-
-        this.Language = HashedString.GetOrEmpty(language);
+        this.SetLanguageText();
     }
 
     [ObservableProperty]
-    private string language = string.Empty;
+    private string languageText = string.Empty;
 }

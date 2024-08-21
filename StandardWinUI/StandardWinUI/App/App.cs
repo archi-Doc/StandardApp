@@ -45,8 +45,8 @@ public static partial class App
         try
         {
             HashedString.SetDefaultCulture(DefaultCulture); // default culture
-            LanguageList.TryAdd("en", "Language.En");
-            LanguageList.TryAdd("ja", "Language.Ja");
+            LanguageList.Add("en", "Language.En");
+            LanguageList.Add("ja", "Language.Ja");
 
             var asm = Assembly.GetExecutingAssembly();
             LanguageList.LoadHashedString(asm);
