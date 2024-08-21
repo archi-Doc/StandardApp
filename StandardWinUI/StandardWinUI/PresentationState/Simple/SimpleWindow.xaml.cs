@@ -18,7 +18,7 @@ public sealed partial class SimpleWindow : WinUIEx.WindowEx
     {
         this.InitializeComponent();
         this.InitializeWindow();
-        this.State = App.GetStateObject<SimpleState>(this);
+        this.State = App.GetService<SimpleState>();
         this.Title = App.Title;
         this.SetApplicationIcon();
         // this.RemoveIcon();

@@ -12,7 +12,7 @@ public sealed partial class SettingsPage : Page
     public SettingsPage()
     {
         this.InitializeComponent();
-        this.State = App.GetStateObject<SettingsState>(this);
+        this.State = App.GetService<SettingsState>();
 
         // language: en, key: Language.En, text: English
         foreach (var x in LanguageList.LanguageToIdentifier)

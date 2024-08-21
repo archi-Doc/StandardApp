@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml;
 
 namespace Arc.WinUI;
 
+/*
 /// <summary>
 /// Represents a base class for state objects.
 /// </summary>
@@ -61,27 +62,5 @@ public abstract class StateObject : ObservableObject
         }
 
         throw new InvalidOperationException($"'{this.presentationObject.GetType().Name}' and its parents do not implement '{typeof(TPresentationService).Name}'");
-
-        /*var obj = this.presentationObject;
-        while (true)
-        {
-            if (obj is TPresentationService service2)
-            {
-                return service2;
-            }
-            else if (obj is FrameworkElement frameworkElement)
-            {
-                obj = frameworkElement.Parent;
-            }
-            else
-            {
-                obj = null;
-            }
-
-            if (obj is null)
-            {
-                throw new InvalidOperationException($"'{this.presentationObject.GetType().Name}' and its parents do not implement '{typeof(TPresentationService).Name}'");
-            }
-        }*/
     }
-}
+}*/

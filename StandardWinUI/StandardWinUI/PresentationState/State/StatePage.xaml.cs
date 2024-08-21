@@ -10,7 +10,7 @@ public sealed partial class StatePage : Page
     public StatePage()
     {
         this.InitializeComponent();
-        this.State = App.GetStateObject<StatePageState>(this);
+        this.State = App.GetService<StatePageState>();
     }
 
     public StatePageState State { get; }

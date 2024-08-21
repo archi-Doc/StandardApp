@@ -2,6 +2,7 @@
 
 using System.Threading.Tasks;
 using Arc.WinUI;
+using CrossChannel;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -32,9 +33,10 @@ public partial class NaviWindow : WindowEx, IMessageDialog
 
     #endregion
 
-    Task<ulong> IMessageDialog.Show(ulong title, ulong content, ulong defaultCommand, ulong cancelCommand, ulong secondaryCommand)
+    RadioResult<Task<ulong>> IMessageDialog.Show(ulong title, ulong content, ulong defaultCommand, ulong cancelCommand, ulong secondaryCommand)
     {
-        return this.ShowMessageDialogAsync(title, content, defaultCommand, cancelCommand, secondaryCommand);
+        // return this.ShowMessageDialogAsync(title, content, defaultCommand, cancelCommand, secondaryCommand);
+        throw new NotImplementedException();
     }
 
     private async void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)

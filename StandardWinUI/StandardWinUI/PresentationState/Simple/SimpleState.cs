@@ -6,7 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace StandardWinUI.States;
 
-public partial class SimpleState : StateObject
+public partial class SimpleState : ObservableObject
 {
     public SimpleState(AppSettings appSettings)
     {

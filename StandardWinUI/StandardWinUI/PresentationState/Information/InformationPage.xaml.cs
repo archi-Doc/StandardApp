@@ -13,7 +13,7 @@ public sealed partial class InformationPage : Page
     public InformationPage()
     {
         this.InitializeComponent();
-        this.State = App.GetStateObject<InformationState>(this);
+        this.State = App.GetService<InformationState>();
 
         var titleRun = new Run();
         titleRun.Text = App.Title;

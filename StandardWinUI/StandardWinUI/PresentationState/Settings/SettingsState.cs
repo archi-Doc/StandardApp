@@ -6,7 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace StandardWinUI.States;
 
-public partial class SettingsState : StateObject
+public partial class SettingsState : ObservableObject
 {
     public SettingsState()
     {

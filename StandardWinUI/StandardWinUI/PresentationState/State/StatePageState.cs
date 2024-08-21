@@ -4,7 +4,7 @@ using Arc.WinUI;
 
 namespace StandardWinUI.States;
 
-public partial class StatePageState : StateObject
+public partial class StatePageState
 {
     public StatePageState()
     {

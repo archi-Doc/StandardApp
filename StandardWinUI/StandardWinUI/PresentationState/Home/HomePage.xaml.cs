@@ -10,7 +10,7 @@ public sealed partial class HomePage : Page
     public HomePage()
     {
         this.InitializeComponent();
-        this.State = App.GetStateObject<HomeState>(this);
+        this.State = App.GetService<HomeState>();
     }
 
     public HomeState State { get; }

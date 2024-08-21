@@ -10,7 +10,7 @@ using Microsoft.UI.Xaml.Media;
 
 namespace Arc.WinUI;
 
-public static class Presentation
+/*public static class Presentation
 {
     private static object syncWindows = new();
     private static List<WeakReference<Window>> windows = new();
@@ -72,4 +72,4 @@ public static class Presentation
     }
 
     #endregion
-}
+}*/
