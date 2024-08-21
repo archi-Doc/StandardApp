@@ -32,7 +32,7 @@ public static class Stringer
     /// </summary>
     public static void Refresh()
     {
-        GC.Collect();
+        // GC.Collect();
         lock (syncStringerObject)
         {
             foreach (var x in stringerObjects)
