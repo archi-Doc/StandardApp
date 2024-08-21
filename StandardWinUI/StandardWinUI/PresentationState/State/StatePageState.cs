@@ -1,12 +1,40 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
+using System.Threading.Tasks;
 using Arc.WinUI;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Microsoft.UI.Xaml.Controls;
 
 namespace StandardWinUI.States;
 
-public partial class StatePageState
+public partial class StatePageState : ObservableObject
 {
-    public StatePageState()
+    private readonly ISimpleWindowService simpleWindowService;
+
+    [ObservableProperty]
+    private string sourceText = string.Empty;
+
+    [ObservableProperty]
+    private string destinationText = string.Empty;
+
+    public StatePageState(ISimpleWindowService simpleWindowService)
     {
+        this.simpleWindowService = simpleWindowService;
+    }
+
+    [RelayCommand]
+    private void Baibain()
+    {
+        if (int.TryParse(this.SourceText, out int value))
+        {
+            this.DestinationText = (value * 3).ToString();
+        }
+    }
+
+    [RelayCommand]
+    private async Task Exit()
+    {
+        await this.simpleWindowService.Exit();
     }
 }

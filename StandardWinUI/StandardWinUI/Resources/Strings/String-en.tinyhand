@@ -23,6 +23,12 @@ Presentation = {
     Button = "Baibain"
 }
 
+State = {
+    Enter = "Enter the number:"
+    Button = "3Baibain"
+    ExitButton = "Exit"
+}
+
 // dialog
 Dialog =
 {

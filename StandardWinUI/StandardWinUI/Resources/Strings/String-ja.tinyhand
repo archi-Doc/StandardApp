@@ -23,6 +23,12 @@ Presentation = {
     Button = "バイバイン"
 }
 
+State = {
+    Enter = "数字を入力してください:"
+    Button = "3バイバイン"
+    ExitButton = "終了"
+}
+
 // dialog
 Dialog = 
 {

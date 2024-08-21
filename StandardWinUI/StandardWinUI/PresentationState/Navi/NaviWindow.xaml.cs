@@ -13,10 +13,11 @@ namespace StandardWinUI.Presentations;
 
 public partial class NaviWindow : WindowEx, ISimpleWindowService
 {
-    public NaviWindow()
+    public NaviWindow(IChannel<ISimpleWindowService> simpleWindowChannel)
     {
         this.InitializeComponent();
         this.InitializeWindow();
+        simpleWindowChannel.Open(this, true);
 
         this.Title = App.Title;
         this.SetApplicationIcon();

@@ -3,6 +3,7 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using CrossChannel;
 using SimpleCommandLine;
 using StandardWinUI.Presentations;
 using StandardWinUI.States;
@@ -22,6 +23,9 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
                 context.AddSingleton<AppUnit>();
                 context.AddSingleton<AppClass>();
                 // context.CreateInstance<AppUnit>();
+
+                // CrossChannel
+                context.Services.AddCrossChannel();
 
                 // Views and ViewModels
                 context.AddTransient<SimpleWindow>();
