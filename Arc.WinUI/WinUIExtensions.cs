@@ -13,6 +13,7 @@ namespace Arc.WinUI;
 public static class WinUIExtensions
 {
     private const string OkString = "OK";
+    private const string CancelString = "Cancel";
 
     public static async Task<ulong> ShowMessageDialogAsync(this Window window, ulong title, ulong content, ulong defaultCommand = 0, ulong cancelCommand = 0, ulong secondaryCommand = 0)
     {
@@ -32,7 +33,7 @@ public static class WinUIExtensions
 
         if (defaultCommand != 0)
         {
-            dialog.PrimaryButtonText = HashedString.Get(defaultCommand);
+            dialog.PrimaryButtonText = HashedString.GetOrAlternative(defaultCommand, OkString);
         }
         else
         {
@@ -46,7 +47,7 @@ public static class WinUIExtensions
 
         if (cancelCommand != 0)
         {
-            dialog.CloseButtonText = HashedString.Get(cancelCommand);
+            dialog.CloseButtonText = HashedString.GetOrAlternative(cancelCommand, CancelString);
         }
 
         var dialogTask = dialog.ShowAsync(ContentDialogPlacement.InPlace);

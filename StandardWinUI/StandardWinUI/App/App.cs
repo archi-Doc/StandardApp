@@ -23,82 +23,11 @@ using Arc.WinUI;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 
 namespace StandardWinUI;
 
 #if DISABLE_XAML_GENERATED_MAIN
-
-public static class LanguageList
-{// language: en, identifier: Language.En, text: English
-    static LanguageList()
-    {
-    }
-
-    public record struct Item(string Language, string Identifier);
-
-    private const string LanguageFile = "Resources.Strings.String-{0}.tinyhand";
-    private static object syncObject = new();
-    private static Item[] items = [];
-    private static Arc.Crypto.Utf16Hashtable<string> table = new()
-
-    public static Item[] GetArray() => items;
-
-    public static bool TryAdd(string language, string identifier)
-    {
-        lock (syncObject)
-        {
-            if (items.Any(x => x.Language == language))
-            {
-                return false;
-            }
-
-            Array.Resize(ref items, items.Length + 1);
-            items[^1] = new(language, identifier);
-            return true;
-        }
-    }
-
-    public static bool TryGetIdentifier(string language, out string identifier)
-    {
-        var array = GetArray();
-        foreach (var x in array)
-        {
-            if (x.Language == language)
-            {
-                identifier = x.Identifier;
-                return true;
-            }
-        }
-
-        identifier = string.Empty;
-        return false;
-    }
-
-    public static bool TryGetLanguage(string identifier, out string language)
-    {
-        var array = GetArray();
-        foreach (var x in array)
-        {
-            if (x.Identifier == identifier)
-            {
-                language = x.Language;
-                return true;
-            }
-        }
-
-        language = string.Empty;
-        return false;
-    }
-
-    public static void LoadFromLanguageList(Assembly asm)
-    {
-        var array = LanguageList.GetArray();
-        foreach (var x in array)
-        {
-            HashedString.LoadAssembly(x.Language, asm, "Resources.Strings.String-en.tinyhand");
-        }
-    }
-}
 
 public static partial class App
 { // TODO: Rename 'StandardWinUI' and modify the app-specific constants, icons and images.
@@ -120,10 +49,8 @@ public static partial class App
             LanguageList.TryAdd("ja", "Language.Ja");
 
             var asm = Assembly.GetExecutingAssembly();
+            LanguageList.LoadHashedString(asm);
             HashedString.LoadAssembly("en", asm, "Resources.Strings.License.tinyhand"); // license
-            HashedString.LoadFromLanguageList();
-            HashedString.LoadAssembly("en", asm, "Resources.Strings.String-en.tinyhand");
-            HashedString.LoadAssembly("ja", asm, "Resources.Strings.String-ja.tinyhand");
         }
         catch
         {
@@ -180,6 +107,8 @@ public static partial class App
     /// Gets the options for the application.
     /// </summary>
     public static AppOptions Options { get; private set; } = default!;
+
+    public static bool IsUiThread => uiDispatcherQueue.HasThreadAccess;
 
     private static Mutex? appMutex = string.IsNullOrEmpty(MutexName) ? default : new(false, MutexName);
     private static DispatcherQueue uiDispatcherQueue = default!;
