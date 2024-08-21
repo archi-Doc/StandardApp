@@ -42,6 +42,8 @@ public static class Scaler
         }
     }
 
+    public static string ScaleToText(double scale) => $"{scale * 100:0}%";
+
     /// <summary>
     /// Initializes the presentation for the specified window.
     /// </summary>

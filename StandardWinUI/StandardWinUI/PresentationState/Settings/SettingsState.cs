@@ -11,6 +11,7 @@ public partial class SettingsState : StateObject
     public SettingsState()
     {
         this.SetLanguageText();
+        this.SetScalingText();
     }
 
     private void SetLanguageText()
@@ -19,6 +20,11 @@ public partial class SettingsState : StateObject
         {
             this.LanguageText = HashedString.GetOrEmpty(identifier);
         }
+    }
+
+    private void SetScalingText()
+    {
+        this.ScalingText = Scaler.ScaleToText(Scaler.ViewScale);
     }
 
     [RelayCommand]
@@ -59,6 +65,19 @@ public partial class SettingsState : StateObject
         HashedString.ChangeCulture(App.Settings.Culture);
         Arc.WinUI.Stringer.Refresh();
         this.SetLanguageText();
+    }
+
+    [RelayCommand]
+    private void SelectScaling(double scaling)
+    {
+        if (Scaler.ViewScale == scaling)
+        {
+            return;
+        }
+
+        Scaler.ViewScale = scaling;
+        Scaler.Refresh();
+        this.SetScalingText();
     }
 
     [ObservableProperty]
