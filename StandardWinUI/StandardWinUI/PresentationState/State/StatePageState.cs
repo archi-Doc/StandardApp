@@ -10,7 +10,7 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace StandardWinUI.States;
 
-public partial class StatePageState : ObservableObject, IUnitSerializable
+public partial class StatePageState : ObservableObject
 {
     private readonly ISimpleWindowService simpleWindowService;
 
@@ -20,10 +20,17 @@ public partial class StatePageState : ObservableObject, IUnitSerializable
     [ObservableProperty]
     private string destinationText = string.Empty;
 
-    public StatePageState(ISimpleWindowService simpleWindowService, IChannel<IUnitSerializable> serializableChannel)
+    partial void OnSourceTextChanged(string value)
+    {
+        if (int.TryParse(value, out int v))
+        {
+            App.Settings.Baibai = v;
+        }
+    }
+
+    public StatePageState(ISimpleWindowService simpleWindowService)
     {
         this.simpleWindowService = simpleWindowService;
-        serializableChannel.Open(this, true);
 
         this.SourceText = App.Settings.Baibai.ToString();
     }
@@ -34,7 +41,6 @@ public partial class StatePageState : ObservableObject, IUnitSerializable
         if (int.TryParse(this.SourceText, out int value))
         {
             this.DestinationText = (value * 3).ToString();
-            App.Settings.Baibai = value;
         }
     }
 
@@ -45,15 +51,5 @@ public partial class StatePageState : ObservableObject, IUnitSerializable
         cts.CancelAfter(3000);
 
         await this.simpleWindowService.Exit(false, cts.Token);
-    }
-
-    Task IUnitSerializable.LoadAsync(UnitMessage.LoadAsync message, CancellationToken cancellationToken)
-    {
-        return Task.CompletedTask;
-    }
-
-    Task IUnitSerializable.SaveAsync(UnitMessage.SaveAsync message, CancellationToken cancellationToken)
-    {
-        return Task.CompletedTask;
     }
 }
