@@ -36,7 +36,7 @@ public class C4Extension : MarkupExtension
 
             if (target.TargetProperty is not null)
             { // Add ExtensionObject (used in C4Update).
-                Presentation.RegisterC4(target.TargetObject, target.TargetProperty, this.Source);
+                Stringer.Register(target.TargetObject, target.TargetProperty, this.Source);
             }
         }
 
@@ -65,7 +65,7 @@ public class C4BindingSource : INotifyPropertyChanged
     public C4BindingSource(string key)
     {
         this.key = key;
-        Presentation.RegisterC4(this, null, string.Empty);
+        Stringer.Register(this, null, string.Empty);
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

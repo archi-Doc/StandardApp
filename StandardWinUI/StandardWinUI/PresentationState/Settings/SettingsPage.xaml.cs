@@ -40,7 +40,7 @@ public sealed partial class SettingsPage : Page
             CommandParameter = language,
         };
 
-        Presentation.RegisterC4(item, MenuFlyoutItem.TextProperty, key);
+        Stringer.Register(item, MenuFlyoutItem.TextProperty, key);
         this.menuLanguage.Items.Add(item);
 
         this.languageToName[language] = text;

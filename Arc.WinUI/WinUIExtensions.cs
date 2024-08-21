@@ -24,7 +24,7 @@ public static class WinUIExtensions
         }
 
         var textBlock = new TextBlock() { Text = HashedString.Get(content), TextWrapping = TextWrapping.Wrap, };
-        textBlock.FontSize *= Presentation.ViewScale;
+        textBlock.FontSize *= Scaler.ViewScale;
         dialog.Content = textBlock;
         if (title != 0)
         {

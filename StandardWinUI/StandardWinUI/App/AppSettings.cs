@@ -19,12 +19,12 @@ public partial class AppSettings : ITinyhandSerializationCallback
 
     public void OnAfterDeserialize()
     {
-        Presentation.ViewScale = this.ViewScale;
+        Scaler.ViewScale = this.ViewScale;
     }
 
     public void OnBeforeSerialize()
     {
-        this.ViewScale = Presentation.ViewScale;
+        this.ViewScale = Scaler.ViewScale;
     }
 
     public void OnAfterReconstruct()

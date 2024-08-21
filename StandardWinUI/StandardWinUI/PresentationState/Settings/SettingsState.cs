@@ -52,7 +52,7 @@ public partial class SettingsState : StateObject
 
         App.Settings.Culture = language;
         HashedString.ChangeCulture(App.Settings.Culture);
-        Arc.WinUI.Presentation.RefreshC4();
+        Arc.WinUI.Stringer.Refresh();
 
         this.Language = HashedString.GetOrEmpty(language);
     }

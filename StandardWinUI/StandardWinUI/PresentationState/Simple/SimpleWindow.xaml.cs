@@ -61,15 +61,15 @@ public sealed partial class SimpleWindow : WinUIEx.WindowEx
     {
         // this.myButton.Content = "Clicked";
 
-        Presentation.ViewScale *= 1.2;
-        Presentation.RefreshViewScale();
+        Scaler.ViewScale *= 1.2;
+        Scaler.Refresh();
     }
 
     private async void myButton_Click2(object sender, RoutedEventArgs e)
     {
         // this.myButton.Content = "Clicked2";
 
-        Presentation.ViewScale *= 0.9;
-        Presentation.RefreshViewScale();
+        Scaler.ViewScale *= 0.9;
+        Scaler.Refresh();
     }
 }
