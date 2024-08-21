@@ -1,4 +1,4 @@
-// identifier = "string" /* null: Use the default value. */
+5// identifier = "string" /* null: Use the default value. */
 
 Test1 = "Test1"
 Test2 = "Test2"
@@ -7,6 +7,26 @@ App = {
     Name = "StandardWinUI" // Name
     Description = "description"
     DateTime = "MM/dd H:mm:ss"
+}
+
+Navigation = {
+    Home = "1. Home"
+    Presentation = "2. Presentation"
+    State = "3. State"
+    Settings = "Settings"
+    Information = "Information"
+    Exit = "Exit"
+}
+
+Presentation = {
+    Enter = "Enter the number:"
+    Button = "Baibain"
+}
+
+State = {
+    Enter = "Enter the number:"
+    Button = "3Baibain"
+    ExitButton = "Exit"
 }
 
 // dialog
@@ -22,15 +42,10 @@ Dialog =
 
 // settings
 Settings = {
-Title = "Settings/Info"
-Tab = {
-General = "General"
-Information = "Information"
-}
-Folder = "Settings folder"
-OpenFolder = "Open"
+DataFolder = "Data folder"
+Open = "Open"
 Language = "Language"
-DisplayScaling = "Scaling"
+DisplayScaling = "Display scaling"
 }
 
 // other

@@ -9,6 +9,26 @@ App = {
     DateTime = "MM/dd H:mm:ss"
 }
 
+Navigation = {
+    Home = "1. Home"
+    Presentation = "2. Presentation"
+    State = "3. State"
+    Settings = "設定"
+    Information = "情報"
+    Exit = "終了"
+}
+
+Presentation = {
+    Enter = "数字を入力してください:"
+    Button = "バイバイン"
+}
+
+State = {
+    Enter = "数字を入力してください:"
+    Button = "3バイバイン"
+    ExitButton = "終了"
+}
+
 // dialog
 Dialog = 
 {
@@ -22,15 +42,10 @@ Dialog =
 
 // settings
 Settings = {
-    Title = "設定/情報"
-    Tab = {
-        General = "一般"
-        Information = "情報"
-    }
-    Folder = "設定フォルダ"
-    OpenFolder = "開く"
-    Language = "表示言語"
-    DisplayScaling = "表示倍率"
+DataFolder = "データフォルダ"
+Open = "開く"
+Language = "表示言語"
+DisplayScaling = "表示倍率"
 }
 
 // other

@@ -3,57 +3,92 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using CommunityToolkit.WinUI;
+using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 
 namespace Arc.WinUI;
 
-public class Transformer
+public static class Scaler
 {
-    public static double DisplayScaling { get; set; } = 1.0d;
+    private const string ViewScaleName = "scaler";
 
-    private const string TransformerName = "transformer";
-    private static Dictionary<IntPtr, Item> dictionary = new();
+    public static double ViewScale { get; set; } = 1.0d;
 
-    private record Item(WeakReference ViewboxReference)
+    private static object syncViewItems = new();
+    private static Dictionary<IntPtr, Item> viewItems = new();
+
+    private record Item(WeakReference<Viewbox> ViewboxReference)
     {
         private double previousScale = 1;
 
         public void LoadedEventHandler(object sender, RoutedEventArgs e)
         {
             if (sender is Viewbox viewbox &&
-                this.previousScale != DisplayScaling)
+                this.previousScale != ViewScale)
             {
-                var ratio = DisplayScaling / this.previousScale;
+                var ratio = ViewScale / this.previousScale;
 
                 viewbox.Stretch = Stretch.Uniform;
                 viewbox.Width = viewbox.ActualWidth * ratio;
                 viewbox.Height = viewbox.ActualHeight * ratio;
 
-                this.previousScale = DisplayScaling;
+                this.previousScale = ViewScale;
             }
         }
     }
 
-    public static void Register(Window window)
+    public static string ScaleToText(double scale) => $"{scale * 100:0}%";
+
+    /// <summary>
+    /// Initializes the presentation for the specified window.
+    /// </summary>
+    /// <param name="window">The window to initialize the presentation for.</param>
+    public static void InitializeWindow(this Window window)
     {
+        // Register the window
+        /*lock (syncWindows)
+        {
+            for (var i = 0; i < windows.Count; i++)
+            {
+                var item = windows[i];
+                if (item.TryGetTarget(out var target))
+                {
+                    if (target == window)
+                    {// Found
+                        return;
+                    }
+                }
+                else
+                {
+                    windows.RemoveAt(i);
+                }
+            }
+
+            // Not found
+            windows.Add(new WeakReference<Window>(window));
+        }*/
+
+        // Register the viewbox
         if (window.Content is FrameworkElement element)
         {
             var y = element.FindChild<Viewbox>();
             foreach (var x in element.FindChildren())
             {
                 if (x is Viewbox viewbox &&
-                    viewbox.Name == TransformerName)
+                    viewbox.Name == ViewScaleName)
                 {
-                    lock (dictionary)
+                    lock (syncViewItems)
                     {
                         var handle = WinRT.Interop.WindowNative.GetWindowHandle(window);
-                        if (!dictionary.ContainsKey(handle))
+                        if (!viewItems.ContainsKey(handle))
                         {
                             var item = new Item(new(viewbox));
-                            dictionary[handle] = item;
+                            viewItems[handle] = item;
                             viewbox.Loaded += item.LoadedEventHandler;
                         }
                     }
@@ -66,11 +101,11 @@ public class Transformer
     {
         List<IntPtr>? toRemove = default;
 
-        lock (dictionary)
+        lock (syncViewItems)
         {
-            foreach (var x in dictionary)
+            foreach (var x in viewItems)
             {
-                if (x.Value.ViewboxReference.Target is Viewbox viewbox)
+                if (x.Value.ViewboxReference.TryGetTarget(out var viewbox))
                 {
                     x.Value.LoadedEventHandler(viewbox, default!);
                     viewbox.UpdateLayout();
@@ -86,7 +121,7 @@ public class Transformer
             {
                 foreach (var x in toRemove)
                 {
-                    dictionary.Remove(x);
+                    viewItems.Remove(x);
                 }
             }
         }

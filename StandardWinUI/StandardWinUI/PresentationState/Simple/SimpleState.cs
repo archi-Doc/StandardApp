@@ -1,13 +1,14 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
+using Arc.WinUI;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
-namespace StandardWinUI.ViewModels;
+namespace StandardWinUI.States;
 
-internal partial class MainViewModel : ObservableObject
+public partial class SimpleState : ObservableObject
 {
-    public MainViewModel(AppSettings appSettings)
+    public SimpleState(AppSettings appSettings)
     {
         this.appSettings = appSettings;
     }
@@ -45,6 +46,6 @@ internal partial class MainViewModel : ObservableObject
         }
 
         HashedString.ChangeCulture(this.appSettings.Culture);
-        Arc.WinUI.C4.Refresh();
+        Arc.WinUI.Stringer.Refresh();
     }
 }

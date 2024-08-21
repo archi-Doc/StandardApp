@@ -126,7 +126,7 @@ Released under the MIT license
         {// Change culture
             App.Settings.Culture = this.CurrentCulture;
             HashedString.ChangeCulture(App.Settings.Culture);
-            Arc.WPF.C4Updater.C4Update();
+            Arc.WPF.StringerUpdater.StringerUpdate();
         }
 
         if (App.Settings.DisplayScaling != this.CurrentDisplayScaling)

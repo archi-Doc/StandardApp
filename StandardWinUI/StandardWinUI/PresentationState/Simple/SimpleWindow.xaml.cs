@@ -4,26 +4,27 @@ using Arc.WinUI;
 using CommunityToolkit.WinUI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
-using StandardWinUI.ViewModels;
+using StandardWinUI.States;
 using WinUIEx;
 
-namespace StandardWinUI.Views;
+namespace StandardWinUI.Presentations;
 
 /// <summary>
 /// An empty window that can be used on its own or navigated to within a Frame.
 /// </summary>
-public sealed partial class MainWindow : WinUIEx.WindowEx
+public sealed partial class SimpleWindow : WinUIEx.WindowEx
 {
-    public MainWindow()
+    public SimpleWindow()
     {
         this.InitializeComponent();
-        this.ViewModel = App.GetService<MainViewModel>();
-        Transformer.Register(this);
+        this.InitializeWindow();
+        this.State = App.GetService<SimpleState>();
+        this.Title = App.Title;
         this.SetApplicationIcon();
         // this.RemoveIcon();
 
-        this.Activated += this.MainWindow_Activated;
-        this.Closed += this.MainWindow_Closed;
+        this.Activated += this.SimpleWindow_Activated;
+        this.Closed += this.SimpleWindow_Closed;
         this.AppWindow.Closing += this.AppWindow_Closing;
 
         this.LoadWindowPlacement(App.Settings.WindowPlacement);
@@ -34,7 +35,7 @@ public sealed partial class MainWindow : WinUIEx.WindowEx
         args.Cancel = true; // Since the Closing function isn't awaiting, I'll cancel first. Sorry for writing such crappy code.
 
         var result = await this.ShowMessageDialogAsync(0, Hashed.Dialog.Exit, Hashed.Dialog.Yes, Hashed.Dialog.No);
-        if (result == Hashed.Dialog.Yes)
+        if (result.TryGetSingleResult(out var r) && r == Hashed.Dialog.Yes)
         {
             App.Exit();
         }
@@ -42,15 +43,15 @@ public sealed partial class MainWindow : WinUIEx.WindowEx
 
     #region FieldAndProperty
 
-    internal MainViewModel ViewModel { get; }
+    public SimpleState State { get; }
 
     #endregion
 
-    private void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
+    private void SimpleWindow_Activated(object sender, WindowActivatedEventArgs args)
     {
     }
 
-    private void MainWindow_Closed(object sender, WindowEventArgs args)
+    private void SimpleWindow_Closed(object sender, WindowEventArgs args)
     {
         // Exit1
         App.Settings.WindowPlacement = this.SaveWindowPlacement();
@@ -58,11 +59,17 @@ public sealed partial class MainWindow : WinUIEx.WindowEx
 
     private async void myButton_Click(object sender, RoutedEventArgs e)
     {
-        this.myButton.Content = "Clicked";
+        // this.myButton.Content = "Clicked";
 
-        App.Settings.DisplayScaling *= 1.2;
-        Transformer.Refresh();
-        App.Settings.DisplayScaling /= 1.2;
-        Transformer.Refresh();
+        Scaler.ViewScale *= 1.2;
+        Scaler.Refresh();
+    }
+
+    private async void myButton_Click2(object sender, RoutedEventArgs e)
+    {
+        // this.myButton.Content = "Clicked2";
+
+        Scaler.ViewScale *= 0.9;
+        Scaler.Refresh();
     }
 }

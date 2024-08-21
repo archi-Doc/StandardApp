@@ -13,14 +13,17 @@ global using CrystalData;
 global using Microsoft.Extensions.DependencyInjection;
 global using Tinyhand;
 
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Arc.WinUI;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
-using System.Globalization;
+using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 
 namespace StandardWinUI;
 
@@ -42,11 +45,12 @@ public static partial class App
         try
         {
             HashedString.SetDefaultCulture(DefaultCulture); // default culture
+            LanguageList.Add("en", "Language.En");
+            LanguageList.Add("ja", "Language.Ja");
 
             var asm = Assembly.GetExecutingAssembly();
-            HashedString.LoadAssembly("ja", asm, "Resources.Strings.License.tinyhand"); // license
-            HashedString.LoadAssembly("ja", asm, "Resources.Strings.String-ja.tinyhand");
-            HashedString.LoadAssembly("en", asm, "Resources.Strings.String-en.tinyhand");
+            LanguageList.LoadHashedString(asm);
+            HashedString.LoadAssembly("en", asm, "Resources.Strings.License.tinyhand"); // license
         }
         catch
         {
@@ -103,6 +107,8 @@ public static partial class App
     /// Gets the options for the application.
     /// </summary>
     public static AppOptions Options { get; private set; } = default!;
+
+    public static bool IsUiThread => uiDispatcherQueue.HasThreadAccess;
 
     private static Mutex? appMutex = string.IsNullOrEmpty(MutexName) ? default : new(false, MutexName);
     private static DispatcherQueue uiDispatcherQueue = default!;

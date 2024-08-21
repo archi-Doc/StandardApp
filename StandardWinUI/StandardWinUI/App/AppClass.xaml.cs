@@ -1,7 +1,7 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using Microsoft.UI.Xaml;
-using StandardWinUI.Views;
+using StandardWinUI.Presentations;
 
 namespace StandardWinUI;
 
@@ -21,7 +21,8 @@ public partial class AppClass : Application
     /// <param name="args">Details about the launch request and process.</param>
     protected override async void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
     {
-        this.window = App.GetService<MainWindow>();
+        // this.window = App.GetService<SimpleWindow>();
+        this.window = App.GetService<NaviWindow>();
         this.window.Activate();
     }
 

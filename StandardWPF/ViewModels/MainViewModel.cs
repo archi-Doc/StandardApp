@@ -270,7 +270,7 @@ public partial class MainViewModel
                     p.Message = "CrossChannel test.\r\nYes or No.";
                     p.Button = MessageBoxButton.YesNo;
                     p.Image = MessageBoxImage.Information;
-                    var result = await Radio.SendTwoWayAsync<DialogParam, MessageBoxResult>(p);
+                    /*var result = await Radio.SendTwoWayAsync<DialogParam, MessageBoxResult>(p);
 
                     if (result[0] == MessageBoxResult.Yes)
                     {
@@ -283,7 +283,7 @@ public partial class MainViewModel
                         p.Hashed = Hashed.Dialog.No;
                         p.Button = MessageBoxButton.OK;
                         await Radio.SendTwoWayAsync<DialogParam, MessageBoxResult>(p);
-                    }
+                    }*/
                 });
         }
     }
@@ -297,11 +297,11 @@ public partial class MainViewModel
             return this.testCrossChannel2 ??= new DelegateCommand(
                 async () =>
                 {
-                    var result = await Radio.SendTwoWayAsync<string, MessageBoxResult>("Test message");
+                    /*var result = await Radio.SendTwoWayAsync<string, MessageBoxResult>("Test message");
                     if (result.Length > 0)
                     {
                         await Radio.SendTwoWayAsync<string, MessageBoxResult>(result[0].ToString());
-                    }
+                    }*/
                 });
         }
     }

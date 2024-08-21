@@ -1,8 +1,12 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Arc.Internal;
+using CrossChannel;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
@@ -11,8 +15,9 @@ namespace Arc.WinUI;
 public static class WinUIExtensions
 {
     private const string OkString = "OK";
+    private const string CancelString = "Cancel";
 
-    public static async Task<ulong> ShowMessageDialogAsync(this Window window, ulong title, ulong content, ulong defaultCommand = 0, ulong cancelCommand = 0, ulong secondaryCommand = 0)
+    public static async Task<RadioResult<ulong>> ShowMessageDialogAsync(this Window window, ulong title, ulong content, ulong defaultCommand = 0, ulong cancelCommand = 0, ulong secondaryCommand = 0, CancellationToken cancellationToken = default)
     {
         var dialog = new ContentDialog() { XamlRoot = window.Content.XamlRoot };
         if (window.Content is FrameworkElement element)
@@ -21,7 +26,7 @@ public static class WinUIExtensions
         }
 
         var textBlock = new TextBlock() { Text = HashedString.Get(content), TextWrapping = TextWrapping.Wrap, };
-        textBlock.FontSize *= Transformer.DisplayScaling;
+        textBlock.FontSize *= Scaler.ViewScale;
         dialog.Content = textBlock;
         if (title != 0)
         {
@@ -30,7 +35,7 @@ public static class WinUIExtensions
 
         if (defaultCommand != 0)
         {
-            dialog.PrimaryButtonText = HashedString.Get(defaultCommand);
+            dialog.PrimaryButtonText = HashedString.GetOrAlternative(defaultCommand, OkString);
         }
         else
         {
@@ -44,18 +49,29 @@ public static class WinUIExtensions
 
         if (cancelCommand != 0)
         {
-            dialog.CloseButtonText = HashedString.Get(cancelCommand);
+            dialog.CloseButtonText = HashedString.GetOrAlternative(cancelCommand, CancelString);
         }
 
         var dialogTask = dialog.ShowAsync(ContentDialogPlacement.InPlace);
-        Methods.SetForegroundWindow(WinRT.Interop.WindowNative.GetWindowHandle(window));
-        var result = await dialogTask;
+        WinAPI.SetForegroundWindow(WinRT.Interop.WindowNative.GetWindowHandle(window));
+
+        ContentDialogResult result;
+        try
+        {
+            result = await dialogTask.AsTask().WaitAsync(cancellationToken);
+        }
+        catch
+        {
+            dialogTask.Cancel();
+            result = ContentDialogResult.None;
+        }
+
         return result switch
         {
-            ContentDialogResult.Primary => defaultCommand,
-            ContentDialogResult.Secondary => secondaryCommand,
-            ContentDialogResult.None => cancelCommand,
-            _ => 0,
+            ContentDialogResult.Primary => new(defaultCommand),
+            ContentDialogResult.Secondary => new(secondaryCommand),
+            ContentDialogResult.None => new(cancelCommand),
+            _ => new(0),
         };
     }
 
@@ -64,20 +80,20 @@ public static class WinUIExtensions
         if (windowPlacement.IsValid)
         {
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
-            Arc.Internal.Methods.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);
+            Arc.Internal.WinAPI.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);
             var wp = windowPlacement.ToWINDOWPLACEMENT2(dpiX, dpiY);
             wp.length = System.Runtime.InteropServices.Marshal.SizeOf(typeof(Arc.WinUI.WINDOWPLACEMENT));
             wp.flags = 0;
-            wp.showCmd = wp.showCmd == Arc.WinUI.SW.SHOWMAXIMIZED ? Arc.WinUI.SW.SHOWMAXIMIZED : Arc.WinUI.SW.SHOWNORMAL;
-            Arc.Internal.Methods.SetWindowPlacement(hwnd, ref wp);
+            wp.showCmd = wp.showCmd == Arc.WinUI.ShowCommand.SHOWMAXIMIZED ? Arc.WinUI.ShowCommand.SHOWMAXIMIZED : Arc.WinUI.ShowCommand.SHOWNORMAL;
+            Arc.Internal.WinAPI.SetWindowPlacement(hwnd, ref wp);
         }
     }
 
     public static DipWindowPlacement SaveWindowPlacement(this Window window)
     {
         var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
-        Arc.Internal.Methods.GetWindowPlacement(hwnd, out var wp);
-        Arc.Internal.Methods.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);
+        Arc.Internal.WinAPI.GetWindowPlacement(hwnd, out var wp);
+        Arc.Internal.WinAPI.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);
         return new(wp, dpiX, dpiY);
     }
 
@@ -120,8 +136,8 @@ public static class WinUIExtensions
                 return;
             }
 
-            var moduleHandle = Arc.Internal.Methods.GetModuleHandle(new IntPtr(0));
-            var iconHandle = Arc.Internal.Methods.LoadImage(moduleHandle, "#32512", ImageType.Icon, 16, 16, 0); // ApplicationIcon
+            var moduleHandle = Arc.Internal.WinAPI.GetModuleHandle(new IntPtr(0));
+            var iconHandle = Arc.Internal.WinAPI.LoadImage(moduleHandle, "#32512", WinAPI.ImageType.Icon, 16, 16, 0); // ApplicationIcon
             var iconId = Microsoft.UI.Win32Interop.GetIconIdFromIcon(iconHandle);
 
             window.AppWindow.SetIcon(iconId);
@@ -137,13 +153,13 @@ public static class WinUIExtensions
         var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
 
         // Change the extended window style to not show a window icon
-        var extendedStyle = Methods.GetWindowLong(hwnd, Methods.GWL_EXSTYLE);
-        Methods.SetWindowLong(hwnd, Methods.GWL_EXSTYLE, extendedStyle | Methods.WS_EX_DLGMODALFRAME);
+        var extendedStyle = WinAPI.GetWindowLong(hwnd, WinAPI.GWL_EXSTYLE);
+        WinAPI.SetWindowLong(hwnd, WinAPI.GWL_EXSTYLE, extendedStyle | WinAPI.WS_EX_DLGMODALFRAME);
 
         // Update the window's non-client area to reflect the changes
-        Methods.SetWindowPos(hwnd, IntPtr.Zero, 0, 0, 0, 0, Methods.SWP_NOMOVE | Methods.SWP_NOSIZE | Methods.SWP_NOZORDER | Methods.SWP_FRAMECHANGED);
+        WinAPI.SetWindowPos(hwnd, IntPtr.Zero, 0, 0, 0, 0, WinAPI.SWP_NOMOVE | WinAPI.SWP_NOSIZE | WinAPI.SWP_NOZORDER | WinAPI.SWP_FRAMECHANGED);
 
-        Methods.SendMessage(hwnd, Methods.WM_SETICON, new IntPtr(1), IntPtr.Zero);
-        Methods.SendMessage(hwnd, Methods.WM_SETICON, IntPtr.Zero, IntPtr.Zero);
+        WinAPI.SendMessage(hwnd, WinAPI.WM_SETICON, new IntPtr(1), IntPtr.Zero);
+        WinAPI.SendMessage(hwnd, WinAPI.WM_SETICON, IntPtr.Zero, IntPtr.Zero);
     }
 }

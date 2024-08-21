@@ -3,9 +3,10 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using CrossChannel;
 using SimpleCommandLine;
-using StandardWinUI.ViewModels;
-using StandardWinUI.Views;
+using StandardWinUI.Presentations;
+using StandardWinUI.States;
 
 namespace StandardWinUI;
 
@@ -23,9 +24,22 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
                 context.AddSingleton<AppClass>();
                 // context.CreateInstance<AppUnit>();
 
+                // CrossChannel
+                context.Services.AddCrossChannel();
+
                 // Views and ViewModels
-                context.AddTransient<MainWindow>();
-                context.AddTransient<MainViewModel>();
+                context.AddTransient<SimpleWindow>();
+                context.AddTransient<SimpleState>();
+                context.AddTransient<NaviWindow>();
+                context.AddTransient<HomePage>();
+                context.AddTransient<HomeState>();
+                context.AddTransient<PresentationPage>();
+                context.AddTransient<StatePage>(); // AddSingleton
+                context.AddTransient<StatePageState>();
+                context.AddTransient<SettingsPage>();
+                context.AddTransient<SettingsState>();
+                context.AddTransient<InformationPage>();
+                context.AddTransient<InformationState>();
 
                 // Command
                 // context.AddCommand(typeof(TestCommand));

@@ -2,7 +2,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
-    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
     <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
     <RootNamespace>StandardWinUI</RootNamespace>
     <ApplicationManifest>App\App.manifest</ApplicationManifest>
@@ -21,13 +21,17 @@
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
     <PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.0.240109" />
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.756" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240627000" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240802000" />
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
 
   <ItemGroup>
     <Compile Remove="Generated\*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Views\HomePage.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -50,21 +54,31 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arc.Crypto" Version="1.24.2" />
+    <PackageReference Include="Arc.Crypto" Version="1.24.4" />
     <PackageReference Include="Arc.Threading" Version="0.28.2" />
-    <PackageReference Include="Arc.Unit" Version="0.15.0" />
-    <PackageReference Include="CrystalData" Version="0.17.3" />
+    <PackageReference Include="Arc.Unit" Version="0.16.0" />
+    <PackageReference Include="CrystalData" Version="0.17.4" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Tinyhand" Version="0.78.2" />
-    <PackageReference Include="ValueLink" Version="0.61.2" />
+    <PackageReference Include="Tinyhand" Version="0.79.3" />
+    <PackageReference Include="ValueLink" Version="0.61.3" />
     <PackageReference Include="WinUIEx" Version="2.3.4" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\Arc.WinUI\Arc.WinUI.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Views\HomePage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="PresentationState\Settings\" />
   </ItemGroup>
 
 </Project>
