@@ -3,8 +3,10 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Arc.Internal;
+using CrossChannel;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
@@ -15,7 +17,7 @@ public static class WinUIExtensions
     private const string OkString = "OK";
     private const string CancelString = "Cancel";
 
-    public static async Task<ulong> ShowMessageDialogAsync(this Window window, ulong title, ulong content, ulong defaultCommand = 0, ulong cancelCommand = 0, ulong secondaryCommand = 0)
+    public static async Task<RadioResult<ulong>> ShowMessageDialogAsync(this Window window, ulong title, ulong content, ulong defaultCommand = 0, ulong cancelCommand = 0, ulong secondaryCommand = 0, CancellationToken cancellationToken = default)
     {
         var dialog = new ContentDialog() { XamlRoot = window.Content.XamlRoot };
         if (window.Content is FrameworkElement element)
@@ -52,13 +54,24 @@ public static class WinUIExtensions
 
         var dialogTask = dialog.ShowAsync(ContentDialogPlacement.InPlace);
         WinAPI.SetForegroundWindow(WinRT.Interop.WindowNative.GetWindowHandle(window));
-        var result = await dialogTask;
+
+        ContentDialogResult result;
+        try
+        {
+            result = await dialogTask.AsTask().WaitAsync(cancellationToken);
+        }
+        catch
+        {
+            dialogTask.Cancel();
+            result = ContentDialogResult.None;
+        }
+
         return result switch
         {
-            ContentDialogResult.Primary => defaultCommand,
-            ContentDialogResult.Secondary => secondaryCommand,
-            ContentDialogResult.None => cancelCommand,
-            _ => 0,
+            ContentDialogResult.Primary => new(defaultCommand),
+            ContentDialogResult.Secondary => new(secondaryCommand),
+            ContentDialogResult.None => new(cancelCommand),
+            _ => new(0),
         };
     }
 

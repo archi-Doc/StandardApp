@@ -1,5 +1,6 @@
 // Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
+using System.Threading;
 using System.Threading.Tasks;
 using Arc.WinUI;
 using CrossChannel;
@@ -10,7 +11,7 @@ using WinUIEx;
 
 namespace StandardWinUI.Presentations;
 
-public partial class NaviWindow : WindowEx, IMessageDialog
+public partial class NaviWindow : WindowEx, ISimpleWindowService
 {
     public NaviWindow()
     {
@@ -33,25 +34,30 @@ public partial class NaviWindow : WindowEx, IMessageDialog
 
     #endregion
 
-    RadioResult<Task<ulong>> IMessageDialog.Show(ulong title, ulong content, ulong defaultCommand, ulong cancelCommand, ulong secondaryCommand)
+    public Task<RadioResult<ulong>> MessageDialog(ulong title, ulong content, ulong defaultCommand, ulong cancelCommand, ulong secondaryCommand, CancellationToken cancellationToken)
     {
-        // return this.ShowMessageDialogAsync(title, content, defaultCommand, cancelCommand, secondaryCommand);
-        throw new NotImplementedException();
+        return this.ShowMessageDialogAsync(title, content, defaultCommand, cancelCommand, secondaryCommand, cancellationToken);
+    }
+
+    public async Task<RadioResult<bool>> Exit(bool forceExit = false, CancellationToken cancellationToken = default)
+    {
+        if (!forceExit)
+        {// Confirmation
+            var result = await this.ShowMessageDialogAsync(0, Hashed.Dialog.Exit, Hashed.Dialog.Yes, Hashed.Dialog.No, 0);
+            if (!result.TryGetSingleResult(out var r) || r != Hashed.Dialog.Yes)
+            {// Cancel
+                return new(false);
+            }
+        }
+
+        App.Exit();
+        return new(true);
     }
 
     private async void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)
-    {
+    {// The close button of the Window was pressed.
         args.Cancel = true; // Since the Closing function isn't awaiting, I'll cancel first. Sorry for writing such crappy code.
-        await this.TryExit();
-    }
-
-    private async Task TryExit()
-    {
-        var result = await this.ShowMessageDialogAsync(0, Hashed.Dialog.Exit, Hashed.Dialog.Yes, Hashed.Dialog.No);
-        if (result == Hashed.Dialog.Yes)
-        {
-            App.Exit();
-        }
+        await this.Exit();
     }
 
     private void NaviWindow_Activated(object sender, WindowActivatedEventArgs args)
@@ -93,6 +99,6 @@ public partial class NaviWindow : WindowEx, IMessageDialog
 
     private async void nvExit_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
     {
-        await this.TryExit();
+        await this.Exit();
     }
 }
