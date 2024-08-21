@@ -44,7 +44,7 @@ public partial class NaviWindow : WindowEx, ISimpleWindowService
     {
         if (!forceExit)
         {// Confirmation
-            var result = await this.ShowMessageDialogAsync(0, Hashed.Dialog.Exit, Hashed.Dialog.Yes, Hashed.Dialog.No, 0);
+            var result = await this.ShowMessageDialogAsync(0, Hashed.Dialog.Exit, Hashed.Dialog.Yes, Hashed.Dialog.No, 0, cancellationToken);
             if (!result.TryGetSingleResult(out var r) || r != Hashed.Dialog.Yes)
             {// Cancel
                 return new(false);

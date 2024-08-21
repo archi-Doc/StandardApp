@@ -1,5 +1,6 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
+using System.Threading;
 using System.Threading.Tasks;
 using Arc.WinUI;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -35,6 +36,9 @@ public partial class StatePageState : ObservableObject
     [RelayCommand]
     private async Task Exit()
     {
-        await this.simpleWindowService.Exit();
+        var cts = new CancellationTokenSource();
+        cts.CancelAfter(3000);
+
+        await this.simpleWindowService.Exit(false, cts.Token);
     }
 }

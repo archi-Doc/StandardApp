@@ -32,12 +32,17 @@ public static class Stringer
     /// </summary>
     public static void Refresh()
     {
-        // GC.Collect();
+        GC.Collect();
         lock (syncStringerObject)
         {
             foreach (var x in stringerObjects)
             {
                 var target = x.TargetObject?.Target;
+                if (target == null)
+                {
+                    continue;
+                }
+
                 /*if (target is DependencyObject dependencyObject)
                 {
                     if (x.TargetProperty is DependencyProperty dependencyProperty)
@@ -49,21 +54,26 @@ public static class Stringer
                     }
                 }*/
 
+                var st = HashedString.GetOrIdentifier(x.Key);
                 if (target is TextBlock textBlock)
                 {// TextBlock
-                    textBlock.Text = HashedString.GetOrIdentifier(x.Key);
+                    textBlock.Text = st;
                 }
                 else if (target is MenuFlyoutItem menuFlyoutItem)
                 {
-                    menuFlyoutItem.Text = HashedString.GetOrIdentifier(x.Key);
+                    menuFlyoutItem.Text = st;
                 }
                 else if (target is NavigationViewItem navigationViewItem)
                 {
-                    navigationViewItem.Content = HashedString.GetOrIdentifier(x.Key);
+                    navigationViewItem.Content = st;
                 }
                 else if (target is StringerBindingSource stringerBindingSource)
                 { // StringerBindingSource
                     stringerBindingSource.CultureChanged();
+                }
+                else if (target is Button button)
+                {
+                    button.Content = st;
                 }
             }
 
