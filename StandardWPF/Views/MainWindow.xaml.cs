@@ -35,14 +35,14 @@ public partial class MainWindow : Window, IMainViewService
         this.DataContext = vm;
         this.vm = vm;
 
-        Radio.OpenTwoWayAsync<DialogParam, MessageBoxResult>(this.CrossChannel_Dialog, this);
+        /* Radio.OpenTwoWayAsync<DialogParam, MessageBoxResult>(this.CrossChannel_Dialog, this);
         Radio.OpenTwoWayAsync<string, MessageBoxResult>(
             x =>
             {
                 var result = App.UI.InvokeAsync<MessageBoxResult>(() => MessageBox.Show(x, "test", MessageBoxButton.OKCancel));
                 return result.Task;
             },
-            this);
+            this);*/
 
         try
         {
