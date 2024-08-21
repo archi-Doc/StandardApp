@@ -11,9 +11,9 @@ using WinUIEx;
 
 namespace StandardWinUI.Presentations;
 
-public partial class NaviWindow : WindowEx, ISimpleWindowService
+public partial class NaviWindow : WindowEx, IBasicPresentationService
 {
-    public NaviWindow(IChannel<ISimpleWindowService> simpleWindowChannel)
+    public NaviWindow(IChannel<IBasicPresentationService> simpleWindowChannel)
     {
         this.InitializeComponent();
         this.InitializeWindow();

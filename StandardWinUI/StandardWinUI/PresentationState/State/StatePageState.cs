@@ -12,7 +12,7 @@ namespace StandardWinUI.States;
 
 public partial class StatePageState : ObservableObject
 {
-    private readonly ISimpleWindowService simpleWindowService;
+    private readonly IBasicPresentationService simpleWindowService;
 
     [ObservableProperty]
     private string sourceText = string.Empty;
@@ -28,7 +28,7 @@ public partial class StatePageState : ObservableObject
         }
     }
 
-    public StatePageState(ISimpleWindowService simpleWindowService)
+    public StatePageState(IBasicPresentationService simpleWindowService)
     {
         this.simpleWindowService = simpleWindowService;
 
