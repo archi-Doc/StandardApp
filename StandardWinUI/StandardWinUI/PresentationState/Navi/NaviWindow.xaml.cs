@@ -9,7 +9,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using WinUIEx;
 
-namespace StandardWinUI.Presentations;
+namespace StandardWinUI.Presentation;
 
 public partial class NaviWindow : WindowEx, IBasicPresentationService
 {

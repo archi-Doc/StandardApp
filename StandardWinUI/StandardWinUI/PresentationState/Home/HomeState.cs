@@ -3,7 +3,7 @@
 using Arc.WinUI;
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace StandardWinUI.States;
+namespace StandardWinUI.State;
 
 public partial class HomeState : ObservableObject
 {

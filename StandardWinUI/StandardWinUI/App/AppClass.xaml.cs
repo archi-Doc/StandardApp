@@ -1,7 +1,7 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using Microsoft.UI.Xaml;
-using StandardWinUI.Presentations;
+using StandardWinUI.Presentation;
 
 namespace StandardWinUI;
 

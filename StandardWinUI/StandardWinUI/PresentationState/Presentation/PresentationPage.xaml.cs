@@ -2,7 +2,7 @@
 
 using Microsoft.UI.Xaml.Controls;
 
-namespace StandardWinUI.Presentations;
+namespace StandardWinUI.Presentation;
 
 public sealed partial class PresentationPage : Page
 {

@@ -3,9 +3,9 @@
 using System.Collections.Generic;
 using Arc.WinUI;
 using Microsoft.UI.Xaml.Controls;
-using StandardWinUI.States;
+using StandardWinUI.State;
 
-namespace StandardWinUI.Presentations;
+namespace StandardWinUI.Presentation;
 
 public sealed partial class SettingsPage : Page
 {
