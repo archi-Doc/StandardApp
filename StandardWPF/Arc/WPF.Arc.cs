@@ -85,7 +85,7 @@ public static class TextBoxAttachment
     }
 }
 
-public class C4FormatConverter : IMultiValueConverter
+public class StringerFormatConverter : IMultiValueConverter
 {
     public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
     {

@@ -83,7 +83,7 @@ public partial class MainWindow : Window, IMainViewService
                 }
 
                 HashedString.ChangeCulture(App.Settings.Culture);
-                Arc.WPF.C4Updater.C4Update();
+                Arc.WPF.StringerUpdater.StringerUpdate();
             }
             else if (id == MessageId.Exit)
             { // Exit application with confirmation.

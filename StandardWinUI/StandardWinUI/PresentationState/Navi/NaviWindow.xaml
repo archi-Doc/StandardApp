@@ -12,12 +12,12 @@
 
     <NavigationView x:Name="navigationView" Background="WhiteSmoke" OpenPaneLength="180" PaneDisplayMode="Left" IsTabStop="False" SelectionChanged="nvSample_SelectionChanged" IsSettingsVisible="False" IsBackButtonVisible="Collapsed">
         <NavigationView.MenuItems>
-            <NavigationViewItem x:Name="nvHome" Icon="Home" Content="{Arc:C4 Source=Navigation.Home}" Tag="Home" />
-            <NavigationViewItem x:Name="nvPresentation" Icon="Home" Content="{Arc:C4 Source=Navigation.Presentation}" Tag="Presentation" />
-            <NavigationViewItem x:Name="nvState" Icon="Home" Content="{Arc:C4 Source=Navigation.State}" Tag="State" />
-            <NavigationViewItem x:Name="nvSettings" Icon="Setting" Content="{Arc:C4 Source=Navigation.Settings}" Tag="Settings" />
-            <NavigationViewItem x:Name="nvInformation" Icon="ContactInfo" Content="{Arc:C4 Source=Navigation.Information}" Tag="Information" />
-            <NavigationViewItem x:Name="nvExit" Icon="Cancel" Content="{Arc:C4 Source=Navigation.Exit}" Tag="Exit" Tapped="nvExit_Tapped"  SelectsOnInvoked="False"/>
+            <NavigationViewItem x:Name="nvHome" Icon="Home" Content="{Arc:Stringer Source=Navigation.Home}" Tag="Home" />
+            <NavigationViewItem x:Name="nvPresentation" Icon="Home" Content="{Arc:Stringer Source=Navigation.Presentation}" Tag="Presentation" />
+            <NavigationViewItem x:Name="nvState" Icon="Home" Content="{Arc:Stringer Source=Navigation.State}" Tag="State" />
+            <NavigationViewItem x:Name="nvSettings" Icon="Setting" Content="{Arc:Stringer Source=Navigation.Settings}" Tag="Settings" />
+            <NavigationViewItem x:Name="nvInformation" Icon="ContactInfo" Content="{Arc:Stringer Source=Navigation.Information}" Tag="Information" />
+            <NavigationViewItem x:Name="nvExit" Icon="Cancel" Content="{Arc:Stringer Source=Navigation.Exit}" Tag="Exit" Tapped="nvExit_Tapped"  SelectsOnInvoked="False"/>
         </NavigationView.MenuItems>
         <Frame x:Name="contentFrame"/>
     </NavigationView>

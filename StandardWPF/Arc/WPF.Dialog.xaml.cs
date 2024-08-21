@@ -21,7 +21,7 @@ namespace Arc.WPF;
 
 public struct DialogParam
 { // Dialog Parameter
-    public ulong Hashed; // 1st: C4Name
+    public ulong Hashed; // 1st: StringerName
     public string Message; // 2nd: Message
     public MessageBoxButton Button;
     public MessageBoxImage Image;

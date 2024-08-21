@@ -1,9 +1,7 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
-using System.Collections.Generic;
 using System.ComponentModel;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Markup;
 
@@ -13,11 +11,11 @@ using Microsoft.UI.Xaml.Markup;
 namespace Arc.WinUI;
 
 [MarkupExtensionReturnType(ReturnType = typeof(string))]
-public class C4Extension : MarkupExtension
-{ // Text-based C4 markup extension. GUI thread only.
+public class StringerExtension : MarkupExtension
+{ // Text-based Stringer markup extension. GUI thread only.
     public string Source { get; set; } = string.Empty;
 
-    public C4Extension()
+    public StringerExtension()
     {
     }
 
@@ -35,7 +33,7 @@ public class C4Extension : MarkupExtension
             }
 
             if (target.TargetProperty is not null)
-            { // Add ExtensionObject (used in C4Update).
+            { // Add ExtensionObject (used in StringerUpdate).
                 Stringer.Register(target.TargetObject, target.TargetProperty, this.Source);
             }
         }
@@ -45,24 +43,24 @@ public class C4Extension : MarkupExtension
 }
 
 [MarkupExtensionReturnType(ReturnType = typeof(BindingBase))]
-public class C4BindingExtension : MarkupExtension
-{ // Binding-based C4 markup extension. GUI thread only.
+public class StringerBindingExtension : MarkupExtension
+{ // Binding-based Stringer markup extension. GUI thread only.
     public string Source { get; set; } = string.Empty;
 
-    public C4BindingExtension()
+    public StringerBindingExtension()
     {
     }
 
     protected override object ProvideValue(IXamlServiceProvider serviceProvider)
     {
-        var b = new Binding() { Path = new("Value"), Source = new C4BindingSource(this.Source), };
+        var b = new Binding() { Path = new("Value"), Source = new StringerBindingSource(this.Source), };
         return b;
     }
 }
 
-public class C4BindingSource : INotifyPropertyChanged
+public class StringerBindingSource : INotifyPropertyChanged
 {
-    public C4BindingSource(string key)
+    public StringerBindingSource(string key)
     {
         this.key = key;
         Stringer.Register(this, null, string.Empty);

@@ -19,11 +19,11 @@ using Tinyhand;
 namespace Arc.WPF;
 
 [MarkupExtensionReturnType(typeof(string))]
-public class C4Extension : MarkupExtension
-{ // Text-based C4 markup extension. GUI thread only.
+public class StringerExtension : MarkupExtension
+{ // Text-based Stringer markup extension. GUI thread only.
     private string key;
 
-    public C4Extension(string key)
+    public StringerExtension(string key)
     {
         this.key = key;
     }
@@ -40,8 +40,8 @@ public class C4Extension : MarkupExtension
             }
 
             if (target.TargetProperty != null)
-            { // Add ExtensionObject (used in C4Update).
-                Arc.WPF.C4Updater.C4AddExtensionObject(target.TargetObject, target.TargetProperty, this.key);
+            { // Add ExtensionObject (used in StringerUpdate).
+                Arc.WPF.StringerUpdater.StringerAddExtensionObject(target.TargetObject, target.TargetProperty, this.key);
             }
         }
 
@@ -51,7 +51,7 @@ public class C4Extension : MarkupExtension
 
 [MarkupExtensionReturnType(typeof(string))]
 public class C5Extension : MarkupExtension
-{ // Text-based C4 markup extension. GUI thread only.
+{ // Text-based Stringer markup extension. GUI thread only.
     private ulong key;
 
     public C5Extension(ulong key)
@@ -71,8 +71,8 @@ public class C5Extension : MarkupExtension
             }
 
             if (target.TargetProperty != null)
-            { // Add ExtensionObject (used in C4Update).
-                // Arc.WPF.C4Updater.C4AddExtensionObject(target.TargetObject, target.TargetProperty, this.key);
+            { // Add ExtensionObject (used in StringerUpdate).
+                // Arc.WPF.StringerUpdater.StringerAddExtensionObject(target.TargetObject, target.TargetProperty, this.key);
             }
         }
 
@@ -80,30 +80,30 @@ public class C5Extension : MarkupExtension
     }
 }
 
-public class C4BindingExtension : MarkupExtension
-{ // Binding-based C4 markup extension. GUI thread only.
+public class StringerBindingExtension : MarkupExtension
+{ // Binding-based Stringer markup extension. GUI thread only.
     private string key;
 
-    public C4BindingExtension(string key)
+    public StringerBindingExtension(string key)
     {
         this.key = key;
     }
 
     public override object ProvideValue(IServiceProvider serviceProvider)
     {
-        var b = new Binding("Value") { Source = new C4BindingSource(this.key) };
+        var b = new Binding("Value") { Source = new StringerBindingSource(this.key) };
         return b.ProvideValue(serviceProvider);
     }
 }
 
-public class C4BindingSource : INotifyPropertyChanged
+public class StringerBindingSource : INotifyPropertyChanged
 {
     private string key;
 
-    public C4BindingSource(string key)
+    public StringerBindingSource(string key)
     {
         this.key = key;
-        Arc.WPF.C4Updater.C4AddExtensionObject(this, null, null);
+        Arc.WPF.StringerUpdater.StringerAddExtensionObject(this, null, null);
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -257,20 +257,20 @@ public class GCCountChecker
     }
 }
 
-public static class C4Updater
+public static class StringerUpdater
 { // toolset
     private static object extensionObjectsCS = new object(); // 同期オブジェクト
-    private static LinkedList<C4ExtensionObject> extensionObjects = new LinkedList<C4ExtensionObject>();
+    private static LinkedList<StringerExtensionObject> extensionObjects = new LinkedList<StringerExtensionObject>();
     private static GCCountChecker extensionObjectChecker = new GCCountChecker(16); // 16回に1回の頻度でチェック（使用されなくなったオブジェクトを解放する）。
 
-    // C4ExtensionObject: C4Extensionのオブジェクトの更新用
-    public class C4ExtensionObject
+    // StringerExtensionObject: StringerExtensionのオブジェクトの更新用
+    public class StringerExtensionObject
     {
-        public WeakReference TargetObject; // target object or C4BindingSource
-        public object? TargetProperty; // valid: target object, null: C4BindingSource
+        public WeakReference TargetObject; // target object or StringerBindingSource
+        public object? TargetProperty; // valid: target object, null: StringerBindingSource
         public string? Key;
 
-        public C4ExtensionObject(WeakReference targetObject, object? targetProperty, string? key)
+        public StringerExtensionObject(WeakReference targetObject, object? targetProperty, string? key)
         {
             this.TargetObject = targetObject;
             this.TargetProperty = targetProperty;
@@ -278,20 +278,20 @@ public static class C4Updater
         }
     }
 
-    public static void C4AddExtensionObject(object targetObject, object? targetProperty, string? key)
+    public static void StringerAddExtensionObject(object targetObject, object? targetProperty, string? key)
     { // ExtensionObjectを追加する。マークアップ拡張から呼ばれる。
         lock (extensionObjectsCS)
         {
-            extensionObjects.AddLast(new C4ExtensionObject(new WeakReference(targetObject), targetProperty, key));
+            extensionObjects.AddLast(new StringerExtensionObject(new WeakReference(targetObject), targetProperty, key));
             if (extensionObjectChecker.Check())
             {
-                C4Clean();
+                StringerClean();
             }
         }
     }
 
-    public static void C4Update()
-    { // C4を更新する。
+    public static void StringerUpdate()
+    { // Stringerを更新する。
         App.InvokeAsyncOnUI(() =>
         {
             // GC.Collect();
@@ -340,8 +340,8 @@ public static class C4Updater
                             }
                         }
                         else
-                        { // C4BindingSource
-                            var s = (C4BindingSource)target;
+                        { // StringerBindingSource
+                            var s = (StringerBindingSource)target;
                             s.CultureChanged();
                         }
                     }
@@ -350,22 +350,22 @@ public static class C4Updater
                     }
                 }
 
-                // C4Clean();
+                // StringerClean();
             }
         });
     }
 
-    private static void C4Clean()
+    private static void StringerClean()
     { // 使用されていないオブジェクトを解放する。内部で使用。
-        LinkedListNode<C4ExtensionObject>? x, y;
+        LinkedListNode<StringerExtensionObject>? x, y;
         x = extensionObjects.First;
         while (x != null)
         {
             y = x.Next;
             if (x.Value.TargetObject.Target == null)
             {
-                /* if (x.Value.TargetProperty != null) gl.Trace("_C4Clean: removed (target object)");
-                else gl.Trace("_C4Clean: removed (C4BindingSource)"); */
+                /* if (x.Value.TargetProperty != null) gl.Trace("_StringerClean: removed (target object)");
+                else gl.Trace("_StringerClean: removed (StringerBindingSource)"); */
                 extensionObjects.Remove(x);
             }
 

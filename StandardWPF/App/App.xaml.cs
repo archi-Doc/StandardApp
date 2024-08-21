@@ -146,7 +146,7 @@ public static partial class App
         {
         }
 
-        // C4
+        // Stringer
         try
         {
             HashedString.SetDefaultCulture(AppConst.DefaultCulture); // default culture

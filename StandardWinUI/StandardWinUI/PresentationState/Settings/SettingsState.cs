@@ -37,7 +37,7 @@ public partial class SettingsState : StateObject
         }
 
         // HashedString.ChangeCulture(App.Settings.Culture);
-        // Arc.WinUI.Presentation.RefreshC4();
+        // Arc.WinUI.Presentation.RefreshStringer();
 
         // this.GetPresentationService<IMessageDialog>().Show(Hashed.App.Name, Hashed.App.Description);
     }

@@ -7,17 +7,17 @@ namespace Arc.WinUI;
 
 public static class Stringer
 {
-    private static object syncC4Object = new();
-    private static LinkedList<C4Object> c4Objects = new LinkedList<C4Object>();
+    private static object syncStringerObject = new();
+    private static LinkedList<StringerObject> stringerObjects = new LinkedList<StringerObject>();
     private static GCCountChecker extensionObjectChecker = new GCCountChecker(16);
 
-    private record class C4Object(WeakReference TargetObject, object? TargetProperty, string Key);
+    private record class StringerObject(WeakReference TargetObject, object? TargetProperty, string Key);
 
     public static void Register(object targetObject, object? targetProperty, string key)
     {
-        lock (syncC4Object)
+        lock (syncStringerObject)
         {
-            c4Objects.AddLast(new C4Object(new WeakReference(targetObject), targetProperty, key));
+            stringerObjects.AddLast(new StringerObject(new WeakReference(targetObject), targetProperty, key));
             if (extensionObjectChecker.Check())
             {
                 Clean();
@@ -26,16 +26,16 @@ public static class Stringer
     }
 
     /// <summary>
-    /// Updates the display of C4.<br/>
+    /// Updates the display of Stringer.<br/>
     /// Please call from the UI thread.<br/>
     /// If not on the UI thread, consider using App.TryEnqueueOnUI().
     /// </summary>
     public static void Refresh()
     {
         // GC.Collect();
-        lock (syncC4Object)
+        lock (syncStringerObject)
         {
-            foreach (var x in c4Objects)
+            foreach (var x in stringerObjects)
             {
                 var target = x.TargetObject?.Target;
                 /*if (target is DependencyObject dependencyObject)
@@ -61,28 +61,28 @@ public static class Stringer
                 {
                     navigationViewItem.Content = HashedString.GetOrIdentifier(x.Key);
                 }
-                else if (target is C4BindingSource c4BindingSource)
-                { // C4BindingSource
-                    c4BindingSource.CultureChanged();
+                else if (target is StringerBindingSource stringerBindingSource)
+                { // StringerBindingSource
+                    stringerBindingSource.CultureChanged();
                 }
             }
 
-            // C4Clean();
+            // StringerClean();
         }
     }
 
     private static void Clean()
     {
-        LinkedListNode<C4Object>? x, y;
-        x = c4Objects.First;
+        LinkedListNode<StringerObject>? x, y;
+        x = stringerObjects.First;
         while (x != null)
         {
             y = x.Next;
             if (x.Value.TargetObject.Target == null)
             {
-                /* if (x.Value.TargetProperty != null) gl.Trace("_C4Clean: removed (target object)");
-                else gl.Trace("_C4Clean: removed (C4BindingSource)"); */
-                c4Objects.Remove(x);
+                /* if (x.Value.TargetProperty != null) gl.Trace("_StringerClean: removed (target object)");
+                else gl.Trace("_StringerClean: removed (StringerBindingSource)"); */
+                stringerObjects.Remove(x);
             }
 
             x = y;
