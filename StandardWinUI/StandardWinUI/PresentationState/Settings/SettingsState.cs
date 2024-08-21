@@ -63,4 +63,7 @@ public partial class SettingsState : StateObject
 
     [ObservableProperty]
     private string languageText = string.Empty;
+
+    [ObservableProperty]
+    private string scalingText = string.Empty;
 }

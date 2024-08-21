@@ -19,6 +19,14 @@ public sealed partial class SettingsPage : Page
         {
             this.AddLanguage(x.Key, x.Value);
         }
+
+        double[] scaling = [0.2d,];
+        foreach (var x in scaling)
+        {
+
+        }
+
+        // this.AddScaling();
     }
 
     public SettingsState State { get; }

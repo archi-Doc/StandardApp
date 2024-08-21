@@ -63,14 +63,13 @@
                 </StackPanel>
             </StackPanel>
         </Grid>
-
         <Grid ShowGridLines="False" Grid.Row="0" Grid.Column="1" >
             <StackPanel>
                 <Button x:Name="button" Content="{Arc:Stringer Button.Text}" HorizontalAlignment="Left" Height="auto"  VerticalAlignment="Top" Width="auto" Command="{Binding TestCommand}" ToolTip="{Arc:Stringer tooltip.button}"  Background="Aqua" />
                 <Button x:Name="button1" Content="switch language" HorizontalAlignment="Left" Height="auto" VerticalAlignment="Top" Width="auto" Command="{Binding CommandMessageId}" CommandParameter="SwitchCulture"  Background="{Binding Options.BrushCollection.Brush1.Brush}" />
-                <Button x:Name="button2" Content="dialog test" HorizontalAlignment="Left" VerticalAlignment="Top" Width="auto" Height="auto" Command="{Binding TestCommand3}" Visibility="{Binding HideDialogButton, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverted}"/>
-                <Button x:Name="button6" Content="dialog test2" HorizontalAlignment="Left" VerticalAlignment="Top" Width="auto" Height="auto" Command="{Binding TestCommand5}" Visibility="{Binding HideDialogButton, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverted}"/>
-                <Button x:Name="button7" Content="dialog test3" HorizontalAlignment="Left" VerticalAlignment="Top" Width="auto" Height="auto" Command="{Binding TestCommand6}" Visibility="{Binding HideDialogButton, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Inverted}"/>
+                <Button x:Name="button2" Content="dialog test" HorizontalAlignment="Left" VerticalAlignment="Top" Width="auto" Height="auto" Command="{Binding TestCommand3}" Visibility="{Binding HideDialogButton, ConverterParameter=Inverted, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                <Button x:Name="button6" Content="dialog test2" HorizontalAlignment="Left" VerticalAlignment="Top" Width="auto" Height="auto" Command="{Binding TestCommand5}" Visibility="{Binding HideDialogButton, ConverterParameter=Inverted, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                <Button x:Name="button7" Content="dialog test3" HorizontalAlignment="Left" VerticalAlignment="Top" Width="auto" Height="auto" Command="{Binding TestCommand6}" Visibility="{Binding HideDialogButton, ConverterParameter=Inverted, Converter={StaticResource BoolToVisibilityConverter}}"/>
                 <Button x:Name="button3" Content="task" HorizontalAlignment="Left" Height="auto" VerticalAlignment="Top" Width="auto" Command="{Binding TestCommand2}"/>
                 <Button x:Name="button4" Content="info" HorizontalAlignment="Left" Height="auto" VerticalAlignment="Top" Width="auto" Command="{Binding CommandMessageId}" CommandParameter="Information"/>
                 <Button x:Name="buttonSettings" Content="{Arc:Stringer Button.Settings}"  HorizontalAlignment="Left" Height="auto" VerticalAlignment="Top" Width="auto"  Command="{Binding CommandMessageId}" CommandParameter="Settings" />

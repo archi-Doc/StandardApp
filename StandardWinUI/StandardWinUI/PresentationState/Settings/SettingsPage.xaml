@@ -33,7 +33,7 @@
         </DropDownButton>
 
         <TextBlock Grid.Row="2" Grid.Column="0" Text="{Arc:Stringer Source=Settings.DisplayScaling}" Padding="10" />
-        <DropDownButton x:Name="dropdownScaling" Grid.Row="2" Grid.Column="1">
+        <DropDownButton x:Name="dropdownScaling" Grid.Row="2" Grid.Column="1" Content="{x:Bind State.ScalingText, Mode=TwoWay}">
             <DropDownButton.Flyout>
                 <MenuFlyout x:Name="menuScaling" Placement="Bottom" />
             </DropDownButton.Flyout>
