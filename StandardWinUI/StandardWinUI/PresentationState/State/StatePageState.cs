@@ -56,6 +56,6 @@ public partial class StatePageState : ObservableObject
         var cts = new CancellationTokenSource();
         cts.CancelAfter(3000);
 
-        await this.simpleWindowService.Exit(false, cts.Token);
+        await this.simpleWindowService.TryExit(cts.Token);
     }
 }

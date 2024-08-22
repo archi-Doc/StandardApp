@@ -41,25 +41,24 @@ public partial class NaviWindow : WindowEx, IBasicPresentationService
         return this.ShowMessageDialogAsync(title, content, defaultCommand, cancelCommand, secondaryCommand, cancellationToken);
     }
 
-    public async Task<RadioResult<bool>> Exit(bool forceExit = false, CancellationToken cancellationToken = default)
+    public async Task<RadioResult<bool>> TryExit(CancellationToken cancellationToken = default)
     {
-        if (!forceExit)
-        {// Confirmation
-            var result = await this.ShowMessageDialogAsync(0, Hashed.Dialog.Exit, Hashed.Dialog.Yes, Hashed.Dialog.No, 0, cancellationToken);
-            if (!result.TryGetSingleResult(out var r) || r != Hashed.Dialog.Yes)
-            {// Cancel
-                return new(false);
-            }
+        var result = await this.ShowMessageDialogAsync(0, Hashed.Dialog.Exit, Hashed.Dialog.Yes, Hashed.Dialog.No, 0, cancellationToken);
+        if (result.TryGetSingleResult(out var r) && r == Hashed.Dialog.Yes)
+        {// Exit
+            App.Exit();
+            return new(true);
         }
-
-        App.Exit();
-        return new(true);
+        else
+        {// Canceled
+            return new(false);
+        }
     }
 
     private async void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)
     {// The close button of the Window was pressed.
         args.Cancel = true; // Since the Closing function isn't awaiting, I'll cancel first. Sorry for writing such crappy code.
-        await this.Exit();
+        await this.TryExit();
     }
 
     private void NaviWindow_Activated(object sender, WindowActivatedEventArgs args)
@@ -101,6 +100,6 @@ public partial class NaviWindow : WindowEx, IBasicPresentationService
 
     private async void nvExit_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
     {
-        await this.Exit();
+        await this.TryExit();
     }
 }
