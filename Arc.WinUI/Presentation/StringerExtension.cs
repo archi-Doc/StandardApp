@@ -1,6 +1,8 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using System.ComponentModel;
+using System.Reflection;
+using System.Xml.Linq;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Markup;
@@ -23,7 +25,10 @@ public class StringerExtension : MarkupExtension
     protected override object ProvideValue(IXamlServiceProvider serviceProvider)
     {
         var target = serviceProvider.GetService(typeof(IProvideValueTarget)) as IProvideValueTarget;
-        var dp = serviceProvider.GetService(typeof(DependencyProperty)) as DependencyProperty;
+        var d5 = target.TargetObject as DependencyObject;
+        var ty = target.TargetObject.GetType();
+        var targetProperty = target.TargetProperty as ProvideValueTargetProperty;
+        DependencyProperty.FromAbi();
 
         if (target?.TargetObject is not null)
         {
