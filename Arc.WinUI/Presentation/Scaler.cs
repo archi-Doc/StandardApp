@@ -10,12 +10,10 @@ namespace Arc.WinUI;
 
 public static class Scaler
 {
-    private const string ScalerName = "scaler";
-
     public static double ViewScale { get; set; } = 1.0d;
 
-    private static object syncScalerItems = new();
-    private static Dictionary<IntPtr, Item> scalerItems = new();
+    private static object syncObject = new();
+    private static LinkedList<Item> items = new();
 
     private record Item(WeakReference<LayoutTransformControl> ControlReference)
     {
@@ -39,35 +37,48 @@ public static class Scaler
 
     public static string ScaleToText(double scale) => $"{scale * 100:0}%";
 
+    public static void Register(LayoutTransformControl layoutTransformControl)
+    {
+        lock (syncObject)
+        {
+            var item = new Item(new(layoutTransformControl));
+            items.AddLast(item);
+            layoutTransformControl.Loaded += item.LoadedEventHandler;
+        }
+    }
+
+    public static void Refresh()
+    {
+        lock (syncObject)
+        {
+            LinkedListNode<Item>? node, nextNode;
+            node = items.First;
+            while (node is not null)
+            {
+                nextNode = node.Next;
+
+                if (node.Value.ControlReference.TryGetTarget(out var layoutTransform))
+                {
+                    node.Value.LoadedEventHandler(layoutTransform, default!);
+                    layoutTransform.UpdateLayout();
+                }
+                else
+                {
+                    items.Remove(node);
+                }
+
+                node = nextNode;
+            }
+        }
+    }
+
+    /*
     /// <summary>
     /// Initializes the presentation for the specified window.
     /// </summary>
     /// <param name="window">The window to initialize the presentation for.</param>
     public static void InitializeWindow(this Window window)
     {
-        // Register the window
-        /*lock (syncWindows)
-        {
-            for (var i = 0; i < windows.Count; i++)
-            {
-                var item = windows[i];
-                if (item.TryGetTarget(out var target))
-                {
-                    if (target == window)
-                    {// Found
-                        return;
-                    }
-                }
-                else
-                {
-                    windows.RemoveAt(i);
-                }
-            }
-
-            // Not found
-            windows.Add(new WeakReference<Window>(window));
-        }*/
-
         // Register the viewbox
         if (window.Content is FrameworkElement element)
         {
@@ -76,7 +87,7 @@ public static class Scaler
                 if (x is LayoutTransformControl layoutTransform &&
                     layoutTransform.Name == ScalerName)
                 {
-                    lock (syncScalerItems)
+                    lock (syncObject)
                     {
                         var handle = WinRT.Interop.WindowNative.GetWindowHandle(window);
                         if (!scalerItems.ContainsKey(handle))
@@ -89,35 +100,5 @@ public static class Scaler
                 }
             }
         }
-    }
-
-    public static void Refresh()
-    {
-        List<IntPtr>? toRemove = default;
-
-        lock (syncScalerItems)
-        {
-            foreach (var x in scalerItems)
-            {
-                if (x.Value.ControlReference.TryGetTarget(out var layoutTransform))
-                {
-                    x.Value.LoadedEventHandler(layoutTransform, default!);
-                    layoutTransform.UpdateLayout();
-                }
-                else
-                {
-                    toRemove ??= new();
-                    toRemove.Add(x.Key);
-                }
-            }
-
-            if (toRemove is not null)
-            {
-                foreach (var x in toRemove)
-                {
-                    scalerItems.Remove(x);
-                }
-            }
-        }
-    }
+    }*/
 }

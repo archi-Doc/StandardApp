@@ -88,19 +88,19 @@ public static class Stringer
 
     private static void Clean()
     {
-        LinkedListNode<StringerObject>? x, y;
-        x = stringerObjects.First;
-        while (x != null)
+        LinkedListNode<StringerObject>? node, nextNode;
+        node = stringerObjects.First;
+        while (node != null)
         {
-            y = x.Next;
-            if (x.Value.TargetObject.Target == null)
+            nextNode = node.Next;
+            if (node.Value.TargetObject.Target == null)
             {
                 /* if (x.Value.TargetProperty != null) gl.Trace("_StringerClean: removed (target object)");
                 else gl.Trace("_StringerClean: removed (StringerBindingSource)"); */
-                stringerObjects.Remove(x);
+                stringerObjects.Remove(node);
             }
 
-            x = y;
+            node = nextNode;
         }
     }
 }
