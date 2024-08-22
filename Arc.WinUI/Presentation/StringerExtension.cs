@@ -1,8 +1,6 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using System.ComponentModel;
-using System.Reflection;
-using System.Xml.Linq;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Markup;
@@ -25,18 +23,8 @@ public class StringerExtension : MarkupExtension
     protected override object ProvideValue(IXamlServiceProvider serviceProvider)
     {
         var target = serviceProvider.GetService(typeof(IProvideValueTarget)) as IProvideValueTarget;
-        var d5 = target.TargetObject as DependencyObject;
-        var ty = target.TargetObject.GetType();
-        var targetProperty = target.TargetProperty as ProvideValueTargetProperty;
-        DependencyProperty.FromAbi();
-
         if (target?.TargetObject is not null)
         {
-            if (target.TargetObject.GetType().FullName == "System.Windows.SharedDp")
-            {
-                return this.Source;
-            }
-
             if (target.TargetProperty is not null)
             { // Add ExtensionObject (used in StringerUpdate).
                 Stringer.Register(target.TargetObject, target.TargetProperty, this.Source);
@@ -58,29 +46,32 @@ public class StringerBindingExtension : MarkupExtension
 
     protected override object ProvideValue(IXamlServiceProvider serviceProvider)
     {
-        var b = new Binding() { Path = new("Value"), Source = new StringerBindingSource(this.Source), };
-        return b;
+        return new Binding()
+        {
+            Path = new("Value"),
+            Source = new StringerBindingSource(this.Source),
+        };
     }
 }
 
 public class StringerBindingSource : INotifyPropertyChanged
 {
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    public object? Value => HashedString.GetOrIdentifier(this.key);
+
+    private string key;
+
     public StringerBindingSource(string key)
     {
         this.key = key;
         Stringer.Register(this, null, string.Empty);
     }
 
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    public object? Value => HashedString.GetOrIdentifier(this.key);
-
     public void CultureChanged()
     {
         this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Value"));
     }
-
-    private string key;
 }
 
 /*[ContentProperty(nameof(Bindings))]

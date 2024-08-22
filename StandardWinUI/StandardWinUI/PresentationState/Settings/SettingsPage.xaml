@@ -21,7 +21,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Grid.Column="0" Text="{Arc:Stringer Source=Settings.DataFolder}" VerticalAlignment="Center" Padding="10" />
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="{Arc:StringerBinding Source=Settings.DataFolder}" VerticalAlignment="Center" Padding="10" />
         <Button Grid.Row="0" Grid.Column="1" Content="{Arc:Stringer Source=Settings.Open}" VerticalAlignment="Center" Command="{x:Bind State.OpenDataDirectoryCommand}" />
 
         <TextBlock Grid.Row="1" Grid.Column="0" Text="{Arc:Stringer Source=Settings.Language}" Padding="10" />
