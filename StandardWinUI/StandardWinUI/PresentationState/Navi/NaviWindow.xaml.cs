@@ -19,6 +19,10 @@ public partial class NaviWindow : WindowEx, IBasicPresentationService
         this.InitializeWindow();
         simpleWindowChannel.Open(this, true);
 
+        var transform = new Microsoft.UI.Xaml.Media.ScaleTransform();
+        transform.ScaleX = 2;
+        transform.ScaleY = 2;
+        this.navigationView.RenderTransform = transform;
         this.Title = App.Title;
         this.SetApplicationIcon();
         // this.RemoveIcon();
