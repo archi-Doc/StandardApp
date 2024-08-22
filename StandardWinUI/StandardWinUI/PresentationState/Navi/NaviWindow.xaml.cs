@@ -17,7 +17,7 @@ public partial class NaviWindow : WindowEx, IBasicPresentationService
     public NaviWindow(IChannel<IBasicPresentationService> basicPresentationChannel)
     {
         this.InitializeComponent();
-        this.InitializeWindow();
+        Scaler.Register(this.layoutTransform);
         basicPresentationChannel.Open(this, true);
 
         this.Title = App.Title;

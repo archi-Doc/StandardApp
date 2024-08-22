@@ -10,14 +10,12 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Viewbox x:Name="scaler" Stretch="None">
-        <StackPanel x:Name="stackPanel" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock x:Name="textBlock" Height="Auto" TextWrapping="Wrap" Text="{Arc:Stringer Source= App.Name}" Margin="4"/>
-            <TextBlock x:Name="textBlock2" Height="Auto" TextWrapping="Wrap" Text="{Arc:Stringer Source= App.Description}" Margin="4"/>
-            <Button x:Name="myButton" Click="myButton_Click">Click Me</Button>
-            <Button x:Name="myButton2" Click="myButton_Click2">Click Me2</Button>
-            <Button x:Name="openDataDirectory" Command="{x:Bind State.OpenDataDirectoryCommand}">OpenDataDirectory</Button>
-            <Button x:Name="switchLanguage" Command="{x:Bind State.SwitchLanguageCommand}">Switch language</Button>
-        </StackPanel>
-    </Viewbox>
+    <StackPanel x:Name="stackPanel" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <TextBlock x:Name="textBlock" Height="Auto" TextWrapping="Wrap" Text="{Arc:Stringer Source= App.Name}" Margin="4"/>
+        <TextBlock x:Name="textBlock2" Height="Auto" TextWrapping="Wrap" Text="{Arc:Stringer Source= App.Description}" Margin="4"/>
+        <Button x:Name="myButton" Click="myButton_Click">Click Me</Button>
+        <Button x:Name="myButton2" Click="myButton_Click2">Click Me2</Button>
+        <Button x:Name="openDataDirectory" Command="{x:Bind State.OpenDataDirectoryCommand}">OpenDataDirectory</Button>
+        <Button x:Name="switchLanguage" Command="{x:Bind State.SwitchLanguageCommand}">Switch language</Button>
+    </StackPanel>
 </winex:WindowEx>
