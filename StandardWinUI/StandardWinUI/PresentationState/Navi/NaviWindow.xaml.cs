@@ -1,5 +1,6 @@
 // Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
+using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using Arc.WinUI;
@@ -19,10 +20,6 @@ public partial class NaviWindow : WindowEx, IBasicPresentationService
         this.InitializeWindow();
         basicPresentationChannel.Open(this, true);
 
-        var transform = new Microsoft.UI.Xaml.Media.ScaleTransform();
-        transform.ScaleX = 2;
-        transform.ScaleY = 2;
-       // this.navigationView.RenderTransform = transform;
         this.Title = App.Title;
         this.SetApplicationIcon();
         // this.RemoveIcon();
