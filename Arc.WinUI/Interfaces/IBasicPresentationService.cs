@@ -11,5 +11,5 @@ public interface IBasicPresentationService : IRadioService
 {
     Task<RadioResult<ulong>> MessageDialog(ulong title, ulong content, ulong defaultCommand = 0, ulong cancelCommand = 0, ulong secondaryCommand = 0, CancellationToken cancellationToken = default);
 
-    Task<RadioResult<bool>> Exit(bool forceExit = false, CancellationToken cancellationToken = default);
+    Task<RadioResult<bool>> TryExit(CancellationToken cancellationToken = default);
 }

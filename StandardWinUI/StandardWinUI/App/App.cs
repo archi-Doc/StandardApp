@@ -22,15 +22,23 @@ using System.Threading.Tasks;
 using Arc.WinUI;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
-using System.Linq;
-using System.Diagnostics.CodeAnalysis;
 
 namespace StandardWinUI;
 
 #if DISABLE_XAML_GENERATED_MAIN
 
+// TODO: Rename 'StandardWinUI' and modify the app-specific constants, icons and images.
+// Dependencies/Data persistence: AppUnit.
+// Presentation-State model: StatePage is equipped with basic functionalities, it is recommended to use this as a template.
+
+// App.GetService<T>() is used to retrieve a service of type T.
+// AppClass.OnLaunched() is the entry point of the application.
+// AppSettings and AppOptions are classes that save the configuration information of the app.
+// IBasicPresentationService.TryExit() attempts to exit the app, while App.Exit() exits the app without confirmation.
+// NaviWindow_Closed() is called when the main window is closed.
+
 public static partial class App
-{ // TODO: Rename 'StandardWinUI' and modify the app-specific constants, icons and images.
+{
     public const string MutexName = "Arc.StandardWinUI"; // The name of the mutex used to prevent multiple instances of the application. Specify 'string.Empty' to allow multiple instances.
     public const string AppDataFolder = "Arc\\StandardWinUI"; // The folder name for application data.
     public const string AppDataFile = "App.tinyhand"; // The file name for application data.
