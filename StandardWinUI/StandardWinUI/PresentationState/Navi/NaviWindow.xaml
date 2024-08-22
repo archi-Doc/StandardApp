@@ -11,7 +11,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <control:LayoutTransformControl>
+    <control:LayoutTransformControl x:Name="scaler">
+
         <NavigationView x:Name="navigationView" Background="WhiteSmoke" OpenPaneLength="180" PaneDisplayMode="Left" IsTabStop="False" SelectionChanged="nvSample_SelectionChanged" IsSettingsVisible="False" IsBackButtonVisible="Collapsed">
             <NavigationView.MenuItems>
                 <NavigationViewItem x:Name="nvHome" Icon="Home" Content="{Arc:Stringer Source=Navigation.Home}" Tag="Home" />
@@ -23,6 +24,7 @@
             </NavigationView.MenuItems>
             <Frame x:Name="contentFrame"/>
         </NavigationView>
+
     </control:LayoutTransformControl>
 
 </winex:WindowEx>
