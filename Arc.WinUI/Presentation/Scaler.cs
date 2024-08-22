@@ -1,15 +1,9 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using CommunityToolkit.WinUI;
 using CommunityToolkit.WinUI.Controls;
-using Microsoft.UI;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 
 namespace Arc.WinUI;
@@ -37,11 +31,6 @@ public static class Scaler
                     ScaleX = ViewScale,
                     ScaleY = ViewScale,
                 };
-
-                /*var ratio = ViewScale / this.previousScale;
-                viewbox.Stretch = Stretch.Uniform;
-                viewbox.Width = viewbox.ActualWidth * ratio;
-                viewbox.Height = viewbox.ActualHeight * ratio;*/
 
                 this.previousScale = ViewScale;
             }
@@ -82,7 +71,6 @@ public static class Scaler
         // Register the viewbox
         if (window.Content is FrameworkElement element)
         {
-            // var y = element.FindChild<LayoutTransformControl>();
             foreach (var x in element.FindChildren())
             {
                 if (x is LayoutTransformControl layoutTransform &&

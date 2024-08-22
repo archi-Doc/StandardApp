@@ -10,6 +10,8 @@ using Microsoft.UI.Xaml.Markup;
 
 namespace Arc.WinUI;
 
+// We abandoned this class because, for some reason, the target object would get garbage collected, resulting in the loss of the object.
+/*
 [MarkupExtensionReturnType(ReturnType = typeof(string))]
 public class StringerExtension : MarkupExtension
 { // Text-based Stringer markup extension. GUI thread only.
@@ -33,14 +35,14 @@ public class StringerExtension : MarkupExtension
 
         return HashedString.GetOrIdentifier(this.Source);
     }
-}
+}*/
 
 [MarkupExtensionReturnType(ReturnType = typeof(BindingBase))]
-public class StringerBindingExtension : MarkupExtension
+public class StringerExtension : MarkupExtension
 { // Binding-based Stringer markup extension. GUI thread only.
     public string Source { get; set; } = string.Empty;
 
-    public StringerBindingExtension()
+    public StringerExtension()
     {
     }
 
@@ -56,9 +58,9 @@ public class StringerBindingExtension : MarkupExtension
 
 public class StringerBindingSource : INotifyPropertyChanged
 {
-    public event PropertyChangedEventHandler? PropertyChanged;
-
     public object? Value => HashedString.GetOrIdentifier(this.key);
+
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     private string key;
 
@@ -68,7 +70,7 @@ public class StringerBindingSource : INotifyPropertyChanged
         Stringer.Register(this, null, string.Empty);
     }
 
-    public void CultureChanged()
+    public void LanguageChanged()
     {
         this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Value"));
     }

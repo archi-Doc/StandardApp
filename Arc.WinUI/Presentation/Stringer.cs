@@ -74,7 +74,7 @@ public static class Stringer
                 }
                 else if (target is StringerBindingSource stringerBindingSource)
                 { // StringerBindingSource
-                    stringerBindingSource.CultureChanged();
+                    stringerBindingSource.LanguageChanged();
                 }
                 else if (target is Button button)
                 {
