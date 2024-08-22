@@ -1,41 +1,36 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using CommunityToolkit.WinUI;
-using Microsoft.UI;
+using CommunityToolkit.WinUI.Controls;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 
 namespace Arc.WinUI;
 
 public static class Scaler
 {
-    private const string ViewScaleName = "scaler";
+    private const string ScalerName = "scaler";
 
     public static double ViewScale { get; set; } = 1.0d;
 
-    private static object syncViewItems = new();
-    private static Dictionary<IntPtr, Item> viewItems = new();
+    private static object syncScalerItems = new();
+    private static Dictionary<IntPtr, Item> scalerItems = new();
 
-    private record Item(WeakReference<Viewbox> ViewboxReference)
+    private record Item(WeakReference<LayoutTransformControl> ControlReference)
     {
         private double previousScale = 1;
 
         public void LoadedEventHandler(object sender, RoutedEventArgs e)
         {
-            if (sender is Viewbox viewbox &&
+            if (sender is LayoutTransformControl layoutTransform &&
                 this.previousScale != ViewScale)
             {
-                var ratio = ViewScale / this.previousScale;
-
-                viewbox.Stretch = Stretch.Uniform;
-                viewbox.Width = viewbox.ActualWidth * ratio;
-                viewbox.Height = viewbox.ActualHeight * ratio;
+                layoutTransform.Transform = new ScaleTransform
+                {
+                    ScaleX = ViewScale,
+                    ScaleY = ViewScale,
+                };
 
                 this.previousScale = ViewScale;
             }
@@ -76,20 +71,19 @@ public static class Scaler
         // Register the viewbox
         if (window.Content is FrameworkElement element)
         {
-            var y = element.FindChild<Viewbox>();
             foreach (var x in element.FindChildren())
             {
-                if (x is Viewbox viewbox &&
-                    viewbox.Name == ViewScaleName)
+                if (x is LayoutTransformControl layoutTransform &&
+                    layoutTransform.Name == ScalerName)
                 {
-                    lock (syncViewItems)
+                    lock (syncScalerItems)
                     {
                         var handle = WinRT.Interop.WindowNative.GetWindowHandle(window);
-                        if (!viewItems.ContainsKey(handle))
+                        if (!scalerItems.ContainsKey(handle))
                         {
-                            var item = new Item(new(viewbox));
-                            viewItems[handle] = item;
-                            viewbox.Loaded += item.LoadedEventHandler;
+                            var item = new Item(new(layoutTransform));
+                            scalerItems[handle] = item;
+                            layoutTransform.Loaded += item.LoadedEventHandler;
                         }
                     }
                 }
@@ -101,14 +95,14 @@ public static class Scaler
     {
         List<IntPtr>? toRemove = default;
 
-        lock (syncViewItems)
+        lock (syncScalerItems)
         {
-            foreach (var x in viewItems)
+            foreach (var x in scalerItems)
             {
-                if (x.Value.ViewboxReference.TryGetTarget(out var viewbox))
+                if (x.Value.ControlReference.TryGetTarget(out var layoutTransform))
                 {
-                    x.Value.LoadedEventHandler(viewbox, default!);
-                    viewbox.UpdateLayout();
+                    x.Value.LoadedEventHandler(layoutTransform, default!);
+                    layoutTransform.UpdateLayout();
                 }
                 else
                 {
@@ -121,7 +115,7 @@ public static class Scaler
             {
                 foreach (var x in toRemove)
                 {
-                    viewItems.Remove(x);
+                    scalerItems.Remove(x);
                 }
             }
         }

@@ -5,14 +5,12 @@ using System.Threading.Tasks;
 using Arc.WinUI;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CrossChannel;
-using Microsoft.UI.Xaml.Controls;
 
-namespace StandardWinUI.States;
+namespace StandardWinUI.State;
 
 public partial class StatePageState : ObservableObject
 {
-    private readonly ISimpleWindowService simpleWindowService;
+    private readonly IBasicPresentationService simpleWindowService;
 
     [ObservableProperty]
     private string sourceText = string.Empty;
@@ -28,11 +26,19 @@ public partial class StatePageState : ObservableObject
         }
     }
 
-    public StatePageState(ISimpleWindowService simpleWindowService)
+    public StatePageState(IBasicPresentationService simpleWindowService)
     {
         this.simpleWindowService = simpleWindowService;
 
         this.SourceText = App.Settings.Baibai.ToString();
+    }
+
+    public void StoreState()
+    {
+        if (int.TryParse(this.SourceText, out int v))
+        {
+            App.Settings.Baibai = v;
+        }
     }
 
     [RelayCommand]

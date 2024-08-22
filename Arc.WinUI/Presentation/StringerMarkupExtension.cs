@@ -10,6 +10,8 @@ using Microsoft.UI.Xaml.Markup;
 
 namespace Arc.WinUI;
 
+// We abandoned this class because, for some reason, the target object would get garbage collected, resulting in the loss of the object.
+/*
 [MarkupExtensionReturnType(ReturnType = typeof(string))]
 public class StringerExtension : MarkupExtension
 { // Text-based Stringer markup extension. GUI thread only.
@@ -23,15 +25,8 @@ public class StringerExtension : MarkupExtension
     protected override object ProvideValue(IXamlServiceProvider serviceProvider)
     {
         var target = serviceProvider.GetService(typeof(IProvideValueTarget)) as IProvideValueTarget;
-        var dp = serviceProvider.GetService(typeof(DependencyProperty)) as DependencyProperty;
-
         if (target?.TargetObject is not null)
         {
-            if (target.TargetObject.GetType().FullName == "System.Windows.SharedDp")
-            {
-                return this.Source;
-            }
-
             if (target.TargetProperty is not null)
             { // Add ExtensionObject (used in StringerUpdate).
                 Stringer.Register(target.TargetObject, target.TargetProperty, this.Source);
@@ -40,42 +35,45 @@ public class StringerExtension : MarkupExtension
 
         return HashedString.GetOrIdentifier(this.Source);
     }
-}
+}*/
 
 [MarkupExtensionReturnType(ReturnType = typeof(BindingBase))]
-public class StringerBindingExtension : MarkupExtension
+public class StringerExtension : MarkupExtension
 { // Binding-based Stringer markup extension. GUI thread only.
     public string Source { get; set; } = string.Empty;
 
-    public StringerBindingExtension()
+    public StringerExtension()
     {
     }
 
     protected override object ProvideValue(IXamlServiceProvider serviceProvider)
     {
-        var b = new Binding() { Path = new("Value"), Source = new StringerBindingSource(this.Source), };
-        return b;
+        return new Binding()
+        {
+            Path = new("Value"),
+            Source = new StringerBindingSource(this.Source),
+        };
     }
 }
 
 public class StringerBindingSource : INotifyPropertyChanged
 {
+    public object? Value => HashedString.GetOrIdentifier(this.key);
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    private string key;
+
     public StringerBindingSource(string key)
     {
         this.key = key;
         Stringer.Register(this, null, string.Empty);
     }
 
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    public object? Value => HashedString.GetOrIdentifier(this.key);
-
-    public void CultureChanged()
+    public void LanguageChanged()
     {
         this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Value"));
     }
-
-    private string key;
 }
 
 /*[ContentProperty(nameof(Bindings))]

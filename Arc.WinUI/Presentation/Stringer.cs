@@ -35,26 +35,31 @@ public static class Stringer
         // GC.Collect();
         lock (syncStringerObject)
         {
-            foreach (var x in stringerObjects)
+            LinkedListNode<StringerObject>? node, nextNode;
+            node = stringerObjects.First;
+            while (node is not null)
             {
-                var target = x.TargetObject?.Target;
-                if (target == null)
-                {
+                nextNode = node.Next;
+
+                if (node.Value.TargetObject?.Target is not { } target)
+                {// Garbage collected.
+                    stringerObjects.Remove(node);
+                    node = nextNode;
                     continue;
                 }
 
                 /*if (target is DependencyObject dependencyObject)
-                {
-                    if (x.TargetProperty is DependencyProperty dependencyProperty)
-                    {
-                        dependencyObject.SetValue(dependencyProperty, HashedString.GetOrIdentifier(x.Key));
-                    }
-                    else if (x.TargetProperty is ProvideValueTargetProperty provideValueTargetProperty)
-                    {// .....
-                    }
-                }*/
+               {
+                   if (x.TargetProperty is DependencyProperty dependencyProperty)
+                   {
+                       dependencyObject.SetValue(dependencyProperty, HashedString.GetOrIdentifier(x.Key));
+                   }
+                   else if (x.TargetProperty is ProvideValueTargetProperty provideValueTargetProperty)
+                   {// .....
+                   }
+               }*/
 
-                var st = HashedString.GetOrIdentifier(x.Key);
+                var st = HashedString.GetOrIdentifier(node.Value.Key);
                 if (target is TextBlock textBlock)
                 {// TextBlock
                     textBlock.Text = st;
@@ -69,15 +74,15 @@ public static class Stringer
                 }
                 else if (target is StringerBindingSource stringerBindingSource)
                 { // StringerBindingSource
-                    stringerBindingSource.CultureChanged();
+                    stringerBindingSource.LanguageChanged();
                 }
                 else if (target is Button button)
                 {
                     button.Content = st;
                 }
-            }
 
-            // StringerClean();
+                node = nextNode;
+            }
         }
     }
 

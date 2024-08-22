@@ -1,5 +1,6 @@
 // Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
+using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using Arc.WinUI;
@@ -9,15 +10,15 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using WinUIEx;
 
-namespace StandardWinUI.Presentations;
+namespace StandardWinUI.Presentation;
 
-public partial class NaviWindow : WindowEx, ISimpleWindowService
+public partial class NaviWindow : WindowEx, IBasicPresentationService
 {
-    public NaviWindow(IChannel<ISimpleWindowService> simpleWindowChannel)
+    public NaviWindow(IChannel<IBasicPresentationService> basicPresentationChannel)
     {
         this.InitializeComponent();
         this.InitializeWindow();
-        simpleWindowChannel.Open(this, true);
+        basicPresentationChannel.Open(this, true);
 
         this.Title = App.Title;
         this.SetApplicationIcon();

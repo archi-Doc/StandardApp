@@ -4,10 +4,10 @@ using Arc.WinUI;
 using CommunityToolkit.WinUI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
-using StandardWinUI.States;
+using StandardWinUI.State;
 using WinUIEx;
 
-namespace StandardWinUI.Presentations;
+namespace StandardWinUI.Presentation;
 
 /// <summary>
 /// An empty window that can be used on its own or navigated to within a Frame.

@@ -5,8 +5,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using CrossChannel;
 using SimpleCommandLine;
-using StandardWinUI.Presentations;
-using StandardWinUI.States;
+using StandardWinUI.Presentation;
+using StandardWinUI.State;
 
 namespace StandardWinUI;
 

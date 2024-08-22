@@ -4,7 +4,7 @@ using Arc.WinUI;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
-namespace StandardWinUI.States;
+namespace StandardWinUI.State;
 
 public partial class SimpleState : ObservableObject
 {

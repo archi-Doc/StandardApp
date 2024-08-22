@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Arc.Internal;
+using CommunityToolkit.WinUI.Controls;
 using CrossChannel;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -28,6 +29,11 @@ public static class WinUIExtensions
         var textBlock = new TextBlock() { Text = HashedString.Get(content), TextWrapping = TextWrapping.Wrap, };
         textBlock.FontSize *= Scaler.ViewScale;
         dialog.Content = textBlock;
+
+        /*var layoutTransform = new LayoutTransformControl() { Transform = new Microsoft.UI.Xaml.Media.ScaleTransform() { ScaleX = Scaler.ViewScale, ScaleY = Scaler.ViewScale }, Child = textBlock, };
+        // dialog.FontSize *= Scaler.ViewScale;
+        dialog.Content = layoutTransform;*/
+
         if (title != 0)
         {
             dialog.Title = HashedString.Get(title);
