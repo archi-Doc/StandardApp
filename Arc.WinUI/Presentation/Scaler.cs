@@ -10,8 +10,6 @@ namespace Arc.WinUI;
 
 public static class Scaler
 {
-    private const string ScalerName = "scaler";
-
     public static double ViewScale { get; set; } = 1.0d;
 
     private static object syncObject = new();
