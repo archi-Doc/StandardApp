@@ -74,9 +74,10 @@ public static partial class App
         {
             if (Settings.Culture == string.Empty)
             {
-                if (CultureInfo.CurrentUICulture.Name != "ja-JP")
+                Settings.Culture = "en"; // English
+                if (CultureInfo.CurrentUICulture.Name == "ja-JP")
                 {
-                    Settings.Culture = "en"; // English
+                    Settings.Culture = "ja";
                 }
             }
 
