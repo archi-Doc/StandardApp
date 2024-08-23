@@ -6,7 +6,7 @@ using CrossChannel;
 
 namespace Arc.WinUI;
 
-[RadioServiceInterface(SingleLink = true)]
+[RadioServiceInterface(MaxLinks = 1)]
 public interface IBasicPresentationService : IRadioService
 {
     Task<RadioResult<ulong>> MessageDialog(ulong title, ulong content, ulong defaultCommand = 0, ulong cancelCommand = 0, ulong secondaryCommand = 0, CancellationToken cancellationToken = default);

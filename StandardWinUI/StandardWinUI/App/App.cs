@@ -28,7 +28,7 @@ namespace StandardWinUI;
 #if DISABLE_XAML_GENERATED_MAIN
 
 // TODO: Rename 'StandardWinUI' and modify the app-specific constants, icons and images.
-// Dependencies/Data persistence: AppUnit.
+// Dependencies and data persistence: AppUnit.
 // Presentation-State model: StatePage is equipped with basic functionalities, it is recommended to use this as a template.
 
 // App.GetService<T>() is used to retrieve a service of type T.
