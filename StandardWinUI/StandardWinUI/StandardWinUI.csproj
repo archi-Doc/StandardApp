@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
+    <WinUISDKReferences>false</WinUISDKReferences>
     <TargetFramework>$(ProjectTargetFramework)</TargetFramework>
     <TargetPlatformVersion>$(ProjectTargetPlatformVersion)</TargetPlatformVersion>
     <TargetPlatformMinVersion>$(ProjectTargetPlatformMinVersion)</TargetPlatformMinVersion>
