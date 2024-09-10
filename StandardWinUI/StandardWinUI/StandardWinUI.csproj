@@ -18,17 +18,11 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Packaged)' != 'true'">
-    <EnableMsixTooling>true</EnableMsixTooling>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Packaged)' == 'true'">
-    <EnableMsixTooling>false</EnableMsixTooling>
-  </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
     <PackageReference Include="CommunityToolkit.WinUI.Controls.LayoutTransformControl" Version="8.1.240821" />
     <PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.1.240821" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.3233" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="$(WindowsAppSdkPackageVersion)" />
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
