@@ -4,14 +4,15 @@
     <TargetFramework>$(SamplesTargetFrameworkMoniker)</TargetFramework>
     <TargetPlatformVersion>$(WindowsSdkTargetPlatformVersion)</TargetPlatformVersion>
     <TargetPlatformMinVersion>$(WindowsAppSdkTargetPlatformVersion)</TargetPlatformMinVersion>
-    <RootNamespace>StandardWinUI</RootNamespace>
-    <ApplicationManifest>App\App.manifest</ApplicationManifest>
-    <ApplicationIcon>Resources\App.ico</ApplicationIcon>
     <Platforms>x86;x64;ARM64</Platforms>
     <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
     <UseWinUI>true</UseWinUI>
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <RootNamespace>StandardWinUI</RootNamespace>
+    <ApplicationManifest>App\App.manifest</ApplicationManifest>
+    <ApplicationIcon>Resources\App.ico</ApplicationIcon>
     <NoWarn>$(NoWarn);NETSDK1206</NoWarn>
-    
+
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <StartupObject>StandardWinUI.App</StartupObject>
     <DefineConstants>DISABLE_XAML_GENERATED_MAIN</DefineConstants>
@@ -22,7 +23,7 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
     <PackageReference Include="CommunityToolkit.WinUI.Controls.LayoutTransformControl" Version="8.1.240821" />
     <PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.1.240821" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240802000" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="$(WindowsAppSdkPackageVersion)" />
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
 
@@ -37,11 +38,11 @@
   <ItemGroup>
     <Page Remove="App\AppClass.xaml" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <AdditionalFiles Include="..\..\stylecop.json" Link="stylecop.json" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <ApplicationDefinition Include="App\AppClass.xaml" />
   </ItemGroup>
