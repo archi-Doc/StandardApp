@@ -4,14 +4,14 @@
     <TargetFramework>$(SamplesTargetFrameworkMoniker)</TargetFramework>
     <TargetPlatformVersion>$(WindowsSdkTargetPlatformVersion)</TargetPlatformVersion>
     <TargetPlatformMinVersion>$(WindowsAppSdkTargetPlatformVersion)</TargetPlatformMinVersion>
-    <RootNamespace>StandardWinUI</RootNamespace>
-    <ApplicationManifest>App\App.manifest</ApplicationManifest>
-    <ApplicationIcon>Resources\App.ico</ApplicationIcon>
     <Platforms>x86;x64;ARM64</Platforms>
     <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
     <UseWinUI>true</UseWinUI>
+    <RootNamespace>StandardWinUI</RootNamespace>
+    <ApplicationManifest>App\App.manifest</ApplicationManifest>
+    <ApplicationIcon>Resources\App.ico</ApplicationIcon>
     <NoWarn>$(NoWarn);NETSDK1206</NoWarn>
-    
+
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <StartupObject>StandardWinUI.App</StartupObject>
     <DefineConstants>DISABLE_XAML_GENERATED_MAIN</DefineConstants>
@@ -37,11 +37,11 @@
   <ItemGroup>
     <Page Remove="App\AppClass.xaml" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <AdditionalFiles Include="..\..\stylecop.json" Link="stylecop.json" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <ApplicationDefinition Include="App\AppClass.xaml" />
   </ItemGroup>
