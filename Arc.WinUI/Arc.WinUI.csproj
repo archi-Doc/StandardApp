@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <EnableMsixTooling>true</EnableMsixTooling>
+    <!--<EnableMsixTooling>true</EnableMsixTooling>-->
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <TargetFramework>$(SamplesTargetFrameworkMoniker)</TargetFramework>
     <TargetPlatformVersion>$(WindowsSdkTargetPlatformVersion)</TargetPlatformVersion>
