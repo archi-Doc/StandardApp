@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
-    <!--<EnableMsixTooling>true</EnableMsixTooling>-->
+    <EnableMsixTooling>true</EnableMsixTooling>
     <TargetFramework>$(ProjectTargetFramework)</TargetFramework>
     <TargetPlatformVersion>$(ProjectTargetPlatformVersion)</TargetPlatformVersion>
     <TargetPlatformMinVersion>$(ProjectTargetPlatformMinVersion)</TargetPlatformMinVersion>
