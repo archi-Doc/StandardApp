@@ -14,7 +14,7 @@ jobs:
     - name: Install dependencies
       run: dotnet restore Arc.WinUI
     - name: Build
-      run: dotnet build Arc.WinUI/Arc.WinUI.csproj --configuration Release --no-restore
+      run: dotnet build Arc.WinUI/Arc.WinUI.csproj --configuration Release --no-restore --property:EnableMsixTooling="true"
 #    - name: Test
 #      run: dotnet test --no-restore --verbosity normal
 
