@@ -88,5 +88,13 @@
       <PublishProfile>Properties\PublishProfiles\win-$(Platform).pubxml</PublishProfile>
     </ProjectReference>
   </ItemGroup>
+    <ItemGroup Condition="'$(WindowsAppSdkPackageVersion)' != ''">
+        <PackageReference Include="Microsoft.WindowsAppSDK" Version="[$(WindowsAppSdkPackageVersion)]" GeneratePathProperty="true">
+            <IncludeAssets>build</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="[$(MicrosoftWindowsSDKBuildToolsNugetPackageVersion)]">
+            <IncludeAssets>build</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
   <Import Project="$(WapProjPath)\Microsoft.DesktopBridge.targets" />
 </Project>
