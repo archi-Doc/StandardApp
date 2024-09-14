@@ -39,7 +39,7 @@
     </PackageReference>
     <PackageReference Include="Tinyhand" Version="0.81.4" />
     <PackageReference Include="ValueLink" Version="0.63.2" />
-    <PackageReference Include="WinUIEx" Version="2.3.4" />
+    <PackageReference Include="WinUIEx" Version="2.4.0" />
   </ItemGroup>
 
   <ItemGroup>
