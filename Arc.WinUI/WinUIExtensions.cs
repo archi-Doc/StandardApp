@@ -34,6 +34,10 @@ public static class WinUIExtensions
         // dialog.FontSize *= Scaler.ViewScale;
         dialog.Content = layoutTransform;*/
 
+        dialog.PrimaryButtonStyle = Scaler.DialogButtonStyle;
+        dialog.SecondaryButtonStyle = Scaler.DialogButtonStyle;
+        dialog.CloseButtonStyle = Scaler.DialogButtonStyle;
+
         if (title != 0)
         {
             dialog.Title = HashedString.Get(title);
