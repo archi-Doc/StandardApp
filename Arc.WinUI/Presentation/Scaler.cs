@@ -12,27 +12,29 @@ namespace Arc.WinUI;
 
 public static class Scaler
 {
+    public const double DialogButtonFontSize = 16.0d;
+
     public static double ViewScale { get; set; } = 1.0d;
 
-    public static Style ButtonStyle
+    public static Style DialogButtonStyle
     {
         get
         {
-            if (buttonStyle is null)
+            if (dialogButtonStyle is null)
             {
-                buttonStyle = new Style(typeof(Button));
+                dialogButtonStyle = new Style(typeof(Button));
                 // buttonStyle.Setters.Add(new Setter(Button.BackgroundProperty, Microsoft.UI.Colors.Green));
-                buttonStyle.Setters.Add(new Setter(Button.CornerRadiusProperty, new CornerRadius(5)));
-                buttonStyle.Setters.Add(new Setter(Button.FontSizeProperty, 16 * ViewScale));
+                dialogButtonStyle.Setters.Add(new Setter(Button.CornerRadiusProperty, new CornerRadius(8)));
+                dialogButtonStyle.Setters.Add(new Setter(Button.FontSizeProperty, DialogButtonFontSize * ViewScale));
             }
 
-            return buttonStyle;
+            return dialogButtonStyle;
         }
     }
 
     private static object syncObject = new();
     private static LinkedList<Item> items = new();
-    private static Style? buttonStyle;
+    private static Style? dialogButtonStyle;
 
     private record Item(WeakReference<LayoutTransformControl> ControlReference)
     {
@@ -70,7 +72,7 @@ public static class Scaler
     {
         lock (syncObject)
         {
-            buttonStyle = default;
+            dialogButtonStyle = default;
 
             LinkedListNode<Item>? node, nextNode;
             node = items.First;
