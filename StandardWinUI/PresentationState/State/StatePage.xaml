@@ -5,9 +5,14 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:StandardWinUI.Presentation"
     xmlns:Arc="using:Arc.WinUI"
+    xmlns:Converters="using:Arc.WinUI.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
+
+    <Page.Resources>
+        <Converters:InverseBoolConverter x:Key="InverseBoolConverter" />
+    </Page.Resources>
 
     <Grid Padding="12">
         <Grid.RowDefinitions>
@@ -18,10 +23,10 @@
 
         <TextBlock Grid.Row="0" Text="{Arc:Stringer Source=Presentation.Enter}" Margin="10" />
         <StackPanel Grid.Row="1" Orientation="Horizontal">
-            <TextBox x:Name="textBox1" Text="{x:Bind State.SourceText, Mode=TwoWay}" PlaceholderText="Number" Width="120" Margin="10" />
+            <NumberBox x:Name="textBox1" Text="{x:Bind State.SourceText, Mode=TwoWay}" PlaceholderText="Number" Width="120" Margin="10"/>
             <Button Content="{Arc:Stringer Source=State.Button}" Command="{x:Bind State.BaibainCommand}" Margin="10" />
             <TextBox x:Name="textBox2" Text="{x:Bind State.DestinationText, Mode=OneWay}" IsReadOnly="True" Width="120" Margin="10" />
         </StackPanel>
-        <Button Grid.Row="2" Content="{Arc:Stringer Source=State.ExitButton}" Command="{x:Bind State.ExitCommand}" Margin="10" />
+        <Button Grid.Row="2" Content="{Arc:Stringer Source=State.ExitButton}" Command="{x:Bind State.ExitCommand}" Margin="10" IsEnabled="{x:Bind State.EnableButton, Converter={StaticResource InverseBoolConverter}, Mode=OneWay}" />
     </Grid>
 </Page>

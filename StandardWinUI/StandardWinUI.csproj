@@ -43,7 +43,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Arc.WinUI\Arc.WinUI.csproj" />
+    <ProjectReference Include="..\Arc.WinUI\Arc.WinUI.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -59,7 +59,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="..\..\stylecop.json" Link="stylecop.json" />
+    <AdditionalFiles Include="..\stylecop.json" Link="stylecop.json" />
   </ItemGroup>
 
   <ItemGroup>

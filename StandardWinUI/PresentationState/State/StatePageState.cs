@@ -18,6 +18,9 @@ public partial class StatePageState : ObservableObject
     [ObservableProperty]
     private string destinationText = string.Empty;
 
+    [ObservableProperty]
+    private bool enableButton = false;
+
     partial void OnSourceTextChanged(string value)
     {
         if (int.TryParse(value, out int v))
@@ -48,6 +51,8 @@ public partial class StatePageState : ObservableObject
         {
             this.DestinationText = (value * 3).ToString();
         }
+
+        this.EnableButton = !this.EnableButton;
     }
 
     [RelayCommand]

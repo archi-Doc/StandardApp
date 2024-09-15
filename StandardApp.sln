@@ -12,9 +12,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StandardConsole", "Standard
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StandardMaui", "StandardMaui\StandardMaui.csproj", "{0700EA4D-B97C-44C3-88C4-4544488D3E0E}"
 EndProject
-Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "StandardWinUI (Package)", "StandardWinUI\StandardWinUI (Package)\StandardWinUI (Package).wapproj", "{AA1B731A-89D5-4293-B821-E5AF96E736C6}"
+Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "StandardWinUI (Package)", "StandardWinUI (Package)\StandardWinUI (Package).wapproj", "{AA1B731A-89D5-4293-B821-E5AF96E736C6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StandardWinUI", "StandardWinUI\StandardWinUI\StandardWinUI.csproj", "{B5E5BB34-7C13-4127-9865-2299AF70FFD3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StandardWinUI", "StandardWinUI\StandardWinUI.csproj", "{B5E5BB34-7C13-4127-9865-2299AF70FFD3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StandardWPF", "StandardWPF\StandardWPF.csproj", "{226304B0-6E3C-448B-B5E6-B0BB1E78E05D}"
 EndProject
