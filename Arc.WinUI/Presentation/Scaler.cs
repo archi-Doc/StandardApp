@@ -12,7 +12,7 @@ namespace Arc.WinUI;
 
 public static class Scaler
 {
-    public const double DialogButtonFontSize = 16.0d;
+    public const double DialogButtonFontSize = 14.0d;
 
     public static double ViewScale { get; set; } = 1.0d;
 
