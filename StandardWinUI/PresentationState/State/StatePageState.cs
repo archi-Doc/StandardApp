@@ -47,12 +47,15 @@ public partial class StatePageState : ObservableObject
     [RelayCommand]
     private void Baibain()
     {
-        if (int.TryParse(this.SourceText, out int value))
-        {
-            this.DestinationText = (value * 3).ToString();
-        }
+        App.ExecuteOrEnqueueOnUI(() =>
+        {// Actually, App.ExecuteOnUI() is not necessary.
+            if (int.TryParse(this.SourceText, out int value))
+            {
+                this.DestinationText = (value * 3).ToString();
+            }
 
-        this.EnableButton = !this.EnableButton;
+            this.EnableButton = !this.EnableButton;
+        });
     }
 
     [RelayCommand]

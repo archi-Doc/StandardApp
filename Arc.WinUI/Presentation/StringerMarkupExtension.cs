@@ -40,10 +40,16 @@ public class StringerExtension : MarkupExtension
 [MarkupExtensionReturnType(ReturnType = typeof(BindingBase))]
 public class StringerExtension : MarkupExtension
 { // Binding-based Stringer markup extension. GUI thread only.
+    // [ConstructorArgument("source")] // Not supported
     public string Source { get; set; } = string.Empty;
 
     public StringerExtension()
     {
+    }
+
+    public StringerExtension(string source)
+    {
+        this.Source = source;
     }
 
     protected override object ProvideValue(IXamlServiceProvider serviceProvider)
