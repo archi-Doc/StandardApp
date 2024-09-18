@@ -13,10 +13,23 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace Arc.WinUI;
 
-public static class WinUIExtensions
+public static class WindowExtensions
 {
     private const string OkString = "OK";
     private const string CancelString = "Cancel";
+
+    public static void ActivateWindow(this Window window, bool force = false)
+    {
+        var handle = WinRT.Interop.WindowNative.GetWindowHandle(window);
+        if (force)
+        {
+            WinAPI.ActivateWindowForce(handle);
+        }
+        else
+        {
+            WinAPI.ActivateWindow(handle);
+        }
+    }
 
     public static async Task<RadioResult<ulong>> ShowMessageDialogAsync(this Window window, ulong title, ulong content, ulong defaultCommand = 0, ulong cancelCommand = 0, ulong secondaryCommand = 0, CancellationToken cancellationToken = default)
     {

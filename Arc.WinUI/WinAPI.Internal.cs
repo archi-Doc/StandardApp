@@ -112,6 +112,78 @@ internal partial class WinAPI
     [DllImport("user32.dll", SetLastError = true)]
     internal static extern bool ExitWindowsEx(ExitWindows uFlags, int dwReason);
 
+    /// <summary>
+    /// Brings the window into the foreground and activates the window.
+    /// </summary>
+    internal static void ActivateWindow(IntPtr hWnd)
+    {
+        if (hWnd == IntPtr.Zero)
+        {
+            return;
+        }
+
+        if (!IsWindowVisible(hWnd))
+        {
+            SendMessage(hWnd, 0x0018 /*WM_SHOWWINDOW*/, IntPtr.Zero, new IntPtr(3 /*SW_PARENTOPENING*/));
+            ShowWindowAsync(hWnd, (int)ShowCommand.SHOW);
+        }
+
+        if (IsIconic(hWnd))
+        {
+            ShowWindowAsync(hWnd, (int)ShowCommand.RESTORE);
+        }
+
+        SetForegroundWindow(hWnd);
+    }
+
+    internal static void ActivateWindowForce(IntPtr hWnd)
+    {
+        if (hWnd == IntPtr.Zero)
+        {
+            return;
+        }
+
+        if (!IsWindowVisible(hWnd))
+        {
+            SendMessage(hWnd, 0x0018 /*WM_SHOWWINDOW*/, IntPtr.Zero, new IntPtr(3 /*SW_PARENTOPENING*/));
+            ShowWindowAsync(hWnd, (int)ShowCommand.SHOW);
+        }
+
+        if (IsIconic(hWnd))
+        { // Restore the window if iconic.
+            ShowWindowAsync(hWnd, (int)ShowCommand.RESTORE);
+        }
+
+        // Get a window handle of the foreground window.
+        IntPtr forehWnd = GetForegroundWindow();
+        if (forehWnd == hWnd)
+        {
+            return;
+        }
+
+        uint foreThread = GetWindowThreadProcessId(forehWnd, out var _);
+        uint thisThread = GetCurrentThreadId();
+        uint timeout = 200000;
+        if (foreThread != thisThread)
+        {
+            SystemParametersInfoGet(SPI_GETFOREGROUNDLOCKTIMEOUT, 0, ref timeout, 0);
+            SystemParametersInfoSet(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, 0, 0);
+            AttachThreadInput(thisThread, foreThread, true);
+        }
+
+        SetForegroundWindow(hWnd);
+        SetWindowPos(hWnd, (IntPtr)HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW | SWP_ASYNCWINDOWPOS);
+        BringWindowToTop(hWnd);
+        ShowWindowAsync(hWnd, (int)ShowCommand.SHOW);
+        SetFocus(hWnd);
+
+        if (foreThread != thisThread)
+        {
+            SystemParametersInfoSet(SPI_SETFOREGROUNDLOCKTIMEOUT, 0, timeout, 0);
+            AttachThreadInput(thisThread, foreThread, false);
+        }
+    }
+
     internal static void AdjustToken()
     {
         const uint TOKEN_ADJUST_PRIVILEGES = 0x20;
@@ -195,30 +267,6 @@ internal partial class WinAPI
         }
 
         return null;
-    }
-
-    /// <summary>
-    /// Brings the window into the foreground and activates the window.
-    /// </summary>
-    internal static void ActivateWindow(IntPtr hWnd)
-    {
-        if (hWnd == IntPtr.Zero)
-        {
-            return;
-        }
-
-        if (!IsWindowVisible(hWnd))
-        {
-            SendMessage(hWnd, 0x0018 /*WM_SHOWWINDOW*/, IntPtr.Zero, new IntPtr(3 /*SW_PARENTOPENING*/));
-            ShowWindowAsync(hWnd, (int)ShowCommand.SHOW);
-        }
-
-        if (IsIconic(hWnd))
-        {
-            ShowWindowAsync(hWnd, (int)ShowCommand.RESTORE);
-        }
-
-        SetForegroundWindow(hWnd);
     }
 
     internal static IntPtr GetWindowHandle(int pid, string title)
