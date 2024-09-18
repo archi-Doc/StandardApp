@@ -184,31 +184,6 @@ internal partial class WinAPI
         }
     }
 
-    internal static void AdjustToken()
-    {
-        const uint TOKEN_ADJUST_PRIVILEGES = 0x20;
-        const uint TOKEN_QUERY = 0x8;
-        const int SE_PRIVILEGE_ENABLED = 0x2;
-        const string SE_SHUTDOWN_NAME = "SeShutdownPrivilege";
-
-        if (Environment.OSVersion.Platform != PlatformID.Win32NT)
-        {
-            return;
-        }
-
-        IntPtr procHandle = GetCurrentProcess();
-
-        IntPtr tokenHandle;
-        OpenProcessToken(procHandle, TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, out tokenHandle);
-        TOKEN_PRIVILEGES tp = default(TOKEN_PRIVILEGES);
-        tp.Attributes = SE_PRIVILEGE_ENABLED;
-        tp.PrivilegeCount = 1;
-        LookupPrivilegeValue(null, SE_SHUTDOWN_NAME, out tp.Luid);
-        AdjustTokenPrivileges(tokenHandle, false, ref tp, 0, IntPtr.Zero, IntPtr.Zero);
-
-        CloseHandle(tokenHandle);
-    }
-
     [DllImport("shell32.dll")]
     internal static extern IntPtr ShellExecute(IntPtr hwnd, string lpOperation, string lpFile, string lpParameters, string lpDirectory, ShowCommand nShowCmd);
 
@@ -309,72 +284,6 @@ internal partial class WinAPI
         return result;
     }
 
-    internal static void SendKey(VirtualKeyCode keyCode)
-    {
-        INPUT[] input = new INPUT[2];
-
-        input[0].Type = (uint)InputType.Keyboard;
-        input[0].Data.Keyboard = new KEYBDINPUT
-        {
-            KeyCode = (ushort)keyCode,
-            Scan = 0,
-            Flags = IsExtendedKey(keyCode) ? (uint)KeyboardFlag.ExtendedKey : 0,
-            Time = 0,
-            ExtraInfo = IntPtr.Zero,
-        };
-
-        input[1].Type = (uint)InputType.Keyboard;
-        input[1].Data.Keyboard = new KEYBDINPUT
-        {
-            KeyCode = (ushort)keyCode,
-            Scan = 0,
-            Flags = (IsExtendedKey(keyCode) ? (uint)KeyboardFlag.ExtendedKey : 0) | (uint)KeyboardFlag.KeyUp,
-            Time = 0,
-            ExtraInfo = IntPtr.Zero,
-        };
-
-        var result = SendInput(2, input, Marshal.SizeOf(typeof(INPUT)));
-    }
-
-    internal static bool IsExtendedKey(VirtualKeyCode keyCode)
-    {
-        if (keyCode == VirtualKeyCode.MENU ||
-            keyCode == VirtualKeyCode.LMENU ||
-            keyCode == VirtualKeyCode.RMENU ||
-            keyCode == VirtualKeyCode.CONTROL ||
-            keyCode == VirtualKeyCode.RCONTROL ||
-            keyCode == VirtualKeyCode.INSERT ||
-            keyCode == VirtualKeyCode.DELETE ||
-            keyCode == VirtualKeyCode.HOME ||
-            keyCode == VirtualKeyCode.END ||
-            keyCode == VirtualKeyCode.PRIOR ||
-            keyCode == VirtualKeyCode.NEXT ||
-            keyCode == VirtualKeyCode.RIGHT ||
-            keyCode == VirtualKeyCode.UP ||
-            keyCode == VirtualKeyCode.LEFT ||
-            keyCode == VirtualKeyCode.DOWN ||
-            keyCode == VirtualKeyCode.NUMLOCK ||
-            keyCode == VirtualKeyCode.CANCEL ||
-            keyCode == VirtualKeyCode.SNAPSHOT ||
-            keyCode == VirtualKeyCode.DIVIDE)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    [DllImport("kernel32.dll")]
-    internal static extern IntPtr LoadLibrary(string lpFileName);
-
-    [DllImport("kernel32.dll")]
-    internal static extern IntPtr GetProcAddress(IntPtr hModule, string lpProcName);
-
-    [DllImport("kernel32.dll")]
-    internal static extern bool FreeLibrary(IntPtr hLibModule);
-
     [DllImport("user32.dll")]
     internal static extern bool SetForegroundWindow(IntPtr hWnd);
 
@@ -407,8 +316,6 @@ internal partial class WinAPI
 
     private const uint SPI_GETFOREGROUNDLOCKTIMEOUT = 0x2000;
     private const uint SPI_SETFOREGROUNDLOCKTIMEOUT = 0x2001;
-    private const uint SPIF_UPDATEINIFILE = 0x01;
-    private const uint SPIF_SENDCHANGE = 0x02;
 
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
@@ -438,18 +345,6 @@ internal partial class WinAPI
 
     [DllImport("user32.dll", CharSet = CharSet.Auto)]
     internal static extern bool GetClassName(IntPtr hWnd, StringBuilder lpClassName, int nMaxCount);
-
-    [DllImport("user32.dll", SetLastError = true)]
-    internal static extern uint SendInput(uint nInputs, INPUT[] pInputs, int cbsize);
-
-    [DllImport("user32.dll", EntryPoint = "MapVirtualKeyA")]
-    internal static extern int MapVirtualKey(int wCode, int wMapType);
-
-    [DllImport("user32.dll")]
-    internal static extern void GetCursorPos(out POINT32 pt);
-
-    [DllImport("user32.dll")]
-    internal static extern int ScreenToClient(IntPtr hwnd, ref POINT32 pt);
 
     [DllImport("user32.dll")]
     internal static extern int GetWindowLong(IntPtr hwnd, int index);
