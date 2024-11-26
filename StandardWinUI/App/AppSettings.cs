@@ -5,7 +5,7 @@ using Arc.WinUI;
 namespace StandardWinUI;
 
 [TinyhandObject(ImplicitKeyAsName = true)]
-public partial class AppSettings : ITinyhandSerializationCallback
+public partial class AppSettings
 {// Application Settings
     public const string Filename = "AppSettings.tinyhand";
 
@@ -19,17 +19,15 @@ public partial class AppSettings : ITinyhandSerializationCallback
 
     // public TestItem.GoshujinClass TestItems { get; set; } = default!;
 
+    [TinyhandOnDeserialized]
     public void OnAfterDeserialize()
     {
         Scaler.ViewScale = this.ViewScale;
     }
 
+    [TinyhandOnSerializing]
     public void OnBeforeSerialize()
     {
         this.ViewScale = Scaler.ViewScale;
-    }
-
-    public void OnAfterReconstruct()
-    {
     }
 }

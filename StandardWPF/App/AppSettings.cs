@@ -12,7 +12,7 @@ using Tinyhand;
 namespace StandardWPF;
 
 [TinyhandObject]
-public partial class AppSettings : ITinyhandSerializationCallback
+public partial class AppSettings
 {// Application Settings
     [Key(0)]
     public bool LoadError { get; set; } // True if a load error occured.
@@ -29,17 +29,10 @@ public partial class AppSettings : ITinyhandSerializationCallback
     [Key(4)]
     public TestItem.GoshujinClass TestItems { get; set; } = default!;
 
+    [TinyhandOnDeserialized]
     public void OnAfterDeserialize()
     {
         Transformer.Instance.ScaleX = this.DisplayScaling;
         Transformer.Instance.ScaleY = this.DisplayScaling;
-    }
-
-    public void OnBeforeSerialize()
-    {
-    }
-
-    public void OnAfterReconstruct()
-    {
     }
 }

@@ -20,7 +20,7 @@ public partial class AppOptions
 }
 
 [TinyhandObject]
-public partial class BrushCollection : ITinyhandSerializationCallback
+public partial class BrushCollection
 {
     [Key(0)]
     public BrushOption Brush1 { get; set; } = new(Colors.BurlyWood);
@@ -31,17 +31,5 @@ public partial class BrushCollection : ITinyhandSerializationCallback
         {
             return this.Brush1;
         }
-    }
-
-    public void OnBeforeSerialize()
-    {
-    }
-
-    public void OnAfterDeserialize()
-    {
-    }
-
-    public void OnAfterReconstruct()
-    {
     }
 }

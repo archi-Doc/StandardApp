@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <LangVersion>latest</LangVersion>
-    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetFramework>net9.0-windows10.0.19041.0</TargetFramework>
     <Platforms>x86;x64;ARM64</Platforms>
     <UseWPF>true</UseWPF>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -27,20 +27,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arc.CrossChannel" Version="2.1.0" />
-    <PackageReference Include="Arc.Crypto" Version="1.26.1" />
-    <PackageReference Include="Arc.Unit" Version="0.16.0" />
+    <PackageReference Include="Arc.CrossChannel" Version="2.4.0" />
+    <PackageReference Include="Arc.Crypto" Version="1.31.0" />
+    <PackageReference Include="Arc.Unit" Version="0.18.0" />
     <PackageReference Include="DryIoc.dll" Version="5.4.3" />
-    <PackageReference Include="FastExpressionCompiler" Version="4.2.1" />
-    <PackageReference Include="Serilog" Version="4.0.1" />
+    <PackageReference Include="Serilog" Version="4.1.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Tinyhand" Version="0.81.4" />
-    <PackageReference Include="ValueLink" Version="0.63.2" />
+    <PackageReference Include="Tinyhand" Version="0.91.0" />
+    <PackageReference Include="ValueLink" Version="0.69.0" />
   </ItemGroup>
 
 </Project>

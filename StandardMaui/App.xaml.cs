@@ -8,6 +8,6 @@ public partial class App : Application
     {
         this.InitializeComponent();
 
-        this.MainPage = new AppShell();
+        this.Windows[0].Page = new AppShell();
     }
 }
