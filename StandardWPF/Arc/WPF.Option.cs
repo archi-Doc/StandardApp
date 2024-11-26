@@ -15,7 +15,7 @@ using Tinyhand;
 namespace Arc.WPF;
 
 [TinyhandObject]
-public partial class BrushOption : BindableBase, ITinyhandSerializationCallback
+public partial class BrushOption : BindableBase
 { // Constructor -> (OnAfterDeserialize()) -> Prepare() -> ... -> OnBeforeSerialize()
     private Color initialColor;
     private SolidColorBrush? brush;
@@ -53,6 +53,7 @@ public partial class BrushOption : BindableBase, ITinyhandSerializationCallback
         this.ChangedFlag = true;
     }
 
+    [TinyhandOnDeserialized]
     public void OnAfterDeserialize()
     { // After data has loaded.
         if (this.ChangedFlag)
@@ -61,10 +62,7 @@ public partial class BrushOption : BindableBase, ITinyhandSerializationCallback
         }
     }
 
-    public void OnAfterReconstruct()
-    {
-    }
-
+    [TinyhandOnSerializing]
     public void OnBeforeSerialize()
     { // Before data is saved.
         if (this.Brush != null)
