@@ -13,13 +13,13 @@ public partial class StatePageState : ObservableObject
     private readonly IBasicPresentationService simpleWindowService;
 
     [ObservableProperty]
-    private string sourceText = string.Empty;
+    public partial string SourceText { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private string destinationText = string.Empty;
+    public partial string DestinationText { get; set; } = string.Empty;
 
     [ObservableProperty]
-    private bool enableButton = false;
+    public partial bool EnableButton { get; set; } = false;
 
     partial void OnSourceTextChanged(string value)
     {
@@ -47,15 +47,15 @@ public partial class StatePageState : ObservableObject
     [RelayCommand]
     private void Baibain()
     {
-        App.ExecuteOrEnqueueOnUI(() =>
+        App.ExecuteOrEnqueueOnUI((Microsoft.UI.Dispatching.DispatcherQueueHandler)(() =>
         {// Actually, App.ExecuteOnUI() is not necessary.
-            if (int.TryParse(this.SourceText, out int value))
+            if (int.TryParse((string)this.SourceText, out int value))
             {
                 this.DestinationText = (value * 3).ToString();
             }
 
             this.EnableButton = !this.EnableButton;
-        });
+        }));
     }
 
     [RelayCommand]
