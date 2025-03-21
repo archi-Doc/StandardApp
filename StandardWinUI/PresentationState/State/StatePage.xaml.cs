@@ -10,11 +10,11 @@ public sealed partial class StatePage : Page
 {
     public StatePageState State { get; }
 
-    public StatePage()
+    public StatePage(/*StatePageState state*/)
     {
         this.InitializeComponent();
+        // this.State = state;
         this.State = App.GetService<StatePageState>();
-        this.DataContext = this.State; // Set the DataContext when using Binding.
     }
 
     protected override void OnNavigatedFrom(NavigationEventArgs e)

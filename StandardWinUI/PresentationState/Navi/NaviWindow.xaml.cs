@@ -12,6 +12,42 @@ using WinUIEx;
 
 namespace StandardWinUI.Presentation;
 
+public interface INavigationService
+{
+    bool Navigate<TPage>(object? parameter = default)
+        where TPage : Page;
+
+    void Initialize(Frame frame);
+}
+
+public class NavigationService : INavigationService
+{
+    private readonly IServiceProvider serviceProvider;
+    private Frame? frame;
+
+    public NavigationService(IServiceProvider serviceProvider)
+    {
+        this.serviceProvider = serviceProvider;
+    }
+
+    public void Initialize(Frame frame)
+    {
+        this.frame = frame;
+    }
+
+    public bool Navigate<TPage>(object? parameter = default)
+        where TPage : Page
+    {
+        if (this.frame is null)
+        {
+            return false;
+        }
+
+        var page = this.serviceProvider.GetRequiredService<TPage>();
+        return this.frame.Navigate(page.GetType(), parameter);
+    }
+}
+
 public partial class NaviWindow : WindowEx, IBasicPresentationService
 {
     public NaviWindow(IChannel<IBasicPresentationService> basicPresentationChannel)
@@ -27,6 +63,8 @@ public partial class NaviWindow : WindowEx, IBasicPresentationService
         this.Activated += this.NaviWindow_Activated;
         this.Closed += this.NaviWindow_Closed;
         this.AppWindow.Closing += this.AppWindow_Closing;
+
+        // this.contentFrame.Navigating += App.NavigatingHandler; // Frame navigation does not support a DI container, hook into the Navigating event to create instances using a DI container.
 
         this.LoadWindowPlacement(App.Settings.WindowPlacement);
         this.nvHome.IsSelected = true;
@@ -90,7 +128,12 @@ public partial class NaviWindow : WindowEx, IBasicPresentationService
                 this.contentFrame.Navigate(typeof(SettingsPage));
                 break;
             case "Information":
-                this.contentFrame.Navigate(typeof(InformationPage));
+                if (this.contentFrame.CanGoBack)
+                {
+                    this.contentFrame.GoBack();
+                }
+
+                // this.contentFrame.Navigate(typeof(InformationPage));
                 break;
 
             default:
