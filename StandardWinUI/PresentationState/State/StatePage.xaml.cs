@@ -10,10 +10,10 @@ public sealed partial class StatePage : Page
 {
     public StatePageState State { get; }
 
-    public StatePage(/*StatePageState state*/)
+    public StatePage()
     {
         this.InitializeComponent();
-        // this.State = state;
+        // this.State = state; // To use a DI container, you need to hook into the Navigating event.
         this.State = App.GetService<StatePageState>();
     }
 

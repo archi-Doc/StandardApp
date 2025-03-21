@@ -128,12 +128,7 @@ public partial class NaviWindow : WindowEx, IBasicPresentationService
                 this.contentFrame.Navigate(typeof(SettingsPage));
                 break;
             case "Information":
-                if (this.contentFrame.CanGoBack)
-                {
-                    this.contentFrame.GoBack();
-                }
-
-                // this.contentFrame.Navigate(typeof(InformationPage));
+                this.contentFrame.Navigate(typeof(InformationPage));
                 break;
 
             default:

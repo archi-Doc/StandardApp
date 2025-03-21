@@ -27,19 +27,18 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
                 // CrossChannel
                 context.Services.AddCrossChannel();
 
-                // Views and ViewModels
-                context.AddTransient<SimpleWindow>();
-                context.AddTransient<SimpleState>();
-                context.AddTransient<NaviWindow>();
-                context.AddTransient<HomePage>();
-                context.AddTransient<HomeState>();
-                context.AddTransient<PresentationPage>();
-                context.AddTransient<StatePage>();
-                context.AddTransient<StatePageState>();
-                context.AddTransient<SettingsPage>();
-                context.AddTransient<SettingsState>();
-                context.AddTransient<InformationPage>();
-                context.AddTransient<InformationState>();
+                // Presentation-State
+                context.AddSingleton<SimpleWindow>();
+                context.AddSingleton<SimpleState>();
+                context.AddSingleton<NaviWindow>();
+                context.AddSingleton<HomePage>();
+                context.AddSingleton<PresentationPage>();
+                context.AddSingleton<StatePage>();
+                context.AddSingleton<StatePageState>();
+                context.AddSingleton<SettingsPage>();
+                context.AddSingleton<SettingsState>();
+                context.AddSingleton<InformationPage>();
+                context.AddSingleton<InformationState>();
 
                 // Command
                 // context.AddCommand(typeof(TestCommand));
