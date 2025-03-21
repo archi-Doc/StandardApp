@@ -98,9 +98,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Maui.Controls" Version="9.0.10" />
-		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.10" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="9.0.50" />
+		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.50" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.3" />
 	</ItemGroup>
 
   <ItemGroup>
@@ -118,14 +118,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arc.Crypto" Version="1.31.0" />
-    <PackageReference Include="Arc.Unit" Version="0.18.0" />
+    <PackageReference Include="Arc.Crypto" Version="1.39.1" />
+    <PackageReference Include="Arc.Unit" Version="0.19.1" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Tinyhand" Version="0.91.1" />
-    <PackageReference Include="ValueLink" Version="0.69.0" />
+    <PackageReference Include="Tinyhand" Version="0.97.2" />
+    <PackageReference Include="ValueLink" Version="0.76.0" />
   </ItemGroup>
 
 </Project>

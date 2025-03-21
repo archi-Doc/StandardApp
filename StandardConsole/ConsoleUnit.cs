@@ -56,7 +56,7 @@ public class ConsoleUnit : UnitBase, IUnitPreparable, IUnitExecutable
             this.SetupOptions<FileLoggerOptions>((context, options) =>
             {// FileLoggerOptions
                 var logfile = "Logs/Log.txt";
-                options.Path = Path.Combine(context.RootDirectory, logfile);
+                options.Path = Path.Combine(context.DataDirectory, logfile);
                 options.MaxLogCapacity = 2;
                 options.ClearLogsAtStartup = false;
             });
@@ -139,7 +139,7 @@ public class ConsoleUnit : UnitBase, IUnitPreparable, IUnitExecutable
     void IUnitPreparable.Prepare(UnitMessage.Prepare message)
     {
         this.logger.TryGet()?.Log("Unit prepared.");
-        this.logger.TryGet()?.Log($"Root: {this.options.RootDirectory}");
+        this.logger.TryGet()?.Log($"Program: {this.options.ProgramDirectory}");
         this.logger.TryGet()?.Log($"Data: {this.options.DataDirectory}");
     }
 
