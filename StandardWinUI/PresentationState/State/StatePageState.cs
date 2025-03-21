@@ -10,8 +10,6 @@ namespace StandardWinUI.State;
 
 public partial class StatePageState : ObservableObject
 {
-    private readonly IBasicPresentationService simpleWindowService;
-
     [ObservableProperty]
     public partial string SourceText { get; set; } = string.Empty;
 
@@ -21,13 +19,7 @@ public partial class StatePageState : ObservableObject
     [ObservableProperty]
     public partial bool EnableButton { get; set; } = false;
 
-    partial void OnSourceTextChanged(string value)
-    {
-        if (int.TryParse(value, out int v))
-        {
-            App.Settings.Baibai = v;
-        }
-    }
+    private readonly IBasicPresentationService simpleWindowService;
 
     public StatePageState(IBasicPresentationService simpleWindowService)
     {

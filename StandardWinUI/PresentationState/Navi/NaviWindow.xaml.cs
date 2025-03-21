@@ -12,42 +12,6 @@ using WinUIEx;
 
 namespace StandardWinUI.Presentation;
 
-public interface INavigationService
-{
-    bool Navigate<TPage>(object? parameter = default)
-        where TPage : Page;
-
-    void Initialize(Frame frame);
-}
-
-public class NavigationService : INavigationService
-{
-    private readonly IServiceProvider serviceProvider;
-    private Frame? frame;
-
-    public NavigationService(IServiceProvider serviceProvider)
-    {
-        this.serviceProvider = serviceProvider;
-    }
-
-    public void Initialize(Frame frame)
-    {
-        this.frame = frame;
-    }
-
-    public bool Navigate<TPage>(object? parameter = default)
-        where TPage : Page
-    {
-        if (this.frame is null)
-        {
-            return false;
-        }
-
-        var page = this.serviceProvider.GetRequiredService<TPage>();
-        return this.frame.Navigate(page.GetType(), parameter);
-    }
-}
-
 public partial class NaviWindow : WindowEx, IBasicPresentationService
 {
     public NaviWindow(IChannel<IBasicPresentationService> basicPresentationChannel)
@@ -74,6 +38,8 @@ public partial class NaviWindow : WindowEx, IBasicPresentationService
 
     #endregion
 
+    #region IBasicPresentationService
+
     public Task<RadioResult<ulong>> MessageDialog(ulong title, ulong content, ulong defaultCommand, ulong cancelCommand, ulong secondaryCommand, CancellationToken cancellationToken)
     {
         return this.ShowMessageDialogAsync(title, content, defaultCommand, cancelCommand, secondaryCommand, cancellationToken);
@@ -92,6 +58,8 @@ public partial class NaviWindow : WindowEx, IBasicPresentationService
             return new(false);
         }
     }
+
+    #endregion
 
     private async void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)
     {// The close button of the Window was pressed.
