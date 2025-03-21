@@ -6,13 +6,12 @@
 #pragma warning disable SA1514
 
 global using System;
-global using StandardWinUI;
 global using Arc.Threading;
 global using Arc.Unit;
 global using CrystalData;
 global using Microsoft.Extensions.DependencyInjection;
+global using StandardWinUI;
 global using Tinyhand;
-
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -22,6 +21,8 @@ using System.Threading.Tasks;
 using Arc.WinUI;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
 
 namespace StandardWinUI;
 
@@ -202,6 +203,24 @@ public static partial class App
         }
 
         return service;
+    }
+
+    /// <summary>
+    /// Handles the navigation event and retrieves the corresponding page from the service provider.
+    /// </summary>
+    /// <param name="sender">The source of the event.</param>
+    /// <param name="args">The event data.</param>
+    public static void NavigatingHandler(object sender, NavigatingCancelEventArgs args)
+    {
+        if (args.SourcePageType is not null)
+        {
+            var page = serviceProvider.GetService(args.SourcePageType);
+            if (page is not null)
+            {
+                args.Cancel = true;
+                ((Frame)sender).Content = page;
+            }
+        }
     }
 
     /// <summary>

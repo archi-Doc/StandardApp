@@ -28,6 +28,8 @@ public partial class NaviWindow : WindowEx, IBasicPresentationService
         this.Closed += this.NaviWindow_Closed;
         this.AppWindow.Closing += this.AppWindow_Closing;
 
+        // this.contentFrame.Navigating += App.NavigatingHandler; // Frame navigation does not support a DI container, hook into the Navigating event to create instances using a DI container.
+
         this.LoadWindowPlacement(App.Settings.WindowPlacement);
         this.nvHome.IsSelected = true;
     }
@@ -35,6 +37,8 @@ public partial class NaviWindow : WindowEx, IBasicPresentationService
     #region FieldAndProperty
 
     #endregion
+
+    #region IBasicPresentationService
 
     public Task<RadioResult<ulong>> MessageDialog(ulong title, ulong content, ulong defaultCommand, ulong cancelCommand, ulong secondaryCommand, CancellationToken cancellationToken)
     {
@@ -54,6 +58,8 @@ public partial class NaviWindow : WindowEx, IBasicPresentationService
             return new(false);
         }
     }
+
+    #endregion
 
     private async void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)
     {// The close button of the Window was pressed.
