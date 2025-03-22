@@ -84,10 +84,10 @@ public partial class NaviWindow : WindowEx, IBasicPresentationService
         {
             case "Home":
                 // this.contentFrame.Navigate(typeof(HomePage), null, new SuppressNavigationTransitionInfo());
-                this.contentFrame.Navigate(typeof(HomePage));
+                this.contentFrame.Navigate(typeof(HelloPage));
                 break;
-            case "Presentation":
-                this.contentFrame.Navigate(typeof(PresentationPage));
+            case "Baibain":
+                this.contentFrame.Navigate(typeof(BaibainPage));
                 break;
             case "State":
                 this.contentFrame.Navigate(typeof(StatePage));

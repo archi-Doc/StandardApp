@@ -10,15 +10,15 @@ App = {
 }
 
 Navigation = {
-    Home = "1. Home"
-    Presentation = "2. Presentation"
+    Hello = "1. Hello"
+    Baibain = "2. Baibain"
     State = "3. State"
     Settings = "Settings"
     Information = "Information"
     Exit = "Exit"
 }
 
-Presentation = {
+Baibain = {
     Enter = "Enter the number:"
     Button = "Baibain"
 }

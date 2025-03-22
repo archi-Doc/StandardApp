@@ -4,9 +4,9 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace StandardWinUI.Presentation;
 
-public sealed partial class HomePage : Page
+public sealed partial class HelloPage : Page
 {
-    public HomePage()
+    public HelloPage()
     {
         this.InitializeComponent();
     }
