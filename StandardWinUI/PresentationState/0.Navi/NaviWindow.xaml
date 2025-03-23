@@ -19,6 +19,7 @@
                 <NavigationViewItem x:Name="nvBaibain" Icon="Home" Content="{Arc:Stringer Source=Navigation.Baibain}" Tag="Baibain" />
                 <NavigationViewItem x:Name="nvState" Icon="Home" Content="{Arc:Stringer Source=Navigation.State}" Tag="State" />
                 <NavigationViewItem x:Name="nvMessage" Icon="Home" Content="{Arc:Stringer Source=Navigation.Message}" Tag="Message" />
+                <NavigationViewItem x:Name="nvAdvanced" Icon="Home" Content="{Arc:Stringer Source=Navigation.Advanced}" Tag="Advanced" />
                 <NavigationViewItem x:Name="nvSettings" Icon="Setting" Content="{Arc:Stringer Source=Navigation.Settings}" Tag="Settings" />
                 <NavigationViewItem x:Name="nvInformation" Icon="ContactInfo" Content="{Arc:Stringer Source=Navigation.Information}" Tag="Information" />
                 <NavigationViewItem x:Name="nvExit" Icon="Cancel" Content="{Arc:Stringer Source=Navigation.Exit}" Tag="Exit" Tapped="nvExit_Tapped"  SelectsOnInvoked="False"/>

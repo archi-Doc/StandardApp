@@ -95,6 +95,9 @@ public partial class NaviWindow : WindowEx, IBasicPresentationService
             case "Message":
                 this.contentFrame.Navigate(typeof(MessagePage));
                 break;
+            case "Advanced":
+                this.contentFrame.Navigate(typeof(AdvancedPage));
+                break;
             case "Settings":
                 this.contentFrame.Navigate(typeof(SettingsPage));
                 break;

@@ -14,6 +14,7 @@ Navigation = {
     Baibain = "2. Baibain"
     State = "3. State"
     Message = "4. Message"
+    Advanced = "5. Advanced"
     Settings = "Settings"
     Information = "Information"
     Exit = "Exit"
@@ -27,6 +28,13 @@ Baibain = {
 State = {
     Enter = "Enter the number:"
     Button = "3Baibain"
+}
+
+Message = {
+    Button = "Test button"
+}
+
+Advanced = {
     ExitButton = "Exit"
 }
 

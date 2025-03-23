@@ -17,16 +17,8 @@
     <Grid Padding="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="{Arc:Stringer Source=Presentation.Enter}" Margin="10" />
-        <StackPanel Grid.Row="1" Orientation="Horizontal">
-            <NumberBox x:Name="textBox1" Text="{x:Bind State.SourceText, Mode=TwoWay}" PlaceholderText="Number" Width="120" Margin="10"/>
-            <Button Content="{Arc:Stringer Source=State.Button}" Command="{x:Bind State.BaibainCommand}" Margin="10" />
-            <TextBox x:Name="textBox2" Text="{x:Bind State.DestinationText, Mode=OneWay}" IsReadOnly="True" Width="120" Margin="10" />
-        </StackPanel>
-        <Button Grid.Row="2" Content="{Arc:Stringer Source=State.ExitButton}" Command="{x:Bind State.ExitCommand}" Margin="10" IsEnabled="{x:Bind State.EnableButton, Converter={StaticResource InverseBoolConverter}, Mode=OneWay}" />
+        <Button Grid.Row="0" Content="{Arc:Stringer Source=Message.Button}" Command="{x:Bind State.TestCommand}" Margin="10" />
     </Grid>
 </Page>

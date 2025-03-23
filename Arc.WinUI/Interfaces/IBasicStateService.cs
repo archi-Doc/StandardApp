@@ -10,10 +10,14 @@ public interface IState
     /// <summary>
     /// Restores the state (load persisted data and reflect it in the state).
     /// </summary>
-    void RestoreState();
+    void RestoreState()
+    {
+    }
 
     /// <summary>
     /// Stores the current state (persist the state or convert it into data for persistence).
     /// </summary>
-    void StoreState();
+    void StoreState()
+    {
+    }
 }
