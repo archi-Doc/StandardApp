@@ -8,7 +8,7 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace StandardWinUI.State;
 
-public partial class StatePageState : ObservableObject
+public partial class StatePageState : ObservableObject, IState
 {
     [ObservableProperty]
     public partial string SourceText { get; set; } = string.Empty;
@@ -24,11 +24,14 @@ public partial class StatePageState : ObservableObject
     public StatePageState(IBasicPresentationService simpleWindowService)
     {
         this.simpleWindowService = simpleWindowService;
+    }
 
+    void IState.RestoreState()
+    {
         this.SourceText = App.Settings.Baibai.ToString();
     }
 
-    public void StoreState()
+    void IState.StoreState()
     {
         if (int.TryParse(this.SourceText, out int v))
         {

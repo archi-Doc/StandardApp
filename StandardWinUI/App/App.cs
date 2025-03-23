@@ -205,6 +205,20 @@ public static partial class App
         return service;
     }
 
+    public static T GetAndPrepareState<T>(this FrameworkElement element)
+        where T : class, IState
+    {
+        if (serviceProvider.GetService(typeof(T)) is not T state)
+        {
+            throw new ArgumentException($"{typeof(T)} needs to be registered in Configure within AppUnit.cs.");
+        }
+
+        element.Loaded += (sender, e) => state.RestoreState();
+        element.Unloaded += (sender, e) => state.StoreState();
+
+        return state;
+    }
+
     /// <summary>
     /// Handles the navigation event and retrieves the corresponding page from the service provider.
     /// </summary>

@@ -1,11 +1,19 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
-using CrossChannel;
-
 namespace Arc.WinUI;
 
-/*[RadioServiceInterface]
-public interface IBasicStateService : IRadioService
+/// <summary>
+/// Defines the interface of a state object.
+/// </summary>
+public interface IState
 {
+    /// <summary>
+    /// Restores the state (load persisted data and reflect it in the state.).
+    /// </summary>
+    void RestoreState();
+
+    /// <summary>
+    /// Stores the current state (persist the state or convert it into data for persistence).
+    /// </summary>
     void StoreState();
-}*/
+}

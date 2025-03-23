@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Arc.Internal;
 using CommunityToolkit.WinUI.Controls;
 using CrossChannel;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 

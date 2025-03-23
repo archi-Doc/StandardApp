@@ -1,6 +1,8 @@
 // Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
+using Arc.WinUI;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Navigation;
 using StandardWinUI.State;
 
@@ -14,11 +16,11 @@ public sealed partial class StatePage : Page
     {
         this.InitializeComponent();
         // this.State = state; // To use a DI container, you need to hook into the Navigating event.
-        this.State = App.GetService<StatePageState>();
+        this.State = this.GetAndPrepareState<StatePageState>();
     }
 
     protected override void OnNavigatedFrom(NavigationEventArgs e)
-    {
-        this.State.StoreState();
+    {// OnNavigatedFrom
+        // this.State.StoreState();
     }
 }
