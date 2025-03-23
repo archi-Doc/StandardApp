@@ -8,7 +8,7 @@ namespace Arc.WinUI;
 public interface IState
 {
     /// <summary>
-    /// Restores the state (load persisted data and reflect it in the state.).
+    /// Restores the state (load persisted data and reflect it in the state).
     /// </summary>
     void RestoreState();
 

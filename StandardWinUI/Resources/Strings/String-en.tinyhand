@@ -13,6 +13,7 @@ Navigation = {
     Hello = "1. Hello"
     Baibain = "2. Baibain"
     State = "3. State"
+    Message = "4. Message"
     Settings = "Settings"
     Information = "Information"
     Exit = "Exit"

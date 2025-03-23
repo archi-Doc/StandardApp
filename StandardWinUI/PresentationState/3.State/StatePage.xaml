@@ -18,7 +18,6 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <TextBlock Grid.Row="0" Text="{Arc:Stringer Source=Presentation.Enter}" Margin="10" />
@@ -27,6 +26,5 @@
             <Button Content="{Arc:Stringer Source=State.Button}" Command="{x:Bind State.BaibainCommand}" Margin="10" />
             <TextBox x:Name="textBox2" Text="{x:Bind State.DestinationText, Mode=OneWay}" IsReadOnly="True" Width="120" Margin="10" />
         </StackPanel>
-        <Button Grid.Row="2" Content="{Arc:Stringer Source=State.ExitButton}" Command="{x:Bind State.ExitCommand}" Margin="10" IsEnabled="{x:Bind State.EnableButton, Converter={StaticResource InverseBoolConverter}, Mode=OneWay}" />
     </Grid>
 </Page>

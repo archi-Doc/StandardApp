@@ -35,6 +35,8 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
                 context.AddSingleton<BaibainPage>();
                 context.AddSingleton<StatePage>();
                 context.AddSingleton<StatePageState>();
+                context.AddSingleton<MessagePage>();
+                context.AddSingleton<MessagePageState>();
                 context.AddSingleton<SettingsPage>();
                 context.AddSingleton<SettingsState>();
                 context.AddSingleton<InformationPage>();

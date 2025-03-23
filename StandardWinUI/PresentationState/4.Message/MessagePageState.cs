@@ -8,7 +8,7 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace StandardWinUI.State;
 
-public partial class StatePageState : ObservableObject, IState
+public partial class MessagePageState : ObservableObject, IState
 {
     [ObservableProperty]
     public partial string SourceText { get; set; } = string.Empty;
@@ -21,7 +21,7 @@ public partial class StatePageState : ObservableObject, IState
 
     private readonly IBasicPresentationService simpleWindowService;
 
-    public StatePageState(IBasicPresentationService simpleWindowService)
+    public MessagePageState(IBasicPresentationService simpleWindowService)
     {
         this.simpleWindowService = simpleWindowService;
     }
