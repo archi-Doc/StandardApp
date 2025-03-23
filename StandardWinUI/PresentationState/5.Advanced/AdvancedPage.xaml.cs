@@ -12,6 +12,7 @@ public sealed partial class AdvancedPage : Page
     public AdvancedPage()
     {
         this.InitializeComponent();
+        // this.State = state; // To use a DI container, you need to hook into the Navigating event.
         this.State = this.GetAndPrepareState<AdvancedPageState>();
     }
 }

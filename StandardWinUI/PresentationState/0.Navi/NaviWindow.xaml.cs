@@ -45,6 +45,11 @@ public partial class NaviWindow : WindowEx, IBasicPresentationService
         return this.ShowMessageDialogAsync(title, content, defaultCommand, cancelCommand, secondaryCommand, cancellationToken);
     }
 
+    public Task<RadioResult<ContentDialogResult>> MessageDialog(string title, string content, string defaultCommand, string? cancelCommand, string? secondaryCommand, CancellationToken cancellationToken)
+    {
+        return this.ShowMessageDialogAsync(title, content, defaultCommand, cancelCommand, secondaryCommand, cancellationToken);
+    }
+
     public async Task<RadioResult<bool>> TryExit(CancellationToken cancellationToken = default)
     {
         var result = await this.ShowMessageDialogAsync(0, Hashed.Dialog.Exit, Hashed.Dialog.Yes, Hashed.Dialog.No, 0, cancellationToken);

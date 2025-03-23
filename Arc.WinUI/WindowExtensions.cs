@@ -99,6 +99,60 @@ public static class WindowExtensions
         };
     }
 
+    public static async Task<RadioResult<ContentDialogResult>> ShowMessageDialogAsync(this Window window, string title, string content, string defaultCommand, string? cancelCommand = default, string? secondaryCommand = default, CancellationToken cancellationToken = default)
+    {
+        var dialog = new ContentDialog() { XamlRoot = window.Content.XamlRoot };
+        if (window.Content is FrameworkElement element)
+        {
+            dialog.RequestedTheme = element.RequestedTheme;
+        }
+
+        var textBlock = new TextBlock() { Text = content, TextWrapping = TextWrapping.Wrap, };
+        textBlock.FontSize *= Scaler.ViewScale;
+        dialog.Content = textBlock;
+
+        dialog.PrimaryButtonStyle = Scaler.DialogButtonStyle;
+        dialog.SecondaryButtonStyle = Scaler.DialogButtonStyle;
+        dialog.CloseButtonStyle = Scaler.DialogButtonStyle;
+
+        dialog.Title = title;
+
+        if (!string.IsNullOrEmpty(defaultCommand))
+        {
+            dialog.PrimaryButtonText = defaultCommand;
+        }
+        else
+        {
+            dialog.PrimaryButtonText = OkString;
+        }
+
+        if (!string.IsNullOrEmpty(cancelCommand))
+        {
+            dialog.CloseButtonText = cancelCommand;
+        }
+
+        if (!string.IsNullOrEmpty(secondaryCommand))
+        {
+            dialog.SecondaryButtonText = secondaryCommand;
+        }
+
+        var dialogTask = dialog.ShowAsync(ContentDialogPlacement.InPlace);
+        WinAPI.SetForegroundWindow(WinRT.Interop.WindowNative.GetWindowHandle(window));
+
+        ContentDialogResult result;
+        try
+        {
+            result = await dialogTask.AsTask().WaitAsync(cancellationToken);
+        }
+        catch
+        {
+            dialogTask.Cancel();
+            result = ContentDialogResult.None;
+        }
+
+        return new(result);
+    }
+
     public static void LoadWindowPlacement(this Window window, DipWindowPlacement windowPlacement)
     {
         if (windowPlacement.IsValid)

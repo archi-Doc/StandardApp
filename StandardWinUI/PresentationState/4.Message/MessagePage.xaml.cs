@@ -12,7 +12,6 @@ public sealed partial class MessagePage : Page
     public MessagePage()
     {
         this.InitializeComponent();
-        // this.State = state; // To use a DI container, you need to hook into the Navigating event.
         this.State = this.GetAndPrepareState<MessagePageState>();
     }
 }
