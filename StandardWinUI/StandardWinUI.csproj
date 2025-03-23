@@ -48,10 +48,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Generated\*" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Remove="Views\HomePage.xaml" />
   </ItemGroup>
 
