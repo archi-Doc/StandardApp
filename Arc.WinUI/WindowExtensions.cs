@@ -1,14 +1,10 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Arc.Internal;
-using CommunityToolkit.WinUI.Controls;
 using CrossChannel;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
@@ -16,9 +12,14 @@ namespace Arc.WinUI;
 
 public static class WindowExtensions
 {
-    private const string OkString = "OK";
-    private const string CancelString = "Cancel";
+    private const string OkText = "OK";
+    private const string CancelText = "Cancel";
 
+    /// <summary>
+    /// Activates the specified window.
+    /// </summary>
+    /// <param name="window">The window to activate.</param>
+    /// <param name="force">If set to <c>true</c>, forces the window to activate.</param>
     public static void ActivateWindow(this Window window, bool force = false)
     {
         var handle = WinRT.Interop.WindowNative.GetWindowHandle(window);
@@ -32,74 +33,40 @@ public static class WindowExtensions
         }
     }
 
-    public static async Task<RadioResult<ulong>> ShowMessageDialogAsync(this Window window, ulong title, ulong content, ulong defaultCommand = 0, ulong cancelCommand = 0, ulong secondaryCommand = 0, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Shows a message dialog asynchronously.
+    /// </summary>
+    /// <param name="window">The window to show the dialog in.</param>
+    /// <param name="title">The title of the dialog.</param>
+    /// <param name="content">The content of the dialog.</param>
+    /// <param name="primaryCommand">The primary(default) command hash.</param>
+    /// <param name="cancelCommand">The cancel command hash (0: No cancel button, 1: 'Cancel').</param>
+    /// <param name="secondaryCommand">The secondary command hash.</param>
+    /// <param name="cancellationToken">The cancellation hash.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the dialog result.</returns>
+    public static Task<RadioResult<ContentDialogResult>> ShowMessageDialogAsync(this Window window, ulong title, ulong content, ulong primaryCommand = 0, ulong cancelCommand = 0, ulong secondaryCommand = 0, CancellationToken cancellationToken = default)
     {
-        var dialog = new ContentDialog() { XamlRoot = window.Content.XamlRoot };
-        if (window.Content is FrameworkElement element)
-        {
-            dialog.RequestedTheme = element.RequestedTheme;
-        }
+        var titleText = title == 0 ? string.Empty : HashedString.Get(title);
+        var contentText = content == 0 ? string.Empty : HashedString.Get(content);
+        var primaryText = primaryCommand == 0 ? OkText : primaryCommand == 1 ? OkText : HashedString.GetOrAlternative(primaryCommand, OkText);
+        var cancelText = cancelCommand == 0 ? default : cancelCommand == 1 ? CancelText : HashedString.GetOrAlternative(cancelCommand, CancelText);
+        var secondaryText = secondaryCommand == 0 ? default : HashedString.Get(secondaryCommand);
 
-        var textBlock = new TextBlock() { Text = HashedString.Get(content), TextWrapping = TextWrapping.Wrap, };
-        textBlock.FontSize *= Scaler.ViewScale;
-        dialog.Content = textBlock;
-
-        /*var layoutTransform = new LayoutTransformControl() { Transform = new Microsoft.UI.Xaml.Media.ScaleTransform() { ScaleX = Scaler.ViewScale, ScaleY = Scaler.ViewScale }, Child = textBlock, };
-        // dialog.FontSize *= Scaler.ViewScale;
-        dialog.Content = layoutTransform;*/
-
-        dialog.PrimaryButtonStyle = Scaler.DialogButtonStyle;
-        dialog.SecondaryButtonStyle = Scaler.DialogButtonStyle;
-        dialog.CloseButtonStyle = Scaler.DialogButtonStyle;
-
-        if (title != 0)
-        {
-            dialog.Title = HashedString.Get(title);
-        }
-
-        if (defaultCommand != 0)
-        {
-            dialog.PrimaryButtonText = HashedString.GetOrAlternative(defaultCommand, OkString);
-        }
-        else
-        {
-            dialog.PrimaryButtonText = OkString;
-        }
-
-        if (secondaryCommand != 0)
-        {
-            dialog.SecondaryButtonText = HashedString.Get(secondaryCommand);
-        }
-
-        if (cancelCommand != 0)
-        {
-            dialog.CloseButtonText = HashedString.GetOrAlternative(cancelCommand, CancelString);
-        }
-
-        var dialogTask = dialog.ShowAsync(ContentDialogPlacement.InPlace);
-        WinAPI.SetForegroundWindow(WinRT.Interop.WindowNative.GetWindowHandle(window));
-
-        ContentDialogResult result;
-        try
-        {
-            result = await dialogTask.AsTask().WaitAsync(cancellationToken);
-        }
-        catch
-        {
-            dialogTask.Cancel();
-            result = ContentDialogResult.None;
-        }
-
-        return result switch
-        {
-            ContentDialogResult.Primary => new(defaultCommand),
-            ContentDialogResult.Secondary => new(secondaryCommand),
-            ContentDialogResult.None => new(cancelCommand),
-            _ => new(0),
-        };
+        return ShowMessageDialogAsync(window, titleText, contentText, primaryText, cancelText, secondaryText, cancellationToken);
     }
 
-    public static async Task<RadioResult<ContentDialogResult>> ShowMessageDialogAsync(this Window window, string title, string content, string defaultCommand, string? cancelCommand = default, string? secondaryCommand = default, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Shows a message dialog asynchronously.
+    /// </summary>
+    /// <param name="window">The window to show the dialog in.</param>
+    /// <param name="title">The title of the dialog.</param>
+    /// <param name="content">The content of the dialog.</param>
+    /// <param name="primaryCommand">The primary(default) command text.</param>
+    /// <param name="cancelCommand">The cancel command text (<see langword="null" />: No cancel button, "": 'Cancel').</param>
+    /// <param name="secondaryCommand">The secondary command text.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the dialog result.</returns>
+    public static async Task<RadioResult<ContentDialogResult>> ShowMessageDialogAsync(this Window window, string title, string content, string primaryCommand, string? cancelCommand = default, string? secondaryCommand = default, CancellationToken cancellationToken = default)
     {
         var dialog = new ContentDialog() { XamlRoot = window.Content.XamlRoot };
         if (window.Content is FrameworkElement element)
@@ -117,16 +84,20 @@ public static class WindowExtensions
 
         dialog.Title = title;
 
-        if (!string.IsNullOrEmpty(defaultCommand))
+        if (!string.IsNullOrEmpty(primaryCommand))
         {
-            dialog.PrimaryButtonText = defaultCommand;
+            dialog.PrimaryButtonText = primaryCommand;
         }
         else
         {
-            dialog.PrimaryButtonText = OkString;
+            dialog.PrimaryButtonText = OkText;
         }
 
-        if (!string.IsNullOrEmpty(cancelCommand))
+        if (cancelCommand == string.Empty)
+        {
+            dialog.CloseButtonText = CancelText;
+        }
+        else if (cancelCommand is not null)
         {
             dialog.CloseButtonText = cancelCommand;
         }
@@ -153,6 +124,11 @@ public static class WindowExtensions
         return new(result);
     }
 
+    /// <summary>
+    /// Loads the window placement.
+    /// </summary>
+    /// <param name="window">The window to load the placement for.</param>
+    /// <param name="windowPlacement">The window placement.</param>
     public static void LoadWindowPlacement(this Window window, DipWindowPlacement windowPlacement)
     {
         if (windowPlacement.IsValid)
@@ -167,6 +143,11 @@ public static class WindowExtensions
         }
     }
 
+    /// <summary>
+    /// Saves the window placement.
+    /// </summary>
+    /// <param name="window">The window to save the placement for.</param>
+    /// <returns>The saved window placement.</returns>
     public static DipWindowPlacement SaveWindowPlacement(this Window window)
     {
         var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
@@ -175,35 +156,10 @@ public static class WindowExtensions
         return new(wp, dpiX, dpiY);
     }
 
-    /*public static void SetIconFromEmbeddedResource(this Window window, string resourceName, Assembly? assembly = default)
-    {
-        try
-        {
-            assembly ??= Assembly.GetEntryAssembly();
-            if (assembly is null)
-            {
-                return;
-            }
-
-            var name = assembly.GetManifestResourceNames().FirstOrDefault(s => s.EndsWith(resourceName, StringComparison.InvariantCultureIgnoreCase));
-            if (name is null)
-            {
-                return;
-            }
-
-            var moduleHandle = Arc.Internal.Methods.GetModuleHandle(new IntPtr(0));
-            var iconHandle = Arc.Internal.Methods.LoadImage(moduleHandle, "#32512", ImageType.Icon, 16, 16, 0); // ApplicationIcon
-            var iconId = Microsoft.UI.Win32Interop.GetIconIdFromIcon(iconHandle);
-
-            // var icon = new System.Drawing.Icon(assembly.GetManifestResourceStream(rName));
-            window.AppWindow.SetIcon(iconId);
-            //window.SetTaskBarIcon()
-        }
-        catch
-        {
-        }
-    }*/
-
+    /// <summary>
+    /// Sets the application icon for the window.
+    /// </summary>
+    /// <param name="window">The window to set the icon for.</param>
     public static void SetApplicationIcon(this Window window)
     {
         try
@@ -225,6 +181,10 @@ public static class WindowExtensions
         }
     }
 
+    /// <summary>
+    /// Removes the icon from the window.
+    /// </summary>
+    /// <param name="window">The window to remove the icon from.</param>
     public static void RemoveIcon(this Window window)
     {
         // Get this window's handle
