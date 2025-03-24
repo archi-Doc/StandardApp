@@ -1,13 +1,17 @@
 // Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using Microsoft.UI.Xaml.Controls;
+using StandardWinUI.State;
 
 namespace StandardWinUI.Presentation;
 
-public sealed partial class HomePage : Page
+public sealed partial class MessagePage : Page
 {
-    public HomePage()
+    public MessagePageState State { get; }
+
+    public MessagePage()
     {
         this.InitializeComponent();
+        this.State = this.GetAndPrepareState<MessagePageState>();
     }
 }

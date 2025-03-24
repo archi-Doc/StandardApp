@@ -1,36 +1,36 @@
-// identifier = "string" /* null: Use the default value. */
+5//, identifier = "string" /* null: Use the default value. */
 
-Test1 = "てすと1"
-Test2 = null
+, Test1 = "てすと1"
+, Test2 = null
 
-App = {
+, App = {
     Name = "StandardWinUI" // Name
     Description = "説明文"
     DateTime = "MM/dd H:mm:ss"
 }
 
-Navigation = {
-    Home = "1. Home"
-    Presentation = "2. Presentation"
+, Navigation = {
+    Hello = "1. Hello"
+    Baibain = "2. バイバイン"
     State = "3. State"
     Settings = "設定"
     Information = "情報"
     Exit = "終了"
 }
 
-Presentation = {
+, Baibain = {
     Enter = "数字を入力してください:"
     Button = "バイバイン"
 }
 
-State = {
+, State = {
     Enter = "数字を入力してください:"
     Button = "3バイバイン"
     ExitButton = "終了"
 }
 
 // dialog
-Dialog = 
+, Dialog = 
 {
     Ok = "O K"
     Cancel = "キャンセル"
@@ -41,34 +41,34 @@ Dialog =
 }
 
 // settings
-Settings = {
-DataFolder = "データフォルダ"
-Open = "開く"
-Language = "表示言語"
-DisplayScaling = "表示倍率"
+, Settings = {
+    DataFolder = "データフォルダ"
+    Open = "開く"
+    Language = "表示言語"
+    DisplayScaling = "表示倍率"
 }
 
 // other
-Language = {
+, Language = {
     En = "英語（English）"
     Ja = "日本語（Japanese）"
 }
 
-Button = {
+, Button = {
     Text = "通知メッセージ"
     Settings = "設定"
     DataFolder = "データフォルダ"
     AddItem = "追加"
     ClearItem = "クリア"
 }
-Tooltip = {
+, Tooltip = {
     Button = "ボタンです"
     Sample = "サンプル"
 }
 
-TimeText = "時刻は{0:MM/dd H:mm:ss}です"
+, TimeText = "時刻は{0:MM/dd H:mm:ss}です"
 
-ListView = {
+, ListView = {
 // ListView
     Header = {
         Id = "Id"

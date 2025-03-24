@@ -1,12 +1,13 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace Arc.WinUI;
 
-public static class Helper
+public static class UiHelper
 {
     /// <summary>
     /// Open url with default browser.
@@ -65,5 +66,11 @@ public static class Helper
         }
 
         return true;
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private static InvalidOperationException GetEnqueueException(string message)
+    {
+        return new InvalidOperationException(message);
     }
 }

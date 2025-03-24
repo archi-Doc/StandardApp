@@ -285,6 +285,9 @@ internal partial class WinAPI
     }
 
     [DllImport("user32.dll")]
+    internal static extern IntPtr GetActiveWindow();
+
+    [DllImport("user32.dll")]
     internal static extern bool SetForegroundWindow(IntPtr hWnd);
 
     [DllImport("user32.dll", SetLastError = true)]

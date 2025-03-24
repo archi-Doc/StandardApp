@@ -4,9 +4,9 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace StandardWinUI.Presentation;
 
-public sealed partial class PresentationPage : Page
+public sealed partial class BaibainPage : Page
 {
-    public PresentationPage()
+    public BaibainPage()
     {
         this.InitializeComponent();
     }

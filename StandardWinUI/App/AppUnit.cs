@@ -31,10 +31,14 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
                 context.AddSingleton<SimpleWindow>();
                 context.AddSingleton<SimpleState>();
                 context.AddSingleton<NaviWindow>();
-                context.AddSingleton<HomePage>();
-                context.AddSingleton<PresentationPage>();
+                context.AddSingleton<HelloPage>();
+                context.AddSingleton<BaibainPage>();
                 context.AddSingleton<StatePage>();
                 context.AddSingleton<StatePageState>();
+                context.AddSingleton<MessagePage>();
+                context.AddSingleton<MessagePageState>();
+                context.AddSingleton<AdvancedPage>();
+                context.AddSingleton<AdvancedPageState>();
                 context.AddSingleton<SettingsPage>();
                 context.AddSingleton<SettingsState>();
                 context.AddSingleton<InformationPage>();

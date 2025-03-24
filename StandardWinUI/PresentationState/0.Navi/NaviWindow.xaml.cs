@@ -1,9 +1,9 @@
 // Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
-using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using Arc.WinUI;
+using CommunityToolkit.WinUI;
 using CrossChannel;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
@@ -40,23 +40,27 @@ public partial class NaviWindow : WindowEx, IBasicPresentationService
 
     #region IBasicPresentationService
 
-    public Task<RadioResult<ulong>> MessageDialog(ulong title, ulong content, ulong defaultCommand, ulong cancelCommand, ulong secondaryCommand, CancellationToken cancellationToken)
-    {
-        return this.ShowMessageDialogAsync(title, content, defaultCommand, cancelCommand, secondaryCommand, cancellationToken);
-    }
+    Task<RadioResult<ContentDialogResult>> IBasicPresentationService.MessageDialog(ulong title, ulong content, ulong defaultCommand, ulong cancelCommand, ulong secondaryCommand, CancellationToken cancellationToken)
+        => App.UiDispatcherQueue.EnqueueAsync(() => this.ShowMessageDialogAsync(title, content, defaultCommand, cancelCommand, secondaryCommand, cancellationToken));
 
-    public async Task<RadioResult<bool>> TryExit(CancellationToken cancellationToken = default)
+    Task<RadioResult<ContentDialogResult>> IBasicPresentationService.MessageDialog(string title, string content, string primaryCommand, string? cancelCommand, string? secondaryCommand, CancellationToken cancellationToken)
+        => App.UiDispatcherQueue.EnqueueAsync(() => this.ShowMessageDialogAsync(title, content, primaryCommand, cancelCommand, secondaryCommand, cancellationToken));
+
+    public Task<RadioResult<bool>> TryExit(CancellationToken cancellationToken = default)
     {
-        var result = await this.ShowMessageDialogAsync(0, Hashed.Dialog.Exit, Hashed.Dialog.Yes, Hashed.Dialog.No, 0, cancellationToken);
-        if (result.TryGetSingleResult(out var r) && r == Hashed.Dialog.Yes)
-        {// Exit
-            App.Exit();
-            return new(true);
-        }
-        else
-        {// Canceled
-            return new(false);
-        }
+        return App.UiDispatcherQueue.EnqueueAsync<RadioResult<bool>>(async () =>
+        {
+            var result = await this.ShowMessageDialogAsync(0, Hashed.Dialog.Exit, Hashed.Dialog.Yes, Hashed.Dialog.No, 0, cancellationToken);
+            if (result.TryGetSingleResult(out var r) && r == ContentDialogResult.Primary)
+            {// Exit
+                App.Exit();
+                return new(true);
+            }
+            else
+            {// Canceled
+                return new(false);
+            }
+        });
     }
 
     #endregion
@@ -84,13 +88,19 @@ public partial class NaviWindow : WindowEx, IBasicPresentationService
         {
             case "Home":
                 // this.contentFrame.Navigate(typeof(HomePage), null, new SuppressNavigationTransitionInfo());
-                this.contentFrame.Navigate(typeof(HomePage));
+                this.contentFrame.Navigate(typeof(HelloPage));
                 break;
-            case "Presentation":
-                this.contentFrame.Navigate(typeof(PresentationPage));
+            case "Baibain":
+                this.contentFrame.Navigate(typeof(BaibainPage));
                 break;
             case "State":
                 this.contentFrame.Navigate(typeof(StatePage));
+                break;
+            case "Message":
+                this.contentFrame.Navigate(typeof(MessagePage));
+                break;
+            case "Advanced":
+                this.contentFrame.Navigate(typeof(AdvancedPage));
                 break;
             case "Settings":
                 this.contentFrame.Navigate(typeof(SettingsPage));
