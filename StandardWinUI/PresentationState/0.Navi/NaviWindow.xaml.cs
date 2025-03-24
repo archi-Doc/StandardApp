@@ -1,9 +1,9 @@
 // Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
-using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using Arc.WinUI;
+using CommunityToolkit.WinUI;
 using CrossChannel;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
@@ -41,14 +41,10 @@ public partial class NaviWindow : WindowEx, IBasicPresentationService
     #region IBasicPresentationService
 
     public Task<RadioResult<ulong>> MessageDialog(ulong title, ulong content, ulong defaultCommand, ulong cancelCommand, ulong secondaryCommand, CancellationToken cancellationToken)
-    {
-        return this.ShowMessageDialogAsync(title, content, defaultCommand, cancelCommand, secondaryCommand, cancellationToken);
-    }
+        => App.UiDispatcherQueue.EnqueueAsync(() => this.ShowMessageDialogAsync(title, content, defaultCommand, cancelCommand, secondaryCommand, cancellationToken));
 
     public Task<RadioResult<ContentDialogResult>> MessageDialog(string title, string content, string defaultCommand, string? cancelCommand, string? secondaryCommand, CancellationToken cancellationToken)
-    {
-        return this.ShowMessageDialogAsync(title, content, defaultCommand, cancelCommand, secondaryCommand, cancellationToken);
-    }
+        => App.UiDispatcherQueue.EnqueueAsync(() => this.ShowMessageDialogAsync(title, content, defaultCommand, cancelCommand, secondaryCommand, cancellationToken));
 
     public async Task<RadioResult<bool>> TryExit(CancellationToken cancellationToken = default)
     {
