@@ -4,11 +4,36 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
+using CrossChannel;
+using Microsoft.UI.Xaml.Controls;
 
 namespace Arc.WinUI;
 
 public static class UiHelper
 {
+    /// <summary>
+    /// Shows a message dialog asynchronously.
+    /// </summary>
+    /// <param name="service">The presentation service to show the dialog.</param>
+    /// <param name="title">The title of the dialog.</param>
+    /// <param name="content">The content of the dialog.</param>
+    /// <param name="primaryCommand">The primary(default) command hash.</param>
+    /// <param name="cancelCommand">The cancel command hash (0: No cancel button, 1: 'Cancel').</param>
+    /// <param name="secondaryCommand">The secondary command hash.</param>
+    /// <param name="cancellationToken">The cancellation hash.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the dialog result.</returns>
+    public static Task<RadioResult<ContentDialogResult>> ShowMessageDialogAsync(this IBasicPresentationService service, ulong title, ulong content, ulong primaryCommand = 0, ulong cancelCommand = 0, ulong secondaryCommand = 0, CancellationToken cancellationToken = default)
+    {
+        var titleText = title == 0 ? string.Empty : HashedString.Get(title);
+        var contentText = content == 0 ? string.Empty : HashedString.Get(content);
+        var primaryText = primaryCommand == 0 ? WindowExtensions.OkText : primaryCommand == 1 ? WindowExtensions.OkText : HashedString.GetOrAlternative(primaryCommand, WindowExtensions.OkText);
+        var cancelText = cancelCommand == 0 ? default : cancelCommand == 1 ? WindowExtensions.CancelText : HashedString.GetOrAlternative(cancelCommand, WindowExtensions.CancelText);
+        var secondaryText = secondaryCommand == 0 ? default : HashedString.Get(secondaryCommand);
+
+        return service.MessageDialog(titleText, contentText, primaryText, cancelText, secondaryText, cancellationToken);
+    }
+
     /// <summary>
     /// Open url with default browser.
     /// </summary>
