@@ -17,7 +17,8 @@ public partial class AdvancedPageState : ObservableObject, IState
     public partial string DestinationText { get; set; } = string.Empty;
 
     [ObservableProperty]
-    public partial bool EnableButton { get; set; } = false;
+    [NotifyCanExecuteChangedFor(nameof(ExitCommand))]
+    public partial bool CanExit { get; set; } = true;
 
     private readonly IBasicPresentationService simpleWindowService;
 
@@ -54,13 +55,15 @@ public partial class AdvancedPageState : ObservableObject, IState
         {
             this.DestinationText = (value * 3).ToString();
         }
+
+        this.CanExit = !this.CanExit;
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanExit))]
     private async Task Exit()
     {
         var cts = new CancellationTokenSource();
-        cts.CancelAfter(3000);
+        cts.CancelAfter(2000);
 
         await this.simpleWindowService.TryExit(cts.Token);
     }
