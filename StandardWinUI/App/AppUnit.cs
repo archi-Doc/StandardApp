@@ -28,8 +28,6 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
                 context.Services.AddCrossChannel();
 
                 // Presentation-State
-                context.AddSingleton<SimpleWindow>();
-                context.AddSingleton<SimpleState>();
                 context.AddSingleton<NaviWindow>();
                 context.AddSingleton<HelloPage>();
                 context.AddSingleton<BaibainPage>();
