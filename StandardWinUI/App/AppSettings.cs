@@ -1,6 +1,7 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using Arc.WinUI;
+using Microsoft.UI;
 
 namespace StandardWinUI;
 
@@ -12,6 +13,8 @@ public partial class AppSettings
 {
     public const string Filename = "AppSettings.tinyhand";
 
+    #region FieldAndProperty
+
     public DipWindowPlacement WindowPlacement { get; set; } = default!;
 
     public string Culture { get; set; } = string.Empty;
@@ -21,6 +24,12 @@ public partial class AppSettings
     public int Baibai { get; set; }
 
     // public TestItem.GoshujinClass TestItems { get; set; } = default!;
+
+    public BrushOption BrushTest { get; set; } = new(Colors.Red);
+
+    public BrushCollection BrushCollection { get; set; } = default!; // Brush Collection
+
+    #endregion
 
     [TinyhandOnDeserialized]
     public void OnAfterDeserialize()
@@ -32,5 +41,20 @@ public partial class AppSettings
     public void OnBeforeSerialize()
     {
         this.ViewScale = Scaler.ViewScale;
+    }
+}
+
+[TinyhandObject]
+public partial class BrushCollection
+{
+    [Key(0)]
+    public BrushOption Brush1 { get; set; } = new(Colors.BurlyWood);
+
+    public BrushOption this[string name]
+    {
+        get
+        {
+            return this.Brush1;
+        }
     }
 }

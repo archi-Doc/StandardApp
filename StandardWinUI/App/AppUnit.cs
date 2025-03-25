@@ -101,13 +101,6 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
                         FileConfiguration = new GlobalFileConfiguration(AppSettings.Filename),
                         SaveFormat = SaveFormat.Utf8,
                     });
-
-                    context.AddCrystal<AppOptions>(new()
-                    {
-                        NumberOfFileHistories = 0,
-                        FileConfiguration = new GlobalFileConfiguration(AppOptions.Filename),
-                        SaveFormat = SaveFormat.Utf8,
-                    });
                 });
         }
     }

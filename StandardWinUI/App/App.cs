@@ -113,11 +113,6 @@ public static partial class App
     /// </summary>
     public static AppSettings Settings { get; private set; } = default!;
 
-    /// <summary>
-    /// Gets the options for the application.
-    /// </summary>
-    public static AppOptions Options { get; private set; } = default!;
-
     public static DispatcherQueue UiDispatcherQueue => uiDispatcherQueue;
 
     private static Mutex? appMutex = string.IsNullOrEmpty(MutexName) ? default : new(false, MutexName);
@@ -318,7 +313,6 @@ public static partial class App
 
         // Load settings and options.
         Settings = crystalizer.GetCrystal<AppSettings>().Data;
-        Options = crystalizer.GetCrystal<AppOptions>().Data;
     }
 }
 #endif
