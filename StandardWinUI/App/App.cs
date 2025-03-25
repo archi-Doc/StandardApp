@@ -54,6 +54,13 @@ public class App : AppBase
 
     #endregion
 
+    private void LoadCrystalData()
+    {
+        var crystalizer = this.GetService<Crystalizer>();
+        crystalizer.PrepareAndLoadAll(false).Wait();
+        this.Settings = crystalizer.GetCrystal<AppSettings>().Data;
+    }
+
     /// <summary>
     /// Loads the localized strings for the application.
     /// </summary>
@@ -99,18 +106,6 @@ public class App : AppBase
         }
     }
 
-    private void LoadCrystalData()
-    {
-        var crystalizer = this.GetService<Crystalizer>();
-        crystalizer.PrepareAndLoadAll(false).Wait();
-        this.Settings = crystalizer.GetCrystal<AppSettings>().Data;
-    }
-
-    public App(IServiceProvider serviceProvider)
-        : base(serviceProvider)
-    {
-    }
-
     public override Window GetMainWindow()
         => this.GetService<NaviWindow>();
 
@@ -132,6 +127,11 @@ public class App : AppBase
                 return new(false);
             }
         });
+    }
+
+    public App(IServiceProvider serviceProvider)
+        : base(serviceProvider)
+    {
     }
 
     internal void Initialize()
@@ -157,6 +157,6 @@ public class App : AppBase
         // Title
         this.Title = HashedString.Get(Hashed.App.Name) + " " + this.Version;
 
-        this.GetService<StandardApp>();
+        _ = this.GetService<StandardApp>();
     }
 }

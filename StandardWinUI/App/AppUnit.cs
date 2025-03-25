@@ -24,7 +24,7 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
             // Configuration for Unit.
             this.Configure(context =>
             {
-                context.AddSingleton<AppUnit>();
+                // context.AddSingleton<AppUnit>();
                 context.AddSingleton<StandardApp>();
                 context.AddSingleton<App>();
                 context.Services.AddSingleton<IApp>(x => x.GetRequiredService<App>());
