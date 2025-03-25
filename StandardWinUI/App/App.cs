@@ -13,11 +13,7 @@ global using Microsoft.Extensions.DependencyInjection;
 global using StandardWinUI;
 global using Tinyhand;
 using System.Globalization;
-using System.IO;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
 using Arc.WinUI;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
@@ -26,8 +22,6 @@ using Microsoft.UI.Xaml.Navigation;
 using StandardWinUI.Presentation;
 
 namespace StandardWinUI;
-
-#if DISABLE_XAML_GENERATED_MAIN
 
 // TODO: Rename 'StandardWinUI' and modify the app-specific constants, icons and images.
 // Dependencies and data persistence: AppUnit.
@@ -84,6 +78,14 @@ public class App
         this.serviceProvider = serviceProvider;
     }
 
+    public void Initialize()
+    {
+        this.LoadStrings();
+        this.LoadCrystalData();
+        this.PrepareCulture();
+        this.GetService<StandardApp>();
+    }
+
     internal void LoadCrystalData()
     {
         this.crystalizer = this.GetService<Crystalizer>();
@@ -132,7 +134,7 @@ public class App
         }
         catch
         {
-            this.Settings.Culture = App.DefaultCulture;
+            this.Settings.Culture = DefaultCulture;
             HashedString.ChangeCulture(this.Settings.Culture);
         }
     }
@@ -196,126 +198,4 @@ public class App
         var standardApp = this.GetService<StandardApp>();
         standardApp?.Exit();
     }
-}
-
-#endif
-
-#pragma warning disable SA1204 // Static elements should appear before instance elements
-public static partial class StaticApp
-#pragma warning restore SA1204 // Static elements should appear before instance elements
-{
-    public static string Version { get; private set; } = string.Empty;
-
-    public static string Title { get; private set; } = string.Empty;
-
-    public static string DataFolder { get; private set; } = string.Empty;
-
-    private static Mutex? appMutex = string.IsNullOrEmpty(App.MutexName) ? default : new(false, App.MutexName);
-    private static DispatcherQueue uiDispatcherQueue = default!;
-
-    /// <summary>
-    /// The entry point of the application.
-    /// </summary>
-    /// <param name="args">The command-line arguments.</param>
-    [STAThread]
-    private static void Main(string[] args)
-    {
-        PrepareDataFolder();
-        PrepareVersionAndTitle();
-        if (appMutex is not null &&
-            UiHelper.PreventMultipleInstances(appMutex, Title))
-        {
-            return;
-        }
-
-        AppUnit.Unit? unit = default;
-        App? app = default;
-        try
-        {
-            WinRT.ComWrappersSupport.InitializeComWrappers();
-            XamlCheckProcessRequirements(); // If an exception occurs here, run the Package project.
-            Application.Start(_ =>
-            {
-                uiDispatcherQueue = DispatcherQueue.GetForCurrentThread();
-                var context = new DispatcherQueueSynchronizationContext(uiDispatcherQueue);
-                SynchronizationContext.SetSynchronizationContext(context);
-
-                var builder = new AppUnit.Builder();
-                unit = builder.Build();
-                var serviceProvider = unit.Context.ServiceProvider;
-                app = serviceProvider.GetRequiredService<App>();
-
-                app.LoadStrings();
-                app.LoadCrystalData();
-                app.PrepareCulture();
-                var standardApp = app.GetService<StandardApp>();
-            });
-
-            Task.Run(async () =>
-            {// 'await task' does not work property.
-                if (app?.crystalizer is { } crystalizer)
-                {
-                    await crystalizer.SaveAllAndTerminate();
-                }
-
-                ThreadCore.Root.Terminate();
-                await ThreadCore.Root.WaitForTerminationAsync(-1);
-                if (unit?.Context.ServiceProvider.GetService<UnitLogger>() is { } unitLogger)
-                {
-                    await unitLogger.FlushAndTerminate();
-                }
-            }).Wait();
-        }
-        finally
-        {
-            if (appMutex is not null)
-            {
-                appMutex.ReleaseMutex();
-                appMutex.Close();
-            }
-        }
-    }
-
-    private static void PrepareVersionAndTitle()
-    {
-        // Version
-        try
-        {
-            var version = Windows.ApplicationModel.Package.Current.Id.Version;
-            Version = $"{version.Major}.{version.Minor}.{version.Build}";
-        }
-        catch
-        {
-            Version = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? string.Empty;
-        }
-
-        // Title
-        Title = HashedString.Get(Hashed.App.Name) + " " + Version;
-    }
-
-    private static void PrepareDataFolder()
-    {
-        // Data Folder
-        try
-        {
-            // UWP
-            DataFolder = Windows.Storage.ApplicationData.Current.LocalFolder.Path;
-        }
-        catch
-        {
-            // not UWP
-            DataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), App.DataFolderName);
-        }
-
-        try
-        {
-            Directory.CreateDirectory(DataFolder);
-        }
-        catch
-        {
-        }
-    }
-
-    [LibraryImport("Microsoft.ui.xaml.dll")]
-    private static partial void XamlCheckProcessRequirements();
 }
