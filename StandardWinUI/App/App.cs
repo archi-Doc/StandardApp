@@ -68,18 +68,23 @@ public class App
     public DispatcherQueue UiDispatcherQueue { get; private set; } = default!;
 
     private readonly IServiceProvider serviceProvider;
-
-    internal Crystalizer? crystalizer;
+    private readonly Crystalizer crystalizer;
 
     #endregion
 
     public App(IServiceProvider serviceProvider)
     {
         this.serviceProvider = serviceProvider;
+        this.crystalizer = this.GetService<Crystalizer>();
     }
 
     public void Initialize()
     {
+        this.Version = Entrypoint.Version;
+        this.Title = Entrypoint.Title;
+        this.DataFolder = Entrypoint.DataFolder;
+        this.UiDispatcherQueue = Entrypoint.UiDispatcherQueue;
+
         this.LoadStrings();
         this.LoadCrystalData();
         this.PrepareCulture();
@@ -88,9 +93,7 @@ public class App
 
     internal void LoadCrystalData()
     {
-        this.crystalizer = this.GetService<Crystalizer>();
         this.crystalizer.PrepareAndLoadAll(false).Wait();
-
         this.Settings = this.crystalizer.GetCrystal<AppSettings>().Data;
     }
 
@@ -195,7 +198,6 @@ public class App
     /// </summary>
     public void Exit()
     {
-        var standardApp = this.GetService<StandardApp>();
-        standardApp?.Exit();
+        this.GetService<StandardApp>()?.Exit();
     }
 }

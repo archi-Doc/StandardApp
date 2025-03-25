@@ -9,6 +9,7 @@ namespace StandardWinUI.State;
 public partial class SettingsState : ObservableObject, IState
 {
     private readonly App app;
+
     public SettingsState(App app)
     {
         this.app = app;

@@ -75,8 +75,8 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
 
             this.Preload(context =>
             {
-                context.ProgramDirectory = StaticApp.DataFolder;
-                context.DataDirectory = StaticApp.DataFolder;
+                context.ProgramDirectory = Entrypoint.DataFolder;
+                context.DataDirectory = Entrypoint.DataFolder;
             });
 
             this.SetupOptions<FileLoggerOptions>((context, options) =>

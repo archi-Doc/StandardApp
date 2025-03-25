@@ -13,7 +13,7 @@ namespace StandardWinUI;
 
 #if DISABLE_XAML_GENERATED_MAIN
 
-public static partial class StaticApp
+public static partial class Entrypoint
 {
     public static DispatcherQueue UiDispatcherQueue { get; private set; } = default!;
 
@@ -41,7 +41,6 @@ public static partial class StaticApp
         }
 
         AppUnit.Unit? unit = default;
-        App? app = default;
         try
         {
             WinRT.ComWrappersSupport.InitializeComWrappers();
@@ -55,13 +54,13 @@ public static partial class StaticApp
                 var builder = new AppUnit.Builder();
                 unit = builder.Build();
                 var serviceProvider = unit.Context.ServiceProvider;
-                app = serviceProvider.GetRequiredService<App>();
+                var app = serviceProvider.GetRequiredService<App>();
                 app.Initialize();
             });
 
             Task.Run(async () =>
             {// 'await task' does not work property.
-                if (app?.crystalizer is { } crystalizer)
+                if (unit?.Context.ServiceProvider.GetService<Crystalizer>() is { } crystalizer)
                 {
                     await crystalizer.SaveAllAndTerminate();
                 }
