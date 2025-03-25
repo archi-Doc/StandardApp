@@ -14,6 +14,12 @@ namespace StandardWinUI.Presentation;
 
 public partial class NaviWindow : WindowEx, IMessageDialogService
 {
+    #region FieldAndProperty
+
+    private readonly App app;
+
+    #endregion
+
     public NaviWindow(App app, IChannel<IMessageDialogService> messageDialogChannel)
     {
         this.app = app;
@@ -34,12 +40,6 @@ public partial class NaviWindow : WindowEx, IMessageDialogService
         this.LoadWindowPlacement(app.Settings.WindowPlacement);
         this.nvHome.IsSelected = true;
     }
-
-    #region FieldAndProperty
-
-    private readonly App app;
-
-    #endregion
 
     #region IBasicPresentationService
 

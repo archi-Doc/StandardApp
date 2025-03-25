@@ -53,14 +53,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Page Remove="App\StandardApp.xaml" />
-  </ItemGroup>
-
-  <ItemGroup>
     <AdditionalFiles Include="..\stylecop.json" Link="stylecop.json" />
   </ItemGroup>
 
   <ItemGroup>
+    <Page Remove="App\StandardApp.xaml" />
     <ApplicationDefinition Include="App\StandardApp.xaml" />
   </ItemGroup>
 
