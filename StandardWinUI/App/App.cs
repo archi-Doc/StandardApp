@@ -30,7 +30,7 @@ namespace StandardWinUI;
 
 // TODO: Rename 'StandardWinUI' and modify the app-specific constants, icons and images.
 // Dependencies and data persistence: AppUnit.
-// Presentation-State model: StatePage is equipped with basic functionalities, it is recommended to use this as a template.
+// Presentation-State model: 5.Advanced is equipped with basic functionalities, it is recommended to use this as a template.
 
 // App.GetService<T>() is used to retrieve a service of type T.
 // AppClass.OnLaunched() is the entry point of the application.

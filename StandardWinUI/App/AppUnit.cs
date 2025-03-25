@@ -10,6 +10,9 @@ using StandardWinUI.State;
 
 namespace StandardWinUI;
 
+/// <summary>
+/// AppUnit is a class that manages the dependencies of the DI container, logs, and CrystalData (data persistence).
+/// </summary>
 public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
 {
     public class Builder : UnitBuilder<Unit>

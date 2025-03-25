@@ -4,9 +4,12 @@ using Arc.WinUI;
 
 namespace StandardWinUI;
 
+/// <summary>
+/// AppSettings manages the application's settings.
+/// </summary>
 [TinyhandObject(ImplicitKeyAsName = true)]
 public partial class AppSettings
-{// Application Settings
+{
     public const string Filename = "AppSettings.tinyhand";
 
     public DipWindowPlacement WindowPlacement { get; set; } = default!;
