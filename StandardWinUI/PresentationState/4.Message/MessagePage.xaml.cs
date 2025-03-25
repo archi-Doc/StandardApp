@@ -1,9 +1,9 @@
 // Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using Microsoft.UI.Xaml.Controls;
-using StandardWinUI.State;
+using StandardWinUI.PresentationState;
 
-namespace StandardWinUI.Presentation;
+namespace StandardWinUI.PresentationState;
 
 public sealed partial class MessagePage : Page
 {

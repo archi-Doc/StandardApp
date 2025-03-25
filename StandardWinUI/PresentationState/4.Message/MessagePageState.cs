@@ -1,12 +1,11 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using System.Threading.Tasks;
-using Arc.WinUI;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml.Controls;
 
-namespace StandardWinUI.State;
+namespace StandardWinUI.PresentationState;
 
 public partial class MessagePageState : ObservableObject, IState
 {

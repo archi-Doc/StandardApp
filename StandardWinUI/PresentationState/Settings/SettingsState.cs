@@ -1,10 +1,9 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
-using Arc.WinUI;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
-namespace StandardWinUI.State;
+namespace StandardWinUI.PresentationState;
 
 public partial class SettingsState : ObservableObject, IState
 {

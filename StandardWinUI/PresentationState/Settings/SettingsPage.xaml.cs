@@ -1,11 +1,8 @@
 // Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
-using System.Collections.Generic;
-using Arc.WinUI;
 using Microsoft.UI.Xaml.Controls;
-using StandardWinUI.State;
 
-namespace StandardWinUI.Presentation;
+namespace StandardWinUI.PresentationState;
 
 public sealed partial class SettingsPage : Page
 {

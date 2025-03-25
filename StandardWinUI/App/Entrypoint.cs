@@ -4,7 +4,6 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Arc.WinUI;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 
