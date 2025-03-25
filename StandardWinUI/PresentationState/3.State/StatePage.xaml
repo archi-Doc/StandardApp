@@ -20,7 +20,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="0" Text="{Arc:Stringer Source=Presentation.Enter}" Margin="10" />
+        <TextBlock Grid.Row="0" Text="{Arc:Stringer Source=Baibain.Enter}" Margin="10" />
         <StackPanel Grid.Row="1" Orientation="Horizontal">
             <NumberBox x:Name="textBox1" Text="{x:Bind State.SourceText, Mode=TwoWay}" PlaceholderText="Number" Width="120" Margin="10"/>
             <Button Content="{Arc:Stringer Source=State.Button}" Command="{x:Bind State.BaibainCommand}" Margin="10" />
