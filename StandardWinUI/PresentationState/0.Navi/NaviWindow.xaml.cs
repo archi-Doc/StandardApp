@@ -2,7 +2,6 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using Arc.WinUI;
 using CommunityToolkit.WinUI;
 using CrossChannel;
 using Microsoft.UI.Windowing;
@@ -14,11 +13,7 @@ namespace StandardWinUI.PresentationState;
 
 public partial class NaviWindow : WindowEx, IMessageDialogService
 {
-    #region FieldAndProperty
-
     private readonly App app;
-
-    #endregion
 
     public NaviWindow(App app, IChannel<IMessageDialogService> messageDialogChannel)
     {
