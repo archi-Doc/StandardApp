@@ -3,6 +3,7 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Arc.WinUI;
 using CrossChannel;
 using SimpleCommandLine;
 using StandardWinUI.Presentation;
@@ -26,6 +27,7 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
                 context.AddSingleton<AppUnit>();
                 context.AddSingleton<StandardApp>();
                 context.AddSingleton<App>();
+                context.Services.AddSingleton<IApp>(x => x.GetRequiredService<App>());
 
                 // CrossChannel
                 context.Services.AddCrossChannel();
