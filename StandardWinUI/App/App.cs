@@ -43,17 +43,20 @@ namespace StandardWinUI;
 /// App class is an application-specific class.<br/>
 /// It manages various application-specific information, such as language and settings.
 /// </summary>
-public class App2
-{
-}
-
 public static partial class App
 {
     public const string MutexName = "Arc.StandardWinUI"; // The name of the mutex used to prevent multiple instances of the application. Specify 'string.Empty' to allow multiple instances.
     public const string AppDataFolder = "Arc\\StandardWinUI"; // The folder name for application data.
-    public const string AppDataFile = "App.tinyhand"; // The file name for application data.
     public const string DefaultCulture = "en"; // The default culture for the application.
     public const double DefaultFontSize = 14; // The default font size for the application.
+
+    private static void LoadCrystalData()
+    {
+        crystalizer = GetService<Crystalizer>();
+        crystalizer.PrepareAndLoadAll(false).Wait();
+
+        Settings = crystalizer.GetCrystal<AppSettings>().Data;
+    }
 
     /// <summary>
     /// Loads the localized strings for the application.
@@ -163,7 +166,7 @@ public static partial class App
                 unit = builder.Build();
                 serviceProvider = unit.Context.ServiceProvider;
 
-                PrepareCrystalizer();
+                LoadCrystalData();
                 PrepareCulture();
                 appClass = GetService<AppClass>();
             });
@@ -293,15 +296,6 @@ public static partial class App
 
         // Title
         Title = HashedString.Get(Hashed.App.Name) + " " + Version;
-    }
-
-    private static void PrepareCrystalizer()
-    {
-        crystalizer = GetService<Crystalizer>();
-        crystalizer.PrepareAndLoadAll(false).Wait();
-
-        // Load settings and options.
-        Settings = crystalizer.GetCrystal<AppSettings>().Data;
     }
 }
 
