@@ -10,7 +10,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using WinUIEx;
 
-namespace StandardWinUI.Presentation;
+namespace StandardWinUI.PresentationState;
 
 public partial class NaviWindow : WindowEx, IMessageDialogService
 {

@@ -2,7 +2,7 @@
 
 using Microsoft.UI.Xaml.Controls;
 
-namespace StandardWinUI.Presentation;
+namespace StandardWinUI.PresentationState;
 
 public sealed partial class BaibainPage : Page
 {

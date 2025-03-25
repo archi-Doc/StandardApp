@@ -2,11 +2,10 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using Arc.WinUI;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
-namespace StandardWinUI.State;
+namespace StandardWinUI.PresentationState;
 
 public partial class AdvancedPageState : ObservableObject, IState
 {

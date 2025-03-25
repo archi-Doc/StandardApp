@@ -3,7 +3,7 @@
 using Arc.WinUI;
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace StandardWinUI.State;
+namespace StandardWinUI.PresentationState;
 
 public partial class InformationState : ObservableObject, IState
 {

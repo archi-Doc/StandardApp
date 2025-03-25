@@ -2,9 +2,9 @@
 
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Documents;
-using StandardWinUI.State;
+using StandardWinUI.PresentationState;
 
-namespace StandardWinUI.Presentation;
+namespace StandardWinUI.PresentationState;
 
 public sealed partial class InformationPage : Page
 {
