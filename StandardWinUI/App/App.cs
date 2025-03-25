@@ -18,7 +18,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arc.WinUI;
 using CommunityToolkit.WinUI;
-using CrossChannel;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using StandardWinUI.Presentation;
@@ -106,28 +105,30 @@ public class App : AppBase
         }
     }
 
+    public override Application GetApplication()
+        => this.GetService<StandardApp>();
+
     public override Window GetMainWindow()
         => this.GetService<NaviWindow>();
 
-    public override void Exit()
-        => this.GetService<StandardApp>().Exit();
-
-    public override Task TryExit(CancellationToken cancellationToken = default)
+    public override Task<bool> TryExit(CancellationToken cancellationToken = default)
     {
-        return this.UiDispatcherQueue.EnqueueAsync<RadioResult<bool>>(async () =>
+        return this.UiDispatcherQueue.EnqueueAsync(async () =>
         {
             var result = await this.GetService<IMessageDialogService>().ShowMessageDialogAsync(0, Hashed.Dialog.Exit, Hashed.Dialog.Yes, Hashed.Dialog.No, 0, cancellationToken);
             if (result.TryGetSingleResult(out var r) && r == ContentDialogResult.Primary)
             {// Exit
                 this.Exit();
-                return new(true);
+                return true;
             }
             else
             {// Canceled
-                return new(false);
+                return false;
             }
         });
     }
+
+    #region Common
 
     public App(IServiceProvider serviceProvider)
         : base(serviceProvider)
@@ -157,6 +158,8 @@ public class App : AppBase
         // Title
         this.Title = HashedString.Get(Hashed.App.Name) + " " + this.Version;
 
-        _ = this.GetService<StandardApp>();
+        _ = this.GetApplication();
     }
+
+    #endregion
 }

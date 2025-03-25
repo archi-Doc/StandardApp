@@ -33,6 +33,12 @@ public interface IApp
     string DataFolder { get; }
 
     /// <summary>
+    /// Gets the application instance.
+    /// </summary>
+    /// <returns>The application instance.</returns>
+    Application GetApplication();
+
+    /// <summary>
     /// Gets the main window of the application.
     /// </summary>
     /// <returns>The main window.</returns>
@@ -43,5 +49,13 @@ public interface IApp
     /// </summary>
     void Exit();
 
-    Task TryExit(CancellationToken cancellationToken = default);
+    /// <summary>
+    /// Attempts to exit the application.
+    /// </summary>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/> that can be used to cancel the exit operation.</param>
+    /// <returns>
+    /// A <see cref="Task{TResult}"/> representing the asynchronous operation.<br/>
+    /// Returns <see langword="true"/> if the exit was successful, otherwise returns <see langword="false"/>.
+    /// </returns>
+    Task<bool> TryExit(CancellationToken cancellationToken = default);
 }

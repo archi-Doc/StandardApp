@@ -89,9 +89,12 @@ public abstract class AppBase : IApp
         }
     }
 
+    public abstract Application GetApplication();
+
     public abstract Window GetMainWindow();
 
-    public abstract Task TryExit(CancellationToken cancellationToken);
+    public void Exit()
+        => this.GetApplication().Exit();
 
-    public abstract void Exit();
+    public abstract Task<bool> TryExit(CancellationToken cancellationToken);
 }
