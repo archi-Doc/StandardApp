@@ -1,7 +1,6 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using System.IO;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,10 +16,6 @@ public static partial class Entrypoint
 {
     public static DispatcherQueue UiDispatcherQueue { get; private set; } = default!;
 
-    public static string Version { get; private set; } = string.Empty;
-
-    public static string Title { get; private set; } = string.Empty;
-
     public static string DataFolder { get; private set; } = string.Empty;
 
     private static Mutex? appMutex = string.IsNullOrEmpty(App.MutexName) ? default : new(false, App.MutexName);
@@ -33,9 +28,8 @@ public static partial class Entrypoint
     private static void Main(string[] args)
     {
         PrepareDataFolder();
-        PrepareVersionAndTitle();
         if (appMutex is not null &&
-            UiHelper.PreventMultipleInstances(appMutex, Title))
+            UiHelper.PreventMultipleInstances(appMutex))
         {
             return;
         }
@@ -44,7 +38,7 @@ public static partial class Entrypoint
         try
         {
             WinRT.ComWrappersSupport.InitializeComWrappers();
-            XamlCheckProcessRequirements(); // If an exception occurs here, run the Package project.
+            XamlCheckProcessRequirements(); // If an exception occurs here, run the Package project or set WindowsAppSDKSelfContained to true.
             Application.Start(_ =>
             {
                 UiDispatcherQueue = DispatcherQueue.GetForCurrentThread();
@@ -81,23 +75,6 @@ public static partial class Entrypoint
                 appMutex.Close();
             }
         }
-    }
-
-    private static void PrepareVersionAndTitle()
-    {
-        // Version
-        try
-        {
-            var version = Windows.ApplicationModel.Package.Current.Id.Version;
-            Version = $"{version.Major}.{version.Minor}.{version.Build}";
-        }
-        catch
-        {
-            Version = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? string.Empty;
-        }
-
-        // Title
-        Title = HashedString.Get(Hashed.App.Name) + " " + Version;
     }
 
     private static void PrepareDataFolder()

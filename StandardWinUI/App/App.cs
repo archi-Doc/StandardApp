@@ -121,7 +121,7 @@ public class App : AppBase
     {
         return this.UiDispatcherQueue.EnqueueAsync<RadioResult<bool>>(async () =>
         {
-            var result = await this.GetService<IBasicPresentationService>().ShowMessageDialogAsync(0, Hashed.Dialog.Exit, Hashed.Dialog.Yes, Hashed.Dialog.No, 0, cancellationToken);
+            var result = await this.GetService<IMessageDialogService>().ShowMessageDialogAsync(0, Hashed.Dialog.Exit, Hashed.Dialog.Yes, Hashed.Dialog.No, 0, cancellationToken);
             if (result.TryGetSingleResult(out var r) && r == ContentDialogResult.Primary)
             {// Exit
                 this.Exit();
@@ -136,14 +136,27 @@ public class App : AppBase
 
     internal void Initialize()
     {
-        this.Version = Entrypoint.Version;
-        this.Title = Entrypoint.Title;
         this.DataFolder = Entrypoint.DataFolder;
         this.UiDispatcherQueue = Entrypoint.UiDispatcherQueue;
 
         this.LoadStrings();
         this.LoadCrystalData();
         this.PrepareCulture();
+
+        // Version
+        try
+        {
+            var version = Windows.ApplicationModel.Package.Current.Id.Version;
+            this.Version = $"{version.Major}.{version.Minor}.{version.Build}";
+        }
+        catch
+        {
+            this.Version = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? string.Empty;
+        }
+
+        // Title
+        this.Title = HashedString.Get(Hashed.App.Name) + " " + this.Version;
+
         this.GetService<StandardApp>();
     }
 }

@@ -12,9 +12,9 @@ using WinUIEx;
 
 namespace StandardWinUI.Presentation;
 
-public partial class NaviWindow : WindowEx, IBasicPresentationService
+public partial class NaviWindow : WindowEx, IMessageDialogService
 {
-    public NaviWindow(App app, IChannel<IBasicPresentationService> basicPresentationChannel)
+    public NaviWindow(App app, IChannel<IMessageDialogService> basicPresentationChannel)
     {
         this.app = app;
         this.InitializeComponent();
@@ -43,32 +43,15 @@ public partial class NaviWindow : WindowEx, IBasicPresentationService
 
     #region IBasicPresentationService
 
-    Task<RadioResult<ContentDialogResult>> IBasicPresentationService.MessageDialog(string title, string content, string primaryCommand, string? cancelCommand, string? secondaryCommand, CancellationToken cancellationToken)
+    Task<RadioResult<ContentDialogResult>> IMessageDialogService.Show(string title, string content, string primaryCommand, string? cancelCommand, string? secondaryCommand, CancellationToken cancellationToken)
         => this.app.UiDispatcherQueue.EnqueueAsync(() => this.ShowMessageDialogAsync(title, content, primaryCommand, cancelCommand, secondaryCommand, cancellationToken));
-
-    public Task<RadioResult<bool>> TryExit(CancellationToken cancellationToken = default)
-    {
-        return this.app.UiDispatcherQueue.EnqueueAsync<RadioResult<bool>>(async () =>
-        {
-            var result = await this.ShowMessageDialogAsync(0, Hashed.Dialog.Exit, Hashed.Dialog.Yes, Hashed.Dialog.No, 0, cancellationToken);
-            if (result.TryGetSingleResult(out var r) && r == ContentDialogResult.Primary)
-            {// Exit
-                this.app.Exit();
-                return new(true);
-            }
-            else
-            {// Canceled
-                return new(false);
-            }
-        });
-    }
 
     #endregion
 
     private async void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)
     {// The close button of the Window was pressed.
         args.Cancel = true; // Since the Closing function isn't awaiting, I'll cancel first. Sorry for writing such crappy code.
-        await this.TryExit();
+        await this.app.TryExit();
     }
 
     private void NaviWindow_Activated(object sender, WindowActivatedEventArgs args)
@@ -116,6 +99,6 @@ public partial class NaviWindow : WindowEx, IBasicPresentationService
 
     private async void nvExit_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
     {
-        await this.TryExit();
+        await this.app.TryExit();
     }
 }

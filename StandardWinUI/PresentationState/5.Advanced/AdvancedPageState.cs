@@ -21,12 +21,12 @@ public partial class AdvancedPageState : ObservableObject, IState
     public partial bool CanExit { get; set; } = true;
 
     private readonly App app;
-    private readonly IBasicPresentationService simpleWindowService;
+    private readonly IMessageDialogService messageDialogService;
 
-    public AdvancedPageState(App app, IBasicPresentationService simpleWindowService)
+    public AdvancedPageState(App app, IMessageDialogService simpleWindowService)
     {
         this.app = app;
-        this.simpleWindowService = simpleWindowService;
+        this.messageDialogService = simpleWindowService;
     }
 
     /// <summary>
@@ -67,6 +67,6 @@ public partial class AdvancedPageState : ObservableObject, IState
         var cts = new CancellationTokenSource();
         cts.CancelAfter(2000);
 
-        await this.simpleWindowService.TryExit(cts.Token);
+        await this.app.TryExit(cts.Token);
     }
 }
