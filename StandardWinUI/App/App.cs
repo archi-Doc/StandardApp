@@ -14,11 +14,13 @@ global using StandardWinUI;
 global using Tinyhand;
 using System.Globalization;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using Arc.WinUI;
-using Microsoft.UI.Dispatching;
+using CommunityToolkit.WinUI;
+using CrossChannel;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Navigation;
 using StandardWinUI.Presentation;
 
 namespace StandardWinUI;
@@ -36,7 +38,7 @@ namespace StandardWinUI;
 /// App class is an application-specific class.<br/>
 /// It manages various application-specific information, such as language and settings.
 /// </summary>
-public class App
+public class App : AppBase
 {
     public const string MutexName = "Arc.StandardWinUI"; // The name of the mutex used to prevent multiple instances of the application. Specify 'string.Empty' to allow multiple instances.
     public const string DataFolderName = "Arc\\StandardWinUI"; // The folder name for application data.
@@ -46,61 +48,16 @@ public class App
     #region FieldAndProperty
 
     /// <summary>
-    /// Gets the version of the application.
-    /// </summary>
-    public string Version { get; private set; } = string.Empty;
-
-    /// <summary>
-    /// Gets the title of the application.
-    /// </summary>
-    public string Title { get; private set; } = string.Empty;
-
-    /// <summary>
-    /// Gets the folder path for application data.
-    /// </summary>
-    public string DataFolder { get; private set; } = string.Empty;
-
-    /// <summary>
     /// Gets the settings for the application.
     /// </summary>
     public AppSettings Settings { get; private set; } = default!;
 
-    public DispatcherQueue UiDispatcherQueue { get; private set; } = default!;
-
-    private readonly IServiceProvider serviceProvider;
-    private readonly Crystalizer crystalizer;
-
     #endregion
-
-    public App(IServiceProvider serviceProvider)
-    {
-        this.serviceProvider = serviceProvider;
-        this.crystalizer = this.GetService<Crystalizer>();
-    }
-
-    public void Initialize()
-    {
-        this.Version = Entrypoint.Version;
-        this.Title = Entrypoint.Title;
-        this.DataFolder = Entrypoint.DataFolder;
-        this.UiDispatcherQueue = Entrypoint.UiDispatcherQueue;
-
-        this.LoadStrings();
-        this.LoadCrystalData();
-        this.PrepareCulture();
-        this.GetService<StandardApp>();
-    }
-
-    internal void LoadCrystalData()
-    {
-        this.crystalizer.PrepareAndLoadAll(false).Wait();
-        this.Settings = this.crystalizer.GetCrystal<AppSettings>().Data;
-    }
 
     /// <summary>
     /// Loads the localized strings for the application.
     /// </summary>
-    internal void LoadStrings()
+    private void LoadStrings()
     {
         try
         {
@@ -120,7 +77,7 @@ public class App
     /// <summary>
     /// Prepares the culture for the application.
     /// </summary>
-    internal void PrepareCulture()
+    private void PrepareCulture()
     {
         try
         {
@@ -142,62 +99,51 @@ public class App
         }
     }
 
-    public Window GetMainWindow()
+    private void LoadCrystalData()
+    {
+        var crystalizer = this.GetService<Crystalizer>();
+        crystalizer.PrepareAndLoadAll(false).Wait();
+        this.Settings = crystalizer.GetCrystal<AppSettings>().Data;
+    }
+
+    public App(IServiceProvider serviceProvider)
+        : base(serviceProvider)
+    {
+    }
+
+    public override Window GetMainWindow()
         => this.GetService<NaviWindow>();
 
-    /// <summary>
-    /// Retrieves a service of type <typeparamref name="T"/>.
-    /// </summary>
-    /// <typeparam name="T">The type of the service.</typeparam>
-    /// <returns>The service instance.</returns>
-    public T GetService<T>()
-        where T : class
+    public override void Exit()
+        => this.GetService<StandardApp>().Exit();
+
+    public override Task TryExit(CancellationToken cancellationToken = default)
     {
-        if (this.serviceProvider.GetService(typeof(T)) is not T service)
+        return this.UiDispatcherQueue.EnqueueAsync<RadioResult<bool>>(async () =>
         {
-            throw new ArgumentException($"{typeof(T)} needs to be registered in Configure within AppUnit.cs.");
-        }
-
-        return service;
-    }
-
-    public T GetAndPrepareState<T>(FrameworkElement element)
-        where T : class, IState
-    {
-        if (this.serviceProvider.GetService(typeof(T)) is not T state)
-        {
-            throw new ArgumentException($"{typeof(T)} needs to be registered in Configure within AppUnit.cs.");
-        }
-
-        element.Loaded += (sender, e) => state.RestoreState();
-        element.Unloaded += (sender, e) => state.StoreState();
-
-        return state;
-    }
-
-    /// <summary>
-    /// Handles the navigation event and retrieves the corresponding page from the service provider.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="args">The event data.</param>
-    public void NavigatingHandler(object sender, NavigatingCancelEventArgs args)
-    {
-        if (args.SourcePageType is not null)
-        {
-            var page = this.serviceProvider.GetService(args.SourcePageType);
-            if (page is not null)
-            {
-                args.Cancel = true;
-                ((Frame)sender).Content = page;
+            var result = await this.GetService<IBasicPresentationService>().ShowMessageDialogAsync(0, Hashed.Dialog.Exit, Hashed.Dialog.Yes, Hashed.Dialog.No, 0, cancellationToken);
+            if (result.TryGetSingleResult(out var r) && r == ContentDialogResult.Primary)
+            {// Exit
+                this.Exit();
+                return new(true);
             }
-        }
+            else
+            {// Canceled
+                return new(false);
+            }
+        });
     }
 
-    /// <summary>
-    /// Exits the application.
-    /// </summary>
-    public void Exit()
+    internal void Initialize()
     {
-        this.GetService<StandardApp>()?.Exit();
+        this.Version = Entrypoint.Version;
+        this.Title = Entrypoint.Title;
+        this.DataFolder = Entrypoint.DataFolder;
+        this.UiDispatcherQueue = Entrypoint.UiDispatcherQueue;
+
+        this.LoadStrings();
+        this.LoadCrystalData();
+        this.PrepareCulture();
+        this.GetService<StandardApp>();
     }
 }

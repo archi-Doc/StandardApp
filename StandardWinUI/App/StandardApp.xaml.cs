@@ -1,12 +1,13 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
+using Arc.WinUI;
 using Microsoft.UI.Xaml;
 
 namespace StandardWinUI;
 
 public partial class StandardApp : Application
 {
-    public StandardApp(App app)
+    public StandardApp(IApp app)
     {
         this.app = app;
         this.InitializeComponent();
@@ -22,6 +23,6 @@ public partial class StandardApp : Application
         this.window.Activate();
     }
 
-    private readonly App app;
+    private readonly IApp app;
     private Window? window;
 }
