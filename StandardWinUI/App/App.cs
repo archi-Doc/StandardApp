@@ -131,7 +131,7 @@ public static partial class App
     private static DispatcherQueue uiDispatcherQueue = default!;
     private static IServiceProvider serviceProvider = default!;
     private static Crystalizer? crystalizer;
-    private static AppClass? appClass;
+    private static StandardApp? standardApp;
 
     #endregion
 
@@ -168,7 +168,7 @@ public static partial class App
 
                 LoadCrystalData();
                 PrepareCulture();
-                appClass = GetService<AppClass>();
+                standardApp = GetService<StandardApp>();
             });
 
             Task.Run(async () =>
@@ -252,7 +252,7 @@ public static partial class App
     /// </summary>
     public static void Exit()
     {
-        appClass?.Exit();
+        standardApp?.Exit();
     }
 
     [LibraryImport("Microsoft.ui.xaml.dll")]

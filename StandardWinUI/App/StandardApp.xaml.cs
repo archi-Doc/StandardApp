@@ -4,9 +4,9 @@ using Microsoft.UI.Xaml;
 
 namespace StandardWinUI;
 
-public partial class AppClass : Application
+public partial class StandardApp : Application
 {
-    public AppClass()
+    public StandardApp()
     {
         this.InitializeComponent();
     }

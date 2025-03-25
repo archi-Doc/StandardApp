@@ -24,7 +24,7 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
             this.Configure(context =>
             {
                 context.AddSingleton<AppUnit>();
-                context.AddSingleton<AppClass>();
+                context.AddSingleton<StandardApp>();
                 // context.CreateInstance<AppUnit>();
 
                 // CrossChannel
@@ -146,7 +146,7 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
 
         public ILogWriter? Filter(LogFilterParameter param)
         {// Log source/Event id/LogLevel -> Filter() -> ILog
-            if (param.LogSourceType == typeof(AppClass))
+            if (param.LogSourceType == typeof(StandardApp))
             {
                 // return null; // No log
                 if (param.LogLevel == LogLevel.Error)

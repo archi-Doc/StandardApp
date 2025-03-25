@@ -52,7 +52,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Page Remove="App\AppClass.xaml" />
+    <Page Remove="App\StandardApp.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -60,7 +60,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ApplicationDefinition Include="App\AppClass.xaml" />
+    <ApplicationDefinition Include="App\StandardApp.xaml" />
   </ItemGroup>
 
   <ItemGroup>
