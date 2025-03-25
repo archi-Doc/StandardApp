@@ -23,6 +23,7 @@ using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
+using StandardWinUI.Presentation;
 
 namespace StandardWinUI;
 
@@ -37,6 +38,14 @@ namespace StandardWinUI;
 // AppSettings and AppOptions are classes that save the configuration information of the app.
 // IBasicPresentationService.TryExit() attempts to exit the app, while App.Exit() exits the app without confirmation.
 // NaviWindow_Closed() is called when the main window is closed.
+
+/// <summary>
+/// App class is an application-specific class.<br/>
+/// It manages various application-specific information, such as language and settings.
+/// </summary>
+public class App2
+{
+}
 
 public static partial class App
 {
@@ -134,7 +143,7 @@ public static partial class App
         PrepareDataFolder();
         PrepareVersionAndTitle();
         if (appMutex is not null &&
-            Arc.WinUI.UiHelper.PreventMultipleInstances(appMutex, Title))
+            UiHelper.PreventMultipleInstances(appMutex, Title))
         {
             return;
         }
@@ -183,6 +192,9 @@ public static partial class App
             }
         }
     }
+
+    public static Window GetMainWindow()
+        => App.GetService<NaviWindow>();
 
     /// <summary>
     /// Retrieves a service of type <typeparamref name="T"/>.
@@ -240,29 +252,6 @@ public static partial class App
         appClass?.Exit();
     }
 
-    /// <summary>
-    /// Tries to enqueue a task on the UI thread.
-    /// </summary>
-    /// <param name="callback">The callback to enqueue.</param>
-    public static void TryEnqueueOnUI(DispatcherQueueHandler callback)
-        => uiDispatcherQueue.TryEnqueue(callback);
-
-    /// <summary>
-    /// Executes or enqueue a task on the UI thread.
-    /// </summary>
-    /// <param name="callback">The action that will be executed on the UI thread.</param>
-    public static void ExecuteOrEnqueueOnUI(DispatcherQueueHandler callback)
-    {
-        if (uiDispatcherQueue.HasThreadAccess)
-        {
-            callback.Invoke();
-        }
-        else
-        {
-            uiDispatcherQueue.TryEnqueue(callback);
-        }
-    }
-
     [LibraryImport("Microsoft.ui.xaml.dll")]
     private static partial void XamlCheckProcessRequirements();
 
@@ -315,4 +304,5 @@ public static partial class App
         Settings = crystalizer.GetCrystal<AppSettings>().Data;
     }
 }
+
 #endif
