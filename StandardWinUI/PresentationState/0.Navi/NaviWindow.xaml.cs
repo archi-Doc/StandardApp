@@ -14,12 +14,12 @@ namespace StandardWinUI.Presentation;
 
 public partial class NaviWindow : WindowEx, IMessageDialogService
 {
-    public NaviWindow(App app, IChannel<IMessageDialogService> basicPresentationChannel)
+    public NaviWindow(App app, IChannel<IMessageDialogService> messageDialogChannel)
     {
         this.app = app;
         this.InitializeComponent();
         Scaler.Register(this.layoutTransform);
-        basicPresentationChannel.Open(this, true);
+        messageDialogChannel.Open(this, true);
 
         this.Title = app.Title;
         this.SetApplicationIcon();
