@@ -3,6 +3,7 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Arc.WinUI;
 using CrossChannel;
 using SimpleCommandLine;
 using StandardWinUI.Presentation;
@@ -10,6 +11,9 @@ using StandardWinUI.State;
 
 namespace StandardWinUI;
 
+/// <summary>
+/// AppUnit is a class that manages the dependencies of the DI container, logs, and CrystalData (data persistence).
+/// </summary>
 public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
 {
     public class Builder : UnitBuilder<Unit>
@@ -20,9 +24,10 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
             // Configuration for Unit.
             this.Configure(context =>
             {
-                context.AddSingleton<AppUnit>();
-                context.AddSingleton<AppClass>();
-                // context.CreateInstance<AppUnit>();
+                // context.AddSingleton<AppUnit>();
+                context.AddSingleton<StandardApp>();
+                context.AddSingleton<App>();
+                context.Services.AddSingleton<IApp>(x => x.GetRequiredService<App>());
 
                 // CrossChannel
                 context.Services.AddCrossChannel();
@@ -72,8 +77,8 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
 
             this.Preload(context =>
             {
-                context.ProgramDirectory = App.DataFolder;
-                context.DataDirectory = App.DataFolder;
+                context.ProgramDirectory = Entrypoint.DataFolder;
+                context.DataDirectory = Entrypoint.DataFolder;
             });
 
             this.SetupOptions<FileLoggerOptions>((context, options) =>
@@ -96,13 +101,6 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
                     {
                         NumberOfFileHistories = 0,
                         FileConfiguration = new GlobalFileConfiguration(AppSettings.Filename),
-                        SaveFormat = SaveFormat.Utf8,
-                    });
-
-                    context.AddCrystal<AppOptions>(new()
-                    {
-                        NumberOfFileHistories = 0,
-                        FileConfiguration = new GlobalFileConfiguration(AppOptions.Filename),
                         SaveFormat = SaveFormat.Utf8,
                     });
                 });
@@ -150,7 +148,7 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
 
         public ILogWriter? Filter(LogFilterParameter param)
         {// Log source/Event id/LogLevel -> Filter() -> ILog
-            if (param.LogSourceType == typeof(AppClass))
+            if (param.LogSourceType == typeof(StandardApp))
             {
                 // return null; // No log
                 if (param.LogLevel == LogLevel.Error)

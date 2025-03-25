@@ -10,12 +10,13 @@
     <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
     <UseWinUI>true</UseWinUI>
     <RootNamespace>StandardWinUI</RootNamespace>
-    <ApplicationManifest>App\App.manifest</ApplicationManifest>
+    <ApplicationManifest>App\StandardApp.manifest</ApplicationManifest>
     <ApplicationIcon>Resources\App.ico</ApplicationIcon>
     <NoWarn>$(NoWarn);NETSDK1206</NoWarn>
+    <WindowsAppSDKSelfContained>false</WindowsAppSDKSelfContained>
 
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <StartupObject>StandardWinUI.App</StartupObject>
+    <StartupObject>StandardWinUI.Entrypoint</StartupObject>
     <DefineConstants>DISABLE_XAML_GENERATED_MAIN</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
@@ -52,7 +53,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Page Remove="App\AppClass.xaml" />
+    <Page Remove="App\StandardApp.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -60,7 +61,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ApplicationDefinition Include="App\AppClass.xaml" />
+    <ApplicationDefinition Include="App\StandardApp.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -68,16 +69,6 @@
     <EmbeddedResource Include="Resources\Strings\String-en.tinyhand" />
     <EmbeddedResource Include="Resources\Strings\String-ja.tinyhand" />
     <EmbeddedResource Include="Resources\App.ico" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Page Update="Views\HomePage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="PresentationState\Settings\" />
   </ItemGroup>
 
 </Project>

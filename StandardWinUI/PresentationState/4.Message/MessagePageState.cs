@@ -10,17 +10,17 @@ namespace StandardWinUI.State;
 
 public partial class MessagePageState : ObservableObject, IState
 {
-    private readonly IBasicPresentationService simpleWindowService;
+    private readonly IMessageDialogService messageDialogService;
 
-    public MessagePageState(IBasicPresentationService simpleWindowService)
+    public MessagePageState(IMessageDialogService messageDialogService)
     {
-        this.simpleWindowService = simpleWindowService;
+        this.messageDialogService = messageDialogService;
     }
 
     [RelayCommand]
     private async Task Test()
     {
-        var r = await this.simpleWindowService.MessageDialog(string.Empty, "Like or Love?", "Like", "Love");
+        var r = await this.messageDialogService.Show(string.Empty, "Like or Love?", "Like", "Love");
         if (!r.TryGetSingleResult(out var result))
         {
             return;
@@ -28,11 +28,11 @@ public partial class MessagePageState : ObservableObject, IState
 
         if (result == ContentDialogResult.Primary)
         {
-            await this.simpleWindowService.MessageDialog(string.Empty, "Hikaru-chan...", string.Empty);
+            await this.messageDialogService.Show(string.Empty, "Hikaru-chan...", string.Empty);
         }
         else
         {
-            await this.simpleWindowService.MessageDialog(string.Empty, "Ooh, Ayukawa.", string.Empty);
+            await this.messageDialogService.Show(string.Empty, "Ooh, Ayukawa.", string.Empty);
         }
     }
 }

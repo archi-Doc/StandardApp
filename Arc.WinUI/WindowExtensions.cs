@@ -16,24 +16,6 @@ public static class WindowExtensions
     public const string CancelText = "Cancel";
 
     /// <summary>
-    /// Activates the specified window.
-    /// </summary>
-    /// <param name="window">The window to activate.</param>
-    /// <param name="force">If set to <c>true</c>, forces the window to activate.</param>
-    public static void ActivateWindow(this Window window, bool force = false)
-    {
-        var handle = WinRT.Interop.WindowNative.GetWindowHandle(window);
-        if (force)
-        {
-            WinAPI.ActivateWindowForce(handle);
-        }
-        else
-        {
-            WinAPI.ActivateWindow(handle);
-        }
-    }
-
-    /// <summary>
     /// Shows a message dialog asynchronously.
     /// </summary>
     /// <param name="window">The window to show the dialog in.</param>
@@ -100,6 +82,24 @@ public static class WindowExtensions
         }
 
         return new(result);
+    }
+
+    /// <summary>
+    /// Activates the specified window.
+    /// </summary>
+    /// <param name="window">The window to activate.</param>
+    /// <param name="force">If set to <c>true</c>, forces the window to activate.</param>
+    public static void ActivateWindow(this Window window, bool force = false)
+    {
+        var handle = WinRT.Interop.WindowNative.GetWindowHandle(window);
+        if (force)
+        {
+            WinAPI.ActivateWindowForce(handle);
+        }
+        else
+        {
+            WinAPI.ActivateWindow(handle);
+        }
     }
 
     /// <summary>

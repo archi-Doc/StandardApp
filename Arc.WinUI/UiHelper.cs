@@ -23,7 +23,7 @@ public static class UiHelper
     /// <param name="secondaryCommand">The secondary command hash.</param>
     /// <param name="cancellationToken">The cancellation hash.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the dialog result.</returns>
-    public static Task<RadioResult<ContentDialogResult>> ShowMessageDialogAsync(this IBasicPresentationService service, ulong title, ulong content, ulong primaryCommand = 0, ulong cancelCommand = 0, ulong secondaryCommand = 0, CancellationToken cancellationToken = default)
+    public static Task<RadioResult<ContentDialogResult>> ShowMessageDialogAsync(this IMessageDialogService service, ulong title, ulong content, ulong primaryCommand = 0, ulong cancelCommand = 0, ulong secondaryCommand = 0, CancellationToken cancellationToken = default)
     {
         var titleText = title == 0 ? string.Empty : HashedString.Get(title);
         var contentText = content == 0 ? string.Empty : HashedString.Get(content);
@@ -31,7 +31,7 @@ public static class UiHelper
         var cancelText = cancelCommand == 0 ? default : cancelCommand == 1 ? WindowExtensions.CancelText : HashedString.GetOrAlternative(cancelCommand, WindowExtensions.CancelText);
         var secondaryText = secondaryCommand == 0 ? default : HashedString.Get(secondaryCommand);
 
-        return service.MessageDialog(titleText, contentText, primaryText, cancelText, secondaryText, cancellationToken);
+        return service.Show(titleText, contentText, primaryText, cancelText, secondaryText, cancellationToken);
     }
 
     /// <summary>
@@ -66,7 +66,7 @@ public static class UiHelper
         }
     }
 
-    public static bool PreventMultipleInstances(Mutex mutex, string title)
+    public static bool PreventMultipleInstances(Mutex mutex)
     {
         if (mutex.WaitOne(0, false))
         {
@@ -79,10 +79,10 @@ public static class UiHelper
         if (prevProcess != null)
         {
             var handle = prevProcess.MainWindowHandle; // The window handle that associated with the previous process.
-            if (handle == IntPtr.Zero)
-            {
-                handle = Arc.Internal.WinAPI.GetWindowHandle(prevProcess.Id, title); // Get handle.
-            }
+            // if (handle == IntPtr.Zero)
+            // {
+            //    handle = Arc.Internal.WinAPI.GetWindowHandle(prevProcess.Id, title); // Get handle.
+            // }
 
             if (handle != IntPtr.Zero)
             {

@@ -9,9 +9,9 @@ public sealed partial class MessagePage : Page
 {
     public MessagePageState State { get; }
 
-    public MessagePage()
+    public MessagePage(App app)
     {
         this.InitializeComponent();
-        this.State = this.GetAndPrepareState<MessagePageState>();
+        this.State = app.GetAndPrepareState<MessagePageState>(this);
     }
 }

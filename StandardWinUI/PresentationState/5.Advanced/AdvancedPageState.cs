@@ -20,11 +20,13 @@ public partial class AdvancedPageState : ObservableObject, IState
     [NotifyCanExecuteChangedFor(nameof(ExitCommand))]
     public partial bool CanExit { get; set; } = true;
 
-    private readonly IBasicPresentationService simpleWindowService;
+    private readonly App app;
+    private readonly IMessageDialogService messageDialogService;
 
-    public AdvancedPageState(IBasicPresentationService simpleWindowService)
+    public AdvancedPageState(App app, IMessageDialogService simpleWindowService)
     {
-        this.simpleWindowService = simpleWindowService;
+        this.app = app;
+        this.messageDialogService = simpleWindowService;
     }
 
     /// <summary>
@@ -33,7 +35,7 @@ public partial class AdvancedPageState : ObservableObject, IState
     /// </summary>
     void IState.RestoreState()
     {
-        this.SourceText = App.Settings.Baibai.ToString();
+        this.SourceText = this.app.Settings.Baibai.ToString();
     }
 
     /// <summary>
@@ -44,7 +46,7 @@ public partial class AdvancedPageState : ObservableObject, IState
     {
         if (int.TryParse(this.SourceText, out int v))
         {
-            App.Settings.Baibai = v;
+            this.app.Settings.Baibai = v;
         }
     }
 
@@ -65,6 +67,6 @@ public partial class AdvancedPageState : ObservableObject, IState
         var cts = new CancellationTokenSource();
         cts.CancelAfter(2000);
 
-        await this.simpleWindowService.TryExit(cts.Token);
+        await this.app.TryExit(cts.Token);
     }
 }

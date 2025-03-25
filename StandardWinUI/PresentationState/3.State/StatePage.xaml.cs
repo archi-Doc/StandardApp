@@ -9,9 +9,9 @@ public sealed partial class StatePage : Page
 {
     public StatePageState State { get; }
 
-    public StatePage()
+    public StatePage(App app)
     {
         this.InitializeComponent();
-        this.State = this.GetAndPrepareState<StatePageState>();
+        this.State = app.GetAndPrepareState<StatePageState>(this);
     }
 }
