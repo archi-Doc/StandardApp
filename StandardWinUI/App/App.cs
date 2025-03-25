@@ -34,8 +34,7 @@ namespace StandardWinUI;
 // Presentation-State model: 5.Advanced is equipped with basic functionalities, it is recommended to use this as a template.
 
 // App.GetService<T>() is used to retrieve a service of type T.
-// AppClass.OnLaunched() is the entry point of the application.
-// AppSettings and AppOptions are classes that save the configuration information of the app.
+// AppSettings manages the application's settings.
 // IBasicPresentationService.TryExit() attempts to exit the app, while App.Exit() exits the app without confirmation.
 // NaviWindow_Closed() is called when the main window is closed.
 
