@@ -14,13 +14,14 @@ namespace StandardWinUI.Presentation;
 
 public partial class NaviWindow : WindowEx, IBasicPresentationService
 {
-    public NaviWindow(IChannel<IBasicPresentationService> basicPresentationChannel)
+    public NaviWindow(App app, IChannel<IBasicPresentationService> basicPresentationChannel)
     {
+        this.app = app;
         this.InitializeComponent();
         Scaler.Register(this.layoutTransform);
         basicPresentationChannel.Open(this, true);
 
-        this.Title = App.Title;
+        this.Title = app.Title;
         this.SetApplicationIcon();
         // this.RemoveIcon();
 
@@ -30,27 +31,29 @@ public partial class NaviWindow : WindowEx, IBasicPresentationService
 
         // this.contentFrame.Navigating += App.NavigatingHandler; // Frame navigation does not support a DI container, hook into the Navigating event to create instances using a DI container.
 
-        this.LoadWindowPlacement(App.Settings.WindowPlacement);
+        this.LoadWindowPlacement(app.Settings.WindowPlacement);
         this.nvHome.IsSelected = true;
     }
 
     #region FieldAndProperty
+
+    private readonly App app;
 
     #endregion
 
     #region IBasicPresentationService
 
     Task<RadioResult<ContentDialogResult>> IBasicPresentationService.MessageDialog(string title, string content, string primaryCommand, string? cancelCommand, string? secondaryCommand, CancellationToken cancellationToken)
-        => App.UiDispatcherQueue.EnqueueAsync(() => this.ShowMessageDialogAsync(title, content, primaryCommand, cancelCommand, secondaryCommand, cancellationToken));
+        => this.app.UiDispatcherQueue.EnqueueAsync(() => this.ShowMessageDialogAsync(title, content, primaryCommand, cancelCommand, secondaryCommand, cancellationToken));
 
     public Task<RadioResult<bool>> TryExit(CancellationToken cancellationToken = default)
     {
-        return App.UiDispatcherQueue.EnqueueAsync<RadioResult<bool>>(async () =>
+        return this.app.UiDispatcherQueue.EnqueueAsync<RadioResult<bool>>(async () =>
         {
             var result = await this.ShowMessageDialogAsync(0, Hashed.Dialog.Exit, Hashed.Dialog.Yes, Hashed.Dialog.No, 0, cancellationToken);
             if (result.TryGetSingleResult(out var r) && r == ContentDialogResult.Primary)
             {// Exit
-                App.Exit();
+                this.app.Exit();
                 return new(true);
             }
             else
@@ -75,7 +78,7 @@ public partial class NaviWindow : WindowEx, IBasicPresentationService
     private void NaviWindow_Closed(object sender, WindowEventArgs args)
     {
         // Exit1
-        App.Settings.WindowPlacement = this.SaveWindowPlacement();
+        this.app.Settings.WindowPlacement = this.SaveWindowPlacement();
     }
 
     private async void nvSample_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)

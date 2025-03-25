@@ -42,25 +42,25 @@ namespace StandardWinUI;
 /// App class is an application-specific class.<br/>
 /// It manages various application-specific information, such as language and settings.
 /// </summary>
-public static partial class App
+public class App
 {
     public const string MutexName = "Arc.StandardWinUI"; // The name of the mutex used to prevent multiple instances of the application. Specify 'string.Empty' to allow multiple instances.
-    public const string AppDataFolder = "Arc\\StandardWinUI"; // The folder name for application data.
+    public const string DataFolderName = "Arc\\StandardWinUI"; // The folder name for application data.
     public const string DefaultCulture = "en"; // The default culture for the application.
     public const double DefaultFontSize = 14; // The default font size for the application.
 
-    private static void LoadCrystalData()
+    internal void LoadCrystalData()
     {
-        crystalizer = GetService<Crystalizer>();
+        crystalizer = this.GetService<Crystalizer>();
         crystalizer.PrepareAndLoadAll(false).Wait();
 
-        Settings = crystalizer.GetCrystal<AppSettings>().Data;
+        this.Settings = crystalizer.GetCrystal<AppSettings>().Data;
     }
 
     /// <summary>
     /// Loads the localized strings for the application.
     /// </summary>
-    private static void LoadStrings()
+    internal void LoadStrings()
     {
         try
         {
@@ -80,25 +80,25 @@ public static partial class App
     /// <summary>
     /// Prepares the culture for the application.
     /// </summary>
-    private static void PrepareCulture()
+    internal void PrepareCulture()
     {
         try
         {
-            if (Settings.Culture == string.Empty)
+            if (this.Settings.Culture == string.Empty)
             {
-                Settings.Culture = "en"; // English
+                this.Settings.Culture = "en"; // English
                 if (CultureInfo.CurrentUICulture.Name == "ja-JP")
                 {
-                    Settings.Culture = "ja";
+                    this.Settings.Culture = "ja";
                 }
             }
 
-            HashedString.ChangeCulture(App.Settings.Culture);
+            HashedString.ChangeCulture(this.Settings.Culture);
         }
         catch
         {
-            Settings.Culture = App.DefaultCulture;
-            HashedString.ChangeCulture(Settings.Culture);
+            this.Settings.Culture = App.DefaultCulture;
+            HashedString.ChangeCulture(this.Settings.Culture);
         }
     }
 
@@ -107,103 +107,39 @@ public static partial class App
     /// <summary>
     /// Gets the version of the application.
     /// </summary>
-    public static string Version { get; private set; } = string.Empty;
+    public string Version { get; private set; } = string.Empty;
 
     /// <summary>
     /// Gets the title of the application.
     /// </summary>
-    public static string Title { get; private set; } = string.Empty;
+    public string Title { get; private set; } = string.Empty;
 
     /// <summary>
     /// Gets the folder path for application data.
     /// </summary>
-    public static string DataFolder { get; private set; } = string.Empty;
+    public string DataFolder { get; private set; } = string.Empty;
 
     /// <summary>
     /// Gets the settings for the application.
     /// </summary>
-    public static AppSettings Settings { get; private set; } = default!;
+    public AppSettings Settings { get; private set; } = default!;
 
-    public static DispatcherQueue UiDispatcherQueue => uiDispatcherQueue;
+    public DispatcherQueue UiDispatcherQueue { get; private set; } = default!;
 
-    private static Mutex? appMutex = string.IsNullOrEmpty(MutexName) ? default : new(false, MutexName);
-    private static DispatcherQueue uiDispatcherQueue = default!;
     private static IServiceProvider serviceProvider = default!;
-    private static Crystalizer? crystalizer;
-    private static StandardApp? standardApp;
+    internal Crystalizer? crystalizer;
 
     #endregion
 
-    /// <summary>
-    /// The entry point of the application.
-    /// </summary>
-    /// <param name="args">The command-line arguments.</param>
-    [STAThread]
-    private static void Main(string[] args)
-    {
-        LoadStrings();
-        PrepareDataFolder();
-        PrepareVersionAndTitle();
-        if (appMutex is not null &&
-            UiHelper.PreventMultipleInstances(appMutex, Title))
-        {
-            return;
-        }
-
-        AppUnit.Unit? unit = default;
-        try
-        {
-            WinRT.ComWrappersSupport.InitializeComWrappers();
-            XamlCheckProcessRequirements();
-            Application.Start(_ =>
-            {
-                uiDispatcherQueue = DispatcherQueue.GetForCurrentThread();
-                var context = new DispatcherQueueSynchronizationContext(uiDispatcherQueue);
-                SynchronizationContext.SetSynchronizationContext(context);
-
-                var builder = new AppUnit.Builder();
-                unit = builder.Build();
-                serviceProvider = unit.Context.ServiceProvider;
-
-                LoadCrystalData();
-                PrepareCulture();
-                standardApp = GetService<StandardApp>();
-            });
-
-            Task.Run(async () =>
-            {// 'await task' does not work property.
-                if (crystalizer is not null)
-                {
-                    await crystalizer.SaveAllAndTerminate();
-                }
-
-                ThreadCore.Root.Terminate();
-                await ThreadCore.Root.WaitForTerminationAsync(-1);
-                if (unit?.Context.ServiceProvider.GetService<UnitLogger>() is { } unitLogger)
-                {
-                    await unitLogger.FlushAndTerminate();
-                }
-            }).Wait();
-        }
-        finally
-        {
-            if (appMutex is not null)
-            {
-                appMutex.ReleaseMutex();
-                appMutex.Close();
-            }
-        }
-    }
-
-    public static Window GetMainWindow()
-        => App.GetService<NaviWindow>();
+    public Window GetMainWindow()
+        => this.GetService<NaviWindow>();
 
     /// <summary>
     /// Retrieves a service of type <typeparamref name="T"/>.
     /// </summary>
     /// <typeparam name="T">The type of the service.</typeparam>
     /// <returns>The service instance.</returns>
-    public static T GetService<T>()
+    public T GetService<T>()
         where T : class
     {
         if (serviceProvider.GetService(typeof(T)) is not T service)
@@ -214,7 +150,7 @@ public static partial class App
         return service;
     }
 
-    public static T GetAndPrepareState<T>(this FrameworkElement element)
+    public static T GetAndPrepareState<T>(FrameworkElement element)
         where T : class, IState
     {
         if (serviceProvider.GetService(typeof(T)) is not T state)
@@ -249,34 +185,88 @@ public static partial class App
     /// <summary>
     /// Exits the application.
     /// </summary>
-    public static void Exit()
+    public void Exit()
     {
+        var standardApp = this.GetService<StandardApp>();
         standardApp?.Exit();
     }
+}
 
-    [LibraryImport("Microsoft.ui.xaml.dll")]
-    private static partial void XamlCheckProcessRequirements();
+#endif
 
-    private static void PrepareDataFolder()
+#pragma warning disable SA1204 // Static elements should appear before instance elements
+public static partial class StaticApp
+#pragma warning restore SA1204 // Static elements should appear before instance elements
+{
+    public static string Version { get; private set; } = string.Empty;
+
+    public static string Title { get; private set; } = string.Empty;
+
+    public static string DataFolder { get; private set; } = string.Empty;
+
+    private static Mutex? appMutex = string.IsNullOrEmpty(App.MutexName) ? default : new(false, App.MutexName);
+    private static DispatcherQueue uiDispatcherQueue = default!;
+
+    /// <summary>
+    /// The entry point of the application.
+    /// </summary>
+    /// <param name="args">The command-line arguments.</param>
+    [STAThread]
+    private static void Main(string[] args)
     {
-        // Data Folder
-        try
+        PrepareDataFolder();
+        PrepareVersionAndTitle();
+        if (appMutex is not null &&
+            UiHelper.PreventMultipleInstances(appMutex, Title))
         {
-            // UWP
-            DataFolder = Windows.Storage.ApplicationData.Current.LocalFolder.Path;
-        }
-        catch
-        {
-            // not UWP
-            DataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), AppDataFolder);
+            return;
         }
 
+        AppUnit.Unit? unit = default;
+        App? app = default;
         try
         {
-            Directory.CreateDirectory(DataFolder);
+            WinRT.ComWrappersSupport.InitializeComWrappers();
+            XamlCheckProcessRequirements();
+            Application.Start(_ =>
+            {
+                uiDispatcherQueue = DispatcherQueue.GetForCurrentThread();
+                var context = new DispatcherQueueSynchronizationContext(uiDispatcherQueue);
+                SynchronizationContext.SetSynchronizationContext(context);
+
+                var builder = new AppUnit.Builder();
+                unit = builder.Build();
+                var serviceProvider = unit.Context.ServiceProvider;
+                app = serviceProvider.GetRequiredService<App>();
+
+                app.LoadStrings();
+                app.LoadCrystalData();
+                app.PrepareCulture();
+                var standardApp = app.GetService<StandardApp>();
+            });
+
+            Task.Run(async () =>
+            {// 'await task' does not work property.
+                if (app?.crystalizer is { } crystalizer)
+                {
+                    await crystalizer.SaveAllAndTerminate();
+                }
+
+                ThreadCore.Root.Terminate();
+                await ThreadCore.Root.WaitForTerminationAsync(-1);
+                if (unit?.Context.ServiceProvider.GetService<UnitLogger>() is { } unitLogger)
+                {
+                    await unitLogger.FlushAndTerminate();
+                }
+            }).Wait();
         }
-        catch
+        finally
         {
+            if (appMutex is not null)
+            {
+                appMutex.ReleaseMutex();
+                appMutex.Close();
+            }
         }
     }
 
@@ -296,6 +286,30 @@ public static partial class App
         // Title
         Title = HashedString.Get(Hashed.App.Name) + " " + Version;
     }
-}
 
-#endif
+    private static void PrepareDataFolder()
+    {
+        // Data Folder
+        try
+        {
+            // UWP
+            DataFolder = Windows.Storage.ApplicationData.Current.LocalFolder.Path;
+        }
+        catch
+        {
+            // not UWP
+            DataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), App.DataFolderName);
+        }
+
+        try
+        {
+            Directory.CreateDirectory(DataFolder);
+        }
+        catch
+        {
+        }
+    }
+
+    [LibraryImport("Microsoft.ui.xaml.dll")]
+    private static partial void XamlCheckProcessRequirements();
+}
