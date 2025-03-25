@@ -6,8 +6,9 @@ namespace StandardWinUI;
 
 public partial class StandardApp : Application
 {
-    public StandardApp()
+    public StandardApp(App app)
     {
+        this.app = app;
         this.InitializeComponent();
     }
 
@@ -17,9 +18,10 @@ public partial class StandardApp : Application
     /// <param name="args">Details about the launch request and process.</param>
     protected override async void OnLaunched(LaunchActivatedEventArgs args)
     {
-        this.window = App.GetMainWindow();
+        this.window = this.app.GetMainWindow();
         this.window.Activate();
     }
 
+    private readonly App app;
     private Window? window;
 }

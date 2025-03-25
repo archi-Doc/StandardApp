@@ -25,7 +25,7 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
             {
                 context.AddSingleton<AppUnit>();
                 context.AddSingleton<StandardApp>();
-                // context.CreateInstance<AppUnit>();
+                context.AddSingleton<App>();
 
                 // CrossChannel
                 context.Services.AddCrossChannel();

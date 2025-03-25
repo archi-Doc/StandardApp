@@ -9,10 +9,10 @@ namespace StandardWinUI.Presentation;
 
 public sealed partial class SettingsPage : Page
 {
-    public SettingsPage()
+    public SettingsPage(App app)
     {
         this.InitializeComponent();
-        this.State = App.GetService<SettingsState>();
+        this.State = app.GetAndPrepareState<SettingsState>(this);
 
         // language: en, key: Language.En, text: English
         foreach (var x in LanguageList.LanguageToIdentifier)

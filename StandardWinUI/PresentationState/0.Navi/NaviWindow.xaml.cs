@@ -29,7 +29,7 @@ public partial class NaviWindow : WindowEx, IBasicPresentationService
         this.Closed += this.NaviWindow_Closed;
         this.AppWindow.Closing += this.AppWindow_Closing;
 
-        // this.contentFrame.Navigating += App.NavigatingHandler; // Frame navigation does not support a DI container, hook into the Navigating event to create instances using a DI container.
+        this.contentFrame.Navigating += app.NavigatingHandler; // Frame navigation does not support a DI container, hook into the Navigating event to create instances using a DI container.
 
         this.LoadWindowPlacement(app.Settings.WindowPlacement);
         this.nvHome.IsSelected = true;

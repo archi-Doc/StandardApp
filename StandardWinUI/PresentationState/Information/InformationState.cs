@@ -5,7 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace StandardWinUI.State;
 
-public partial class InformationState : ObservableObject
+public partial class InformationState : ObservableObject, IState
 {
     public InformationState()
     {

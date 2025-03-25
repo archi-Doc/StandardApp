@@ -49,12 +49,47 @@ public class App
     public const string DefaultCulture = "en"; // The default culture for the application.
     public const double DefaultFontSize = 14; // The default font size for the application.
 
+    #region FieldAndProperty
+
+    /// <summary>
+    /// Gets the version of the application.
+    /// </summary>
+    public string Version { get; private set; } = string.Empty;
+
+    /// <summary>
+    /// Gets the title of the application.
+    /// </summary>
+    public string Title { get; private set; } = string.Empty;
+
+    /// <summary>
+    /// Gets the folder path for application data.
+    /// </summary>
+    public string DataFolder { get; private set; } = string.Empty;
+
+    /// <summary>
+    /// Gets the settings for the application.
+    /// </summary>
+    public AppSettings Settings { get; private set; } = default!;
+
+    public DispatcherQueue UiDispatcherQueue { get; private set; } = default!;
+
+    private readonly IServiceProvider serviceProvider;
+
+    internal Crystalizer? crystalizer;
+
+    #endregion
+
+    public App(IServiceProvider serviceProvider)
+    {
+        this.serviceProvider = serviceProvider;
+    }
+
     internal void LoadCrystalData()
     {
-        crystalizer = this.GetService<Crystalizer>();
-        crystalizer.PrepareAndLoadAll(false).Wait();
+        this.crystalizer = this.GetService<Crystalizer>();
+        this.crystalizer.PrepareAndLoadAll(false).Wait();
 
-        this.Settings = crystalizer.GetCrystal<AppSettings>().Data;
+        this.Settings = this.crystalizer.GetCrystal<AppSettings>().Data;
     }
 
     /// <summary>
@@ -102,35 +137,6 @@ public class App
         }
     }
 
-    #region FieldAndProperty
-
-    /// <summary>
-    /// Gets the version of the application.
-    /// </summary>
-    public string Version { get; private set; } = string.Empty;
-
-    /// <summary>
-    /// Gets the title of the application.
-    /// </summary>
-    public string Title { get; private set; } = string.Empty;
-
-    /// <summary>
-    /// Gets the folder path for application data.
-    /// </summary>
-    public string DataFolder { get; private set; } = string.Empty;
-
-    /// <summary>
-    /// Gets the settings for the application.
-    /// </summary>
-    public AppSettings Settings { get; private set; } = default!;
-
-    public DispatcherQueue UiDispatcherQueue { get; private set; } = default!;
-
-    private static IServiceProvider serviceProvider = default!;
-    internal Crystalizer? crystalizer;
-
-    #endregion
-
     public Window GetMainWindow()
         => this.GetService<NaviWindow>();
 
@@ -142,7 +148,7 @@ public class App
     public T GetService<T>()
         where T : class
     {
-        if (serviceProvider.GetService(typeof(T)) is not T service)
+        if (this.serviceProvider.GetService(typeof(T)) is not T service)
         {
             throw new ArgumentException($"{typeof(T)} needs to be registered in Configure within AppUnit.cs.");
         }
@@ -150,10 +156,10 @@ public class App
         return service;
     }
 
-    public static T GetAndPrepareState<T>(FrameworkElement element)
+    public T GetAndPrepareState<T>(FrameworkElement element)
         where T : class, IState
     {
-        if (serviceProvider.GetService(typeof(T)) is not T state)
+        if (this.serviceProvider.GetService(typeof(T)) is not T state)
         {
             throw new ArgumentException($"{typeof(T)} needs to be registered in Configure within AppUnit.cs.");
         }
@@ -169,11 +175,11 @@ public class App
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="args">The event data.</param>
-    public static void NavigatingHandler(object sender, NavigatingCancelEventArgs args)
+    public void NavigatingHandler(object sender, NavigatingCancelEventArgs args)
     {
         if (args.SourcePageType is not null)
         {
-            var page = serviceProvider.GetService(args.SourcePageType);
+            var page = this.serviceProvider.GetService(args.SourcePageType);
             if (page is not null)
             {
                 args.Cancel = true;
@@ -227,7 +233,7 @@ public static partial class StaticApp
         try
         {
             WinRT.ComWrappersSupport.InitializeComWrappers();
-            XamlCheckProcessRequirements();
+            XamlCheckProcessRequirements(); // If an exception occurs here, run the Package project.
             Application.Start(_ =>
             {
                 uiDispatcherQueue = DispatcherQueue.GetForCurrentThread();
