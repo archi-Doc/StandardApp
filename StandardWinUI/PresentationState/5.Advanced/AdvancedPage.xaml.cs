@@ -8,7 +8,7 @@ public sealed partial class AdvancedPage : Page
 {
     public AdvancedPageState State { get; }
 
-    public AdvancedPage(App app)
+    public AdvancedPage(IApp app)
     {
         this.InitializeComponent();
         // this.State = state; // To use a DI container, you need to hook into the Navigating event.

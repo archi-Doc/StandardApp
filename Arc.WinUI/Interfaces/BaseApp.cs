@@ -33,12 +33,6 @@ public abstract class AppBase : IApp
         this.serviceProvider = serviceProvider;
     }
 
-    /// <summary>
-    /// Retrieves a service of type <typeparamref name="T"/>.
-    /// </summary>
-    /// <typeparam name="T">The type of the service.</typeparam>
-    /// <returns>The service instance.</returns>
-    /// <exception cref="ArgumentException">Thrown when the service is not registered.</exception>
     public T GetService<T>()
         where T : class
     {
@@ -50,13 +44,6 @@ public abstract class AppBase : IApp
         return service;
     }
 
-    /// <summary>
-    /// Retrieves and prepares the state for the specified element.
-    /// </summary>
-    /// <typeparam name="T">The type of the state.</typeparam>
-    /// <param name="element">The framework element.</param>
-    /// <returns>The state instance.</returns>
-    /// <exception cref="ArgumentException">Thrown when the state is not registered.</exception>
     public T GetAndPrepareState<T>(FrameworkElement element)
         where T : class, IState
     {
@@ -71,11 +58,6 @@ public abstract class AppBase : IApp
         return state;
     }
 
-    /// <summary>
-    /// Handles the navigation event and retrieves the corresponding page from the service provider.
-    /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="args">The event data.</param>
     public void NavigatingHandler(object sender, NavigatingCancelEventArgs args)
     {
         if (args.SourcePageType is not null)

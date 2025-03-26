@@ -7,11 +7,13 @@ namespace StandardWinUI.PresentationState;
 
 public partial class SettingsState : ObservableObject, IState
 {
-    private readonly App app;
+    private readonly IApp app;
+    private readonly AppSettings settings;
 
-    public SettingsState(App app)
+    public SettingsState(IApp app, AppSettings settings)
     {
         this.app = app;
+        this.settings = settings;
 
         this.SetLanguageText();
         this.SetScalingText();
@@ -19,7 +21,7 @@ public partial class SettingsState : ObservableObject, IState
 
     private void SetLanguageText()
     {
-        if (LanguageList.LanguageToIdentifier.TryGetValue(this.app.Settings.Culture, out var identifier))
+        if (LanguageList.LanguageToIdentifier.TryGetValue(this.settings.Culture, out var identifier))
         {
             this.LanguageText = HashedString.GetOrEmpty(identifier);
         }
@@ -59,13 +61,13 @@ public partial class SettingsState : ObservableObject, IState
     [RelayCommand]
     private void SelectLanguage(string language)
     {
-        if (this.app.Settings.Culture == language)
+        if (this.settings.Culture == language)
         {
             return;
         }
 
-        this.app.Settings.Culture = language;
-        HashedString.ChangeCulture(this.app.Settings.Culture);
+        this.settings.Culture = language;
+        HashedString.ChangeCulture(this.settings.Culture);
         Arc.WinUI.Stringer.Refresh();
         this.SetLanguageText();
     }
