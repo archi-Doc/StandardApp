@@ -18,9 +18,10 @@ public partial class NaviWindow : WindowEx, IMessageDialogService
 
     public NaviWindow(IApp app, AppSettings settings, IChannel<IMessageDialogService> messageDialogChannel)
     {
+        this.InitializeComponent();
+
         this.app = app;
         this.settings = settings;
-        this.InitializeComponent();
         Scaler.Register(this.layoutTransform);
         messageDialogChannel.Open(this, true);
 
@@ -38,7 +39,7 @@ public partial class NaviWindow : WindowEx, IMessageDialogService
         this.nvHome.IsSelected = true;
     }
 
-    #region IBasicPresentationService
+    #region IMessageDialogService
 
     Task<RadioResult<ContentDialogResult>> IMessageDialogService.Show(string title, string content, string primaryCommand, string? cancelCommand, string? secondaryCommand, CancellationToken cancellationToken)
         => this.app.UiDispatcherQueue.EnqueueAsync(() => this.ShowMessageDialogAsync(title, content, primaryCommand, cancelCommand, secondaryCommand, cancellationToken));
