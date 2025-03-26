@@ -28,9 +28,9 @@ namespace StandardWinUI;
 // Dependencies and data persistence: AppUnit.
 // Presentation-State model: 5.Advanced is equipped with basic functionalities, it is recommended to use this as a template.
 
-// App.GetService<T>() is used to retrieve a service of type T.
 // AppSettings manages the application's settings.
-// IBasicPresentationService.TryExit() attempts to exit the app, while App.Exit() exits the app without confirmation.
+// IApp.GetService<T>() is used to retrieve a service of type T.
+// IApp.TryExit() attempts to exit the app, while IApp.Exit() exits the app without confirmation.
 // NaviWindow_Closed() is called when the main window is closed.
 
 /// <summary>
@@ -44,14 +44,10 @@ public class App : AppBase
     public const string DefaultCulture = "en"; // The default culture for the application.
     public const double DefaultFontSize = 14; // The default font size for the application.
 
-    #region FieldAndProperty
-
     /// <summary>
     /// Gets the settings for the application.
     /// </summary>
     public AppSettings Settings { get; private set; } = default!;
-
-    #endregion
 
     private void LoadCrystalData()
     {

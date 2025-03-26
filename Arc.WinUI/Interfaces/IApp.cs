@@ -43,7 +43,7 @@ public interface IApp
         where T : class;
 
     /// <summary>
-    /// Retrieves and prepares the state for the specified element.
+    /// Retrieves and prepares the state for the specified framework element.
     /// </summary>
     /// <typeparam name="T">The type of the state.</typeparam>
     /// <param name="element">The framework element.</param>
@@ -65,7 +65,7 @@ public interface IApp
     Window GetMainWindow();
 
     /// <summary>
-    /// Exits the application.
+    /// Exits the application without confirmation.
     /// </summary>
     void Exit();
 
