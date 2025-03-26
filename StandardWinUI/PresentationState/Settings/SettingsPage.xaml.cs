@@ -6,7 +6,7 @@ namespace StandardWinUI.PresentationState;
 
 public sealed partial class SettingsPage : Page
 {
-    public SettingsPage(App app)
+    public SettingsPage(IApp app)
     {
         this.InitializeComponent();
         this.State = app.GetAndPrepareState<SettingsState>(this);

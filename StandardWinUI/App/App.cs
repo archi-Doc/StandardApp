@@ -133,9 +133,10 @@ public class App : AppBase
     public App(IServiceProvider serviceProvider)
         : base(serviceProvider)
     {
+        this.Initialize();
     }
 
-    internal void Initialize()
+    private void Initialize()
     {
         this.DataFolder = Entrypoint.DataFolder;
         this.UiDispatcherQueue = Entrypoint.UiDispatcherQueue;
@@ -157,8 +158,6 @@ public class App : AppBase
 
         // Title
         this.Title = HashedString.Get(Hashed.App.Name) + " " + this.Version;
-
-        _ = this.GetApplication();
     }
 
     #endregion

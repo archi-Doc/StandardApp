@@ -13,11 +13,13 @@ namespace StandardWinUI.PresentationState;
 
 public partial class NaviWindow : WindowEx, IMessageDialogService
 {
-    private readonly App app;
+    private readonly IApp app;
+    private readonly AppSettings settings;
 
-    public NaviWindow(App app, IChannel<IMessageDialogService> messageDialogChannel)
+    public NaviWindow(IApp app, AppSettings settings, IChannel<IMessageDialogService> messageDialogChannel)
     {
         this.app = app;
+        this.settings = settings;
         this.InitializeComponent();
         Scaler.Register(this.layoutTransform);
         messageDialogChannel.Open(this, true);
@@ -32,7 +34,7 @@ public partial class NaviWindow : WindowEx, IMessageDialogService
 
         this.contentFrame.Navigating += app.NavigatingHandler; // Frame navigation does not support a DI container, hook into the Navigating event to create instances using a DI container.
 
-        this.LoadWindowPlacement(app.Settings.WindowPlacement);
+        this.LoadWindowPlacement(this.settings.WindowPlacement);
         this.nvHome.IsSelected = true;
     }
 
@@ -56,7 +58,7 @@ public partial class NaviWindow : WindowEx, IMessageDialogService
     private void NaviWindow_Closed(object sender, WindowEventArgs args)
     {
         // Exit1
-        this.app.Settings.WindowPlacement = this.SaveWindowPlacement();
+        this.settings.WindowPlacement = this.SaveWindowPlacement();
     }
 
     private async void nvSample_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
