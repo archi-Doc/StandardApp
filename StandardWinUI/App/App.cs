@@ -129,11 +129,6 @@ public class App : AppBase
     public App(IServiceProvider serviceProvider)
         : base(serviceProvider)
     {
-        this.Initialize();
-    }
-
-    private void Initialize()
-    {
         this.DataFolder = Entrypoint.DataFolder;
         this.UiDispatcherQueue = Entrypoint.UiDispatcherQueue;
 
