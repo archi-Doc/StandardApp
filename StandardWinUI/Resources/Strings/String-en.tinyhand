@@ -1,91 +1,67 @@
-5// identifier = "string" /* null: Use the default value. */
+// identifier = "string" /* null: Use the default value. */
 
 Test1 = "Test1"
 Test2 = "Test2"
 
-App = {
-    Name = "StandardWinUI" // Name
-    Description = "description"
-    DateTime = "MM/dd H:mm:ss"
-}
+App=
+  Name = "StandardWinUI" // Name
+  Description = "description"
+  DateTime = "MM/dd H:mm:ss"
 
-Navigation = {
-    Hello = "1. Hello"
-    Baibain = "2. Baibain"
-    State = "3. State"
-    Message = "4. Message"
-    Advanced = "5. Advanced"
-    Settings = "Settings"
-    Information = "Information"
-    Exit = "Exit"
-}
+Navigation=
+  Hello = "1. Hello"
+  Baibain = "2. Baibain"
+  State = "3. State"
+  Message = "4. Message"
+  Advanced = "5. Advanced"
+  Settings = "Settings"
+  Information = "Information"
+  Exit = "Exit"
 
-Baibain = {
-    Enter = "Enter the number:"
-    Button = "Baibain"
-}
+Baibain=
+  Enter = "Enter the number:"
+  Button = "Baibain"
 
-State = {
-    Enter = "Enter the number:"
-    Button = "3Baibain"
-}
+State=
+  Enter = "Enter the number:"
+  Button = "3Baibain"
 
-Message = {
-    Button = "Test button"
-}
+Message=
+  Button = "Test button"
 
-Advanced = {
-    ExitButton = "Exit"
-}
+Advanced=
+  ExitButton = "Exit"
 
 // dialog
-Dialog =
-{
-    Ok = "O K"
-    Cancel = "Cancel"
-    Yes = "Yes"
-    No = "No"
-    Exit = "Are you sure you want to exit?"
-    Message = "Yes or no?"
-}
+Dialog=
+  Ok = "O K"
+  Cancel = "Cancel"
+  Yes = "Yes"
+  No = "No"
+  Exit = "Are you sure you want to exit?"
+  Message = "Yes or no?"
 
 // settings
-Settings = {
-DataFolder = "Data folder"
-Open = "Open"
-Language = "Language"
-DisplayScaling = "Display scaling"
-}
+Settings=
+  DataFolder = "Data folder"
+  Open = "Open"
+  Language = "Language"
+  DisplayScaling = "Display scaling"
 
 // other
-Language = {
-    En = "English (英語）"
-    Ja = "Japanese (日本語)"
-}
+Language=
+  En = "English (英語）"
+  Ja = "Japanese (日本語)"
 
-Button = {
-    Text = "Notification message"
-    Settings = "Settings"
-    DataFolder = "DataFolder"
-    AddItem = "Add"
-    ClearItem = "Clear"
-}
-Tooltip = {
-    Button = "This is a button."
-    Sample = "Sample"
-}
+Button=
+  Text = "Notification message"
+  Settings = "Settings"
+  DataFolder = "DataFolder"
+  AddItem = "Add"
+  ClearItem = "Clear"
+
+Tooltip=
+  Button = "This is a button."
+  Sample = "Sample"
 
 TimeText = "Current time is {0:MM/dd H:mm:ss}."
-
-ListView = {
-// ListView
-    Header = {
-        Id = "Id"
-        Time = "Time"
-    }
-
-    Menu = {
-        Increment = "increment"
-        Decrement = "decrement"
-    }
-}
