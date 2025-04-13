@@ -1,67 +1,57 @@
 // identifier = "string" /* null: Use the default value. */
 
-Test1 = "てすと1"
-Test2 = null
+Test1="てすと1"
+Test2=null
 
-App = {
-    Name = "StandardWPF" // Name
-    Description = "説明文"
-    DateTime = "MM/dd H:mm:ss"
-}
+App=
+  Name="StandardWPF" // Name
+  Description="説明文"
+  DateTime="MM/dd H:mm:ss"
 
 // dialog
-Dialog = 
-{
-    Ok = "O K"
-    Cancel = "キャンセル"
-    Yes = "はい"
-    No = "いいえ"
-    Exit = "終了してもよろしいですか？"
-    Message = "イエス or ノー？"
-}
+Dialog=
+  Ok="O K"
+  Cancel="キャンセル"
+  Yes="はい"
+  No="いいえ"
+  Exit="終了してもよろしいですか？"
+  Message="イエス or ノー？"
 
 // settings
-Settings = {
-    Title = "設定/情報"
-    Tab = {
-        General = "一般"
-        Information = "情報"
-    }
-    Folder = "設定フォルダ"
-    OpenFolder = "開く"
-    Language = "表示言語"
-    DisplayScaling = "表示倍率"
-}
+Settings=
+  Title="設定/情報"
+  Tab=
+    General="一般"
+    Information="情報"
+
+  Folder="設定フォルダ"
+  OpenFolder="開く"
+  Language="表示言語"
+  DisplayScaling="表示倍率"
 
 // other
-Language = {
-    En = "英語（English）"
-    Ja = "日本語（Japanese）"
-}
+Language=
+  En="英語（English）"
+  Ja="日本語（Japanese）"
 
-Button = {
-    Text = "通知メッセージ"
-    Settings = "設定"
-    DataFolder = "データフォルダ"
-    AddItem = "追加"
-    ClearItem = "クリア"
-}
-Tooltip = {
-    Button = "ボタンです"
-    Sample = "サンプル"
-}
+Button=
+  Text="通知メッセージ"
+  Settings="設定"
+  DataFolder="データフォルダ"
+  AddItem="追加"
+  ClearItem="クリア"
 
-TimeText = "時刻は{0:MM/dd H:mm:ss}です"
+Tooltip=
+  Button="ボタンです"
+  Sample="サンプル"
 
-ListView = {
-// ListView
-    Header = {
-        Id = "Id"
-        Time = "時間"
-    }
+TimeText="時刻は{0:MM/dd H:mm:ss}です"
 
-    Menu = {
-        Increment = "増やす"
-        Decrement = "減らす"
-    }
-}
+ListView= // ListView
+  Header=
+    Id="Id"
+    Time="時間"
+
+  Menu=
+    Increment="増やす"
+    Decrement="減らす"
