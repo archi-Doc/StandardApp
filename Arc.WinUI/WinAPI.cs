@@ -92,19 +92,19 @@ public partial class DipWindowPlacement
 { // Device Independent, 1/96 inch
     private const int WindowPlacementLength = 44;
 
-    [Key(1)]
+    [Key(0)]
     public int Flags { get; set; }
 
-    [Key(2)]
+    [Key(1)]
     public ShowCommand ShowCmd { get; set; }
 
-    [Key(3)]
+    [Key(2)]
     public DipPoint MinPosition { get; set; } = new DipPoint();
 
-    [Key(4)]
+    [Key(3)]
     public DipPoint MaxPosition { get; set; } = new DipPoint();
 
-    [Key(5)]
+    [Key(4)]
     public DipRect NormalPosition { get; set; } = new DipRect();
 
     public DipWindowPlacement()
