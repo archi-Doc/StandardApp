@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CrossChannel;
 using SimpleCommandLine;
 using StandardWinUI.PresentationState;
+using static SimpleCommandLine.SimpleParser;
 
 namespace StandardWinUI;
 
@@ -20,6 +21,12 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
             : base()
         {
             // Configuration for Unit.
+            this.PreConfigure(context =>
+            {
+                context.ProgramDirectory = Entrypoint.DataFolder;
+                context.DataDirectory = Entrypoint.DataFolder;
+            });
+
             this.Configure(context =>
             {
                 // context.AddSingleton<AppUnit>();
@@ -73,18 +80,15 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
                 });
             });
 
-            this.Preload(context =>
+            this.PostConfigure(context =>
             {
-                context.ProgramDirectory = Entrypoint.DataFolder;
-                context.DataDirectory = Entrypoint.DataFolder;
-            });
-
-            this.SetupOptions<FileLoggerOptions>((context, options) =>
-            {// FileLoggerOptions
                 var logfile = "Logs/Log.txt";
-                options.Path = Path.Combine(context.DataDirectory, logfile);
-                options.MaxLogCapacity = 2;
-                options.ClearLogsAtStartup = false;
+                context.SetOptions(context.GetOptions<FileLoggerOptions>() with
+                {
+                    Path = Path.Combine(context.DataDirectory, logfile),
+                    MaxLogCapacity = 2,
+                    ClearLogsAtStartup = false,
+                });
             });
 
             this.AddBuilder(CrystalBuilder());

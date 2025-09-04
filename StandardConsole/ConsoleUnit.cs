@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Arc.Threading;
 using Arc.Unit;
 using SimpleCommandLine;
+using static SimpleCommandLine.SimpleParser;
 
 namespace StandardConsole;
 
@@ -20,7 +21,7 @@ public class ConsoleUnit : UnitBase, IUnitPreparable, IUnitExecutable
             this.Configure(context =>
             {
                 context.AddSingleton<ConsoleUnit>();
-                context.CreateInstance<ConsoleUnit>();
+                context.RegisterInstanceCreation<ConsoleUnit>();
 
                 // Command
                 context.AddCommand(typeof(TestCommand));
@@ -48,22 +49,20 @@ public class ConsoleUnit : UnitBase, IUnitPreparable, IUnitExecutable
                 });
             });
 
-            this.SetupOptions<UnitOptions>((context, options) =>
-            {// UnitOptions
-                options.DataDirectory = "test";
-            });
+            this.PostConfigure(context =>
+            {
+                context.SetOptions(context.GetOptions<UnitOptions>() with
+                {
+                    DataDirectory = "test",
+                });
 
-            this.SetupOptions<FileLoggerOptions>((context, options) =>
-            {// FileLoggerOptions
                 var logfile = "Logs/Log.txt";
-                options.Path = Path.Combine(context.DataDirectory, logfile);
-                options.MaxLogCapacity = 2;
-                options.ClearLogsAtStartup = false;
-            });
-
-            this.SetupOptions<ConsoleLoggerOptions>((context, options) =>
-            {// ConsoleLoggerOptions
-                options.Formatter.EnableColor = true;
+                context.SetOptions(context.GetOptions<FileLoggerOptions>() with
+                {
+                    Path = Path.Combine(context.DataDirectory, logfile),
+                    MaxLogCapacity = 2,
+                    ClearLogsAtStartup = false,
+                });
             });
         }
     }
