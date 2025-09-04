@@ -40,7 +40,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Tinyhand" Version="0.121.1" />
-    <PackageReference Include="ValueLink" Version="0.92.1" />
+    <PackageReference Include="ValueLink" Version="0.92.3" />
     <PackageReference Include="WinUIEx" Version="2.7.0" />
   </ItemGroup>
 
