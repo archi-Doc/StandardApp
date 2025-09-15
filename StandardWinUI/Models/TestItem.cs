@@ -9,11 +9,11 @@ namespace StandardWinUI;
 public partial class TestItem
 {
     [KeyAsName]
-    [Link(AutoNotify = true, Accessibility = ValueLinkAccessibility.Public)]
+    [Link(AutoNotify = true, AddValue = true, Accessibility = ValueLinkAccessibility.Public)]
     private DateTime dateTime;
 
     [KeyAsName]
-    [Link(Type = ChainType.Ordered, AutoNotify = true, Accessibility = ValueLinkAccessibility.Public)]
+    [Link(Type = ChainType.Ordered, AutoNotify = true, AddValue = true, Accessibility = ValueLinkAccessibility.Public)]
     private int id;
 
     [IgnoreMember]
