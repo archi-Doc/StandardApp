@@ -4,7 +4,7 @@ on: workflow_dispatch
 jobs:
   publish:
     name: Build, Pack & Publish
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET
@@ -14,11 +14,11 @@ jobs:
     - name: Install dependencies
       run: dotnet restore Arc.WinUI
     - name: Build
-      run: dotnet build Arc.WinUI/Arc.WinUI.csproj --configuration Release --no-restore --property:EnableMsixTooling="true"
+      run: dotnet build Arc.WinUI/Arc.WinUI.csproj --configuration Release --no-restore
 #    - name: Test
 #      run: dotnet test --no-restore --verbosity normal
 
     - name: Package
-      run: dotnet pack Arc.WinUI/Arc.WinUI.csproj -c Release -o bin --property:EnableMsixTooling="true"
+      run: dotnet pack Arc.WinUI/Arc.WinUI.csproj -c Release -o bin
     - name: Publish
       run: dotnet nuget push bin/*.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json
