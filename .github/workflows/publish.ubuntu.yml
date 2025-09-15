@@ -1,4 +1,4 @@
-name: Publish NuGet
+name: Publish NuGet (Ubuntu)
 on: workflow_dispatch
 
 jobs:
