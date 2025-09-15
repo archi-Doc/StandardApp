@@ -1,0 +1,31 @@
+name: Publish NuGet
+on: workflow_dispatch
+
+jobs:
+  publish:
+    name: Build, Pack & Publish
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+
+    - name: Install dependencies
+      run: dotnet restore Arc.WinUI
+
+    - name: Build
+      run: dotnet build Arc.WinUI/Arc.WinUI.csproj --configuration Release --no-restore
+      
+    - name: Package
+      run: dotnet pack Arc.WinUI/Arc.WinUI.csproj -c Release -o ./nupkg
+
+    - name: Publish
+      run: |
+        for %%f in (nupkg\*.nupkg) do (
+          dotnet nuget push "%%f" -k "${{ secrets.NUGET_API_KEY }}" -s https://api.nuget.org/v3/index.json
+        )
+      shell: cmd
