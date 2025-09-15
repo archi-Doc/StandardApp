@@ -29,7 +29,7 @@
   <ItemGroup>
     <PackageReference Include="Arc.CrossChannel" Version="2.8.1" />
     <PackageReference Include="Arc.Crypto" Version="1.41.3" />
-    <PackageReference Include="Arc.Unit" Version="0.21.0" />
+    <PackageReference Include="Arc.Unit" Version="0.22.0" />
     <PackageReference Include="DryIoc.dll" Version="5.4.3" />
     <PackageReference Include="Serilog" Version="4.3.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
@@ -38,8 +38,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Tinyhand" Version="0.121.1" />
-    <PackageReference Include="ValueLink" Version="0.92.3" />
+    <PackageReference Include="Tinyhand" Version="0.124.2" />
+    <PackageReference Include="ValueLink" Version="0.95.1" />
   </ItemGroup>
 
 </Project>
