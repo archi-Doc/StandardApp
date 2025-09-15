@@ -49,7 +49,7 @@ public class App : AppBase
     /// </summary>
     public AppSettings Settings { get; private set; } = default!;
 
-    private void LoadCrystalData()
+    private async Task LoadCrystalData()
     {
         var crystalizer = this.GetService<Crystalizer>();
         crystalizer.PrepareAndLoad(false).Wait();
@@ -133,7 +133,7 @@ public class App : AppBase
         this.UiDispatcherQueue = Entrypoint.UiDispatcherQueue;
 
         this.LoadStrings();
-        this.LoadCrystalData();
+        this.LoadCrystalData().Wait();
         this.PrepareCulture();
 
         // Version
