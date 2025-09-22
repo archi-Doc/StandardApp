@@ -15,7 +15,7 @@ namespace StandardWinUI;
 /// </summary>
 public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
 {
-    public class Builder : UnitBuilder<Unit>
+    public class Builder : UnitBuilder<Product>
     {// Builder class for customizing dependencies.
         public Builder()
             : base()
@@ -94,9 +94,9 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
             this.AddBuilder(CrystalBuilder());
         }
 
-        private static CrystalControl.Builder CrystalBuilder()
+        private static CrystalUnit.Builder CrystalBuilder()
         {
-            return new CrystalControl.Builder()
+            return new CrystalUnit.Builder()
                 .ConfigureCrystal(context =>
                 {
                     context.AddCrystal<AppSettings>(new()
@@ -109,11 +109,11 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
         }
     }
 
-    public class Unit : BuiltUnit
+    public class Product : UnitProduct
     {// Unit class for customizing behaviors.
         public record Param(string Args);
 
-        public Unit(UnitContext context)
+        public Product(UnitContext context)
             : base(context)
         {
         }
