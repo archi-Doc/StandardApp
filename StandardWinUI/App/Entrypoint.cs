@@ -33,7 +33,7 @@ public static partial class Entrypoint
             return;
         }
 
-        AppUnit.Unit? unit = default;
+        AppUnit.Product? unit = default;
         try
         {
             WinRT.ComWrappersSupport.InitializeComWrappers();
@@ -53,9 +53,9 @@ public static partial class Entrypoint
 
             Task.Run(async () =>
             {// 'await task' does not work property.
-                if (unit?.Context.ServiceProvider.GetService<Crystalizer>() is { } crystalizer)
+                if (unit?.Context.ServiceProvider.GetService<CrystalControl>() is { } crystalControl)
                 {
-                    await crystalizer.StoreAndRip();
+                    await crystalControl.StoreAndRip();
                 }
 
                 ThreadCore.Root.Terminate();
