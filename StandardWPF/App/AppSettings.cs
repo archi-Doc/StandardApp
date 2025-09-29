@@ -18,7 +18,7 @@ public partial class AppSettings
     public bool LoadError { get; set; } // True if a load error occured.
 
     [Key(1)]
-    public DipWindowPlacement WindowPlacement { get; set; } = default!;
+    public DipWindowPlacement WindowPlacement { get; set; } = new();
 
     [Key(2)]
     public string Culture { get; set; } = AppConst.DefaultCulture; // Default culture
@@ -27,7 +27,7 @@ public partial class AppSettings
     public double DisplayScaling { get; set; } = 1.0d; // Display Scaling
 
     [Key(4)]
-    public TestItem.GoshujinClass TestItems { get; set; } = default!;
+    public TestItem.GoshujinClass TestItems { get; set; } = new();
 
     [TinyhandOnDeserialized]
     public void OnAfterDeserialize()

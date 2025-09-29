@@ -42,15 +42,15 @@ public static partial class App
 
     public static Container Container { get; } = new DryIoc.Container(); // DI container
 
-    public static AppSettings Settings { get; private set; } = default!;
+    public static AppSettings Settings { get; private set; } = new();
 
-    public static AppOptions Options { get; private set; } = default!;
+    public static AppOptions Options { get; private set; } = new();
 
-    public static string Version { get; private set; } = default!;
+    public static string Version { get; private set; } = string.Empty;
 
-    public static string Title { get; private set; } = default!;
+    public static string Title { get; private set; } = string.Empty;
 
-    public static string LocalDataFolder { get; private set; } = default!;
+    public static string LocalDataFolder { get; private set; } = string.Empty;
 
     public static TService Resolve<TService>() => Container.Resolve<TService>();
 
@@ -311,10 +311,10 @@ public partial class AppClass : System.Windows.Application
 public partial class AppData
 {
     [Key(0)]
-    public AppSettings Settings = default!;
+    public AppSettings Settings = new();
 
     [Key(1)]
-    public AppOptions Options = default!;
+    public AppOptions Options = new();
 
     public AppData()
     {

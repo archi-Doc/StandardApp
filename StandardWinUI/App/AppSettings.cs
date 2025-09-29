@@ -14,7 +14,7 @@ public partial class AppSettings
 
     #region FieldAndProperty
 
-    public DipWindowPlacement WindowPlacement { get; set; } = default!;
+    public DipWindowPlacement WindowPlacement { get; set; } = new();
 
     public string Culture { get; set; } = string.Empty;
 
@@ -22,11 +22,11 @@ public partial class AppSettings
 
     public int Baibai { get; set; }
 
-    // public TestItem.GoshujinClass TestItems { get; set; } = default!;
+    // public TestItem.GoshujinClass TestItems { get; set; } = new();
 
     public BrushOption BrushTest { get; set; } = new(Colors.Red);
 
-    public BrushCollection BrushCollection { get; set; } = default!; // Brush Collection
+    public BrushCollection BrushCollection { get; set; } = new(); // Brush Collection
 
     #endregion
 
