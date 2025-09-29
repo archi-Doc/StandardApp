@@ -16,7 +16,7 @@ public partial class AppOptions
     public BrushOption BrushTest { get; set; } = new(Colors.Red);
 
     [Key(1)]
-    public BrushCollection BrushCollection { get; set; } = default!; // Brush Collection
+    public BrushCollection BrushCollection { get; set; } = new(); // Brush Collection
 }
 
 [TinyhandObject]
