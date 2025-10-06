@@ -14,11 +14,11 @@ namespace StandardWPF;
 [ValueLinkObject]
 public partial class TestItem
 {
-    [KeyAsName]
+    [MemberNameAsKey]
     [Link(AutoNotify = true, AddValue = true, Accessibility = ValueLinkAccessibility.Public)]
     private DateTime dateTime;
 
-    [KeyAsName]
+    [MemberNameAsKey]
     [Link(Type = ChainType.Ordered, AutoNotify = true, AddValue = true, Accessibility = ValueLinkAccessibility.Public)]
     private int id;
 

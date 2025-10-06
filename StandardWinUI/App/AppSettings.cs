@@ -7,7 +7,7 @@ namespace StandardWinUI;
 /// <summary>
 /// AppSettings manages the application's settings.
 /// </summary>
-[TinyhandObject(ImplicitKeyAsName = true)]
+[TinyhandObject(ImplicitMemberNameAsKey = true)]
 public partial class AppSettings
 {
     public const string Filename = "AppSettings.tinyhand";
