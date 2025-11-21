@@ -2,6 +2,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Arc;
 using Arc.Threading;
 using Arc.Unit;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,11 +14,11 @@ public class Program
 {
     public static async Task Main()
     {
-        AppDomain.CurrentDomain.ProcessExit += (s, e) =>
+        AppCloseHandler.Set(() =>
         {// Console window closing or process terminated.
             ThreadCore.Root.Terminate(); // Send a termination signal to the root.
             ThreadCore.Root.TerminationEvent.WaitOne(2000); // Wait until the termination process is complete (#1).
-        };
+        });
 
         Console.CancelKeyPress += (s, e) =>
         {// Ctrl+C pressed
