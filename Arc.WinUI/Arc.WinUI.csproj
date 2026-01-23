@@ -23,7 +23,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arc.Collections" Version="1.28.2" />
+    <PackageReference Include="Arc.Collections" Version="1.28.4" />
     <PackageReference Include="Arc.CrossChannel" Version="2.9.0" />
     <PackageReference Include="Arc.Unit" Version="0.27.2" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
@@ -32,9 +32,9 @@
     </PackageReference>
     <PackageReference Include="Tinyhand" Version="0.132.1" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-    <PackageReference Include="CommunityToolkit.WinUI.Controls.LayoutTransformControl" Version="8.2.250402" />
-    <PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.2.250402" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.251106002" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.LayoutTransformControl" Version="8.2.251219" />
+    <PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.2.251219" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260101001" />
   </ItemGroup>
 
   <ItemGroup>
