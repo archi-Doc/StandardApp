@@ -75,7 +75,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Arc.Collections" Version="1.28.2" />
+    <PackageReference Include="Arc.Collections" Version="1.28.4" />
   </ItemGroup>
   <Import Project="$(WapProjPath)\Microsoft.DesktopBridge.targets" />
 </Project>
