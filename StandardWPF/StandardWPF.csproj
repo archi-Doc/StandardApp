@@ -27,20 +27,20 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arc.Collections" Version="1.28.4" />
-    <PackageReference Include="Arc.CrossChannel" Version="2.9.0" />
-    <PackageReference Include="Arc.Crypto" Version="1.42.0" />
-    <PackageReference Include="Arc.Unit" Version="0.27.2" />
+    <PackageReference Include="Arc.Collections" Version="1.30.0" />
+    <PackageReference Include="Arc.CrossChannel" Version="2.9.1" />
+    <PackageReference Include="Arc.Crypto" Version="1.42.1" />
+    <PackageReference Include="Arc.Unit" Version="0.30.0" />
     <PackageReference Include="DryIoc.dll" Version="5.4.3" />
-    <PackageReference Include="Serilog" Version="4.3.0" />
+    <PackageReference Include="Serilog" Version="4.3.1" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Tinyhand" Version="0.132.1" />
-    <PackageReference Include="ValueLink" Version="0.106.1" />
+    <PackageReference Include="Tinyhand" Version="0.133.5" />
+    <PackageReference Include="ValueLink" Version="0.106.3" />
   </ItemGroup>
 
 </Project>

@@ -3,6 +3,7 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Amazon.S3.Model;
 using CrossChannel;
 using SimpleCommandLine;
 using StandardWinUI.PresentationState;
@@ -123,8 +124,8 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
             // Create optional instances
             this.Context.CreateInstances();
 
-            this.Context.SendPrepare(new());
-            await this.Context.SendStartAsync(new(ThreadCore.Root));
+            await this.Context.SendPrepare();
+            await this.Context.SendStart();
 
             var parserOptions = SimpleParserOptions.Standard with
             {
@@ -136,8 +137,8 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
             // Main
             await SimpleParser.ParseAndRunAsync(this.Context.Commands, param.Args, parserOptions);
 
-            this.Context.SendStop(new());
-            await this.Context.SendTerminateAsync(new());
+            await this.Context.SendStop();
+            await this.Context.SendTerminate();
         }
     }
 
@@ -176,24 +177,24 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
         this.options = options;
     }
 
-    void IUnitPreparable.Prepare(UnitMessage.Prepare message)
+    async Task IUnitPreparable.Prepare(UnitContext unitContext, CancellationToken cancellationToken)
     {
         this.logger.TryGet()?.Log("Unit prepared.");
         this.logger.TryGet()?.Log($"Program: {this.options.ProgramDirectory}");
         this.logger.TryGet()?.Log($"Data: {this.options.DataDirectory}");
     }
 
-    async Task IUnitExecutable.StartAsync(UnitMessage.StartAsync message, CancellationToken cancellationToken)
+    async Task IUnitExecutable.Start(UnitContext unitContext, CancellationToken cancellationToken)
     {
         this.logger.TryGet()?.Log("Unit started.");
     }
 
-    void IUnitExecutable.Stop(UnitMessage.Stop message)
+    async Task IUnitExecutable.Stop(UnitContext unitContext, CancellationToken cancellationToken)
     {
         this.logger.TryGet()?.Log("Unit stopped.");
     }
 
-    async Task IUnitExecutable.TerminateAsync(UnitMessage.TerminateAsync message, CancellationToken cancellationToken)
+    async Task IUnitExecutable.Terminate(UnitContext unitContext, CancellationToken cancellationToken)
     {
         this.logger.TryGet()?.Log("Unit terminated.");
     }
