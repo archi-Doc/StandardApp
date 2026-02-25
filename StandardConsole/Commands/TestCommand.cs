@@ -17,14 +17,17 @@ public class TestOptions
 [SimpleCommand("test")]
 public class TestCommand : ISimpleCommandAsync<TestOptions>
 {
-    public TestCommand(ILogger<TestCommand> logger)
+    private readonly IConsoleService consoleService;
+
+    public TestCommand(ILogger<TestCommand> logger, IConsoleService consoleService)
     {
         this.logger = logger;
+        this.consoleService = consoleService;
     }
 
     public async Task RunAsync(TestOptions option, string[] args)
     {
-        Console.WriteLine("Test command:");
+        this.consoleService.WriteLine("Test command:", ConsoleColor.Red);
         Console.WriteLine($"Number is {option.Number}");
 
         var c = new ThreadCore(ThreadCore.Root, parameter =>
