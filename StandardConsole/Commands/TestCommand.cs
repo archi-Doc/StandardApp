@@ -39,7 +39,7 @@ public class TestCommand : ISimpleCommandAsync<TestOptions>
             }
             catch
             {
-                this.logger.TryGet()?.Log("canceled");
+                this.logger.GetWriter()?.Write("canceled");
             }
         });
 
