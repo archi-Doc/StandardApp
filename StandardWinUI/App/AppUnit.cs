@@ -35,9 +35,6 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
                 context.AddSingleton<IApp, App>();
                 // context.Services.AddSingleton(x => (App)x.GetRequiredService<IApp>()); // If you want to use the App instance, please uncomment it.
 
-                // CrossChannel
-                context.Services.AddCrossChannel();
-
                 // Presentation-State
                 context.AddSingleton<NaviWindow>();
                 context.AddSingleton<HelloPage>();

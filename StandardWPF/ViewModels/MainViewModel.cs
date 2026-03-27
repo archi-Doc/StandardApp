@@ -100,7 +100,7 @@ public partial class MainViewModel
             return this.commandClearItem ?? (this.commandClearItem = new DelegateCommand(
                 () =>
                 {
-                    this.TestGoshujin.Clear();
+                    this.TestGoshujin.ClearAll();
                 }));
         }
     }

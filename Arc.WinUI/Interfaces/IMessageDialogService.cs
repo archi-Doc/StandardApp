@@ -7,7 +7,7 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace Arc.WinUI;
 
-[RadioServiceInterface(MaxLinks = 1)]
+[RadioService(MaxLinks = 1)]
 public interface IMessageDialogService : IRadioService
 {
     /// <summary>
