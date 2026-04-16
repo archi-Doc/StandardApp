@@ -3,11 +3,9 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Amazon.S3.Model;
 using CrossChannel;
 using SimpleCommandLine;
 using StandardWinUI.PresentationState;
-using static SimpleCommandLine.SimpleParser;
 
 namespace StandardWinUI;
 
@@ -132,7 +130,7 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
             };
 
             // Main
-            await SimpleParser.ParseAndRunAsync(this.Context.Commands, param.Args, parserOptions);
+            await SimpleParser.ParseAndExecute(this.Context.Commands, param.Args, parserOptions);
 
             await this.Context.SendStop();
             await this.Context.SendTerminate();

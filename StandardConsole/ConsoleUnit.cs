@@ -20,7 +20,7 @@ public class ConsoleUnit : UnitBase, IUnitPreparable, IUnitExecutable
             this.Configure(context =>
             {
                 context.AddSingleton<ConsoleUnit>();
-                context.RegisterInstanceCreation<ConsoleUnit>();
+                context.RegisterDefaultInstantiableType<ConsoleUnit>();
 
                 // Command
                 context.AddCommand(typeof(TestCommand));
@@ -89,7 +89,7 @@ public class ConsoleUnit : UnitBase, IUnitPreparable, IUnitExecutable
 
             // Main
             // await SimpleParser.ParseAndRunAsync(this.Context.Commands, "example -string test", parserOptions);
-            await SimpleParser.ParseAndRunAsync(this.Context.Commands, param.Args, parserOptions);
+            await SimpleParser.ParseAndExecute(this.Context.Commands, param.Args, parserOptions);
 
             await this.Context.SendStop();
             await this.Context.SendTerminate();

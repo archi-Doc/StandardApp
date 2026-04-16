@@ -1,6 +1,7 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Arc.Threading;
 using Arc.Unit;
@@ -15,7 +16,7 @@ public class TestOptions
 }
 
 [SimpleCommand("test")]
-public class TestCommand : ISimpleCommandAsync<TestOptions>
+public class TestCommand : ISimpleCommand<TestOptions>
 {
     private readonly IConsoleService consoleService;
 
@@ -25,7 +26,7 @@ public class TestCommand : ISimpleCommandAsync<TestOptions>
         this.consoleService = consoleService;
     }
 
-    public async Task RunAsync(TestOptions option, string[] args)
+    public async Task Execute(TestOptions option, string[] args, CancellationToken cancellationToken)
     {
         this.consoleService.WriteLine("Test command:", ConsoleColor.Red);
         Console.WriteLine($"Number is {option.Number}");
