@@ -18,10 +18,12 @@ public class TestOptions
 [SimpleCommand("test")]
 public class TestCommand : ISimpleCommand<TestOptions>
 {
+    private readonly ExecutionRoot root;
     private readonly IConsoleService consoleService;
 
-    public TestCommand(ILogger<TestCommand> logger, IConsoleService consoleService)
+    public TestCommand(ExecutionRoot root, ILogger<TestCommand> logger, IConsoleService consoleService)
     {
+        this.root = root;
         this.logger = logger;
         this.consoleService = consoleService;
     }
@@ -31,12 +33,12 @@ public class TestCommand : ISimpleCommand<TestOptions>
         this.consoleService.WriteLine("Test command:", ConsoleColor.Red);
         Console.WriteLine($"Number is {option.Number}");
 
-        var c = new ThreadCore(ThreadCore.Root, parameter =>
+        var c = new ThreadCore(this.root, parameter =>
         {
             var core = (ThreadCore)parameter!;
             try
             {
-                Task.Delay(option.Number, ThreadCore.Root.CancellationToken).Wait();
+                Task.Delay(option.Number, core.CancellationToken).Wait();
             }
             catch
             {
