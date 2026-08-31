@@ -11,7 +11,7 @@ using WinUIEx;
 
 namespace StandardWinUI.PresentationState;
 
-public partial class NaviWindow : WindowEx, IMessageDialogService
+public partial class NaviWindow : Window, IMessageDialogService
 {
     private readonly IApp app;
     private readonly AppSettings settings;
