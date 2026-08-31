@@ -12,18 +12,20 @@ namespace StandardConsole;
 
 public class Program
 {
+    private static ExecutionRoot? root;
+
     public static async Task Main()
     {
         AppCloseHandler.Set(() =>
-        {// Console window closing or process terminated.
-            ThreadCore.Root.Terminate(); // Send a termination signal to the root.
-            ThreadCore.Root.TerminationEvent.WaitOne(2000); // Wait until the termination process is complete (#1).
+        {// Closing the console window or terminating the process.
+            root?.RequestTermination(); // Send a termination signal to the root.
+            root?.WaitForTermination(TimeSpan.FromSeconds(2)).Wait();
         });
 
         Console.CancelKeyPress += (s, e) =>
-        {// Ctrl+C pressed
+        {// Ctrl+C pressed.
             e.Cancel = true;
-            ThreadCore.Root.Terminate(); // Send a termination signal to the root.
+            root?.RequestTermination(); // Send a termination signal to the root.
         };
 
         var builder = new ConsoleUnit.Builder()
@@ -34,11 +36,15 @@ public class Program
 
         var args = SimpleParserHelper.GetCommandLineArguments();
         var unit = builder.Build();
+        root = unit.Context.Root;
+
         await unit.RunAsync(new(args));
 
-        ThreadCore.Root.Terminate();
-        await ThreadCore.Root.WaitForTermination(); // Wait for the termination infinitely.
-        unit.Context.ServiceProvider.GetService<LogUnit>()?.FlushAndTerminate();
-        ThreadCore.Root.TerminationEvent.Set(); // The termination process is complete (#1).
+        root.RequestTermination();
+        await root.WaitForTermination(); // Wait for the termination infinitely.
+        if (unit.Context.ServiceProvider.GetService<LogUnit>() is { } unitLogger)
+        {
+            await unitLogger.FlushAndTerminate();
+        }
     }
 }

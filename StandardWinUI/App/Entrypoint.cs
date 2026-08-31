@@ -53,16 +53,21 @@ public static partial class Entrypoint
 
             Task.Run(async () =>
             {// 'await task' does not work property.
-                if (unit?.Context.ServiceProvider.GetService<CrystalControl>() is { } crystalControl)
+                if (unit is null)
+                {
+                    return;
+                }
+
+                if (unit.Context.ServiceProvider.GetService<CrystalControl>() is { } crystalControl)
                 {
                     await crystalControl.StoreAndRip();
                 }
 
-                ThreadCore.Root.Terminate();
-                await ThreadCore.Root.WaitForTermination();
-                if (unit?.Context.ServiceProvider.GetService<LogUnit>() is { } logUnit)
+                unit.Context.Root.RequestTermination();
+                await unit.Context.Root.WaitForTermination();
+                if (unit.Context.ServiceProvider.GetService<LogUnit>() is { } unitLogger)
                 {
-                    await logUnit.FlushAndTerminate();
+                    await unitLogger.FlushAndTerminate();
                 }
             }).Wait();
         }
