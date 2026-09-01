@@ -36,7 +36,7 @@ public class Program
 
         var args = SimpleParserHelper.GetCommandLineArguments();
         var unit = builder.Build();
-        root = unit.Context.Root;
+        root = unit.Context.ExecutionRoot;
 
         await unit.RunAsync(new(args));
 
