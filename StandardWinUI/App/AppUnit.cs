@@ -159,7 +159,7 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
                 }
             }
 
-            return param.OriginalLogger;
+            return param.OriginalWriter;
         }
 
         private AppUnit consoleUnit;

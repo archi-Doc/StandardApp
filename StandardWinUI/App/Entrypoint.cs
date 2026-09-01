@@ -63,8 +63,8 @@ public static partial class Entrypoint
                     await crystalControl.StoreAndRip();
                 }
 
-                unit.Context.Root.RequestTermination();
-                await unit.Context.Root.WaitForTermination();
+                unit.Context.ExecutionRoot.RequestTermination();
+                await unit.Context.ExecutionRoot.WaitForTermination();
                 if (unit.Context.ServiceProvider.GetService<LogUnit>() is { } unitLogger)
                 {
                     await unitLogger.FlushAndTerminate();
