@@ -56,18 +56,18 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
                 context.AddSingleton<ExampleLogFilter>();
 
                 // Logger
-                context.ClearLoggerResolver();
-                context.AddLoggerResolver(x =>
+                context.ClearLogOutputResolvers();
+                context.AddLogOutputResolver(x =>
                 {// Log source/level -> Resolver() -> Output/filter
-                    x.SetOutput<FileLogger<FileLoggerOptions>>();
+                    x.SetOutput<FileLogOutput<FileLogOutputOptions>>();
 
                     // if (x.LogLevel <= LogLevel.Debug)
                     // {
-                    //    x.SetOutput<ConsoleLogger>();
+                    //    x.SetOutput<ConsoleLogOutput>();
                     //    return;
                     // }
 
-                    // x.SetOutput<ConsoleAndFileLogger>();
+                    // x.SetOutput<ConsoleAndFileLogOutput>();
 
                     // if (x.LogSourceType == typeof(TestCommand))
                     // {
@@ -79,10 +79,10 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
             this.PostConfigure(context =>
             {
                 var logfile = "Logs/Log.txt";
-                context.SetOptions(context.GetOptions<FileLoggerOptions>() with
+                context.SetOptions(context.GetOrCreateOptions<FileLogOutputOptions>() with
                 {
-                    Path = Path.Combine(context.DataDirectory, logfile),
-                    MaxLogCapacity = 2,
+                    FilePath = Path.Combine(context.DataDirectory, logfile),
+                    MaxLogCapacityInMegabytes = 2,
                     ClearLogsAtStartup = false,
                 });
             });
@@ -97,7 +97,7 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
                 {
                     context.AddCrystal<AppSettings>(new()
                     {
-                        NumberOfFileHistories = 0,
+                        NumberOfHistoryFiles = 0,
                         FileConfiguration = new GlobalFileConfiguration(AppSettings.Filename),
                         SaveFormat = SaveFormat.Utf8,
                     });
@@ -119,21 +119,21 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
             // Create optional instances
             this.Context.CreateInstances();
 
-            await this.Context.SendPrepare();
-            await this.Context.SendStart();
+            await this.Context.SendPrepareAsync();
+            await this.Context.SendStartAsync();
 
             var parserOptions = SimpleParserOptions.Standard with
             {
                 ServiceProvider = this.Context.ServiceProvider,
-                RequireStrictCommandName = false,
-                RequireStrictOptionName = true,
+                RequireCommandName = false,
+                RejectUnknownOptionNames = true,
             };
 
             // Main
-            await SimpleParser.ParseAndExecute(this.Context.Commands, param.Args, parserOptions);
+            await SimpleParser.ParseAndExecute(this.Context.CommandTypes, param.Args, parserOptions);
 
-            await this.Context.SendStop();
-            await this.Context.SendTerminate();
+            await this.Context.SendStopAsync();
+            await this.Context.SendTerminateAsync();
         }
     }
 
@@ -144,18 +144,18 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
             this.consoleUnit = consoleUnit;
         }
 
-        public LogWriter? Filter(LogFilterParameter param)
+        public LogWriter? Filter(LogFilterContext param)
         {// Log source/Event id/LogLevel -> Filter() -> ILog
             if (param.LogSourceType == typeof(StandardApp))
             {
                 // return null; // No log
                 if (param.LogLevel == LogLevel.Error)
                 {
-                    return param.LogService.GetWriter<ConsoleAndFileLogger>(LogLevel.Fatal); // Error -> Fatal
+                    return param.LogService.GetWriter<ConsoleAndFileLogOutput>(LogLevel.Fatal); // Error -> Fatal
                 }
                 else if (param.LogLevel == LogLevel.Fatal)
                 {
-                    return param.LogService.GetWriter<ConsoleAndFileLogger>(LogLevel.Error); // Fatal -> Error
+                    return param.LogService.GetWriter<ConsoleAndFileLogOutput>(LogLevel.Error); // Fatal -> Error
                 }
             }
 
@@ -172,24 +172,24 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
         this.options = options;
     }
 
-    async Task IUnitPreparable.Prepare(UnitContext unitContext, CancellationToken cancellationToken)
+    async Task IUnitPreparable.PrepareAsync(UnitContext unitContext, CancellationToken cancellationToken)
     {
         this.logger.GetWriter()?.Write("Unit prepared.");
         this.logger.GetWriter()?.Write($"Program: {this.options.ProgramDirectory}");
         this.logger.GetWriter()?.Write($"Data: {this.options.DataDirectory}");
     }
 
-    async Task IUnitExecutable.Start(UnitContext unitContext, CancellationToken cancellationToken)
+    async Task IUnitExecutable.StartAsync(UnitContext unitContext, CancellationToken cancellationToken)
     {
         this.logger.GetWriter()?.Write("Unit started.");
     }
 
-    async Task IUnitExecutable.Stop(UnitContext unitContext, CancellationToken cancellationToken)
+    async Task IUnitExecutable.StopAsync(UnitContext unitContext, CancellationToken cancellationToken)
     {
         this.logger.GetWriter()?.Write("Unit stopped.");
     }
 
-    async Task IUnitExecutable.Terminate(UnitContext unitContext, CancellationToken cancellationToken)
+    async Task IUnitExecutable.TerminateAsync(UnitContext unitContext, CancellationToken cancellationToken)
     {
         this.logger.GetWriter()?.Write("Unit terminated.");
     }

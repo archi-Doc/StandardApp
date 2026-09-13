@@ -27,7 +27,7 @@ public partial class MainViewModel
 
     private IMainViewService ViewService => App.Resolve<IMainViewService>(); // To avoid a circular dependency, get an instance when necessary.
 
-    [Link(AutoNotify = true, AddValue = true)]
+    [Link(AutoNotify = true, GenerateValue = true)]
     private bool hideDialogButton;
 
     private int number1;
@@ -63,10 +63,10 @@ public partial class MainViewModel
         }
     }
 
-    [Link(AutoNotify = true, AddValue = true)]
+    [Link(AutoNotify = true, GenerateValue = true)]
     private int number3;
 
-    [Link(AutoNotify = true, AddValue = true)]
+    [Link(AutoNotify = true, GenerateValue = true)]
     private int number4;
 
     private ICommand? commandAddItem;
@@ -160,7 +160,7 @@ public partial class MainViewModel
         }
     }
 
-    [Link(AutoNotify = true, AddValue = true)]
+    [Link(AutoNotify = true, GenerateValue = true)]
     private bool commandFlag = true;
 
     private ICommand? testCommand4;

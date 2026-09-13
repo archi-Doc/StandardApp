@@ -82,7 +82,7 @@ public partial class MainWindow : Window, IMainViewService
                     App.Settings.Culture = "ja";
                 }
 
-                HashedString.ChangeCulture(App.Settings.Culture);
+                HashedString.TrySetCurrentCulture(App.Settings.Culture);
                 Arc.WPF.StringerUpdater.StringerUpdate();
             }
             else if (id == MessageId.Exit)

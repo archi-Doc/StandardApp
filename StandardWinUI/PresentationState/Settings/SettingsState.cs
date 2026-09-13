@@ -52,7 +52,7 @@ public partial class SettingsState : ObservableObject, IState
             App.Settings.Culture = "ja";
         }
 
-        HashedString.ChangeCulture(App.Settings.Culture);
+        HashedString.TrySetCurrentCulture(App.Settings.Culture);
         Arc.WinUI.Stringer.Refresh();*/
 
         // this.GetPresentationService<IMessageDialog>().Show(Hashed.App.Name, Hashed.App.Description);
@@ -67,7 +67,7 @@ public partial class SettingsState : ObservableObject, IState
         }
 
         this.settings.Culture = language;
-        HashedString.ChangeCulture(this.settings.Culture);
+        HashedString.TrySetCurrentCulture(this.settings.Culture);
         Arc.WinUI.Stringer.Refresh();
         this.SetLanguageText();
     }

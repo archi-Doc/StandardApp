@@ -125,7 +125,7 @@ Released under the MIT license
         if (App.Settings.Culture != this.CurrentCulture)
         {// Change culture
             App.Settings.Culture = this.CurrentCulture;
-            HashedString.ChangeCulture(App.Settings.Culture);
+            HashedString.TrySetCurrentCulture(App.Settings.Culture);
             Arc.WPF.StringerUpdater.StringerUpdate();
         }
 

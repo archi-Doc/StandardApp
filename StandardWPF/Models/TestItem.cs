@@ -15,11 +15,11 @@ namespace StandardWPF;
 public partial class TestItem
 {
     [MemberNameAsKey]
-    [Link(AutoNotify = true, AddValue = true, Accessibility = ValueLinkAccessibility.Public)]
+    [Link(AutoNotify = true, GenerateValue = true, Accessibility = ValueLinkAccessibility.Public)]
     private DateTime dateTime;
 
     [MemberNameAsKey]
-    [Link(Type = ChainType.Ordered, AutoNotify = true, AddValue = true, Accessibility = ValueLinkAccessibility.Public)]
+    [Link(Type = ChainType.Ordered, AutoNotify = true, GenerateValue = true, Accessibility = ValueLinkAccessibility.Public)]
     private int id;
 
     [IgnoreMember]

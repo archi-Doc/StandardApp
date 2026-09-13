@@ -46,7 +46,7 @@ public class TestCommand : ISimpleCommand<TestOptions>
             }
         });
 
-        await c.WaitForTermination();
+        await c.WaitForTerminationAsync();
     }
 
     private readonly ILogger logger;

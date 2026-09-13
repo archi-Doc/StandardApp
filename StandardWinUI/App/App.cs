@@ -92,12 +92,12 @@ public class App : AppBase
                 }
             }
 
-            HashedString.ChangeCulture(this.Settings.Culture);
+            HashedString.TrySetCurrentCulture(this.Settings.Culture);
         }
         catch
         {
             this.Settings.Culture = DefaultCulture;
-            HashedString.ChangeCulture(this.Settings.Culture);
+            HashedString.TrySetCurrentCulture(this.Settings.Culture);
         }
     }
 
@@ -112,7 +112,7 @@ public class App : AppBase
         return this.UiDispatcherQueue.EnqueueAsync(async () =>
         {
             var result = await this.GetService<IMessageDialogService>().ShowMessageDialogAsync(0, Hashed.Dialog.Exit, Hashed.Dialog.Yes, Hashed.Dialog.No, 0, cancellationToken);
-            if (result.TryGetSingleResult(out var r) && r == ContentDialogResult.Primary)
+            if (result.TryGetFirst(out var r) && r == ContentDialogResult.Primary)
             {// Exit
                 this.Exit();
                 return true;

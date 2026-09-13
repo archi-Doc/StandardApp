@@ -236,12 +236,12 @@ public static partial class App
                 }
             }
 
-            HashedString.ChangeCulture(App.Settings.Culture);
+            HashedString.TrySetCurrentCulture(App.Settings.Culture);
         }
         catch
         {
             App.Settings.Culture = AppConst.DefaultCulture;
-            HashedString.ChangeCulture(App.Settings.Culture);
+            HashedString.TrySetCurrentCulture(App.Settings.Culture);
         }
 
         Bootstrap();

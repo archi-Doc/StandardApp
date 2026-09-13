@@ -20,7 +20,7 @@ public partial class MessagePageState : ObservableObject, IState
     private async Task Test()
     {
         var r = await this.messageDialogService.Show(string.Empty, "Like or Love?", "Like", "Love");
-        if (!r.TryGetSingleResult(out var result))
+        if (!r.TryGetFirst(out var result))
         {
             return;
         }
