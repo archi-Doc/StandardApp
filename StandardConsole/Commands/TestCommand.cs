@@ -9,12 +9,18 @@ using SimpleCommandLine;
 
 namespace StandardConsole;
 
+/// <summary>
+/// Contains the delay option for the sample command.
+/// </summary>
 public class TestOptions
 {
     [SimpleOption("number", ShortName = "n")]
     public int Number { get; set; } = 2000;
 }
 
+/// <summary>
+/// Runs the sample command and waits for its worker to terminate.
+/// </summary>
 [SimpleCommand("test")]
 public class TestCommand : ISimpleCommand<TestOptions>
 {

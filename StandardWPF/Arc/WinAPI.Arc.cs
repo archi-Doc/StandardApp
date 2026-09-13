@@ -21,6 +21,9 @@ using System.Windows.Media;
 
 namespace Arc.WinAPI;
 
+/// <summary>
+/// Extracts the low and high words from native integer values.
+/// </summary>
 public static class IntPtrExtensions
 {
     /// <summary>
@@ -44,11 +47,17 @@ public static class IntPtrExtensions
     }
 }
 
+/// <summary>
+/// Defines clipboard format names used by Windows shell operations.
+/// </summary>
 public static class ClipboardFormats
 {
     public const string SHELL_IDLIST_STRING = "Shell IDList Array";
 }
 
+/// <summary>
+/// Provides native Windows interop for windows, monitors, input, and shell operations.
+/// </summary>
 public partial class NativeMethods
 {
     [DllImport("shell32.dll")]
@@ -625,6 +634,9 @@ public enum MonitorDpiType
     Default = EffectiveDpi,
 }
 
+/// <summary>
+/// Contains a monitor's bounds, work area, flags, and device name.
+/// </summary>
 [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto, Pack = 4)]
 public class MONITORINFOEX
 {
@@ -664,6 +676,9 @@ public enum FOFlags : ushort
     FOF_NORECURSEREPARSE = 0x8000,  // treat reparse points as objects, not containers
 }
 
+/// <summary>
+/// Contains the parameters for a native shell file operation.
+/// </summary>
 [StructLayout(LayoutKind.Sequential)]
 public struct SHFILEOPSTRUCT
 {
@@ -680,6 +695,9 @@ public struct SHFILEOPSTRUCT
     public string lpszProgressTitle;
 }
 
+/// <summary>
+/// Stores cursor coordinates returned by the native Windows API.
+/// </summary>
 [StructLayout(LayoutKind.Sequential)]
 public struct NativeCursorPoint
 {

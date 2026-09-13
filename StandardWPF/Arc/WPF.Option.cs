@@ -14,10 +14,12 @@ using Tinyhand;
 
 namespace Arc.WPF;
 
+/// <summary>
+/// Stores a default or customized brush color for serialization and data binding.
+/// </summary>
 [TinyhandObject]
 public partial class BrushOption : BindableBase
 { // Constructor -> (OnDeserialized()) -> Prepare() -> ... -> OnSerializing()
-    private Color initialColor;
     private SolidColorBrush? brush;
 
     public BrushOption()
@@ -27,7 +29,6 @@ public partial class BrushOption : BindableBase
 
     public BrushOption(Color initialColor)
     {
-        this.initialColor = initialColor;
         if (this.Brush == null)
         {
             this.Brush = new SolidColorBrush(initialColor);

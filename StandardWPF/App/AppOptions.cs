@@ -5,6 +5,9 @@ using Arc.WPF;
 
 namespace StandardWPF;
 
+/// <summary>
+/// Stores customizable application colors.
+/// </summary>
 [TinyhandObject]
 public partial class AppOptions
 { // Application Options
@@ -19,6 +22,9 @@ public partial class AppOptions
     public BrushCollection BrushCollection { get; set; } = new(); // Brush Collection
 }
 
+/// <summary>
+/// Stores the sample brushes exposed to XAML bindings.
+/// </summary>
 [TinyhandObject]
 public partial class BrushCollection
 {

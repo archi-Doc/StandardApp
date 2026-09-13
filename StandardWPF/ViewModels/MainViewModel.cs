@@ -18,6 +18,9 @@ using ValueLink;
 
 namespace StandardWPF;
 
+/// <summary>
+/// Exposes the WPF sample's arithmetic, item collection, and UI commands.
+/// </summary>
 [ValueLinkObject]
 public partial class MainViewModel
 {

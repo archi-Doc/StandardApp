@@ -2,6 +2,9 @@
 
 namespace StandardMaui;
 
+/// <summary>
+/// Defines the MAUI application's shell navigation.
+/// </summary>
 public partial class AppShell : Shell
 {
     public AppShell()

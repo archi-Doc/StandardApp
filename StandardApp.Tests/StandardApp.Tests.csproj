@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>$(ProjectTargetFramework)</TargetFramework>
+    <Platforms>x86;x64;ARM64</Platforms>
+    <Platform Condition="'$(Platform)' == '' or '$(Platform)' == 'AnyCPU'">x64</Platform>
+    <UseWPF>true</UseWPF>
+    <IsTestProject>true</IsTestProject>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <WindowsAppSDKBootstrapInitialize>false</WindowsAppSDKBootstrapInitialize>
+    <WindowsAppSdkDeploymentManagerInitialize>false</WindowsAppSdkDeploymentManagerInitialize>
+    <WindowsAppSDKUndockedRegFreeWinRTInitialize>false</WindowsAppSDKUndockedRegFreeWinRTInitialize>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="xunit.v3.mtp-v2" Version="4.0.1" />
+    <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.11.2" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Arc.WinUI/Arc.WinUI.csproj" />
+    <ProjectReference Include="../StandardWPF/StandardWPF.csproj" />
+    <ProjectReference Include="../StandardWinUI/StandardWinUI.csproj" />
+  </ItemGroup>
+</Project>

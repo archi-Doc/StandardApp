@@ -30,8 +30,7 @@ public enum MessageId
 }
 
 /// <summary>
-/// Base class for all messages broadcasted by the Messenger.
-/// You can create your own message types by extending this class.
+/// Carries optional sender and target information for view-service messages.
 /// </summary>
 public class MessageBase
 {
@@ -55,6 +54,10 @@ public class MessageBase
     public object? Target { get; protected set; } // the message's intended target.
 }
 
+/// <summary>
+/// Carries a typed payload with optional sender and target information.
+/// </summary>
+/// <typeparam name="T">The payload type.</typeparam>
 public class GenericMessage<T> : MessageBase
 {
     public GenericMessage(T content)
@@ -77,6 +80,9 @@ public class GenericMessage<T> : MessageBase
     public T Content { get; protected set; } // the message's content.
 }
 
+/// <summary>
+/// Carries notification text with optional sender and target information.
+/// </summary>
 public class NotificationMessage : MessageBase
 {
     public NotificationMessage(string notification)
@@ -160,6 +166,7 @@ internal class PropertyObserverNode
         if (this.inpcObject != null)
         {
             this.inpcObject.PropertyChanged -= this.OnPropertyChanged;
+            this.inpcObject = null;
         }
 
         this.Next?.UnsubscribeListener();
@@ -170,7 +177,7 @@ internal class PropertyObserverNode
         // Invoke action when e.PropertyName == null in order to satisfy:
         //  - DelegateCommandFixture.GenericDelegateCommandObservingPropertyShouldRaiseOnEmptyPropertyName
         //  - DelegateCommandFixture.NonGenericDelegateCommandObservingPropertyShouldRaiseOnEmptyPropertyName
-        if (e?.PropertyName == this.PropertyInfo.Name || e?.PropertyName == null)
+        if (e.PropertyName == this.PropertyInfo.Name || string.IsNullOrEmpty(e.PropertyName))
         {
             this.action?.Invoke();
         }
@@ -209,14 +216,27 @@ internal class PropertyObserver
         var propNameStack = new Stack<PropertyInfo>();
         while (propertyExpression is MemberExpression temp)
         { // Gets the root of the property chain.
+            if (temp.Expression is null)
+            {
+                throw new NotSupportedException("Static properties cannot be observed.");
+            }
+
             propertyExpression = temp.Expression!;
-            propNameStack.Push((PropertyInfo)temp.Member); // Records the member info as property info
+            if (temp.Member is not PropertyInfo property)
+            {
+                propertyExpression = temp;
+                break;
+            }
+
+            propNameStack.Push(property); // Records the member info as property info
         }
 
-        if (!(propertyExpression is ConstantExpression constantExpression))
+        if (propNameStack.Count == 0)
         {
-            throw new NotSupportedException("Operation not supported for the given expression type. " + "Only MemberExpression and ConstantExpression are currently supported.");
+            throw new NotSupportedException("The expression must end in an instance property.");
         }
+
+        var propOwnerObject = Expression.Lambda<Func<object?>>(Expression.Convert(propertyExpression, typeof(object))).Compile()();
 
         var propObserverNodeRoot = new PropertyObserverNode(propNameStack.Pop(), this.action);
         PropertyObserverNode previousNode = propObserverNodeRoot;
@@ -226,8 +246,6 @@ internal class PropertyObserver
             previousNode.Next = currentNode;
             previousNode = currentNode;
         }
-
-        var propOwnerObject = constantExpression.Value;
 
         if (!(propOwnerObject is INotifyPropertyChanged inpcObject))
         {
@@ -239,8 +257,7 @@ internal class PropertyObserver
 }
 
 /// <summary>
-/// Interface that defines if the object instance is active
-/// and notifies when the activity changes.
+/// Exposes an active state and notifies listeners when it changes.
 /// </summary>
 public interface IActiveAware
 {
@@ -257,7 +274,7 @@ public interface IActiveAware
 }
 
 /// <summary>
-/// An <see cref="ICommand"/> whose delegates can be attached for <see cref="Execute"/> and <see cref="CanExecute"/>.
+/// Provides command notifications, property observation, and active-state tracking.
 /// </summary>
 public abstract class DelegateCommandBase : ICommand, IActiveAware
 {
@@ -311,8 +328,8 @@ public abstract class DelegateCommandBase : ICommand, IActiveAware
         }
         else
         {
-            this.observedPropertiesExpressions.Add(propertyExpression.ToString());
             PropertyObserver.Observes(propertyExpression, this.RaiseCanExecuteChanged);
+            this.observedPropertiesExpressions.Add(propertyExpression.ToString());
         }
     }
 
@@ -411,10 +428,8 @@ public class DelegateCommand : DelegateCommandBase
     public DelegateCommand(Action executeMethod, Func<bool> canExecuteMethod)
         : base()
     {
-        if (executeMethod == null || canExecuteMethod == null)
-        {
-            throw new ArgumentNullException(nameof(executeMethod));
-        }
+        ArgumentNullException.ThrowIfNull(executeMethod);
+        ArgumentNullException.ThrowIfNull(canExecuteMethod);
 
         this.executeMethod = executeMethod;
         this.canExecuteMethod = canExecuteMethod;
@@ -529,10 +544,8 @@ public class DelegateCommand<T> : DelegateCommandBase
     public DelegateCommand(Action<T?>? executeMethod, Func<T?, bool>? canExecuteMethod)
         : base()
     {
-        if (executeMethod == null || canExecuteMethod == null)
-        {
-            throw new ArgumentNullException(nameof(executeMethod));
-        }
+        ArgumentNullException.ThrowIfNull(executeMethod);
+        ArgumentNullException.ThrowIfNull(canExecuteMethod);
 
         TypeInfo genericTypeInfo = typeof(T).GetTypeInfo();
 
@@ -560,7 +573,7 @@ public class DelegateCommand<T> : DelegateCommandBase
     }
 
     /// <summary>
-    /// Determines if the command can execute by invoked the <see cref="Func{T,Bool}"/> provided during construction.
+    /// Evaluates the predicate provided during construction to determine whether the command can execute.
     /// </summary>
     /// <param name="parameter">Data used by the command to determine if it can execute.</param>
     /// <returns>

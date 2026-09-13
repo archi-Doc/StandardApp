@@ -5,6 +5,9 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace StandardWinUI.PresentationState;
 
+/// <summary>
+/// Updates application language, view scale, and settings labels.
+/// </summary>
 public partial class SettingsPageState : ObservableObject, IState
 {
     private readonly IApp app;

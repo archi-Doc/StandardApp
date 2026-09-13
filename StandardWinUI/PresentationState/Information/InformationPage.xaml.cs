@@ -6,6 +6,9 @@ using StandardWinUI.PresentationState;
 
 namespace StandardWinUI.PresentationState;
 
+/// <summary>
+/// Displays application information and dependency licenses.
+/// </summary>
 public sealed partial class InformationPage : Page
 {
     private const string LicenseUri = "https://opensource.org/licenses/MIT";
@@ -24,16 +27,6 @@ public sealed partial class InformationPage : Page
         var hyperlink = new Hyperlink();
         hyperlink.NavigateUri = new Uri(LicenseUri);
         hyperlink.Inlines.Add(new Run() { Text = LicenseUri, });
-        hyperlink.Click += (s, e) =>
-        {
-            try
-            {
-                Arc.WinUI.UIHelper.OpenBrowser(hyperlink.NavigateUri.ToString());
-            }
-            catch
-            {
-            }
-        };
 
         this.textBlock.Inlines.Add(titleRun);
         this.textBlock.Inlines.Add(copyrightRun);
@@ -49,8 +42,10 @@ public sealed partial class InformationPage : Page
 
     private void nvSample5_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
-        var selectedItem = (NavigationViewItem)args.SelectedItem;
-        this.ShowLicense((string)selectedItem.Tag);
+        if (args.SelectedItem is NavigationViewItem { Tag: string key })
+        {
+            this.ShowLicense(key);
+        }
     }
 
     private void ShowLicense(string key)
@@ -64,7 +59,6 @@ public sealed partial class InformationPage : Page
 
     private void AddLicense(string key, string title, bool isSelected = false)
     {
-        var license = HashedString.GetOrEmpty(key);
         var item = new NavigationViewItem()
         {
             Content = title,

@@ -15,7 +15,7 @@ using StandardWPF.ViewServices;
 namespace StandardWPF.Views;
 
 /// <summary>
-/// SettingsWindow.
+/// Edits the WPF language and display scale and displays application licenses.
 /// </summary>
 public partial class SettingsWindow : Window
 {

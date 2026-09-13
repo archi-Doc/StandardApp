@@ -4,6 +4,9 @@ using Microsoft.UI.Xaml;
 
 namespace StandardWinUI;
 
+/// <summary>
+/// Launches the WinUI application's main window.
+/// </summary>
 public partial class StandardApp : Application
 {
     public StandardApp(IApp app)
@@ -16,7 +19,7 @@ public partial class StandardApp : Application
     /// Invoked when the application is launched.
     /// </summary>
     /// <param name="args">Details about the launch request and process.</param>
-    protected override async void OnLaunched(LaunchActivatedEventArgs args)
+    protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
         this.window = this.app.GetMainWindow();
         this.window.Activate();

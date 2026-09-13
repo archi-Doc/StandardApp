@@ -10,6 +10,9 @@ using Application;
 
 namespace StandardWPF.Views;
 
+/// <summary>
+/// Formats dates using the localized application format, hiding the default value.
+/// </summary>
 public class DateTimeToStringConverter : IValueConverter
 {// DateTime to String
     public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
@@ -34,13 +37,16 @@ public class DateTimeToStringConverter : IValueConverter
     }
 }
 
+/// <summary>
+/// Converts between a positive display scale and percentage text.
+/// </summary>
 public class DisplayScalingToStringConverter : IValueConverter
 {// Display scaling to String
     public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
     {
         if (value is double d)
         {
-            return (d * 100).ToString("F0") + "%";
+            return (d * 100).ToString("F0", culture) + "%";
         }
 #if XAMARIN
         return null;;
@@ -51,17 +57,20 @@ public class DisplayScalingToStringConverter : IValueConverter
 
     public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
     {
-        double d = 1;
-
-        if (value is string st)
+        if (value is string st &&
+            double.TryParse(st.TrimEnd('%', ' '), System.Globalization.NumberStyles.Float | System.Globalization.NumberStyles.AllowThousands, culture, out var percent) &&
+            double.IsFinite(percent) && percent > 0)
         {
-            d = double.Parse(st.TrimEnd(new char[] { '%', ' ' })) / 100;
+            return percent / 100;
         }
 
-        return d;
+        return System.Windows.DependencyProperty.UnsetValue;
     }
 }
 
+/// <summary>
+/// Resolves supported culture codes to localized language names.
+/// </summary>
 public class CultureToStringConverter : IValueConverter
 {// Culture to String
     public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
@@ -92,21 +101,14 @@ public class CultureToStringConverter : IValueConverter
     }
 }
 
+/// <summary>
+/// Converts booleans to visibility, inverting the result when a parameter is supplied.
+/// </summary>
 public class BoolToVisibilityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
     {
-        bool b = false;
-
-        if (value is bool)
-        {
-            b = (bool)value;
-        }
-        else if (value is bool?)
-        {
-            var b2 = (bool?)value;
-            b = b2.HasValue ? b2.Value : false;
-        }
+        bool b = value is true;
 
         if (parameter != null)
         { // Reverse conversion on any given parameter.
@@ -138,21 +140,14 @@ public class BoolToVisibilityConverter : IValueConverter
     }
 }
 
+/// <summary>
+/// Negates boolean values, treating null and non-boolean values as false.
+/// </summary>
 public class InverseBoolConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
     {
-        bool b = false;
-
-        if (value is bool)
-        {
-            b = (bool)value;
-        }
-        else if (value is bool?)
-        {
-            var b2 = (bool?)value;
-            b = b2.HasValue ? b2.Value : false;
-        }
+        bool b = value is true;
 
         return !b;
     }

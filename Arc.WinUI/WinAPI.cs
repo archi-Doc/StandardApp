@@ -96,6 +96,9 @@ public enum ShowCommand
     FORCEMINIMIZE = 11,
 }
 
+/// <summary>
+/// Stores window placement with DPI conversion and optional physical screen positions.
+/// </summary>
 [TinyhandObject]
 public partial class DipWindowPlacement
 { // Device Independent, 1/96 inch
@@ -203,6 +206,9 @@ public partial class DipWindowPlacement
     }
 }
 
+/// <summary>
+/// Stores a point with conversion between physical pixels and device-independent units.
+/// </summary>
 [TinyhandObject]
 public partial class DipPoint
 { // Device Independent, 1/96 inch
@@ -229,8 +235,8 @@ public partial class DipPoint
 
     public void FromPoint(NativePoint point, double dpiX, double dpiY)
     {
-        this.X = point.X * 96 / dpiX;
-        this.Y = point.Y * 96 / dpiY;
+        this.X = point.X * 96d / dpiX;
+        this.Y = point.Y * 96d / dpiY;
     }
 
     public NativePoint ToPoint(double dpiX, double dpiY)
@@ -258,6 +264,9 @@ public partial class DipPoint
     }
 }
 
+/// <summary>
+/// Stores a rectangle with DPI conversion and optional physical top-left coordinates.
+/// </summary>
 [TinyhandObject]
 public partial class DipRect
 {
@@ -298,10 +307,10 @@ public partial class DipRect
 
     public void FromRect(NativeRect rect, double dpiX, double dpiY)
     {
-        this.Left = rect.Left * 96 / dpiX;
-        this.Top = rect.Top * 96 / dpiY;
-        this.Right = rect.Right * 96 / dpiX;
-        this.Bottom = rect.Bottom * 96 / dpiY;
+        this.Left = rect.Left * 96d / dpiX;
+        this.Top = rect.Top * 96d / dpiY;
+        this.Right = rect.Right * 96d / dpiX;
+        this.Bottom = rect.Bottom * 96d / dpiY;
     }
 
     public NativeRect ToRect(double dpiX, double dpiY)
@@ -319,8 +328,8 @@ public partial class DipRect
     {
         this.Left = rect.Left;
         this.Top = rect.Top;
-        this.Right = rect.Left + ((rect.Right - rect.Left) * 96 / dpiX);
-        this.Bottom = rect.Top + ((rect.Bottom - rect.Top) * 96 / dpiY);
+        this.Right = rect.Left + (((double)rect.Right - rect.Left) * 96d / dpiX);
+        this.Bottom = rect.Top + (((double)rect.Bottom - rect.Top) * 96d / dpiY);
     }
 
     /// <summary>

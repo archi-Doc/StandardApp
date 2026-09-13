@@ -11,6 +11,9 @@ using WinUIEx;
 
 namespace StandardWinUI.PresentationState;
 
+/// <summary>
+/// Hosts sample navigation, message dialogs, and persistent window placement.
+/// </summary>
 public partial class MainWindow : Window, IMessageDialogService
 {
     private readonly IApp app;
@@ -29,7 +32,6 @@ public partial class MainWindow : Window, IMessageDialogService
         this.SetApplicationIcon();
         // this.RemoveIcon();
 
-        this.Activated += this.MainWindow_Activated;
         this.Closed += this.MainWindow_Closed;
         this.AppWindow.Closing += this.AppWindow_Closing;
 
@@ -52,19 +54,19 @@ public partial class MainWindow : Window, IMessageDialogService
         await this.app.TryExitAsync();
     }
 
-    private void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
-    {
-    }
-
     private void MainWindow_Closed(object sender, WindowEventArgs args)
     {
         // Exit1
         this.settings.WindowPlacement = this.GetWindowPlacement();
     }
 
-    private async void nvSample_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
+    private void nvSample_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
-        var selectedItem = (NavigationViewItem)args.SelectedItem;
+        if (args.SelectedItem is not NavigationViewItem selectedItem)
+        {
+            return;
+        }
+
         switch (selectedItem.Tag)
         {
             case "Home":

@@ -10,7 +10,7 @@ using Microsoft.UI.Xaml.Navigation;
 namespace Arc.WinUI;
 
 /// <summary>
-/// Provides a base implementation for the application.
+/// Provides service resolution, page-state lifecycle hooks, and WinUI navigation.
 /// </summary>
 public abstract class AppBase : IApp
 {

@@ -7,6 +7,9 @@ using SimpleCommandLine;
 
 namespace StandardConsole;
 
+/// <summary>
+/// Writes the second sample command message.
+/// </summary>
 [SimpleCommand("test2")]
 public class Test2Command : ISimpleCommand
 {

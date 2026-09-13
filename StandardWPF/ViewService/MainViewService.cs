@@ -13,6 +13,9 @@ using StandardWPF.Views;
 
 namespace StandardWPF.ViewServices;
 
+/// <summary>
+/// Provides WPF dialogs, notifications, and application-level UI actions.
+/// </summary>
 public interface IMainViewService
 {
     // void SetWindow(Window window);

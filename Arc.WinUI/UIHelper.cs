@@ -9,6 +9,9 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace Arc.WinUI;
 
+/// <summary>
+/// Provides browser launching, localized dialogs, and single-instance activation helpers.
+/// </summary>
 public static class UIHelper
 {
     /// <summary>
@@ -34,35 +37,19 @@ public static class UIHelper
     }
 
     /// <summary>
-    /// Open url with default browser.
+    /// Opens an absolute HTTP or HTTPS URL in the default browser.
     /// </summary>
-    /// <param name="url">URL.</param>
+    /// <param name="url">The absolute HTTP or HTTPS URL to open.</param>
     public static void OpenBrowser(string url)
     {
-        try
+        // hack because of this: https://github.com/dotnet/corefx/issues/10361
+        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) ||
+            (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
         {
-            Process.Start(url);
+            throw new ArgumentException("An absolute HTTP or HTTPS URL is required.", nameof(url));
         }
-        catch
-        {
-            // hack because of this: https://github.com/dotnet/corefx/issues/10361
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                url = url.Replace("&", "^&");
-                Process.Start(new ProcessStartInfo("cmd", $"/c start {url}") { CreateNoWindow = true });
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                Process.Start("xdg-open", url);
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                Process.Start("open", url);
-            }
-            else
-            {
-            }
-        }
+
+        Process.Start(new ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true });
     }
 
     /// <summary>
@@ -72,14 +59,22 @@ public static class UIHelper
     /// <returns><see langword="true"/> if another instance is running (the caller should exit); otherwise, <see langword="false"/> (the mutex is acquired).</returns>
     public static bool TryActivateRunningInstance(Mutex mutex)
     {
-        if (mutex.WaitOne(0, false))
+        try
         {
+            if (mutex.WaitOne(0, false))
+            {
+                return false;
+            }
+        }
+        catch (AbandonedMutexException)
+        {
+            // The previous owner exited without releasing the mutex; this thread now owns it.
             return false;
         }
 
         mutex.Close(); // Release mutex.
 
-        var prevProcess = Arc.Internal.WinAPI.GetPreviousProcess();
+        using var prevProcess = Arc.Internal.WinAPI.GetPreviousProcess();
         if (prevProcess != null)
         {
             var handle = prevProcess.MainWindowHandle; // The window handle that associated with the previous process.

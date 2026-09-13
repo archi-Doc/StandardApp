@@ -22,7 +22,7 @@ using Tinyhand;
 namespace StandardWPF.Views;
 
 /// <summary>
-/// Main Window.
+/// Hosts the WPF samples and implements application-level view services.
 /// </summary>
 public partial class MainWindow : Window, IMainViewService
 {
@@ -149,9 +149,12 @@ Released under the MIT license
 
     public async Task<MessageBoxResult> ShowDialogAsync(DialogParameters parameters)
     { // Multi-thread safe, may be called from non-UI thread/context. App.UIDispatcher.InvokeAsync()
-        var dlg = new Arc.WPF.MessageDialog(this, parameters);
-        var result = await dlg.ShowDialogAsync();
-        return result;
+        return await this.Dispatcher.InvokeAsync(() =>
+        {
+            var dlg = new Arc.WPF.MessageDialog(this, parameters);
+            dlg.ShowDialog();
+            return dlg.Result;
+        });
         /*var tcs = new TaskCompletionSource<MessageBoxResult>();
         await this.Dispatcher.InvokeAsync(() => { dlg.ShowDialog(); tcs.SetResult(dlg.Result); }); // Avoid dead lock.
         return tcs.Task.Result;*/
@@ -240,9 +243,11 @@ Released under the MIT license
 
         // Exit1 (Window is still visible)
         IntPtr hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
-        Arc.WinAPI.NativeMethods.GetWindowPlacement(hwnd, out var wp);
-        Arc.WinAPI.NativeMethods.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);
-        App.Settings.WindowPlacement.FromWindowPlacementWithPhysicalPosition(wp, dpiX, dpiY);
+        if (Arc.WinAPI.NativeMethods.GetWindowPlacement(hwnd, out var wp))
+        {
+            Arc.WinAPI.NativeMethods.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);
+            App.Settings.WindowPlacement.FromWindowPlacementWithPhysicalPosition(wp, dpiX, dpiY);
+        }
     }
 
     private void Window_KeyDown(object sender, KeyEventArgs e)

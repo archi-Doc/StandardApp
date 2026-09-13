@@ -5,6 +5,9 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace Arc.WinUI;
 
+/// <summary>
+/// Refreshes registered localized strings when the application culture changes.
+/// </summary>
 public static class Stringer
 {
     private static object syncStringerObject = new();

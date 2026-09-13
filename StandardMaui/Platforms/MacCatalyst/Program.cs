@@ -5,6 +5,9 @@ using UIKit;
 
 namespace StandardMaui;
 
+/// <summary>
+/// Provides the platform application entry point.
+/// </summary>
 public class Program
 {
     // This is the main entry point of the application.

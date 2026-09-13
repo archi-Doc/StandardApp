@@ -4,6 +4,9 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace StandardWinUI.PresentationState;
 
+/// <summary>
+/// Binds the dialog sample page to its state object.
+/// </summary>
 public sealed partial class MessagePage : Page
 {
     public MessagePageState State { get; }

@@ -11,6 +11,9 @@ namespace StandardWinUI;
 
 #if DISABLE_XAML_GENERATED_MAIN
 
+/// <summary>
+/// Initializes WinUI services and coordinates single-instance startup and shutdown.
+/// </summary>
 public static partial class EntryPoint
 {
     public static DispatcherQueue UIDispatcherQueue { get; private set; } = default!;

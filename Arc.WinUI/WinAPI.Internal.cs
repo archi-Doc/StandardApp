@@ -69,8 +69,11 @@ internal partial class WinAPI
     [DllImport("user32.dll")]
     public static extern bool SetWindowPlacement(IntPtr hWnd, [In] ref NativeWindowPlacement lpwndpl);
 
-    [DllImport("user32.dll")]
-    public static extern bool GetWindowPlacement(IntPtr hWnd, out NativeWindowPlacement lpwndpl);
+    public static bool GetWindowPlacement(IntPtr hWnd, out NativeWindowPlacement lpwndpl)
+    {
+        lpwndpl = new NativeWindowPlacement { length = Marshal.SizeOf<NativeWindowPlacement>() };
+        return GetWindowPlacementNative(hWnd, ref lpwndpl);
+    }
 
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
     public static extern IntPtr LoadImage(IntPtr hInst, string lpszName, ImageType uType, int cxDesired, int cyDesired, uint fuLoad);
@@ -358,6 +361,10 @@ internal partial class WinAPI
 
     [DllImport("user32.dll")]
     internal static extern IntPtr SendMessage(IntPtr hwnd, uint msg, IntPtr wParam, IntPtr lParam);
+
+    [DllImport("user32.dll", EntryPoint = "GetWindowPlacement", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool GetWindowPlacementNative(IntPtr hWnd, ref NativeWindowPlacement lpwndpl);
 }
 
 internal enum ProcessDpiAwareness

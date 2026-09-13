@@ -10,6 +10,9 @@ using Microsoft.UI.Xaml.Media;
 
 namespace Arc.WinUI;
 
+/// <summary>
+/// Applies a shared view scale to registered WinUI controls and dialog buttons.
+/// </summary>
 public static class Scaler
 {
     public const double DialogButtonFontSize = 14.0d;

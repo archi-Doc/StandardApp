@@ -24,7 +24,7 @@ using StandardWPF.ViewServices;
 namespace Application;
 
 /// <summary>
-/// Application-wide class.
+/// Provides WPF startup, shared services, localization, and application settings.
 /// </summary>
 public static partial class App
 {
@@ -73,34 +73,18 @@ public static partial class App
     }
 
     /// <summary>
-    /// Open url with default browser.
+    /// Opens an absolute HTTP or HTTPS URL in the default browser.
     /// </summary>
-    /// <param name="url">URL.</param>
+    /// <param name="url">The absolute HTTP or HTTPS URL to open.</param>
     public static void OpenBrowser(string url)
     {
-        try
+        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) ||
+            (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
         {
-            Process.Start(url);
+            throw new ArgumentException("An absolute HTTP or HTTPS URL is required.", nameof(url));
         }
-        catch
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                url = url.Replace("&", "^&");
-                Process.Start(new ProcessStartInfo("cmd", $"/c start {url}") { CreateNoWindow = true });
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                Process.Start("xdg-open", url);
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                Process.Start("open", url);
-            }
-            else
-            {
-            }
-        }
+
+        Process.Start(new ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true });
     }
 
     private static void Bootstrap()
@@ -175,11 +159,21 @@ public static partial class App
         Title = HashedString.Get(Hashed.App.Name) + " " + App.Version;
 
         // Prevents multiple instances.
-        if (!appMutex.WaitOne(0, false))
+        bool ownsMutex;
+        try
+        {
+            ownsMutex = appMutex.WaitOne(0, false);
+        }
+        catch (System.Threading.AbandonedMutexException)
+        {
+            ownsMutex = true;
+        }
+
+        if (!ownsMutex)
         {
             appMutex.Close(); // Release mutex.
 
-            var prevProcess = Arc.WinAPI.NativeMethods.GetPreviousProcess();
+            using var prevProcess = Arc.WinAPI.NativeMethods.GetPreviousProcess();
             if (prevProcess != null)
             {
                 var handle = prevProcess.MainWindowHandle; // The window handle that associated with the previous process.
@@ -265,7 +259,7 @@ public static partial class App
 }
 
 /// <summary>
-/// WPF application class.
+/// Runs the WPF main window and persists data at application shutdown.
 /// </summary>
 public partial class WpfApplication : System.Windows.Application
 {
@@ -304,6 +298,9 @@ public partial class WpfApplication : System.Windows.Application
     }
 }
 
+/// <summary>
+/// Loads and saves the WPF application's settings and options.
+/// </summary>
 [TinyhandObject]
 public partial class AppData
 {

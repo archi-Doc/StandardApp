@@ -7,6 +7,9 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace StandardWinUI.PresentationState;
 
+/// <summary>
+/// Manages persisted numeric input, multiplication, and a cancellable exit command.
+/// </summary>
 public partial class AdvancedPageState : ObservableObject, IState
 {
     [ObservableProperty]
@@ -21,13 +24,11 @@ public partial class AdvancedPageState : ObservableObject, IState
 
     private readonly IApp app;
     private readonly AppSettings settings;
-    private readonly IMessageDialogService messageDialogService;
 
     public AdvancedPageState(IApp app, AppSettings settings, IMessageDialogService messageDialogService)
     {
         this.app = app;
         this.settings = settings;
-        this.messageDialogService = messageDialogService;
     }
 
     /// <summary>
@@ -54,9 +55,13 @@ public partial class AdvancedPageState : ObservableObject, IState
     [RelayCommand]
     private void Multiply()
     { // this.app.UIDispatcherQueue.TryEnqueue(() => { });
-        if (int.TryParse((string)this.SourceText, out int value))
+        if (int.TryParse(this.SourceText, out int value))
         {
-            this.DestinationText = (value * 3).ToString();
+            this.DestinationText = (value * 3L).ToString();
+        }
+        else
+        {
+            this.DestinationText = string.Empty;
         }
 
         this.CanExit = !this.CanExit;

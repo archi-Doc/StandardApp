@@ -7,20 +7,45 @@ using System.Reflection;
 
 namespace Arc.WinUI;
 
+/// <summary>
+/// Registers language identifiers and loads their embedded localized strings.
+/// </summary>
 public static class LanguageList
-{// language: en, identifier: Language.En, text: English
-    static LanguageList()
-    {
-    }
-
+{
     /// <summary>
     /// Gets or sets the format string of the embedded language resource name ({0}: language).
     /// </summary>
     public static string LanguageFileFormat { get; set; } = "Resources.Strings.String-{0}.tinyhand";
 
-    public static FrozenDictionary<string, string> LanguageToIdentifier => languageToIdentifier ??= languageToIdentifierDictionary.ToFrozenDictionary();
+    /// <summary>
+    /// Gets an immutable snapshot mapping language codes to string identifiers.
+    /// </summary>
+    public static FrozenDictionary<string, string> LanguageToIdentifier
+    {
+        get
+        {
+            lock (SyncObject)
+            {
+                return languageToIdentifier ??= languageToIdentifierDictionary.ToFrozenDictionary();
+            }
+        }
+    }
 
-    public static FrozenDictionary<string, string> IdentifierToLanguage => identifierToLanguage ??= identifierToLanguageDictionary.ToFrozenDictionary();
+    /// <summary>
+    /// Gets an immutable snapshot mapping string identifiers to language codes.
+    /// </summary>
+    public static FrozenDictionary<string, string> IdentifierToLanguage
+    {
+        get
+        {
+            lock (SyncObject)
+            {
+                return identifierToLanguage ??= identifierToLanguageDictionary.ToFrozenDictionary();
+            }
+        }
+    }
+
+    private static readonly object SyncObject = new();
 
     private static FrozenDictionary<string, string>? languageToIdentifier;
     private static FrozenDictionary<string, string>? identifierToLanguage;
@@ -32,10 +57,31 @@ public static class LanguageList
     /// </summary>
     /// <param name="language">The language to add 'en'.</param>
     /// <param name="identifier">The identifier for the language 'Language.En'.</param>
+    /// <exception cref="ArgumentNullException">Either argument is null.</exception>
+    /// <exception cref="ArgumentException">The language or identifier is already registered.</exception>
     public static void Add(string language, string identifier)
     {
-        languageToIdentifierDictionary.Add(language, identifier);
-        identifierToLanguageDictionary.Add(identifier, language);
+        // language: en, identifier: Language.En, text: English
+        ArgumentNullException.ThrowIfNull(language);
+        ArgumentNullException.ThrowIfNull(identifier);
+
+        lock (SyncObject)
+        {
+            if (languageToIdentifierDictionary.ContainsKey(language))
+            {
+                throw new ArgumentException("The language is already registered.", nameof(language));
+            }
+
+            if (identifierToLanguageDictionary.ContainsKey(identifier))
+            {
+                throw new ArgumentException("The identifier is already registered.", nameof(identifier));
+            }
+
+            languageToIdentifierDictionary.Add(language, identifier);
+            identifierToLanguageDictionary.Add(identifier, language);
+            languageToIdentifier = null;
+            identifierToLanguage = null;
+        }
     }
 
     public static bool TryGetIdentifier(string language, [MaybeNullWhen(false)] out string identifier)

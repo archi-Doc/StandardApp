@@ -2,6 +2,9 @@
 
 namespace Application;
 
+/// <summary>
+/// Defines application identity, data paths, and default settings.
+/// </summary>
 public static class AppConst
 {
     public const string MutexName = "StandardWPF.Arc";

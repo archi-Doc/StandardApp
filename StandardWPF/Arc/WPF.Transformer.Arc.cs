@@ -13,6 +13,9 @@ using Arc.WinAPI;
 
 namespace Arc.WPF;
 
+/// <summary>
+/// Scales registered WPF windows and keeps them within the monitor work area.
+/// </summary>
 public class Transformer
 {
     private const double MinimumScale = 0.25; // Minimum value of scale.
@@ -473,22 +476,6 @@ public class Transformer
         }
         catch
         {
-            return false;
-        }
-    }
-
-    private bool GetScale(FrameworkElement element, out double scaleX, out double scaleY)
-    {
-        if (element.LayoutTransform is ScaleTransform trans)
-        {
-            scaleX = trans.ScaleX;
-            scaleY = trans.ScaleY;
-            return true;
-        }
-        else
-        {
-            scaleX = 1;
-            scaleY = 1;
             return false;
         }
     }

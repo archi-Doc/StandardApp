@@ -34,8 +34,7 @@ namespace StandardWinUI;
 // MainWindow_Closed() is called when the main window is closed.
 
 /// <summary>
-/// App class is an application-specific class.<br/>
-/// It manages various application-specific information, such as language and settings.
+/// Provides WinUI application services, localization, settings, and exit confirmation.
 /// </summary>
 public class App : AppBase
 {
@@ -49,7 +48,7 @@ public class App : AppBase
     /// </summary>
     public AppSettings Settings { get; private set; } = new();
 
-    private async Task LoadCrystalData()
+    private void LoadCrystalData()
     {
         var crystalControl = this.GetService<CrystalControl>();
         crystalControl.PrepareAndLoad(false).Wait();
@@ -133,7 +132,7 @@ public class App : AppBase
         this.UIDispatcherQueue = EntryPoint.UIDispatcherQueue;
 
         this.LoadStrings();
-        this.LoadCrystalData().Wait();
+        this.LoadCrystalData();
         this.PrepareCulture();
 
         // Version

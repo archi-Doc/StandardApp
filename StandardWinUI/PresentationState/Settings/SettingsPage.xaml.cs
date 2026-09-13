@@ -4,6 +4,9 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace StandardWinUI.PresentationState;
 
+/// <summary>
+/// Displays language and view-scale settings.
+/// </summary>
 public sealed partial class SettingsPage : Page
 {
     public SettingsPage(IApp app)

@@ -18,6 +18,9 @@ using Tinyhand;
 
 namespace Arc.WPF;
 
+/// <summary>
+/// Provides a localized string to a XAML property.
+/// </summary>
 [MarkupExtensionReturnType(typeof(string))]
 public class StringerExtension : MarkupExtension
 { // Text-based Stringer markup extension. GUI thread only.
@@ -49,6 +52,9 @@ public class StringerExtension : MarkupExtension
     }
 }
 
+/// <summary>
+/// Resolves a hashed localization key in XAML.
+/// </summary>
 [MarkupExtensionReturnType(typeof(string))]
 public class HashedStringExtension : MarkupExtension
 { // Hash-based string markup extension. GUI thread only.
@@ -80,6 +86,9 @@ public class HashedStringExtension : MarkupExtension
     }
 }
 
+/// <summary>
+/// Creates a binding that updates its localized string after culture changes.
+/// </summary>
 public class StringerBindingExtension : MarkupExtension
 { // Binding-based Stringer markup extension. GUI thread only.
     private string key;
@@ -96,6 +105,9 @@ public class StringerBindingExtension : MarkupExtension
     }
 }
 
+/// <summary>
+/// Exposes a localized string and notifies bindings when the culture changes.
+/// </summary>
 public class StringerBindingSource : INotifyPropertyChanged
 {
     private string key;
@@ -119,6 +131,9 @@ public class StringerBindingSource : INotifyPropertyChanged
     }
 }
 
+/// <summary>
+/// Formats literal values and bindings using a literal or bound format string.
+/// </summary>
 public class FormatExtension : MarkupExtension
 {
     private readonly object? format;
@@ -183,16 +198,19 @@ public class FormatExtension : MarkupExtension
         return mb.ProvideValue(serviceProvider);
     }
 
+    /// <summary>
+    /// Formats bound values using the first value as the format string.
+    /// </summary>
     public class BoundFormatConverter : IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
             if (values.Length == 0)
             {
-                throw new ArgumentException("values must have at least one element", "parameter");
+                throw new ArgumentException("Values must have at least one element.", nameof(values));
             }
 
-            var format = values[0].ToString();
+            var format = values[0]?.ToString();
             if (format == null)
             {
                 return string.Empty;
@@ -205,13 +223,13 @@ public class FormatExtension : MarkupExtension
                     case 1:
                         return format;
                     case 2:
-                        return string.Format(format, values[1]);
+                        return string.Format(culture, format, values[1]);
                     case 3:
-                        return string.Format(format, values[1], values[2]);
+                        return string.Format(culture, format, values[1], values[2]);
                     case 4:
-                        return string.Format(format, values[1], values[2], values[3]);
+                        return string.Format(culture, format, values[1], values[2], values[3]);
                     default:
-                        return string.Format(format, values.Skip(1).ToArray());
+                        return string.Format(culture, format, values.Skip(1).ToArray());
                 }
             }
             catch (FormatException)
@@ -227,6 +245,9 @@ public class FormatExtension : MarkupExtension
     }
 }
 
+/// <summary>
+/// Checks for generation-zero collections after a configurable number of calls.
+/// </summary>
 public class GCCountChecker
 { // カウンタ付きガーベージコレクション差分チェック。カウンタが一定以上になった場合、ガーベージコレクションのカウンタをチェックし、カウンタが変更されていたら、trueを返す。
     public GCCountChecker(int maxCount = 0)
@@ -260,6 +281,9 @@ public class GCCountChecker
     }
 }
 
+/// <summary>
+/// Refreshes registered localized strings when the application culture changes.
+/// </summary>
 public static class Stringer
 { // toolset
     private static object extensionObjectsCS = new object(); // 同期オブジェクト
@@ -267,6 +291,10 @@ public static class Stringer
     private static GCCountChecker extensionObjectChecker = new GCCountChecker(16); // 16回に1回の頻度でチェック（使用されなくなったオブジェクトを解放する）。
 
     // StringerExtensionObject: StringerExtensionのオブジェクトの更新用
+
+    /// <summary>
+    /// Tracks a weak localization target, its property, and its string key.
+    /// </summary>
     public class StringerExtensionObject
     {
         public WeakReference TargetObject; // target object or StringerBindingSource

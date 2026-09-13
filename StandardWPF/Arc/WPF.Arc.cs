@@ -23,6 +23,9 @@ using Tinyhand;
 
 namespace Arc.WPF;
 
+/// <summary>
+/// Provides attached behavior that selects text when a text box gains focus.
+/// </summary>
 public static class TextBoxBehavior
 {
     public static readonly DependencyProperty SelectAllOnGotFocusProperty =
@@ -85,6 +88,9 @@ public static class TextBoxBehavior
     }
 }
 
+/// <summary>
+/// Formats a localized string using values from multiple bindings.
+/// </summary>
 public class StringerFormatConverter : IMultiValueConverter
 {
     public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
@@ -95,7 +101,7 @@ public class StringerFormatConverter : IMultiValueConverter
             return "null";
         }
 
-        return string.Format(format, values);
+        return string.Format(culture, format, values);
     }
 
     public object[] ConvertBack(object values, Type[] targetType, object parameter, CultureInfo culture)
@@ -122,6 +128,9 @@ public class InverseBooleanToVisibilityConverter : IValueConverter
     }
 }
 
+/// <summary>
+/// Enumerates visual and logical children and descendants.
+/// </summary>
 public static class DependencyObjectExtensions
 {
     // Children - 子要素を取得
@@ -248,6 +257,9 @@ public static class DependencyObjectExtensions
     }
 }
 
+/// <summary>
+/// Finds ancestors and checks relationships in the visual tree.
+/// </summary>
 public static class VisualTreeUtility
 {
     /// <summary>
@@ -290,23 +302,42 @@ public static class VisualTreeUtility
     }
 }
 
+/// <summary>
+/// Provides sorting that preserves collection move notifications.
+/// </summary>
 public static class ObservableCollectionExtensions
 {
     /// <summary>
-    /// Sort ObservableCollection.
+    /// Sorts the collection in place using move notifications, preserving the order of equal items.
     /// </summary>
     public static void Sort<T>(this ObservableCollection<T> collection, Comparison<T> comparison)
     {
-        var sortableList = new List<T>(collection);
-        sortableList.Sort(comparison);
-
-        for (int i = 0; i < sortableList.Count; i++)
+        ArgumentNullException.ThrowIfNull(collection);
+        ArgumentNullException.ThrowIfNull(comparison);
+        var sortedIndices = Enumerable.Range(0, collection.Count).ToList();
+        sortedIndices.Sort((left, right) =>
         {
-            collection.Move(collection.IndexOf(sortableList[i]), i);
+            var result = comparison(collection[left], collection[right]);
+            return result != 0 ? result : left.CompareTo(right);
+        });
+        var currentIndices = Enumerable.Range(0, collection.Count).ToList();
+
+        for (int i = 0; i < sortedIndices.Count; i++)
+        {
+            var oldIndex = currentIndices.IndexOf(sortedIndices[i], i);
+            if (oldIndex != i)
+            {
+                collection.Move(oldIndex, i);
+                currentIndices.RemoveAt(oldIndex);
+                currentIndices.Insert(i, sortedIndices[i]);
+            }
         }
     }
 }
 
+/// <summary>
+/// Supports reordering list items by drag and drop with a visual preview.
+/// </summary>
 public class DragDropListView : ListView
 { // drag & drop対応のListView
     private DragDropListViewItem? dragItem;
@@ -439,6 +470,9 @@ _OnDropExit:
     }
 }
 
+/// <summary>
+/// Prevents mouse capture from changing selection during a drag.
+/// </summary>
 public class DragDropListViewItem : ListViewItem
 { // drag & drop対応のListViewItem
     protected override void OnMouseEnter(MouseEventArgs e)
@@ -453,6 +487,9 @@ public class DragDropListViewItem : ListViewItem
     }
 }
 
+/// <summary>
+/// Displays a translucent preview that follows a dragged element.
+/// </summary>
 public class DragAdorner : Adorner
 { // ghost adorner
     private UIElement child;
@@ -540,6 +577,9 @@ public class DragAdorner : Adorner
     }
 }
 
+/// <summary>
+/// Opens an attached context menu below the button.
+/// </summary>
 public sealed class DropDownMenuButton : ToggleButton
 {
     public static readonly DependencyProperty DropDownContextMenuProperty = DependencyProperty.Register("DropDownContextMenu", typeof(ContextMenu), typeof(DropDownMenuButton), new UIPropertyMetadata(null));

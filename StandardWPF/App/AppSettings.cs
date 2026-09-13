@@ -11,6 +11,9 @@ using Tinyhand;
 
 namespace StandardWPF;
 
+/// <summary>
+/// Stores persistent application preferences and window state.
+/// </summary>
 [TinyhandObject]
 public partial class AppSettings
 {// Application Settings

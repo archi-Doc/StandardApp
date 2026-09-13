@@ -5,7 +5,7 @@ using Microsoft.UI;
 namespace StandardWinUI;
 
 /// <summary>
-/// AppSettings manages the application's settings.
+/// Stores persistent WinUI preferences, sample data, and window placement.
 /// </summary>
 [TinyhandObject(ImplicitMemberNameAsKey = true)]
 public partial class AppSettings
@@ -45,6 +45,9 @@ public partial class AppSettings
     }
 }
 
+/// <summary>
+/// Stores the sample brushes exposed to XAML bindings.
+/// </summary>
 [TinyhandObject]
 public partial class BrushCollection
 {

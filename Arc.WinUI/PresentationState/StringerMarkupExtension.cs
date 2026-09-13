@@ -37,6 +37,9 @@ public class StringerExtension : MarkupExtension
     }
 }*/
 
+/// <summary>
+/// Provides a localized string to a XAML property.
+/// </summary>
 [MarkupExtensionReturnType(ReturnType = typeof(BindingBase))]
 public class StringerExtension : MarkupExtension
 { // Binding-based Stringer markup extension. GUI thread only.
@@ -66,6 +69,9 @@ public class StringerExtension : MarkupExtension
     }
 }
 
+/// <summary>
+/// Exposes a localized string and notifies bindings when the culture changes.
+/// </summary>
 public class StringerBindingSource : INotifyPropertyChanged
 {
     public object? Value => HashedString.GetOrIdentifier(this.key);

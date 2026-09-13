@@ -7,6 +7,9 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace StandardWinUI.PresentationState;
 
+/// <summary>
+/// Runs the sample message-dialog interaction.
+/// </summary>
 public partial class MessagePageState : ObservableObject, IState
 {
     private readonly IMessageDialogService messageDialogService;

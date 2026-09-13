@@ -8,6 +8,9 @@ using Windows.UI;
 
 namespace Arc.WinUI;
 
+/// <summary>
+/// Stores a default or customized brush color for serialization and data binding.
+/// </summary>
 [TinyhandObject]
 public partial class BrushOption : ObservableObject
 { // Constructor -> (OnDeserialized()) -> Prepare() -> ... -> OnSerializing()

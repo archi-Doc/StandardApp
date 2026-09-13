@@ -19,6 +19,9 @@ using Tinyhand;
 
 namespace Arc.WPF;
 
+/// <summary>
+/// Specifies the message, buttons, icon, and initial selection for a dialog.
+/// </summary>
 public struct DialogParameters
 { // Dialog Parameters
     public ulong MessageHash; // 1st: Message hash
@@ -29,7 +32,7 @@ public struct DialogParameters
 }
 
 /// <summary>
-/// Message dialog class.
+/// Displays a localized message with configurable buttons and an icon.
 /// </summary>
 public partial class MessageDialog : Window
 {
@@ -116,15 +119,13 @@ public partial class MessageDialog : Window
         this.fResult = parameters.Result;
     }
 
-    public Task<MessageBoxResult> ShowDialogAsync()
+    public async Task<MessageBoxResult> ShowDialogAsync()
     {
-        var tcs = new TaskCompletionSource<MessageBoxResult>();
-        this.Dispatcher.InvokeAsync(new Action(() =>
+        return await this.Dispatcher.InvokeAsync(() =>
         {
             this.ShowDialog();
-            tcs.SetResult(this.Result);
-        }));
-        return tcs.Task;
+            return this.Result;
+        });
     }
 
     private void Window_Loaded(object sender, RoutedEventArgs e)

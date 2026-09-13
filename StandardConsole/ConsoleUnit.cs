@@ -9,8 +9,14 @@ using SimpleCommandLine;
 
 namespace StandardConsole;
 
+/// <summary>
+/// Configures console commands, logging, and application lifecycle services.
+/// </summary>
 public class ConsoleUnit : UnitBase, IUnitPreparable, IUnitExecutable
 {
+    /// <summary>
+    /// Builds the application's service container and logging configuration.
+    /// </summary>
     public class Builder : UnitBuilder<Product>
     {// Builder class for customizing dependencies.
         public Builder()
@@ -63,8 +69,15 @@ public class ConsoleUnit : UnitBase, IUnitPreparable, IUnitExecutable
         }
     }
 
+    /// <summary>
+    /// Runs configured commands and coordinates the application lifecycle.
+    /// </summary>
     public class Product : UnitProduct
     {// Unit class for customizing behaviors.
+        /// <summary>
+        /// Contains the command-line arguments for an application run.
+        /// </summary>
+        /// <param name="Arguments">The command-line arguments to parse.</param>
         public record RunParameters(string Arguments);
 
         public Product(UnitContext context)

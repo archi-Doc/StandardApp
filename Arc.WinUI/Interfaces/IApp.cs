@@ -9,7 +9,7 @@ using Microsoft.UI.Xaml.Navigation;
 namespace Arc.WinUI;
 
 /// <summary>
-/// Represents the application interface.
+/// Exposes application metadata, UI services, navigation, and shutdown operations.
 /// </summary>
 public interface IApp
 {

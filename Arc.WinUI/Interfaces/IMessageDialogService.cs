@@ -7,6 +7,9 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace Arc.WinUI;
 
+/// <summary>
+/// Provides asynchronous message dialogs through a radio channel.
+/// </summary>
 [RadioService(MaxLinks = 1)]
 public interface IMessageDialogService : IRadioService
 {

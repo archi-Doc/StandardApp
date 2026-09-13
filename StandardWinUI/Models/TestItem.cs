@@ -4,6 +4,9 @@ using ValueLink;
 
 namespace StandardWinUI;
 
+/// <summary>
+/// Stores a sample item with observable values and ordered collection links.
+/// </summary>
 [TinyhandObject]
 [ValueLinkObject]
 public partial class TestItem

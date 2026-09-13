@@ -23,6 +23,9 @@ public delegate bool TextValidator(ref string text); // Delegate to validate tex
 
 public delegate Task<string> AsyncTextValidator(string text); // Asynchronous version. null:invalid non-null:valid.
 
+/// <summary>
+/// Specifies text input, validation callbacks, and dialog buttons.
+/// </summary>
 public struct TextInputDialogParameters
 { // parameters
     public ulong MessageHash; // 1st: Message hash
@@ -35,6 +38,9 @@ public struct TextInputDialogParameters
     public AsyncTextValidator ValidateTextAsync;  // public TaskCompletionSource<DialogStringResult> TCS;
 }
 
+/// <summary>
+/// Contains the accepted text and the dialog result.
+/// </summary>
 public struct TextInputDialogResult
 { // result
     public string Text;

@@ -10,6 +10,9 @@ using SimpleCommandLine;
 
 namespace StandardConsole;
 
+/// <summary>
+/// Provides the platform application entry point.
+/// </summary>
 public class Program
 {
     private static ExecutionRoot? root;
