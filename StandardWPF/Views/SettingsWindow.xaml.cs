@@ -15,27 +15,27 @@ using StandardWPF.ViewServices;
 namespace StandardWPF.Views;
 
 /// <summary>
-/// SettingsWindow.
+/// Edits the WPF language and display scale and displays application licenses.
 /// </summary>
 public partial class SettingsWindow : Window
 {
     public string CurrentCulture { get; set; } = string.Empty;
 
-    public List<string> CultureList { get; private set; } = new List<string>() { "en", "ja" };
+    public List<string> Cultures { get; private set; } = new List<string>() { "en", "ja" };
 
     public double CurrentDisplayScaling { get; set; }
 
-    public List<double> DisplayScaling { get; private set; } = new List<double>() { 0.25, 0.333, 0.5, 0.667, 0.75, 0.8, 0.9, 1, 1.1, 1.25, 1.5, 1.75, 2, 2.5, 3, 5 };
+    public List<double> DisplayScalingOptions { get; private set; } = new List<double>() { 0.25, 0.333, 0.5, 0.667, 0.75, 0.8, 0.9, 1, 1.1, 1.25, 1.5, 1.75, 2, 2.5, 3, 5 };
 
     private IMainViewService ViewService => App.Resolve<IMainViewService>(); // To avoid a circular dependency, get an instance when necessary.
 
-    private DelegateCommand<string>? licenseTextCommand;
+    private DelegateCommand<string>? showLicenseCommand;
 
-    public DelegateCommand<string> LicenseTextCommand
+    public DelegateCommand<string> ShowLicenseCommand
     {
         get
         {
-            return (this.licenseTextCommand != null) ? this.licenseTextCommand : this.licenseTextCommand = new DelegateCommand<string>(
+            return (this.showLicenseCommand != null) ? this.showLicenseCommand : this.showLicenseCommand = new DelegateCommand<string>(
                 (name) =>
                 {// execute
                     if (name != null)
@@ -101,11 +101,11 @@ Released under the MIT license
         this.information_text.Inlines.Add("\r\n\r\n    ");
 
         var h = new Hyperlink[3];
-        h[0] = new Hyperlink() { Command = this.LicenseTextCommand, CommandParameter = "license.dryioc" };
+        h[0] = new Hyperlink() { Command = this.ShowLicenseCommand, CommandParameter = "license.dryioc" };
         h[0].Inlines.Add("DryIoc");
-        h[1] = new Hyperlink() { Command = this.LicenseTextCommand, CommandParameter = "license.prism" };
+        h[1] = new Hyperlink() { Command = this.ShowLicenseCommand, CommandParameter = "license.prism" };
         h[1].Inlines.Add("Prism Library");
-        h[2] = new Hyperlink() { Command = this.LicenseTextCommand, CommandParameter = "license.messagepack" };
+        h[2] = new Hyperlink() { Command = this.ShowLicenseCommand, CommandParameter = "license.messagepack" };
         h[2].Inlines.Add("MessagePack for C#");
 
         foreach (var x in h)
@@ -125,20 +125,20 @@ Released under the MIT license
         if (App.Settings.Culture != this.CurrentCulture)
         {// Change culture
             App.Settings.Culture = this.CurrentCulture;
-            HashedString.ChangeCulture(App.Settings.Culture);
-            Arc.WPF.StringerUpdater.StringerUpdate();
+            HashedString.TrySetCurrentCulture(App.Settings.Culture);
+            Arc.WPF.Stringer.Refresh();
         }
 
         if (App.Settings.DisplayScaling != this.CurrentDisplayScaling)
         {
             App.Settings.DisplayScaling = this.CurrentDisplayScaling;
-            this.ViewService.MessageID(MessageId.DisplayScaling);
+            this.ViewService.HandleMessage(MessageId.DisplayScaling);
         }
     }
 
     private void Window_SourceInitialized(object sender, EventArgs e)
     {
-        Arc.WinAPI.Methods.RemoveIcon(this);
+        Arc.WinAPI.NativeMethods.RemoveIcon(this);
     }
 
     private void SettingsButtonOk(object sender, RoutedEventArgs e)
@@ -154,7 +154,7 @@ Released under the MIT license
 
     private void SettingsButtonFolder(object sender, RoutedEventArgs e)
     {
-        this.ViewService.MessageID(MessageId.DataFolder);
+        this.ViewService.HandleMessage(MessageId.DataFolder);
     }
 
     private void Window_KeyDown(object sender, KeyEventArgs e)

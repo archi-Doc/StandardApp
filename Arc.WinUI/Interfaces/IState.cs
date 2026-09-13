@@ -3,7 +3,7 @@
 namespace Arc.WinUI;
 
 /// <summary>
-/// Defines the interface of a state object.
+/// Defines lifecycle hooks for restoring and storing page state.
 /// </summary>
 public interface IState
 {

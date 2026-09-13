@@ -2,12 +2,17 @@
 
 namespace StandardMaui;
 
+/// <summary>
+/// Initializes the application and creates its main window.
+/// </summary>
 public partial class App : Application
 {
     public App()
     {
         this.InitializeComponent();
-
-        this.Windows[0].Page = new AppShell();
     }
+
+    /// <inheritdoc/>
+    protected override Window CreateWindow(IActivationState? activationState)
+        => new Window(new AppShell());
 }

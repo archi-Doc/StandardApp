@@ -4,6 +4,9 @@ using Foundation;
 
 namespace StandardMaui;
 
+/// <summary>
+/// Creates the MAUI application for Apple platforms.
+/// </summary>
 [Register("AppDelegate")]
 public class AppDelegate : MauiUIApplicationDelegate
 {

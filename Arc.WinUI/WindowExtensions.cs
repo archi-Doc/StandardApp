@@ -1,6 +1,7 @@
 ﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Arc.Internal;
@@ -10,86 +11,55 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace Arc.WinUI;
 
+/// <summary>
+/// Provides WinUI window dialogs, activation, icons, and placement persistence.
+/// </summary>
 public static class WindowExtensions
 {
     public const string OkText = "OK";
     public const string CancelText = "Cancel";
 
+    private static readonly ConditionalWeakTable<Window, SemaphoreSlim> DialogLocks = new();
+
     /// <summary>
-    /// Shows a message dialog asynchronously.
+    /// Shows a message dialog on the UI thread, waiting for any active dialog in the same window.
     /// </summary>
     /// <param name="window">The window to show the dialog in.</param>
     /// <param name="title">The title of the dialog.</param>
     /// <param name="content">The content of the dialog.</param>
-    /// <param name="primaryCommand">The primary(default) command text.</param>
-    /// <param name="cancelCommand">The cancel command text (<see langword="null" />: No cancel button, "": 'Cancel').</param>
-    /// <param name="secondaryCommand">The secondary command text.</param>
+    /// <param name="primaryButtonText">The primary (default) button text.</param>
+    /// <param name="cancelButtonText">The cancel button text (<see langword="null" />: No cancel button, "": 'Cancel').</param>
+    /// <param name="secondaryButtonText">The secondary button text.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the dialog result.</returns>
-    public static async Task<RadioResult<ContentDialogResult>> ShowMessageDialogAsync(this Window window, string title, string content, string primaryCommand, string? cancelCommand = default, string? secondaryCommand = default, CancellationToken cancellationToken = default)
+    public static async Task<RadioResult<ContentDialogResult>> ShowMessageDialogAsync(this Window window, string title, string content, string primaryButtonText, string? cancelButtonText = default, string? secondaryButtonText = default, CancellationToken cancellationToken = default)
     {
-        var dialog = new ContentDialog() { XamlRoot = window.Content.XamlRoot };
-        if (window.Content is FrameworkElement element)
-        {
-            dialog.RequestedTheme = element.RequestedTheme;
-        }
-
-        var textBlock = new TextBlock() { Text = content, TextWrapping = TextWrapping.Wrap, };
-        textBlock.FontSize *= Scaler.ViewScale;
-        dialog.Content = textBlock;
-
-        dialog.PrimaryButtonStyle = Scaler.DialogButtonStyle;
-        dialog.SecondaryButtonStyle = Scaler.DialogButtonStyle;
-        dialog.CloseButtonStyle = Scaler.DialogButtonStyle;
-
-        dialog.Title = title;
-
-        if (!string.IsNullOrEmpty(primaryCommand))
-        {
-            dialog.PrimaryButtonText = primaryCommand;
-        }
-        else
-        {
-            dialog.PrimaryButtonText = OkText;
-        }
-
-        if (cancelCommand == string.Empty)
-        {
-            dialog.CloseButtonText = CancelText;
-        }
-        else if (cancelCommand is not null)
-        {
-            dialog.CloseButtonText = cancelCommand;
-        }
-
-        if (!string.IsNullOrEmpty(secondaryCommand))
-        {
-            dialog.SecondaryButtonText = secondaryCommand;
-        }
-
-        var dialogTask = dialog.ShowAsync(ContentDialogPlacement.InPlace);
-        WinAPI.SetForegroundWindow(WinRT.Interop.WindowNative.GetWindowHandle(window));
-
-        ContentDialogResult result;
+        var dialogLock = DialogLocks.GetValue(window, static _ => new SemaphoreSlim(1, 1));
         try
         {
-            result = await dialogTask.AsTask().WaitAsync(cancellationToken);
+            await dialogLock.WaitAsync(cancellationToken);
         }
-        catch
+        catch (OperationCanceledException)
         {
-            dialogTask.Cancel();
-            result = ContentDialogResult.None;
+            return new(ContentDialogResult.None);
         }
 
-        return new(result);
+        try
+        {
+            return await ShowMessageDialogCoreAsync(window, title, content, primaryButtonText, cancelButtonText, secondaryButtonText, cancellationToken);
+        }
+        finally
+        {
+            dialogLock.Release();
+        }
     }
 
     /// <summary>
-    /// Activates the specified window.
+    /// Brings the specified window into the foreground and activates it.
     /// </summary>
     /// <param name="window">The window to activate.</param>
     /// <param name="force">If set to <c>true</c>, forces the window to activate.</param>
-    public static void ActivateWindow(this Window window, bool force = false)
+    public static void BringToForeground(this Window window, bool force = false)
     {
         var handle = WinRT.Interop.WindowNative.GetWindowHandle(window);
         if (force)
@@ -103,18 +73,18 @@ public static class WindowExtensions
     }
 
     /// <summary>
-    /// Loads the window placement.
+    /// Applies the window placement to the window.
     /// </summary>
-    /// <param name="window">The window to load the placement for.</param>
+    /// <param name="window">The window to apply the placement to.</param>
     /// <param name="windowPlacement">The window placement.</param>
-    public static void LoadWindowPlacement(this Window window, DipWindowPlacement windowPlacement)
+    public static void ApplyWindowPlacement(this Window window, DipWindowPlacement windowPlacement)
     {
         if (windowPlacement.IsValid)
         {
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
             Arc.Internal.WinAPI.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);
-            var wp = windowPlacement.ToWINDOWPLACEMENT2(dpiX, dpiY);
-            wp.length = System.Runtime.InteropServices.Marshal.SizeOf(typeof(Arc.WinUI.WINDOWPLACEMENT));
+            var wp = windowPlacement.ToWindowPlacementWithPhysicalPosition(dpiX, dpiY);
+            wp.length = System.Runtime.InteropServices.Marshal.SizeOf(typeof(Arc.WinUI.NativeWindowPlacement));
             wp.flags = 0;
             wp.showCmd = wp.showCmd == Arc.WinUI.ShowCommand.SHOWMAXIMIZED ? Arc.WinUI.ShowCommand.SHOWMAXIMIZED : Arc.WinUI.ShowCommand.SHOWNORMAL;
             Arc.Internal.WinAPI.SetWindowPlacement(hwnd, ref wp);
@@ -122,14 +92,18 @@ public static class WindowExtensions
     }
 
     /// <summary>
-    /// Saves the window placement.
+    /// Gets the current window placement of the window.
     /// </summary>
-    /// <param name="window">The window to save the placement for.</param>
-    /// <returns>The saved window placement.</returns>
-    public static DipWindowPlacement SaveWindowPlacement(this Window window)
+    /// <param name="window">The window to get the placement for.</param>
+    /// <returns>The current window placement.</returns>
+    public static DipWindowPlacement GetWindowPlacement(this Window window)
     {
         var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
-        Arc.Internal.WinAPI.GetWindowPlacement(hwnd, out var wp);
+        if (!Arc.Internal.WinAPI.GetWindowPlacement(hwnd, out var wp))
+        {
+            return new();
+        }
+
         Arc.Internal.WinAPI.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);
         return new(wp, dpiX, dpiY);
     }
@@ -177,5 +151,71 @@ public static class WindowExtensions
 
         WinAPI.SendMessage(hwnd, WinAPI.WM_SETICON, new IntPtr(1), IntPtr.Zero);
         WinAPI.SendMessage(hwnd, WinAPI.WM_SETICON, IntPtr.Zero, IntPtr.Zero);
+    }
+
+    private static async Task<RadioResult<ContentDialogResult>> ShowMessageDialogCoreAsync(Window window, string title, string content, string primaryButtonText, string? cancelButtonText, string? secondaryButtonText, CancellationToken cancellationToken)
+    {
+        var dialog = new ContentDialog() { XamlRoot = window.Content.XamlRoot };
+        if (window.Content is FrameworkElement element)
+        {
+            dialog.RequestedTheme = element.RequestedTheme;
+        }
+
+        var textBlock = new TextBlock() { Text = content, TextWrapping = TextWrapping.Wrap, };
+        textBlock.FontSize *= Scaler.ViewScale;
+        dialog.Content = textBlock;
+
+        dialog.PrimaryButtonStyle = Scaler.DialogButtonStyle;
+        dialog.SecondaryButtonStyle = Scaler.DialogButtonStyle;
+        dialog.CloseButtonStyle = Scaler.DialogButtonStyle;
+
+        dialog.Title = title;
+
+        if (!string.IsNullOrEmpty(primaryButtonText))
+        {
+            dialog.PrimaryButtonText = primaryButtonText;
+        }
+        else
+        {
+            dialog.PrimaryButtonText = OkText;
+        }
+
+        if (cancelButtonText == string.Empty)
+        {
+            dialog.CloseButtonText = CancelText;
+        }
+        else if (cancelButtonText is not null)
+        {
+            dialog.CloseButtonText = cancelButtonText;
+        }
+
+        if (!string.IsNullOrEmpty(secondaryButtonText))
+        {
+            dialog.SecondaryButtonText = secondaryButtonText;
+        }
+
+        var dialogTask = dialog.ShowAsync(ContentDialogPlacement.InPlace);
+        WinAPI.SetForegroundWindow(WinRT.Interop.WindowNative.GetWindowHandle(window));
+
+        ContentDialogResult result;
+        try
+        {
+            result = await dialogTask.AsTask().WaitAsync(cancellationToken);
+        }
+        catch
+        {
+            dialog.Hide();
+            try
+            {
+                await dialogTask.AsTask();
+            }
+            catch (OperationCanceledException)
+            {
+            }
+
+            result = ContentDialogResult.None;
+        }
+
+        return new(result);
     }
 }

@@ -4,6 +4,9 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace StandardWinUI.PresentationState;
 
+/// <summary>
+/// Displays the result of doubling an integer entered by the user.
+/// </summary>
 public sealed partial class BaibainPage : Page
 {
     public BaibainPage()
@@ -15,7 +18,11 @@ public sealed partial class BaibainPage : Page
     {
         if (int.TryParse(this.textBox1.Text, out int value))
         {
-            this.textBox2.Text = (value * 2).ToString();
+            this.textBox2.Text = (value * 2L).ToString();
+        }
+        else
+        {
+            this.textBox2.Text = string.Empty;
         }
     }
 }

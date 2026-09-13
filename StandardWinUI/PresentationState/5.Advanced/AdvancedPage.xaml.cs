@@ -4,6 +4,9 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace StandardWinUI.PresentationState;
 
+/// <summary>
+/// Binds the advanced sample page to its persistent state object.
+/// </summary>
 public sealed partial class AdvancedPage : Page
 {
     public AdvancedPageState State { get; }

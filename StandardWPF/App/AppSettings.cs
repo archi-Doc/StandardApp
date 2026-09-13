@@ -11,11 +11,14 @@ using Tinyhand;
 
 namespace StandardWPF;
 
+/// <summary>
+/// Stores persistent application preferences and window state.
+/// </summary>
 [TinyhandObject]
 public partial class AppSettings
 {// Application Settings
     [Key(0)]
-    public bool LoadError { get; set; } // True if a load error occured.
+    public bool HasLoadError { get; set; } // True if a load error occurred.
 
     [Key(1)]
     public DipWindowPlacement WindowPlacement { get; set; } = new();
@@ -30,7 +33,7 @@ public partial class AppSettings
     public TestItem.GoshujinClass TestItems { get; set; } = new();
 
     [TinyhandOnDeserialized]
-    public void OnAfterDeserialize()
+    public void OnDeserialized()
     {
         Transformer.Instance.ScaleX = this.DisplayScaling;
         Transformer.Instance.ScaleY = this.DisplayScaling;

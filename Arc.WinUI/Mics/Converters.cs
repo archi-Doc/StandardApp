@@ -5,20 +5,14 @@ using Microsoft.UI.Xaml.Data;
 
 namespace Arc.WinUI.Converters;
 
+/// <summary>
+/// Converts booleans to visibility, inverting the result when a parameter is supplied.
+/// </summary>
 public class BoolToVisibilityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {
-        bool b = false;
-        if (value is bool)
-        {
-            b = (bool)value;
-        }
-        else if (value is bool?)
-        {
-            var b2 = (bool?)value;
-            b = b2.HasValue ? b2.Value : false;
-        }
+        bool b = value is true;
 
         if (parameter != null)
         { // Reverse conversion on any given parameter.
@@ -49,20 +43,14 @@ public class BoolToVisibilityConverter : IValueConverter
     }
 }
 
+/// <summary>
+/// Negates boolean values, treating null and non-boolean values as false.
+/// </summary>
 public class InverseBoolConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {
-        bool b = false;
-        if (value is bool)
-        {
-            b = (bool)value;
-        }
-        else if (value is bool?)
-        {
-            var b2 = (bool?)value;
-            b = b2.HasValue ? b2.Value : false;
-        }
+        bool b = value is true;
 
         return !b;
     }

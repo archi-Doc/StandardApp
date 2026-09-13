@@ -9,14 +9,14 @@ using Microsoft.UI.Xaml.Navigation;
 namespace Arc.WinUI;
 
 /// <summary>
-/// Represents the application interface.
+/// Exposes application metadata, UI services, navigation, and shutdown operations.
 /// </summary>
 public interface IApp
 {
     /// <summary>
     /// Gets the UI dispatcher queue.
     /// </summary>
-    DispatcherQueue UiDispatcherQueue { get; }
+    DispatcherQueue UIDispatcherQueue { get; }
 
     /// <summary>
     /// Gets the version of the application.
@@ -29,9 +29,9 @@ public interface IApp
     string Title { get; }
 
     /// <summary>
-    /// Gets the folder path for application data.
+    /// Gets the directory path for application data.
     /// </summary>
-    string DataFolder { get; }
+    string DataDirectory { get; }
 
     /// <summary>
     /// Retrieves a service of type <typeparamref name="T"/>.
@@ -77,12 +77,12 @@ public interface IApp
     /// A <see cref="Task{TResult}"/> representing the asynchronous operation.<br/>
     /// Returns <see langword="true"/> if the exit was successful, otherwise returns <see langword="false"/>.
     /// </returns>
-    Task<bool> TryExit(CancellationToken cancellationToken = default);
+    Task<bool> TryExitAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Handles the navigation event and retrieves the corresponding page from the service provider.
+    /// Handles the <see cref="Microsoft.UI.Xaml.Controls.Frame.Navigating"/> event and retrieves the corresponding page from the service provider.
     /// </summary>
     /// <param name="sender">The source of the event.</param>
     /// <param name="args">The event data.</param>
-    void NavigatingHandler(object sender, NavigatingCancelEventArgs args);
+    void OnFrameNavigating(object sender, NavigatingCancelEventArgs args);
 }

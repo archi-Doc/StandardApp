@@ -67,10 +67,13 @@ internal partial class WinAPI
     }
 
     [DllImport("user32.dll")]
-    public static extern bool SetWindowPlacement(IntPtr hWnd, [In] ref WINDOWPLACEMENT lpwndpl);
+    public static extern bool SetWindowPlacement(IntPtr hWnd, [In] ref NativeWindowPlacement lpwndpl);
 
-    [DllImport("user32.dll")]
-    public static extern bool GetWindowPlacement(IntPtr hWnd, out WINDOWPLACEMENT lpwndpl);
+    public static bool GetWindowPlacement(IntPtr hWnd, out NativeWindowPlacement lpwndpl)
+    {
+        lpwndpl = new NativeWindowPlacement { length = Marshal.SizeOf<NativeWindowPlacement>() };
+        return GetWindowPlacementNative(hWnd, ref lpwndpl);
+    }
 
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
     public static extern IntPtr LoadImage(IntPtr hInst, string lpszName, ImageType uType, int cxDesired, int cyDesired, uint fuLoad);
@@ -253,8 +256,6 @@ internal partial class WinAPI
             int id;
             GetWindowThreadProcessId(hWnd, out id);
 
-            var pr = Process.GetProcessById(id);
-
             if (pid == id)
             {
                 var clsName = new StringBuilder(256);
@@ -360,6 +361,10 @@ internal partial class WinAPI
 
     [DllImport("user32.dll")]
     internal static extern IntPtr SendMessage(IntPtr hwnd, uint msg, IntPtr wParam, IntPtr lParam);
+
+    [DllImport("user32.dll", EntryPoint = "GetWindowPlacement", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool GetWindowPlacementNative(IntPtr hWnd, ref NativeWindowPlacement lpwndpl);
 }
 
 internal enum ProcessDpiAwareness
@@ -388,8 +393,8 @@ internal enum MonitorDpiType
 internal class MONITORINFOEX
 {
     public int cbSize = Marshal.SizeOf(typeof(MONITORINFOEX));
-    public RECT rcMonitor = default;
-    public RECT rcWork = default;
+    public NativeRect rcMonitor = default;
+    public NativeRect rcWork = default;
     public int dwFlags = 0;
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
     public char[] szDevice = new char[32];

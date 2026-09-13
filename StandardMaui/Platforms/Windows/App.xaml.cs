@@ -8,14 +8,12 @@ using Microsoft.UI.Xaml;
 namespace StandardMaui.WinUI;
 
 /// <summary>
-/// Provides application-specific behavior to supplement the default Application class.
+/// Creates and hosts the MAUI application on Windows.
 /// </summary>
 public partial class App : MauiWinUIApplication
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="App"/> class.
-    /// This is the first line of authored code
-    /// executed, and as such is the logical equivalent of main() or WinMain().
     /// </summary>
     public App()
     {

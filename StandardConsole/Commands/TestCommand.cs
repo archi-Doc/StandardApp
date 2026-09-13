@@ -9,12 +9,18 @@ using SimpleCommandLine;
 
 namespace StandardConsole;
 
+/// <summary>
+/// Contains the delay option for the sample command.
+/// </summary>
 public class TestOptions
 {
     [SimpleOption("number", ShortName = "n")]
     public int Number { get; set; } = 2000;
 }
 
+/// <summary>
+/// Runs the sample command and waits for its worker to terminate.
+/// </summary>
 [SimpleCommand("test")]
 public class TestCommand : ISimpleCommand<TestOptions>
 {
@@ -28,17 +34,17 @@ public class TestCommand : ISimpleCommand<TestOptions>
         this.consoleService = consoleService;
     }
 
-    public async Task Execute(TestOptions option, string[] args, CancellationToken cancellationToken)
+    public async Task Execute(TestOptions options, string[] args, CancellationToken cancellationToken)
     {
         this.consoleService.WriteLine("Test command:", ConsoleColor.Red);
-        Console.WriteLine($"Number is {option.Number}");
+        Console.WriteLine($"Number is {options.Number}");
 
         var c = new ThreadCore(this.root, parameter =>
         {
             var core = (ThreadCore)parameter!;
             try
             {
-                Task.Delay(option.Number, core.CancellationToken).Wait();
+                Task.Delay(options.Number, core.CancellationToken).Wait();
             }
             catch
             {
@@ -46,7 +52,7 @@ public class TestCommand : ISimpleCommand<TestOptions>
             }
         });
 
-        await c.WaitForTermination();
+        await c.WaitForTerminationAsync();
     }
 
     private readonly ILogger logger;

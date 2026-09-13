@@ -19,28 +19,34 @@ using Tinyhand;
 
 namespace Arc.WPF;
 
-public delegate bool CheckTextDelegate(ref string text); // Delegate to validate text. true:valid, false:invalid.
+public delegate bool TextValidator(ref string text); // Delegate to validate text. true:valid, false:invalid.
 
-public delegate Task<string> CheckTextAsyncDelegate(string text); // Asynchronous version. null:invalid non-null:valid.
+public delegate Task<string> AsyncTextValidator(string text); // Asynchronous version. null:invalid non-null:valid.
 
-public struct DialogTextBoxParam
-{ // parameter
-    public ulong Hashed; // 1st: Hashed
+/// <summary>
+/// Specifies text input, validation callbacks, and dialog buttons.
+/// </summary>
+public struct TextInputDialogParameters
+{ // parameters
+    public ulong MessageHash; // 1st: Message hash
     public string Message; // 2nd: Message
     public MessageBoxButton Button;
     public MessageBoxResult Result;
     public string Text;
-    public int TextMaxLength; // max lengh. 0=no limit
-    public CheckTextDelegate CheckText;
-    public CheckTextAsyncDelegate CheckTextAsync;  // public TaskCompletionSource<DialogStringResult> TCS;
+    public int TextMaxLength; // max length. 0=no limit
+    public TextValidator ValidateText;
+    public AsyncTextValidator ValidateTextAsync;  // public TaskCompletionSource<DialogStringResult> TCS;
 }
 
-public struct DialogTextBoxResult
+/// <summary>
+/// Contains the accepted text and the dialog result.
+/// </summary>
+public struct TextInputDialogResult
 { // result
     public string Text;
     public MessageBoxResult Result;
 
-    public DialogTextBoxResult(string text, MessageBoxResult result)
+    public TextInputDialogResult(string text, MessageBoxResult result)
     {
         this.Text = text;
         this.Result = result;
@@ -48,9 +54,9 @@ public struct DialogTextBoxResult
 }
 
 /// <summary>
-/// DialogBox with textbox.
+/// Dialog with a text box.
 /// </summary>
-public partial class DialogTextBox : Window
+public partial class TextInputDialog : Window
 {
     private string fMessage = string.Empty;
     private MessageBoxButton fButton = MessageBoxButton.OK;
@@ -78,16 +84,16 @@ public partial class DialogTextBox : Window
 
     public string Text { get; private set; }
 
-    public CheckTextDelegate CheckText { get; private set; }
+    public TextValidator ValidateText { get; private set; }
 
-    public CheckTextAsyncDelegate CheckTextAsync { get; private set; }
+    public AsyncTextValidator ValidateTextAsync { get; private set; }
 
     private string captionOK;
     private string captionCancel;
     private string captionYes;
     private string captionNo;
 
-    public DialogTextBox(Window owner, DialogTextBoxParam p)
+    public TextInputDialog(Window owner, TextInputDialogParameters parameters)
     {
         this.InitializeComponent();
 
@@ -101,23 +107,23 @@ public partial class DialogTextBox : Window
         this.Owner = owner;
         this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
         this.ShowInTaskbar = false;
-        if (p.TextMaxLength != 0)
+        if (parameters.TextMaxLength != 0)
         {
-            this.textBox.MaxLength = p.TextMaxLength;
+            this.textBox.MaxLength = parameters.TextMaxLength;
         }
 
         // visual
         this.Foreground = Brushes.DarkBlue;
 
-        // set param
-        if (p.Hashed != 0)
+        // set parameters
+        if (parameters.MessageHash != 0)
         {
-            this.fMessage = HashedString.GetOrEmpty(p.Hashed);
+            this.fMessage = HashedString.GetOrEmpty(parameters.MessageHash);
         }
 
         if (this.fMessage == null || this.fMessage == string.Empty)
         {
-            this.fMessage = p.Message;
+            this.fMessage = parameters.Message;
         }
 
         if (this.fMessage == null)
@@ -125,11 +131,11 @@ public partial class DialogTextBox : Window
             this.fMessage = string.Empty;
         }
 
-        this.fButton = p.Button;
-        this.fResult = p.Result;
-        this.Text = p.Text;
-        this.CheckText = p.CheckText;
-        this.CheckTextAsync = p.CheckTextAsync;
+        this.fButton = parameters.Button;
+        this.fResult = parameters.Result;
+        this.Text = parameters.Text;
+        this.ValidateText = parameters.ValidateText;
+        this.ValidateTextAsync = parameters.ValidateTextAsync;
 
         this.textBox.Text = this.Text;
         if (this.PART_TextBlock.Inlines.Count < 1)
@@ -183,14 +189,14 @@ public partial class DialogTextBox : Window
         string t = this.textBox.Text;
         bool flag = true;
 
-        if (this.CheckText != null)
+        if (this.ValidateText != null)
         {
-            flag = this.CheckText(ref t); // validate.
+            flag = this.ValidateText(ref t); // validate.
         }
 
-        if (this.CheckTextAsync != null)
+        if (this.ValidateTextAsync != null)
         {
-            t = await this.CheckTextAsync(t); // validate async
+            t = await this.ValidateTextAsync(t); // validate async
         }
 
         if (t != null)

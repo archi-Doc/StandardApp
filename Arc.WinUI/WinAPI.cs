@@ -12,10 +12,13 @@ using System.Runtime.InteropServices;
 
 namespace Arc.WinUI;
 
+/// <summary>
+/// Win32 WINDOWPLACEMENT structure.
+/// </summary>
 [TinyhandObject]
 [Serializable]
 [StructLayout(LayoutKind.Sequential)]
-public partial struct WINDOWPLACEMENT
+public partial struct NativeWindowPlacement
 {
     [Key(0)]
     public int length;
@@ -24,34 +27,40 @@ public partial struct WINDOWPLACEMENT
     [Key(2)]
     public ShowCommand showCmd;
     [Key(3)]
-    public POINT minPosition;
+    public NativePoint minPosition;
     [Key(4)]
-    public POINT maxPosition;
+    public NativePoint maxPosition;
     [Key(5)]
-    public RECT normalPosition;
+    public NativeRect normalPosition;
 }
 
+/// <summary>
+/// Win32 POINT structure.
+/// </summary>
 [TinyhandObject]
 [Serializable]
 [StructLayout(LayoutKind.Sequential)]
-public partial struct POINT
+public partial struct NativePoint
 {
     [Key(0)]
     public int X;
     [Key(1)]
     public int Y;
 
-    public POINT(int x, int y)
+    public NativePoint(int x, int y)
     {
         this.X = x;
         this.Y = y;
     }
 }
 
+/// <summary>
+/// Win32 RECT structure.
+/// </summary>
 [TinyhandObject]
 [Serializable]
 [StructLayout(LayoutKind.Sequential)]
-public partial struct RECT
+public partial struct NativeRect
 {
     [Key(0)]
     public int Left;
@@ -62,7 +71,7 @@ public partial struct RECT
     [Key(3)]
     public int Bottom;
 
-    public RECT(int left, int top, int right, int bottom)
+    public NativeRect(int left, int top, int right, int bottom)
     {
         this.Left = left;
         this.Top = top;
@@ -87,6 +96,9 @@ public enum ShowCommand
     FORCEMINIMIZE = 11,
 }
 
+/// <summary>
+/// Stores window placement with DPI conversion and optional physical screen positions.
+/// </summary>
 [TinyhandObject]
 public partial class DipWindowPlacement
 { // Device Independent, 1/96 inch
@@ -96,7 +108,7 @@ public partial class DipWindowPlacement
     public int Flags { get; set; }
 
     [Key(1)]
-    public ShowCommand ShowCmd { get; set; }
+    public ShowCommand ShowCommand { get; set; }
 
     [Key(2)]
     public DipPoint MinPosition { get; set; } = new DipPoint();
@@ -111,53 +123,92 @@ public partial class DipWindowPlacement
     {
     }
 
-    public DipWindowPlacement(WINDOWPLACEMENT wp, double dpiX, double dpiY)
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DipWindowPlacement"/> class.<br/>
+    /// Same as <see cref="FromWindowPlacementWithPhysicalPosition(NativeWindowPlacement, double, double)"/>.
+    /// </summary>
+    /// <param name="windowPlacement">The native window placement.</param>
+    /// <param name="dpiX">The horizontal DPI.</param>
+    /// <param name="dpiY">The vertical DPI.</param>
+    public DipWindowPlacement(NativeWindowPlacement windowPlacement, double dpiX, double dpiY)
     {
-        this.Flags = wp.flags;
-        this.ShowCmd = wp.showCmd;
-        this.MinPosition.FromPOINT2(wp.minPosition);
-        this.MaxPosition.FromPOINT2(wp.maxPosition);
-        this.NormalPosition.FromRECT2(wp.normalPosition, dpiX, dpiY);
+        this.FromWindowPlacementWithPhysicalPosition(windowPlacement, dpiX, dpiY);
     }
 
     public bool IsValid => this.NormalPosition.Width > 0 && this.NormalPosition.Height > 0;
 
-    public void FromWINDOWPLACEMENT(WINDOWPLACEMENT wp, double dpiX, double dpiY)
+    /// <summary>
+    /// Converts all positions and sizes from physical pixels to DIPs.
+    /// </summary>
+    /// <param name="windowPlacement">The native window placement.</param>
+    /// <param name="dpiX">The horizontal DPI.</param>
+    /// <param name="dpiY">The vertical DPI.</param>
+    public void FromWindowPlacement(NativeWindowPlacement windowPlacement, double dpiX, double dpiY)
     {
-        this.Flags = wp.flags;
-        this.ShowCmd = wp.showCmd;
-        this.MinPosition.FromPOINT(wp.minPosition, dpiX, dpiY);
-        this.MaxPosition.FromPOINT(wp.maxPosition, dpiX, dpiY);
-        this.NormalPosition.FromRECT(wp.normalPosition, dpiX, dpiY);
+        this.Flags = windowPlacement.flags;
+        this.ShowCommand = windowPlacement.showCmd;
+        this.MinPosition.FromPoint(windowPlacement.minPosition, dpiX, dpiY);
+        this.MaxPosition.FromPoint(windowPlacement.maxPosition, dpiX, dpiY);
+        this.NormalPosition.FromRect(windowPlacement.normalPosition, dpiX, dpiY);
     }
 
-    public WINDOWPLACEMENT ToWINDOWPLACEMENT(double dpiX, double dpiY)
+    /// <summary>
+    /// Converts all positions and sizes from DIPs to physical pixels.
+    /// </summary>
+    /// <param name="dpiX">The horizontal DPI.</param>
+    /// <param name="dpiY">The vertical DPI.</param>
+    /// <returns>The native window placement.</returns>
+    public NativeWindowPlacement ToWindowPlacement(double dpiX, double dpiY)
     {
-        return new WINDOWPLACEMENT
+        return new NativeWindowPlacement
         {
             length = WindowPlacementLength,
             flags = this.Flags,
-            showCmd = this.ShowCmd,
-            minPosition = this.MinPosition.ToPOINT(dpiX, dpiY),
-            maxPosition = this.MaxPosition.ToPOINT(dpiX, dpiY),
-            normalPosition = this.NormalPosition.ToRECT(dpiX, dpiY),
+            showCmd = this.ShowCommand,
+            minPosition = this.MinPosition.ToPoint(dpiX, dpiY),
+            maxPosition = this.MaxPosition.ToPoint(dpiX, dpiY),
+            normalPosition = this.NormalPosition.ToRect(dpiX, dpiY),
         };
     }
 
-    public WINDOWPLACEMENT ToWINDOWPLACEMENT2(double dpiX, double dpiY)
+    /// <summary>
+    /// Keeps positions in physical pixels and converts only the window size from physical pixels to DIPs.
+    /// </summary>
+    /// <param name="windowPlacement">The native window placement.</param>
+    /// <param name="dpiX">The horizontal DPI.</param>
+    /// <param name="dpiY">The vertical DPI.</param>
+    public void FromWindowPlacementWithPhysicalPosition(NativeWindowPlacement windowPlacement, double dpiX, double dpiY)
     {
-        return new WINDOWPLACEMENT
+        this.Flags = windowPlacement.flags;
+        this.ShowCommand = windowPlacement.showCmd;
+        this.MinPosition.FromPointUnscaled(windowPlacement.minPosition);
+        this.MaxPosition.FromPointUnscaled(windowPlacement.maxPosition);
+        this.NormalPosition.FromRectWithPhysicalPosition(windowPlacement.normalPosition, dpiX, dpiY);
+    }
+
+    /// <summary>
+    /// Keeps positions in physical pixels and converts only the window size from DIPs to physical pixels.
+    /// </summary>
+    /// <param name="dpiX">The horizontal DPI.</param>
+    /// <param name="dpiY">The vertical DPI.</param>
+    /// <returns>The native window placement.</returns>
+    public NativeWindowPlacement ToWindowPlacementWithPhysicalPosition(double dpiX, double dpiY)
+    {
+        return new NativeWindowPlacement
         {
             length = WindowPlacementLength,
             flags = this.Flags,
-            showCmd = this.ShowCmd,
-            minPosition = this.MinPosition.ToPOINT2(),
-            maxPosition = this.MaxPosition.ToPOINT2(),
-            normalPosition = this.NormalPosition.ToRECT2(dpiX, dpiY),
+            showCmd = this.ShowCommand,
+            minPosition = this.MinPosition.ToPointUnscaled(),
+            maxPosition = this.MaxPosition.ToPointUnscaled(),
+            normalPosition = this.NormalPosition.ToRectWithPhysicalPosition(dpiX, dpiY),
         };
     }
 }
 
+/// <summary>
+/// Stores a point with conversion between physical pixels and device-independent units.
+/// </summary>
 [TinyhandObject]
 public partial class DipPoint
 { // Device Independent, 1/96 inch
@@ -173,38 +224,49 @@ public partial class DipPoint
         this.Y = y;
     }
 
-    public DipPoint(POINT point, double dpiX, double dpiY)
+    public DipPoint(NativePoint point, double dpiX, double dpiY)
     {
-        this.FromPOINT(point, dpiX, dpiY);
+        this.FromPoint(point, dpiX, dpiY);
     }
 
     public DipPoint()
     {
     }
 
-    public void FromPOINT(POINT point, double dpiX, double dpiY)
+    public void FromPoint(NativePoint point, double dpiX, double dpiY)
     {
-        this.X = point.X * 96 / dpiX;
-        this.Y = point.Y * 96 / dpiY;
+        this.X = point.X * 96d / dpiX;
+        this.Y = point.Y * 96d / dpiY;
     }
 
-    public POINT ToPOINT(double dpiX, double dpiY)
+    public NativePoint ToPoint(double dpiX, double dpiY)
     {
-        return new POINT((int)(this.X * dpiX / 96), (int)(this.Y * dpiY / 96));
+        return new NativePoint((int)(this.X * dpiX / 96), (int)(this.Y * dpiY / 96));
     }
 
-    public void FromPOINT2(POINT point)
+    /// <summary>
+    /// Copies the point without DPI conversion.
+    /// </summary>
+    /// <param name="point">The native point.</param>
+    public void FromPointUnscaled(NativePoint point)
     {
         this.X = point.X;
         this.Y = point.Y;
     }
 
-    public POINT ToPOINT2()
+    /// <summary>
+    /// Returns the point without DPI conversion.
+    /// </summary>
+    /// <returns>The native point.</returns>
+    public NativePoint ToPointUnscaled()
     {
-        return new POINT((int)this.X, (int)this.Y);
+        return new NativePoint((int)this.X, (int)this.Y);
     }
 }
 
+/// <summary>
+/// Stores a rectangle with DPI conversion and optional physical top-left coordinates.
+/// </summary>
 [TinyhandObject]
 public partial class DipRect
 {
@@ -234,38 +296,50 @@ public partial class DipRect
         this.Bottom = bottom;
     }
 
-    public DipRect(RECT rect, double dpiX, double dpiY)
+    public DipRect(NativeRect rect, double dpiX, double dpiY)
     {
-        this.FromRECT(rect, dpiX, dpiY);
+        this.FromRect(rect, dpiX, dpiY);
     }
 
     public DipRect()
     {
     }
 
-    public void FromRECT(RECT rect, double dpiX, double dpiY)
+    public void FromRect(NativeRect rect, double dpiX, double dpiY)
     {
-        this.Left = rect.Left * 96 / dpiX;
-        this.Top = rect.Top * 96 / dpiY;
-        this.Right = rect.Right * 96 / dpiX;
-        this.Bottom = rect.Bottom * 96 / dpiY;
+        this.Left = rect.Left * 96d / dpiX;
+        this.Top = rect.Top * 96d / dpiY;
+        this.Right = rect.Right * 96d / dpiX;
+        this.Bottom = rect.Bottom * 96d / dpiY;
     }
 
-    public RECT ToRECT(double dpiX, double dpiY)
+    public NativeRect ToRect(double dpiX, double dpiY)
     {
-        return new RECT((int)(this.Left * dpiX / 96), (int)(this.Top * dpiY / 96), (int)(this.Right * dpiX / 96), (int)(this.Bottom * dpiY / 96));
+        return new NativeRect((int)(this.Left * dpiX / 96), (int)(this.Top * dpiY / 96), (int)(this.Right * dpiX / 96), (int)(this.Bottom * dpiY / 96));
     }
 
-    public void FromRECT2(RECT rect, double dpiX, double dpiY)
+    /// <summary>
+    /// Keeps the top-left position in physical pixels and converts only the size from physical pixels to DIPs.
+    /// </summary>
+    /// <param name="rect">The native rectangle.</param>
+    /// <param name="dpiX">The horizontal DPI.</param>
+    /// <param name="dpiY">The vertical DPI.</param>
+    public void FromRectWithPhysicalPosition(NativeRect rect, double dpiX, double dpiY)
     {
         this.Left = rect.Left;
         this.Top = rect.Top;
-        this.Right = rect.Left + ((rect.Right - rect.Left) * 96 / dpiX);
-        this.Bottom = rect.Top + ((rect.Bottom - rect.Top) * 96 / dpiY);
+        this.Right = rect.Left + (((double)rect.Right - rect.Left) * 96d / dpiX);
+        this.Bottom = rect.Top + (((double)rect.Bottom - rect.Top) * 96d / dpiY);
     }
 
-    public RECT ToRECT2(double dpiX, double dpiY)
+    /// <summary>
+    /// Keeps the top-left position in physical pixels and converts only the size from DIPs to physical pixels.
+    /// </summary>
+    /// <param name="dpiX">The horizontal DPI.</param>
+    /// <param name="dpiY">The vertical DPI.</param>
+    /// <returns>The native rectangle.</returns>
+    public NativeRect ToRectWithPhysicalPosition(double dpiX, double dpiY)
     {
-        return new RECT((int)this.Left, (int)this.Top, (int)(this.Left + (this.Width * dpiX / 96)), (int)(this.Top + (this.Height * dpiY / 96)));
+        return new NativeRect((int)this.Left, (int)this.Top, (int)(this.Left + (this.Width * dpiX / 96)), (int)(this.Top + (this.Height * dpiY / 96)));
     }
 }

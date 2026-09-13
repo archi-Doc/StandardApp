@@ -18,6 +18,9 @@ using Tinyhand;
 
 namespace Arc.WPF;
 
+/// <summary>
+/// Provides a localized string to a XAML property.
+/// </summary>
 [MarkupExtensionReturnType(typeof(string))]
 public class StringerExtension : MarkupExtension
 { // Text-based Stringer markup extension. GUI thread only.
@@ -40,8 +43,8 @@ public class StringerExtension : MarkupExtension
             }
 
             if (target.TargetProperty != null)
-            { // Add ExtensionObject (used in StringerUpdate).
-                Arc.WPF.StringerUpdater.StringerAddExtensionObject(target.TargetObject, target.TargetProperty, this.key);
+            { // Add ExtensionObject (used in Stringer.Refresh).
+                Arc.WPF.Stringer.Register(target.TargetObject, target.TargetProperty, this.key);
             }
         }
 
@@ -49,12 +52,15 @@ public class StringerExtension : MarkupExtension
     }
 }
 
+/// <summary>
+/// Resolves a hashed localization key in XAML.
+/// </summary>
 [MarkupExtensionReturnType(typeof(string))]
-public class C5Extension : MarkupExtension
-{ // Text-based Stringer markup extension. GUI thread only.
+public class HashedStringExtension : MarkupExtension
+{ // Hash-based string markup extension. GUI thread only.
     private ulong key;
 
-    public C5Extension(ulong key)
+    public HashedStringExtension(ulong key)
     {
         this.key = key;
     }
@@ -71,8 +77,8 @@ public class C5Extension : MarkupExtension
             }
 
             if (target.TargetProperty != null)
-            { // Add ExtensionObject (used in StringerUpdate).
-                // Arc.WPF.StringerUpdater.StringerAddExtensionObject(target.TargetObject, target.TargetProperty, this.key);
+            { // Add ExtensionObject (used in Stringer.Refresh).
+                // Arc.WPF.Stringer.Register(target.TargetObject, target.TargetProperty, this.key);
             }
         }
 
@@ -80,6 +86,9 @@ public class C5Extension : MarkupExtension
     }
 }
 
+/// <summary>
+/// Creates a binding that updates its localized string after culture changes.
+/// </summary>
 public class StringerBindingExtension : MarkupExtension
 { // Binding-based Stringer markup extension. GUI thread only.
     private string key;
@@ -96,6 +105,9 @@ public class StringerBindingExtension : MarkupExtension
     }
 }
 
+/// <summary>
+/// Exposes a localized string and notifies bindings when the culture changes.
+/// </summary>
 public class StringerBindingSource : INotifyPropertyChanged
 {
     private string key;
@@ -103,19 +115,25 @@ public class StringerBindingSource : INotifyPropertyChanged
     public StringerBindingSource(string key)
     {
         this.key = key;
-        Arc.WPF.StringerUpdater.StringerAddExtensionObject(this, null, null);
+        Arc.WPF.Stringer.Register(this, null, null);
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
     public object? Value => HashedString.GetOrIdentifier(this.key);
 
-    public void CultureChanged()
+    /// <summary>
+    /// Raises <see cref="PropertyChanged"/> for <see cref="Value"/> after the current culture has changed.
+    /// </summary>
+    public void NotifyCultureChanged()
     {
         this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Value"));
     }
 }
 
+/// <summary>
+/// Formats literal values and bindings using a literal or bound format string.
+/// </summary>
 public class FormatExtension : MarkupExtension
 {
     private readonly object? format;
@@ -180,16 +198,19 @@ public class FormatExtension : MarkupExtension
         return mb.ProvideValue(serviceProvider);
     }
 
+    /// <summary>
+    /// Formats bound values using the first value as the format string.
+    /// </summary>
     public class BoundFormatConverter : IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
             if (values.Length == 0)
             {
-                throw new ArgumentException("values must have at least one element", "parameter");
+                throw new ArgumentException("Values must have at least one element.", nameof(values));
             }
 
-            var format = values[0].ToString();
+            var format = values[0]?.ToString();
             if (format == null)
             {
                 return string.Empty;
@@ -202,13 +223,13 @@ public class FormatExtension : MarkupExtension
                     case 1:
                         return format;
                     case 2:
-                        return string.Format(format, values[1]);
+                        return string.Format(culture, format, values[1]);
                     case 3:
-                        return string.Format(format, values[1], values[2]);
+                        return string.Format(culture, format, values[1], values[2]);
                     case 4:
-                        return string.Format(format, values[1], values[2], values[3]);
+                        return string.Format(culture, format, values[1], values[2], values[3]);
                     default:
-                        return string.Format(format, values.Skip(1).ToArray());
+                        return string.Format(culture, format, values.Skip(1).ToArray());
                 }
             }
             catch (FormatException)
@@ -224,6 +245,9 @@ public class FormatExtension : MarkupExtension
     }
 }
 
+/// <summary>
+/// Checks for generation-zero collections after a configurable number of calls.
+/// </summary>
 public class GCCountChecker
 { // カウンタ付きガーベージコレクション差分チェック。カウンタが一定以上になった場合、ガーベージコレクションのカウンタをチェックし、カウンタが変更されていたら、trueを返す。
     public GCCountChecker(int maxCount = 0)
@@ -257,13 +281,20 @@ public class GCCountChecker
     }
 }
 
-public static class StringerUpdater
+/// <summary>
+/// Refreshes registered localized strings when the application culture changes.
+/// </summary>
+public static class Stringer
 { // toolset
     private static object extensionObjectsCS = new object(); // 同期オブジェクト
     private static LinkedList<StringerExtensionObject> extensionObjects = new LinkedList<StringerExtensionObject>();
     private static GCCountChecker extensionObjectChecker = new GCCountChecker(16); // 16回に1回の頻度でチェック（使用されなくなったオブジェクトを解放する）。
 
     // StringerExtensionObject: StringerExtensionのオブジェクトの更新用
+
+    /// <summary>
+    /// Tracks a weak localization target, its property, and its string key.
+    /// </summary>
     public class StringerExtensionObject
     {
         public WeakReference TargetObject; // target object or StringerBindingSource
@@ -278,21 +309,30 @@ public static class StringerUpdater
         }
     }
 
-    public static void StringerAddExtensionObject(object targetObject, object? targetProperty, string? key)
+    /// <summary>
+    /// Registers a target object to be updated by <see cref="Refresh"/>. Called from markup extensions.
+    /// </summary>
+    /// <param name="targetObject">The target object or <see cref="StringerBindingSource"/>.</param>
+    /// <param name="targetProperty">The target property (<see langword="null"/> for <see cref="StringerBindingSource"/>).</param>
+    /// <param name="key">The string identifier.</param>
+    public static void Register(object targetObject, object? targetProperty, string? key)
     { // ExtensionObjectを追加する。マークアップ拡張から呼ばれる。
         lock (extensionObjectsCS)
         {
             extensionObjects.AddLast(new StringerExtensionObject(new WeakReference(targetObject), targetProperty, key));
             if (extensionObjectChecker.Check())
             {
-                StringerClean();
+                Clean();
             }
         }
     }
 
-    public static void StringerUpdate()
+    /// <summary>
+    /// Updates all registered localized strings (e.g. after the culture has changed).
+    /// </summary>
+    public static void Refresh()
     { // Stringerを更新する。
-        App.InvokeAsyncOnUI(() =>
+        App.ExecuteOrEnqueueOnUI(() =>
         {
             // GC.Collect();
             lock (extensionObjectsCS)
@@ -342,7 +382,7 @@ public static class StringerUpdater
                         else
                         { // StringerBindingSource
                             var s = (StringerBindingSource)target;
-                            s.CultureChanged();
+                            s.NotifyCultureChanged();
                         }
                     }
                     else
@@ -350,12 +390,12 @@ public static class StringerUpdater
                     }
                 }
 
-                // StringerClean();
+                // Clean();
             }
         });
     }
 
-    private static void StringerClean()
+    private static void Clean()
     { // 使用されていないオブジェクトを解放する。内部で使用。
         LinkedListNode<StringerExtensionObject>? x, y;
         x = extensionObjects.First;

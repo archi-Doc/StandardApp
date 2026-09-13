@@ -5,6 +5,9 @@ using Android.Runtime;
 
 namespace StandardMaui;
 
+/// <summary>
+/// Creates the MAUI application for the Android process.
+/// </summary>
 [Application]
 public class MainApplication : MauiApplication
 {

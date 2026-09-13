@@ -10,10 +10,13 @@ using StandardWinUI.PresentationState;
 namespace StandardWinUI;
 
 /// <summary>
-/// AppUnit is a class that manages the dependencies of the DI container, logs, and CrystalData (data persistence).
+/// Configures WinUI services, logging, and CrystalData persistence.
 /// </summary>
 public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
 {
+    /// <summary>
+    /// Builds the application's service container and logging configuration.
+    /// </summary>
     public class Builder : UnitBuilder<Product>
     {// Builder class for customizing dependencies.
         public Builder()
@@ -22,8 +25,8 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
             // Configuration for Unit.
             this.PreConfigure(context =>
             {
-                context.ProgramDirectory = Entrypoint.DataFolder;
-                context.DataDirectory = Entrypoint.DataFolder;
+                context.ProgramDirectory = EntryPoint.DataDirectory;
+                context.DataDirectory = EntryPoint.DataDirectory;
             });
 
             this.Configure(context =>
@@ -34,7 +37,7 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
                 // context.Services.AddSingleton(x => (App)x.GetRequiredService<IApp>()); // If you want to use the App instance, please uncomment it.
 
                 // Presentation-State
-                context.AddSingleton<NaviWindow>();
+                context.AddSingleton<MainWindow>();
                 context.AddSingleton<HelloPage>();
                 context.AddSingleton<BaibainPage>();
                 context.AddSingleton<StatePage>();
@@ -44,30 +47,30 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
                 context.AddSingleton<AdvancedPage>();
                 context.AddSingleton<AdvancedPageState>();
                 context.AddSingleton<SettingsPage>();
-                context.AddSingleton<SettingsState>();
+                context.AddSingleton<SettingsPageState>();
                 context.AddSingleton<InformationPage>();
-                context.AddSingleton<InformationState>();
+                context.AddSingleton<InformationPageState>();
 
                 // Command
                 // context.AddCommand(typeof(TestCommand));
-                // context.AddCommand(typeof(TestCommand2));
+                // context.AddCommand(typeof(Test2Command));
 
                 // Log filter
                 context.AddSingleton<ExampleLogFilter>();
 
                 // Logger
-                context.ClearLoggerResolver();
-                context.AddLoggerResolver(x =>
+                context.ClearLogOutputResolvers();
+                context.AddLogOutputResolver(x =>
                 {// Log source/level -> Resolver() -> Output/filter
-                    x.SetOutput<FileLogger<FileLoggerOptions>>();
+                    x.SetOutput<FileLogOutput<FileLogOutputOptions>>();
 
                     // if (x.LogLevel <= LogLevel.Debug)
                     // {
-                    //    x.SetOutput<ConsoleLogger>();
+                    //    x.SetOutput<ConsoleLogOutput>();
                     //    return;
                     // }
 
-                    // x.SetOutput<ConsoleAndFileLogger>();
+                    // x.SetOutput<ConsoleAndFileLogOutput>();
 
                     // if (x.LogSourceType == typeof(TestCommand))
                     // {
@@ -79,10 +82,10 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
             this.PostConfigure(context =>
             {
                 var logfile = "Logs/Log.txt";
-                context.SetOptions(context.GetOptions<FileLoggerOptions>() with
+                context.SetOptions(context.GetOrCreateOptions<FileLogOutputOptions>() with
                 {
-                    Path = Path.Combine(context.DataDirectory, logfile),
-                    MaxLogCapacity = 2,
+                    FilePath = Path.Combine(context.DataDirectory, logfile),
+                    MaxLogCapacityInMegabytes = 2,
                     ClearLogsAtStartup = false,
                 });
             });
@@ -97,72 +100,79 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
                 {
                     context.AddCrystal<AppSettings>(new()
                     {
-                        NumberOfFileHistories = 0,
-                        FileConfiguration = new GlobalFileConfiguration(AppSettings.Filename),
+                        NumberOfHistoryFiles = 0,
+                        FileConfiguration = new GlobalFileConfiguration(AppSettings.FileName),
                         SaveFormat = SaveFormat.Utf8,
                     });
                 });
         }
     }
 
+    /// <summary>
+    /// Runs configured commands and coordinates the application lifecycle.
+    /// </summary>
     public class Product : UnitProduct
     {// Unit class for customizing behaviors.
-        public record Param(string Args);
+        /// <summary>
+        /// Contains the command-line arguments for an application run.
+        /// </summary>
+        /// <param name="Arguments">The command-line arguments to parse.</param>
+        public record RunParameters(string Arguments);
 
         public Product(UnitContext context)
             : base(context)
         {
         }
 
-        public async Task RunAsync(Param param)
+        public async Task RunAsync(RunParameters parameters)
         {
             // Create optional instances
             this.Context.CreateInstances();
 
-            await this.Context.SendPrepare();
-            await this.Context.SendStart();
+            await this.Context.SendPrepareAsync();
+            await this.Context.SendStartAsync();
 
             var parserOptions = SimpleParserOptions.Standard with
             {
                 ServiceProvider = this.Context.ServiceProvider,
-                RequireStrictCommandName = false,
-                RequireStrictOptionName = true,
+                RequireCommandName = false,
+                RejectUnknownOptionNames = true,
             };
 
             // Main
-            await SimpleParser.ParseAndExecute(this.Context.Commands, param.Args, parserOptions);
+            await SimpleParser.ParseAndExecute(this.Context.CommandTypes, parameters.Arguments, parserOptions);
 
-            await this.Context.SendStop();
-            await this.Context.SendTerminate();
+            await this.Context.SendStopAsync();
+            await this.Context.SendTerminateAsync();
         }
     }
 
     private class ExampleLogFilter : ILogFilter
     {
-        public ExampleLogFilter(AppUnit consoleUnit)
+        public ExampleLogFilter(AppUnit appUnit)
         {
-            this.consoleUnit = consoleUnit;
+            this.appUnit = appUnit;
         }
 
-        public LogWriter? Filter(LogFilterParameter param)
+        public LogWriter? Filter(LogFilterContext param)
         {// Log source/Event id/LogLevel -> Filter() -> ILog
             if (param.LogSourceType == typeof(StandardApp))
             {
                 // return null; // No log
                 if (param.LogLevel == LogLevel.Error)
                 {
-                    return param.LogService.GetWriter<ConsoleAndFileLogger>(LogLevel.Fatal); // Error -> Fatal
+                    return param.LogService.GetWriter<ConsoleAndFileLogOutput>(LogLevel.Fatal); // Error -> Fatal
                 }
                 else if (param.LogLevel == LogLevel.Fatal)
                 {
-                    return param.LogService.GetWriter<ConsoleAndFileLogger>(LogLevel.Error); // Fatal -> Error
+                    return param.LogService.GetWriter<ConsoleAndFileLogOutput>(LogLevel.Error); // Fatal -> Error
                 }
             }
 
             return param.OriginalWriter;
         }
 
-        private AppUnit consoleUnit;
+        private AppUnit appUnit;
     }
 
     public AppUnit(UnitContext context, ILogger<AppUnit> logger, UnitOptions options)
@@ -172,24 +182,24 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
         this.options = options;
     }
 
-    async Task IUnitPreparable.Prepare(UnitContext unitContext, CancellationToken cancellationToken)
+    async Task IUnitPreparable.PrepareAsync(UnitContext unitContext, CancellationToken cancellationToken)
     {
         this.logger.GetWriter()?.Write("Unit prepared.");
         this.logger.GetWriter()?.Write($"Program: {this.options.ProgramDirectory}");
         this.logger.GetWriter()?.Write($"Data: {this.options.DataDirectory}");
     }
 
-    async Task IUnitExecutable.Start(UnitContext unitContext, CancellationToken cancellationToken)
+    async Task IUnitExecutable.StartAsync(UnitContext unitContext, CancellationToken cancellationToken)
     {
         this.logger.GetWriter()?.Write("Unit started.");
     }
 
-    async Task IUnitExecutable.Stop(UnitContext unitContext, CancellationToken cancellationToken)
+    async Task IUnitExecutable.StopAsync(UnitContext unitContext, CancellationToken cancellationToken)
     {
         this.logger.GetWriter()?.Write("Unit stopped.");
     }
 
-    async Task IUnitExecutable.Terminate(UnitContext unitContext, CancellationToken cancellationToken)
+    async Task IUnitExecutable.TerminateAsync(UnitContext unitContext, CancellationToken cancellationToken)
     {
         this.logger.GetWriter()?.Write("Unit terminated.");
     }

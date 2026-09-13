@@ -2,6 +2,9 @@
 
 namespace StandardMaui;
 
+/// <summary>
+/// Displays the sample counter and announces its value for accessibility.
+/// </summary>
 public partial class MainPage : ContentPage
 {
     private int count = 0;

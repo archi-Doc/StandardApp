@@ -13,6 +13,9 @@ using Arc.WinAPI;
 
 namespace Arc.WPF;
 
+/// <summary>
+/// Scales registered WPF windows and keeps them within the monitor work area.
+/// </summary>
 public class Transformer
 {
     private const double MinimumScale = 0.25; // Minimum value of scale.
@@ -463,32 +466,16 @@ public class Transformer
                 return false;
             }
 
-            var hmonitor = Arc.WinAPI.Methods.MonitorFromWindow(hwnd.Handle, MonitorDefaultTo.MONITOR_DEFAULTTONEAREST);
-            Arc.WinAPI.Methods.GetDpiForMonitor(hmonitor, MonitorDpiType.Default, ref dpiX, ref dpiY);
+            var hmonitor = Arc.WinAPI.NativeMethods.MonitorFromWindow(hwnd.Handle, MonitorDefaultTo.MONITOR_DEFAULTTONEAREST);
+            Arc.WinAPI.NativeMethods.GetDpiForMonitor(hmonitor, MonitorDpiType.Default, ref dpiX, ref dpiY);
             var monitorInfo = new MONITORINFOEX();
-            Arc.WinAPI.Methods.GetMonitorInfo(hmonitor, monitorInfo);
+            Arc.WinAPI.NativeMethods.GetMonitorInfo(hmonitor, monitorInfo);
             workarea = monitorInfo.rcWork;
 
             return true;
         }
         catch
         {
-            return false;
-        }
-    }
-
-    private bool GetScale(FrameworkElement element, out double scaleX, out double scaleY)
-    {
-        if (element.LayoutTransform is ScaleTransform trans)
-        {
-            scaleX = trans.ScaleX;
-            scaleY = trans.ScaleY;
-            return true;
-        }
-        else
-        {
-            scaleX = 1;
-            scaleY = 1;
             return false;
         }
     }
@@ -553,7 +540,7 @@ public class Transformer
             }
         }
 
-        element.LayoutTransform = new ScaleTransform(packet.ScaleX, packet.ScaleX);
+        element.LayoutTransform = new ScaleTransform(packet.ScaleX, packet.ScaleY);
 
         if (ratio > 0)
         {

@@ -68,15 +68,15 @@ GUIの値を保持したり、データを永続化するための繋ぎの役�
 
 XAML+コードビハインドでどーぞ。
 
-HomePage.xaml
+HelloPage.xaml
 
 ```xaml
 <?xml version="1.0" encoding="utf-8"?>
 <Page
-    x:Class="StandardWinUI.Presentation.HomePage"
+    x:Class="StandardWinUI.PresentationState.HelloPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:StandardWinUI.Presentation"
+    xmlns:local="using:StandardWinUI.PresentationState"
     xmlns:Arc="using:Arc.WinUI"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -88,12 +88,12 @@ HomePage.xaml
 </Page>
 ```
 
-HomePage.xaml.cs
+HelloPage.xaml.cs
 
 ```csharp
-public sealed partial class HomePage : Page
+public sealed partial class HelloPage : Page
 {
-    public HomePage()
+    public HelloPage()
     {
         this.InitializeComponent();
     }
@@ -154,7 +154,7 @@ public partial class StatePageState : ObservableObject, IState
     }
 
     [RelayCommand]
-    private void Baibain()
+    private void Multiply()
     {
         if (int.TryParse((string)this.SourceText, out int value))
         {
@@ -171,7 +171,7 @@ public sealed partial class StatePage : Page
 {
     public StatePageState State { get; }
 
-    public StatePage(App app)
+    public StatePage(IApp app)
     {
         this.InitializeComponent();
         this.State = app.GetAndPrepareState<StatePageState>(this);
@@ -202,26 +202,27 @@ public partial class MessagePageState : ObservableObject, IState
     }
 
     [RelayCommand]
-    private async Task Test()
+    private async Task ShowSampleDialog()
     {
-        var r = await this.messageDialogService.Show(string.Empty, "Test message", "OK");
+        var r = await this.messageDialogService.ShowAsync(string.Empty, "Test message", "OK");
     }
 }
 ```
 
-Serviceを実行する側は**Presentationクラス**（今回は`NaviWindow`）で、こちらは`IMessageDialogService`を実装して、CrossChannelに登録（Open）する。
+Serviceを実行する側は**Presentationクラス**（今回は`MainWindow`）で、こちらは`IMessageDialogService`を実装して、CrossChannelに登録（Open）する。
 
 ```csharp
-public partial class NaviWindow : WindowEx, IBasicPresentationService
+public partial class MainWindow : Window, IMessageDialogService
 {
-    public NaviWindow(IChannel<IMessageDialogService> messageDialogChannel)
+    public MainWindow(IApp app, IChannel<IMessageDialogService> messageDialogChannel)
     {
         this.InitializeComponent();
+        this.app = app;
         messageDialogChannel.Open(this, true);
     }
 
-    Task<RadioResult<ContentDialogResult>> IMessageDialogService.Show(string title, string content, string primaryCommand, string? cancelCommand, string? secondaryCommand, CancellationToken cancellationToken)
-    => this.app.UiDispatcherQueue.EnqueueAsync(() => this.ShowMessageDialogAsync(title, content, primaryCommand, cancelCommand, secondaryCommand, cancellationToken));
+    Task<RadioResult<ContentDialogResult>> IMessageDialogService.ShowAsync(string title, string content, string primaryButtonText, string? cancelButtonText, string? secondaryButtonText, CancellationToken cancellationToken)
+    => this.app.UIDispatcherQueue.EnqueueAsync(() => this.ShowMessageDialogAsync(title, content, primaryButtonText, cancelButtonText, secondaryButtonText, cancellationToken));
 }
 ```
 

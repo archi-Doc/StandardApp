@@ -7,6 +7,9 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace StandardWinUI.PresentationState;
 
+/// <summary>
+/// Runs the sample message-dialog interaction.
+/// </summary>
 public partial class MessagePageState : ObservableObject, IState
 {
     private readonly IMessageDialogService messageDialogService;
@@ -17,21 +20,21 @@ public partial class MessagePageState : ObservableObject, IState
     }
 
     [RelayCommand]
-    private async Task Test()
+    private async Task ShowSampleDialog()
     {
-        var r = await this.messageDialogService.Show(string.Empty, "Like or Love?", "Like", "Love");
-        if (!r.TryGetSingleResult(out var result))
+        var r = await this.messageDialogService.ShowAsync(string.Empty, "Like or Love?", "Like", "Love");
+        if (!r.TryGetFirst(out var result))
         {
             return;
         }
 
         if (result == ContentDialogResult.Primary)
         {
-            await this.messageDialogService.Show(string.Empty, "Hikaru-chan...", string.Empty);
+            await this.messageDialogService.ShowAsync(string.Empty, "Hikaru-chan...", string.Empty);
         }
         else
         {
-            await this.messageDialogService.Show(string.Empty, "Ooh, Ayukawa.", string.Empty);
+            await this.messageDialogService.ShowAsync(string.Empty, "Ooh, Ayukawa.", string.Empty);
         }
     }
 }

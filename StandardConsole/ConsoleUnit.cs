@@ -9,8 +9,14 @@ using SimpleCommandLine;
 
 namespace StandardConsole;
 
+/// <summary>
+/// Configures console commands, logging, and application lifecycle services.
+/// </summary>
 public class ConsoleUnit : UnitBase, IUnitPreparable, IUnitExecutable
 {
+    /// <summary>
+    /// Builds the application's service container and logging configuration.
+    /// </summary>
     public class Builder : UnitBuilder<Product>
     {// Builder class for customizing dependencies.
         public Builder()
@@ -24,22 +30,22 @@ public class ConsoleUnit : UnitBase, IUnitPreparable, IUnitExecutable
 
                 // Command
                 context.AddCommand(typeof(TestCommand));
-                context.AddCommand(typeof(TestCommand2));
+                context.AddCommand(typeof(Test2Command));
 
                 // Log filter
                 context.AddSingleton<ExampleLogFilter>();
 
                 // Logger
-                context.ClearLoggerResolver();
-                context.AddLoggerResolver(x =>
+                context.ClearLogOutputResolvers();
+                context.AddLogOutputResolver(x =>
                 {// Log source/level -> Resolver() -> Output/filter
                     if (x.LogLevel <= LogLevel.Debug)
                     {
-                        x.SetOutput<ConsoleLogger>();
+                        x.SetOutput<ConsoleLogOutput>();
                         return;
                     }
 
-                    x.SetOutput<ConsoleAndFileLogger>();
+                    x.SetOutput<ConsoleAndFileLogOutput>();
 
                     if (x.LogSourceType == typeof(TestCommand))
                     {
@@ -53,46 +59,53 @@ public class ConsoleUnit : UnitBase, IUnitPreparable, IUnitExecutable
                 context.DataDirectory = "test";
 
                 var logfile = "Logs/Log.txt";
-                context.SetOptions(context.GetOptions<FileLoggerOptions>() with
+                context.SetOptions(context.GetOrCreateOptions<FileLogOutputOptions>() with
                 {
-                    Path = Path.Combine(context.DataDirectory, logfile),
-                    MaxLogCapacity = 2,
+                    FilePath = Path.Combine(context.DataDirectory, logfile),
+                    MaxLogCapacityInMegabytes = 2,
                     ClearLogsAtStartup = false,
                 });
             });
         }
     }
 
+    /// <summary>
+    /// Runs configured commands and coordinates the application lifecycle.
+    /// </summary>
     public class Product : UnitProduct
     {// Unit class for customizing behaviors.
-        public record Param(string Args);
+        /// <summary>
+        /// Contains the command-line arguments for an application run.
+        /// </summary>
+        /// <param name="Arguments">The command-line arguments to parse.</param>
+        public record RunParameters(string Arguments);
 
         public Product(UnitContext context)
             : base(context)
         {
         }
 
-        public async Task RunAsync(Param param)
+        public async Task RunAsync(RunParameters parameters)
         {
             // Create optional instances
             this.Context.CreateInstances();
 
-            await this.Context.SendPrepare();
-            await this.Context.SendStart();
+            await this.Context.SendPrepareAsync();
+            await this.Context.SendStartAsync();
 
             var parserOptions = SimpleParserOptions.Standard with
             {
                 ServiceProvider = this.Context.ServiceProvider,
-                RequireStrictCommandName = false,
-                RequireStrictOptionName = true,
+                RequireCommandName = false,
+                RejectUnknownOptionNames = true,
             };
 
             // Main
-            // await SimpleParser.ParseAndRunAsync(this.Context.Commands, "example -string test", parserOptions);
-            await SimpleParser.ParseAndExecute(this.Context.Commands, param.Args, parserOptions);
+            // await SimpleParser.ParseAndRunAsync(this.Context.CommandTypes, "example -string test", parserOptions);
+            await SimpleParser.ParseAndExecute(this.Context.CommandTypes, parameters.Arguments, parserOptions);
 
-            await this.Context.SendStop();
-            await this.Context.SendTerminate();
+            await this.Context.SendStopAsync();
+            await this.Context.SendTerminateAsync();
         }
     }
 
@@ -103,18 +116,18 @@ public class ConsoleUnit : UnitBase, IUnitPreparable, IUnitExecutable
             this.consoleUnit = consoleUnit;
         }
 
-        public LogWriter? Filter(LogFilterParameter param)
+        public LogWriter? Filter(LogFilterContext param)
         {// Log source/Event id/LogLevel -> Filter() -> ILog
             if (param.LogSourceType == typeof(TestCommand))
             {
                 // return null; // No log
                 if (param.LogLevel == LogLevel.Error)
                 {
-                    return param.LogService.GetWriter<ConsoleAndFileLogger>(LogLevel.Fatal); // Error -> Fatal
+                    return param.LogService.GetWriter<ConsoleAndFileLogOutput>(LogLevel.Fatal); // Error -> Fatal
                 }
                 else if (param.LogLevel == LogLevel.Fatal)
                 {
-                    return param.LogService.GetWriter<ConsoleAndFileLogger>(LogLevel.Error); // Fatal -> Error
+                    return param.LogService.GetWriter<ConsoleAndFileLogOutput>(LogLevel.Error); // Fatal -> Error
                 }
             }
 
@@ -131,24 +144,24 @@ public class ConsoleUnit : UnitBase, IUnitPreparable, IUnitExecutable
         this.options = options;
     }
 
-    async Task IUnitPreparable.Prepare(UnitContext unitContext, CancellationToken cancellationToken)
+    async Task IUnitPreparable.PrepareAsync(UnitContext unitContext, CancellationToken cancellationToken)
     {
         this.logger.GetWriter()?.Write("Unit prepared.");
         this.logger.GetWriter()?.Write($"Program: {this.options.ProgramDirectory}");
         this.logger.GetWriter()?.Write($"Data: {this.options.DataDirectory}");
     }
 
-    async Task IUnitExecutable.Start(UnitContext unitContext, CancellationToken cancellationToken)
+    async Task IUnitExecutable.StartAsync(UnitContext unitContext, CancellationToken cancellationToken)
     {
         this.logger.GetWriter()?.Write("Unit started.");
     }
 
-    async Task IUnitExecutable.Stop(UnitContext unitContext, CancellationToken cancellationToken)
+    async Task IUnitExecutable.StopAsync(UnitContext unitContext, CancellationToken cancellationToken)
     {
         this.logger.GetWriter()?.Write("Unit stopped.");
     }
 
-    async Task IUnitExecutable.Terminate(UnitContext unitContext, CancellationToken cancellationToken)
+    async Task IUnitExecutable.TerminateAsync(UnitContext unitContext, CancellationToken cancellationToken)
     {
         this.logger.GetWriter()?.Write("Unit terminated.");
     }

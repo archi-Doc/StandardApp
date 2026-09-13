@@ -4,6 +4,9 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace StandardWinUI.PresentationState;
 
+/// <summary>
+/// Binds the arithmetic sample page to its state object.
+/// </summary>
 public sealed partial class StatePage : Page
 {
     public StatePageState State { get; }

@@ -4,6 +4,9 @@ using Microsoft.Extensions.Logging;
 
 namespace StandardMaui;
 
+/// <summary>
+/// Configures MAUI services, fonts, and debug logging.
+/// </summary>
 public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()

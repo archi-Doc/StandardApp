@@ -18,103 +18,105 @@ using ValueLink;
 
 namespace StandardWPF;
 
+/// <summary>
+/// Exposes the WPF sample's arithmetic, item collection, and UI commands.
+/// </summary>
 [ValueLinkObject]
 public partial class MainViewModel
 {
     public AppOptions Options => App.Options;
 
-    public TestItem.GoshujinClass TestGoshujin { get; } = App.Settings.TestItems;
+    public TestItem.GoshujinClass TestItems { get; } = App.Settings.TestItems;
 
     private IMainViewService ViewService => App.Resolve<IMainViewService>(); // To avoid a circular dependency, get an instance when necessary.
 
-    [Link(AutoNotify = true, AddValue = true)]
+    [Link(AutoNotify = true, GenerateValue = true)]
     private bool hideDialogButton;
 
-    private int number1;
+    private int addend1;
 
-    public int Number1
+    public int Addend1
     {
         get
         {
-            return this.number1;
+            return this.addend1;
         }
 
         set
         {
-            this.SetProperty(ref this.number1, value);
-            // this.SetProperty(ref this.number1, value); // this.Set(() => this.Number1, ref this.number1, value);
-            this.Number3Value = this.Number1 + this.Number2;
+            this.SetProperty(ref this.addend1, value);
+            this.SumValue = this.Addend1 + this.Addend2;
         }
     }
 
-    private int number2;
+    private int addend2;
 
-    public int Number2
+    public int Addend2
     {
         get
         {
-            return this.number2;
+            return this.addend2;
         }
 
         set
         {
-            this.SetProperty(ref this.number2, value);
-            this.Number3Value = this.Number1 + this.Number2;
+            this.SetProperty(ref this.addend2, value);
+            this.SumValue = this.Addend1 + this.Addend2;
         }
     }
 
-    [Link(AutoNotify = true, AddValue = true)]
-    private int number3;
+    [Link(AutoNotify = true, GenerateValue = true)]
+    private int sum;
 
-    [Link(AutoNotify = true, AddValue = true)]
-    private int number4;
+    [Link(AutoNotify = true, GenerateValue = true)]
+    private int toggleCount;
 
-    private ICommand? commandAddItem;
+    private ICommand? addItemCommand;
 
-    public ICommand CommandAddItem
+    public ICommand AddItemCommand
     {
         get
         {
-            return (this.commandAddItem != null) ? this.commandAddItem : this.commandAddItem = new DelegateCommand(
+            return (this.addItemCommand != null) ? this.addItemCommand : this.addItemCommand = new DelegateCommand(
                 () =>
                 {
-                    if (this.TestGoshujin.QueueChain.Count >= 5)
+                    if (this.TestItems.QueueChain.Count >= 5)
                     {// Limits the number of objects.
-                        this.TestGoshujin.QueueChain.Peek().Goshujin = null;
+                        this.TestItems.QueueChain.Peek().Goshujin = null;
                     }
 
-                    var last = this.TestGoshujin.IdChain.Last;
+                    var last = this.TestItems.IdChain.Last;
                     var id = last == null ? 0 : last.IdValue + 1;
                     var item = new TestItem(id, DateTime.UtcNow);
-                    item.Goshujin = this.TestGoshujin;
+                    item.Goshujin = this.TestItems;
                 });
         }
     }
 
-    private ICommand? commandClearItem;
+    private ICommand? clearItemsCommand;
 
-    public ICommand CommandClearItem
+    public ICommand ClearItemsCommand
     {
         get
         {
-            return this.commandClearItem ?? (this.commandClearItem = new DelegateCommand(
+            return this.clearItemsCommand ?? (this.clearItemsCommand = new DelegateCommand(
                 () =>
                 {
-                    this.TestGoshujin.ClearAll();
+                    this.TestItems.ClearAll();
                 }));
         }
     }
 
-    private ICommand? commandListViewIncrement;
+    private ICommand? incrementSelectedIdCommand;
 
-    public ICommand CommandListViewIncrement
+    public ICommand IncrementSelectedIdCommand
     {
         get
         {
-            return this.commandListViewIncrement ?? (this.commandListViewIncrement = new DelegateCommand(
+            return this.incrementSelectedIdCommand ?? (this.incrementSelectedIdCommand = new DelegateCommand(
                 () =>
                 {
-                    foreach (var x in this.TestGoshujin.ObservableChain.Where(x => x.Selection == 2))
+                    foreach (var x in this.TestItems.ObservableChain.Where(x => x.SelectionState == 2))
                     {
                         x.IdValue++;
                     }
@@ -122,16 +124,16 @@ public partial class MainViewModel
         }
     }
 
-    private ICommand? commandListViewDecrement;
+    private ICommand? decrementSelectedIdCommand;
 
-    public ICommand CommandListViewDecrement
+    public ICommand DecrementSelectedIdCommand
     {
         get
         {
-            return this.commandListViewDecrement ?? (this.commandListViewDecrement = new DelegateCommand(
+            return this.decrementSelectedIdCommand ?? (this.decrementSelectedIdCommand = new DelegateCommand(
                 () =>
                 {
-                    foreach (var x in this.TestGoshujin.ObservableChain.Where(x => x.Selection == 2))
+                    foreach (var x in this.TestItems.ObservableChain.Where(x => x.SelectionState == 2))
                     {
                         if (x.IdValue > 0)
                         {
@@ -142,42 +144,42 @@ public partial class MainViewModel
         }
     }
 
-    private ICommand? commandMessageId;
+    private ICommand? sendMessageIdCommand;
 
-    public ICommand CommandMessageId
+    public ICommand SendMessageIdCommand
     {
         get
         {
-            return (this.commandMessageId != null) ? this.commandMessageId : this.commandMessageId = new DelegateCommand<string>(
+            return (this.sendMessageIdCommand != null) ? this.sendMessageIdCommand : this.sendMessageIdCommand = new DelegateCommand<string>(
                 (param) =>
                 { // execute
                     if (param != null)
                     {
                         var id = (MessageId)Enum.Parse(typeof(MessageId), param);
-                        this.ViewService.MessageID(id);
+                        this.ViewService.HandleMessage(id);
                     }
                 });
         }
     }
 
-    [Link(AutoNotify = true, AddValue = true)]
-    private bool commandFlag = true;
+    [Link(AutoNotify = true, GenerateValue = true)]
+    private bool isToggleBrushColorEnabled = true;
 
-    private ICommand? testCommand4;
+    private ICommand? toggleEnabledStateCommand;
 
-    public ICommand TestCommand4
+    public ICommand ToggleEnabledStateCommand
     {
         get
         {
-            return this.testCommand4 ??= new DelegateCommand(
+            return this.toggleEnabledStateCommand ??= new DelegateCommand(
                 async () =>
                 { // execute
                     this.HideDialogButtonValue = !this.HideDialogButtonValue;
                     await Task.Delay(1000);
-                    this.CommandFlagValue = this.CommandFlagValue ? false : true;
-                    this.Number4Value++;
+                    this.IsToggleBrushColorEnabledValue = !this.IsToggleBrushColorEnabledValue;
+                    this.ToggleCountValue++;
 
-                    // this.TestCommand.RaiseCanExecuteChanged(); // ObservesProperty(() => this.CommandFlag)
+                    // this.ToggleBrushColorCommand.RaiseCanExecuteChanged(); // ObservesProperty(() => this.IsToggleBrushColorEnabledValue)
                 });
             /*() =>
             {//execute
@@ -195,106 +197,104 @@ public partial class MainViewModel
         }
     }
 
-    private ICommand? testCommand5;
+    private ICommand? showYesNoDialogCommand;
 
-    public ICommand TestCommand5
+    public ICommand ShowYesNoDialogCommand
     {
         get
         {
-            return this.testCommand5 ??= new DelegateCommand(
+            return this.showYesNoDialogCommand ??= new DelegateCommand(
                 async () =>
                 { // execute
-                    // TestCommand4.Execute(null);
-                    var p = default(DialogParam);
-                    p.Hashed = Hashed.Dialog.Message;
+                    var p = default(DialogParameters);
+                    p.MessageHash = Hashed.Dialog.Message;
                     p.Button = MessageBoxButton.YesNo;
                     p.Image = MessageBoxImage.Question;
-                    var result = await this.ViewService.Dialog(p);
+                    var result = await this.ViewService.ShowDialogAsync(p);
                     if (result == MessageBoxResult.Yes)
                     {
-                        p.Hashed = Hashed.Dialog.Yes;
+                        p.MessageHash = Hashed.Dialog.Yes;
                         p.Button = MessageBoxButton.OK;
-                        await this.ViewService.Dialog(p);
+                        await this.ViewService.ShowDialogAsync(p);
                     }
                     else
                     {
-                        p.Hashed = Hashed.Dialog.No;
+                        p.MessageHash = Hashed.Dialog.No;
                         p.Button = MessageBoxButton.OK;
-                        await this.ViewService.Dialog(p);
+                        await this.ViewService.ShowDialogAsync(p);
                     }
                 });
         }
     }
 
-    private ICommand? testCommand6;
+    private ICommand? showCustomDialogCommand;
 
-    public ICommand TestCommand6
+    public ICommand ShowCustomDialogCommand
     {
         get
         {
-            return this.testCommand6 ??= new DelegateCommand(
+            return this.showCustomDialogCommand ??= new DelegateCommand(
                 () =>
                 { // execute
-                    var p = default(DialogParam);
-                    p.Hashed = Hashed.App.Name;
+                    var p = default(DialogParameters);
+                    p.MessageHash = Hashed.App.Name;
                     p.Button = MessageBoxButton.OK;
                     p.Image = MessageBoxImage.Information;
-                    this.ViewService.CustomDialog(p);
+                    this.ViewService.ShowCustomDialog(p);
                 });
         }
     }
 
-    public DelegateCommand TestCommand2 { get; private set; }
+    public DelegateCommand ExitWithoutConfirmationCommand { get; private set; }
 
-    public DelegateCommand TestCommand3 { get; private set; }
+    public DelegateCommand ShowDescriptionDialogCommand { get; private set; }
 
-    public DateTime Time1 { get; private set; } = DateTime.Now;
+    public DateTime CreatedTime { get; private set; } = DateTime.Now;
 
     public MainViewModel()
     {
-        // this.TestCommand = new RelayCommand(this.TestExecute, () => { return this.commandFlag; });
-        this.TestCommand2 = new DelegateCommand(this.TestExecute2);
-        this.TestCommand3 = new DelegateCommand(this.TestExecute3);
+        this.ExitWithoutConfirmationCommand = new DelegateCommand(this.ExitWithoutConfirmationAfterDelay);
+        this.ShowDescriptionDialogCommand = new DelegateCommand(this.ShowDescriptionDialog);
     }
 
-    private DelegateCommand? testCrossChannel;
+    private DelegateCommand? testCrossChannelCommand;
 
-    public DelegateCommand TestCrossChannel
+    public DelegateCommand TestCrossChannelCommand
     {
         get
         {
-            return this.testCrossChannel ??= new DelegateCommand(
+            return this.testCrossChannelCommand ??= new DelegateCommand(
                 async () =>
                 { // CrossChannel version of DialogBox. View service is more preferable.
-                    var p = default(DialogParam);
+                    var p = default(DialogParameters);
                     p.Message = "CrossChannel test.\r\nYes or No.";
                     p.Button = MessageBoxButton.YesNo;
                     p.Image = MessageBoxImage.Information;
-                    /*var result = await Radio.SendTwoWayAsync<DialogParam, MessageBoxResult>(p);
+                    /*var result = await Radio.SendTwoWayAsync<DialogParameters, MessageBoxResult>(p);
 
                     if (result[0] == MessageBoxResult.Yes)
                     {
-                        p.Hashed = Hashed.Dialog.Yes;
+                        p.MessageHash = Hashed.Dialog.Yes;
                         p.Button = MessageBoxButton.OK;
-                        await Radio.SendTwoWayAsync<DialogParam, MessageBoxResult>(p);
+                        await Radio.SendTwoWayAsync<DialogParameters, MessageBoxResult>(p);
                     }
                     else
                     {
-                        p.Hashed = Hashed.Dialog.No;
+                        p.MessageHash = Hashed.Dialog.No;
                         p.Button = MessageBoxButton.OK;
-                        await Radio.SendTwoWayAsync<DialogParam, MessageBoxResult>(p);
+                        await Radio.SendTwoWayAsync<DialogParameters, MessageBoxResult>(p);
                     }*/
                 });
         }
     }
 
-    private DelegateCommand? testCrossChannel2;
+    private DelegateCommand? testCrossChannel2Command;
 
-    public DelegateCommand TestCrossChannel2
+    public DelegateCommand TestCrossChannel2Command
     {
         get
         {
-            return this.testCrossChannel2 ??= new DelegateCommand(
+            return this.testCrossChannel2Command ??= new DelegateCommand(
                 async () =>
                 {
                     /*var result = await Radio.SendTwoWayAsync<string, MessageBoxResult>("Test message");
@@ -306,45 +306,45 @@ public partial class MainViewModel
         }
     }
 
-    private DelegateCommand? dCommand;
+    private DelegateCommand? toggleBrushColorCommand;
 
-    public DelegateCommand TestCommand
+    public DelegateCommand ToggleBrushColorCommand
     {
         get
         {
-            return this.dCommand ??= new DelegateCommand(
+            return this.toggleBrushColorCommand ??= new DelegateCommand(
                 () =>
                 {
                     if (App.Options.BrushCollection.Brush1.Brush?.Color == Colors.Green)
                     {
-                        App.Options.BrushCollection.Brush1.Change(Colors.Red);
+                        App.Options.BrushCollection.Brush1.SetColor(Colors.Red);
                     }
                     else
                     {
-                        App.Options.BrushCollection.Brush1.Change(Colors.Green);
+                        App.Options.BrushCollection.Brush1.SetColor(Colors.Green);
                     }
 
-                    this.ViewService.Notification(new NotificationMessage("notification."));
+                    this.ViewService.ShowNotification(new NotificationMessage("notification."));
                 },
-                () => this.CommandFlagValue).ObservesProperty(() => this.CommandFlagValue);
+                () => this.IsToggleBrushColorEnabledValue).ObservesProperty(() => this.IsToggleBrushColorEnabledValue);
         }
     }
 
-    private void TestExecute2()
+    private void ExitWithoutConfirmationAfterDelay()
     {
         Task.Run(() =>
         {
             System.Threading.Thread.Sleep(1000);
-            this.ViewService.MessageID(MessageId.ExitWithoutConfirmation);
+            this.ViewService.HandleMessage(MessageId.ExitWithoutConfirmation);
             return;
         });
     }
 
-    private void TestExecute3()
+    private void ShowDescriptionDialog()
     {
-        var p = default(DialogParam);
-        p.Hashed = Hashed.App.Description;
-        this.ViewService.Dialog(p);
+        var p = default(DialogParameters);
+        p.MessageHash = Hashed.App.Description;
+        this.ViewService.ShowDialogAsync(p);
         return;
     }
 }
