@@ -64,10 +64,10 @@ public static partial class Entrypoint
                 }
 
                 unit.Context.ExecutionRoot.RequestTermination();
-                await unit.Context.ExecutionRoot.WaitForTermination();
+                await unit.Context.ExecutionRoot.WaitForTerminationAsync();
                 if (unit.Context.ServiceProvider.GetService<LogUnit>() is { } unitLogger)
                 {
-                    await unitLogger.FlushAndTerminate();
+                    await unitLogger.FlushAndTerminateAsync();
                 }
             }).Wait();
         }
