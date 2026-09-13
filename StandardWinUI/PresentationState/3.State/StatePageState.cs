@@ -18,7 +18,7 @@ public partial class StatePageState : ObservableObject, IState
     }
 
     [RelayCommand]
-    private void Baibain()
+    private void Multiply()
     {
         if (int.TryParse((string)this.SourceText, out int value))
         {

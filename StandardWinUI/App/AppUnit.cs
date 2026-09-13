@@ -22,8 +22,8 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
             // Configuration for Unit.
             this.PreConfigure(context =>
             {
-                context.ProgramDirectory = Entrypoint.DataFolder;
-                context.DataDirectory = Entrypoint.DataFolder;
+                context.ProgramDirectory = EntryPoint.DataDirectory;
+                context.DataDirectory = EntryPoint.DataDirectory;
             });
 
             this.Configure(context =>
@@ -34,7 +34,7 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
                 // context.Services.AddSingleton(x => (App)x.GetRequiredService<IApp>()); // If you want to use the App instance, please uncomment it.
 
                 // Presentation-State
-                context.AddSingleton<NaviWindow>();
+                context.AddSingleton<MainWindow>();
                 context.AddSingleton<HelloPage>();
                 context.AddSingleton<BaibainPage>();
                 context.AddSingleton<StatePage>();
@@ -44,13 +44,13 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
                 context.AddSingleton<AdvancedPage>();
                 context.AddSingleton<AdvancedPageState>();
                 context.AddSingleton<SettingsPage>();
-                context.AddSingleton<SettingsState>();
+                context.AddSingleton<SettingsPageState>();
                 context.AddSingleton<InformationPage>();
-                context.AddSingleton<InformationState>();
+                context.AddSingleton<InformationPageState>();
 
                 // Command
                 // context.AddCommand(typeof(TestCommand));
-                // context.AddCommand(typeof(TestCommand2));
+                // context.AddCommand(typeof(Test2Command));
 
                 // Log filter
                 context.AddSingleton<ExampleLogFilter>();
@@ -98,7 +98,7 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
                     context.AddCrystal<AppSettings>(new()
                     {
                         NumberOfHistoryFiles = 0,
-                        FileConfiguration = new GlobalFileConfiguration(AppSettings.Filename),
+                        FileConfiguration = new GlobalFileConfiguration(AppSettings.FileName),
                         SaveFormat = SaveFormat.Utf8,
                     });
                 });
@@ -107,14 +107,14 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
 
     public class Product : UnitProduct
     {// Unit class for customizing behaviors.
-        public record Param(string Args);
+        public record RunParameters(string Arguments);
 
         public Product(UnitContext context)
             : base(context)
         {
         }
 
-        public async Task RunAsync(Param param)
+        public async Task RunAsync(RunParameters parameters)
         {
             // Create optional instances
             this.Context.CreateInstances();
@@ -130,7 +130,7 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
             };
 
             // Main
-            await SimpleParser.ParseAndExecute(this.Context.CommandTypes, param.Args, parserOptions);
+            await SimpleParser.ParseAndExecute(this.Context.CommandTypes, parameters.Arguments, parserOptions);
 
             await this.Context.SendStopAsync();
             await this.Context.SendTerminateAsync();
@@ -139,9 +139,9 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
 
     private class ExampleLogFilter : ILogFilter
     {
-        public ExampleLogFilter(AppUnit consoleUnit)
+        public ExampleLogFilter(AppUnit appUnit)
         {
-            this.consoleUnit = consoleUnit;
+            this.appUnit = appUnit;
         }
 
         public LogWriter? Filter(LogFilterContext param)
@@ -162,7 +162,7 @@ public class AppUnit : UnitBase, IUnitPreparable, IUnitExecutable
             return param.OriginalWriter;
         }
 
-        private AppUnit consoleUnit;
+        private AppUnit appUnit;
     }
 
     public AppUnit(UnitContext context, ILogger<AppUnit> logger, UnitOptions options)

@@ -8,7 +8,7 @@ using SimpleCommandLine;
 namespace StandardConsole;
 
 [SimpleCommand("test2")]
-public class TestCommand2 : ISimpleCommand
+public class Test2Command : ISimpleCommand
 {
     public async Task Execute(string[] args, CancellationToken cancellationToken)
     {

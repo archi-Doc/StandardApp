@@ -19,9 +19,9 @@ using Tinyhand;
 
 namespace Arc.WPF;
 
-public struct DialogParam
-{ // Dialog Parameter
-    public ulong Hashed; // 1st: StringerName
+public struct DialogParameters
+{ // Dialog Parameters
+    public ulong MessageHash; // 1st: Message hash
     public string Message; // 2nd: Message
     public MessageBoxButton Button;
     public MessageBoxImage Image;
@@ -29,9 +29,9 @@ public struct DialogParam
 }
 
 /// <summary>
-/// Dialog class.
+/// Message dialog class.
 /// </summary>
-public partial class Dialog : Window
+public partial class MessageDialog : Window
 {
     private string fMessage = string.Empty; // message.
     private MessageBoxButton fButton = MessageBoxButton.OK; // button.
@@ -72,7 +72,7 @@ public partial class Dialog : Window
     private string captionYes;
     private string captionNo;
 
-    public Dialog(Window owner)
+    public MessageDialog(Window owner)
     {
         this.InitializeComponent();
 
@@ -93,27 +93,27 @@ public partial class Dialog : Window
         Transformer.Instance.Register(this);
     }
 
-    public Dialog(Window owner, DialogParam p)
+    public MessageDialog(Window owner, DialogParameters parameters)
         : this(owner)
     {
-        if (p.Hashed != 0)
+        if (parameters.MessageHash != 0)
         {
-            this.fMessage = HashedString.GetOrEmpty(p.Hashed);
+            this.fMessage = HashedString.GetOrEmpty(parameters.MessageHash);
         }
 
         if (this.fMessage == string.Empty)
         {
-            this.fMessage = p.Message;
+            this.fMessage = parameters.Message;
         }
 
-        this.fButton = p.Button;
-        this.fImage = p.Image;
+        this.fButton = parameters.Button;
+        this.fImage = parameters.Image;
         if (this.fImage == MessageBoxImage.None)
         {
             this.fImage = MessageBoxImage.Information;
         }
 
-        this.fResult = p.Result;
+        this.fResult = parameters.Result;
     }
 
     public Task<MessageBoxResult> ShowDialogAsync()
@@ -137,8 +137,8 @@ public partial class Dialog : Window
         this.SetupButtonImage();
         this.SetupButton();
 
-        Arc.WinAPI.Methods.SendKey(Arc.WinAPI.VirtualKeyCode.DOWN); // down arrow
-        Arc.WinAPI.Methods.SendKey(Arc.WinAPI.VirtualKeyCode.UP); // up arrow
+        Arc.WinAPI.NativeMethods.SendKey(Arc.WinAPI.VirtualKeyCode.DOWN); // down arrow
+        Arc.WinAPI.NativeMethods.SendKey(Arc.WinAPI.VirtualKeyCode.UP); // up arrow
     }
 
     protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)

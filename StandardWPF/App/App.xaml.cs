@@ -34,11 +34,11 @@ public static partial class App
     {
     }
 
-    public static bool Initialized { get; set; } = false; // Application initialized
+    public static bool IsInitialized { get; set; } = false; // Application initialized
 
-    public static bool SessionEnding { get; set; } = false; // Session ending
+    public static bool IsSessionEnding { get; set; } = false; // Session ending
 
-    public static Dispatcher UI { get; } = Dispatcher.CurrentDispatcher; // UI dispatcher
+    public static Dispatcher UIDispatcher { get; } = Dispatcher.CurrentDispatcher; // UI dispatcher
 
     public static Container Container { get; } = new DryIoc.Container(); // DI container
 
@@ -50,25 +50,25 @@ public static partial class App
 
     public static string Title { get; private set; } = string.Empty;
 
-    public static string LocalDataFolder { get; private set; } = string.Empty;
+    public static string DataDirectory { get; private set; } = string.Empty;
 
     public static TService Resolve<TService>() => Container.Resolve<TService>();
 
     /// <summary>
     /// Executes an action on the UI thread.
-    /// If this method is called from the UI thread, the action is executed immendiately.
+    /// If this method is called from the UI thread, the action is executed immediately.
     /// If the method is called from another thread, the action will be enqueued on the UI thread's dispatcher and executed asynchronously.
     /// </summary>
     /// <param name="action">The action that will be executed on the UI thread.</param>
-    public static void InvokeAsyncOnUI(Action action)
+    public static void ExecuteOrEnqueueOnUI(Action action)
     {
-        if (UI.CheckAccess())
+        if (UIDispatcher.CheckAccess())
         {
             action();
         }
         else
         {
-            UI.InvokeAsync(action);
+            UIDispatcher.InvokeAsync(action);
         }
     }
 
@@ -125,22 +125,22 @@ public static partial class App
     [STAThread]
     private static void Main()
     {
-        // Folder
+        // Data directory
         try
         {
             // UWP
-            LocalDataFolder = Windows.Storage.ApplicationData.Current.LocalFolder.Path;
+            DataDirectory = Windows.Storage.ApplicationData.Current.LocalFolder.Path;
         }
         catch
         {
             // not UWP
-            LocalDataFolder = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), AppConst.AppDataFolder);
+            DataDirectory = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), AppConst.DataFolderName);
         }
 
         try
         {
-            Directory.CreateDirectory(LocalDataFolder);
+            Directory.CreateDirectory(DataDirectory);
         }
         catch
         {
@@ -179,18 +179,18 @@ public static partial class App
         {
             appMutex.Close(); // Release mutex.
 
-            var prevProcess = Arc.WinAPI.Methods.GetPreviousProcess();
+            var prevProcess = Arc.WinAPI.NativeMethods.GetPreviousProcess();
             if (prevProcess != null)
             {
                 var handle = prevProcess.MainWindowHandle; // The window handle that associated with the previous process.
                 if (handle == IntPtr.Zero)
                 {
-                    handle = Arc.WinAPI.Methods.GetWindowHandle(prevProcess.Id, Title); // Get handle.
+                    handle = Arc.WinAPI.NativeMethods.GetWindowHandle(prevProcess.Id, Title); // Get handle.
                 }
 
                 if (handle != IntPtr.Zero)
                 {
-                    Arc.WinAPI.Methods.ActivateWindow(handle);
+                    Arc.WinAPI.NativeMethods.ActivateWindow(handle);
                 }
             }
 
@@ -204,14 +204,14 @@ public static partial class App
         Log.Logger = new LoggerConfiguration()
         .MinimumLevel.Information()
         .WriteTo.File(
-            Path.Combine(LocalDataFolder, "log.txt"),
+            Path.Combine(DataDirectory, "log.txt"),
             rollingInterval: RollingInterval.Day,
             retainedFileCountLimit: 31,
             buffered: true,
             flushToDiskInterval: TimeSpan.FromMilliseconds(1000))
         /*.WriteTo.File(
             new Serilog.Formatting.Json.JsonFormatter(renderMessage: true),
-            Path.Combine(LocalDataFolder, "log.json"),
+            Path.Combine(DataDirectory, "log.json"),
             rollingInterval: RollingInterval.Day,
             retainedFileCountLimit: 31,
             buffered: true,
@@ -230,10 +230,7 @@ public static partial class App
         {
             if (App.Settings.Culture == string.Empty)
             {
-                if (CultureInfo.CurrentUICulture.Name != "ja-JP")
-                {
-                    App.Settings.Culture = "en"; // English
-                }
+                App.Settings.Culture = CultureInfo.CurrentUICulture.Name == "ja-JP" ? "ja" : "en";
             }
 
             HashedString.TrySetCurrentCulture(App.Settings.Culture);
@@ -252,8 +249,8 @@ public static partial class App
     {
         try
         {
-            var appClass = new AppClass();
-            appClass.Start();
+            var application = new WpfApplication();
+            application.Start();
         }
         catch (Exception)
         {// Log the exception and exit.
@@ -268,9 +265,9 @@ public static partial class App
 }
 
 /// <summary>
-/// Application Class.
+/// WPF application class.
 /// </summary>
-public partial class AppClass : System.Windows.Application
+public partial class WpfApplication : System.Windows.Application
 {
     public void Start()
     {
@@ -295,14 +292,14 @@ public partial class AppClass : System.Windows.Application
     private void Application_SessionEnding(object sender, SessionEndingCancelEventArgs e)
     {
         Log.Information("Session ending.");
-        App.SessionEnding = true;
+        App.IsSessionEnding = true;
     }
 
     private void Application_Activated(object sender, System.EventArgs e)
     { // application activated.
-        if (!App.Initialized)
+        if (!App.IsInitialized)
         {
-            App.Initialized = true;
+            App.IsInitialized = true;
         }
     }
 }
@@ -333,7 +330,7 @@ public partial class AppData
 
         try
         {
-            using (var fs = File.OpenRead(Path.Combine(App.LocalDataFolder, AppConst.AppDataFile)))
+            using (var fs = File.OpenRead(Path.Combine(App.DataDirectory, AppConst.DataFileName)))
             {
                 appData = TinyhandSerializer.Deserialize<AppData>(fs);
             }
@@ -348,7 +345,7 @@ public partial class AppData
             appData = TinyhandSerializer.Reconstruct<AppData>();
         }
 
-        appData.Settings.LoadError = loadError;
+        appData.Settings.HasLoadError = loadError;
 
         return appData;
     }
@@ -358,7 +355,7 @@ public partial class AppData
         try
         {
             var bytes = TinyhandSerializer.Serialize(this);
-            using (var fs = File.Create(Path.Combine(App.LocalDataFolder, AppConst.AppDataFile)))
+            using (var fs = File.Create(Path.Combine(App.DataDirectory, AppConst.DataFileName)))
             {
                 fs.Write(bytes.AsSpan());
             }

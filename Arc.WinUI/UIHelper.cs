@@ -1,4 +1,4 @@
-﻿// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
+// Copyright (c) All contributors. All rights reserved. Licensed under the MIT license.
 
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -9,28 +9,28 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace Arc.WinUI;
 
-public static class UiHelper
+public static class UIHelper
 {
     /// <summary>
     /// Shows a message dialog asynchronously.
     /// </summary>
-    /// <param name="service">The presentation service to show the dialog.</param>
-    /// <param name="title">The title of the dialog.</param>
-    /// <param name="content">The content of the dialog.</param>
-    /// <param name="primaryCommand">The primary(default) command hash.</param>
-    /// <param name="cancelCommand">The cancel command hash (0: No cancel button, 1: 'Cancel').</param>
-    /// <param name="secondaryCommand">The secondary command hash.</param>
-    /// <param name="cancellationToken">The cancellation hash.</param>
+    /// <param name="service">The message dialog service to show the dialog.</param>
+    /// <param name="titleHash">The title hash (0: No title).</param>
+    /// <param name="contentHash">The content hash (0: No content).</param>
+    /// <param name="primaryButtonHash">The primary (default) button hash (0 or 1: 'OK').</param>
+    /// <param name="cancelButtonHash">The cancel button hash (0: No cancel button, 1: 'Cancel').</param>
+    /// <param name="secondaryButtonHash">The secondary button hash (0: No secondary button).</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the dialog result.</returns>
-    public static Task<RadioResult<ContentDialogResult>> ShowMessageDialogAsync(this IMessageDialogService service, ulong title, ulong content, ulong primaryCommand = 0, ulong cancelCommand = 0, ulong secondaryCommand = 0, CancellationToken cancellationToken = default)
+    public static Task<RadioResult<ContentDialogResult>> ShowMessageDialogAsync(this IMessageDialogService service, ulong titleHash, ulong contentHash, ulong primaryButtonHash = 0, ulong cancelButtonHash = 0, ulong secondaryButtonHash = 0, CancellationToken cancellationToken = default)
     {
-        var titleText = title == 0 ? string.Empty : HashedString.Get(title);
-        var contentText = content == 0 ? string.Empty : HashedString.Get(content);
-        var primaryText = primaryCommand == 0 ? WindowExtensions.OkText : primaryCommand == 1 ? WindowExtensions.OkText : HashedString.GetOrAlternative(primaryCommand, WindowExtensions.OkText);
-        var cancelText = cancelCommand == 0 ? default : cancelCommand == 1 ? WindowExtensions.CancelText : HashedString.GetOrAlternative(cancelCommand, WindowExtensions.CancelText);
-        var secondaryText = secondaryCommand == 0 ? default : HashedString.Get(secondaryCommand);
+        var titleText = titleHash == 0 ? string.Empty : HashedString.Get(titleHash);
+        var contentText = contentHash == 0 ? string.Empty : HashedString.Get(contentHash);
+        var primaryText = primaryButtonHash == 0 ? WindowExtensions.OkText : primaryButtonHash == 1 ? WindowExtensions.OkText : HashedString.GetOrAlternative(primaryButtonHash, WindowExtensions.OkText);
+        var cancelText = cancelButtonHash == 0 ? default : cancelButtonHash == 1 ? WindowExtensions.CancelText : HashedString.GetOrAlternative(cancelButtonHash, WindowExtensions.CancelText);
+        var secondaryText = secondaryButtonHash == 0 ? default : HashedString.Get(secondaryButtonHash);
 
-        return service.Show(titleText, contentText, primaryText, cancelText, secondaryText, cancellationToken);
+        return service.ShowAsync(titleText, contentText, primaryText, cancelText, secondaryText, cancellationToken);
     }
 
     /// <summary>
@@ -65,7 +65,12 @@ public static class UiHelper
         }
     }
 
-    public static bool PreventMultipleInstances(Mutex mutex)
+    /// <summary>
+    /// Checks whether another instance of the application is already running, and if so, activates its main window.
+    /// </summary>
+    /// <param name="mutex">The mutex used to detect another instance. It is closed if another instance is running.</param>
+    /// <returns><see langword="true"/> if another instance is running (the caller should exit); otherwise, <see langword="false"/> (the mutex is acquired).</returns>
+    public static bool TryActivateRunningInstance(Mutex mutex)
     {
         if (mutex.WaitOne(0, false))
         {

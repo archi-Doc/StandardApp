@@ -16,7 +16,7 @@
     <WindowsAppSDKSelfContained>false</WindowsAppSDKSelfContained>
 
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <StartupObject>StandardWinUI.Entrypoint</StartupObject>
+    <StartupObject>StandardWinUI.EntryPoint</StartupObject>
     <DefineConstants>DISABLE_XAML_GENERATED_MAIN</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>

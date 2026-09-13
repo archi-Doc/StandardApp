@@ -10,7 +10,7 @@ namespace StandardWinUI;
 [TinyhandObject(ImplicitMemberNameAsKey = true)]
 public partial class AppSettings
 {
-    public const string Filename = "AppSettings.tinyhand";
+    public const string FileName = "AppSettings.tinyhand";
 
     #region FieldAndProperty
 
@@ -20,24 +20,26 @@ public partial class AppSettings
 
     public double ViewScale { get; set; } = 1.0d;
 
-    public int Baibai { get; set; }
+    [Key("Baibai")] // Keeps the previous key to preserve compatibility with existing settings files.
+    public int BaibainNumber { get; set; }
 
     // public TestItem.GoshujinClass TestItems { get; set; } = new();
 
-    public BrushOption BrushTest { get; set; } = new(Colors.Red);
+    [Key("BrushTest")] // Keeps the previous key to preserve compatibility with existing settings files.
+    public BrushOption TestBrush { get; set; } = new(Colors.Red);
 
     public BrushCollection BrushCollection { get; set; } = new(); // Brush Collection
 
     #endregion
 
     [TinyhandOnDeserialized]
-    public void OnAfterDeserialize()
+    public void OnDeserialized()
     {
         Scaler.ViewScale = this.ViewScale;
     }
 
     [TinyhandOnSerializing]
-    public void OnBeforeSerialize()
+    public void OnSerializing()
     {
         this.ViewScale = Scaler.ViewScale;
     }

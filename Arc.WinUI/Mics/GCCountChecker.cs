@@ -15,7 +15,7 @@ internal class GCCountChecker
     {
         this.Count = 0;
         this.MaxCount = maxCount;
-        this.peviousGCCount = 0;
+        this.previousGCCount = 0;
     }
 
     /// <summary>
@@ -28,7 +28,7 @@ internal class GCCountChecker
     /// </summary>
     public int MaxCount { get; }
 
-    private int peviousGCCount;
+    private int previousGCCount;
 
     /// <summary>
     /// If the counter exceeds a certain level, check the garbage collection counter, and if the counter has changed, return true.
@@ -41,9 +41,9 @@ internal class GCCountChecker
         {
             this.Count = 0;
             var count = GC.CollectionCount(0);
-            if (count != this.peviousGCCount)
+            if (count != this.previousGCCount)
             {
-                this.peviousGCCount = count;
+                this.previousGCCount = count;
                 return true;
             }
         }

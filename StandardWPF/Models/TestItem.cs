@@ -23,14 +23,14 @@ public partial class TestItem
     private int id;
 
     [IgnoreMember]
-    public int Selection { get; set; }
+    public int SelectionState { get; set; } // 0: Not selected, 1: Selected, 2: Selected and focused
 
     [Link(Type = ChainType.Observable, Name = "Observable", Primary = true)]
     [Link(Type = ChainType.QueueList, Name = "Queue")]
-    public TestItem(int id, DateTime dt)
+    public TestItem(int id, DateTime dateTime)
     {
         this.id = id;
-        this.dateTime = dt;
+        this.dateTime = dateTime;
     }
 
     public TestItem()

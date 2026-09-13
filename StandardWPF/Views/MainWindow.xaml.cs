@@ -35,11 +35,11 @@ public partial class MainWindow : Window, IMainViewService
         this.DataContext = vm;
         this.vm = vm;
 
-        /* Radio.OpenTwoWayAsync<DialogParam, MessageBoxResult>(this.CrossChannel_Dialog, this);
+        /* Radio.OpenTwoWayAsync<DialogParameters, MessageBoxResult>(this.ShowCrossChannelDialogAsync, this);
         Radio.OpenTwoWayAsync<string, MessageBoxResult>(
             x =>
             {
-                var result = App.UI.InvokeAsync<MessageBoxResult>(() => MessageBox.Show(x, "test", MessageBoxButton.OKCancel));
+                var result = App.UIDispatcher.InvokeAsync<MessageBoxResult>(() => MessageBox.Show(x, "test", MessageBoxButton.OKCancel));
                 return result.Task;
             },
             this);*/
@@ -52,24 +52,24 @@ public partial class MainWindow : Window, IMainViewService
         {
         }
 
-        this.listView.DropMoveAction = this.ListView_DropMove;
+        this.listView.ItemMovedAction = this.ListView_ItemMoved;
 
         Transformer.Instance.Register(this, true, false);
 
         this.Title = App.Title;
     }
 
-    public void Notification(NotificationMessage msg)
-    { // Multi-thread safe, may be called from non-UI thread/context. App.UI.InvokeAsync()
-        App.InvokeAsyncOnUI(() =>
+    public void ShowNotification(NotificationMessage message)
+    { // Multi-thread safe, may be called from non-UI thread/context. App.UIDispatcher.InvokeAsync()
+        App.ExecuteOrEnqueueOnUI(() =>
         {
-            var result = MessageBox.Show(msg.Notification);
+            var result = MessageBox.Show(message.Notification);
         });
     }
 
-    public void MessageID(MessageId id)
-    {// Multi-thread safe, may be called from non-UI thread/context. App.UI.InvokeAsync()
-        App.InvokeAsyncOnUI(() =>
+    public void HandleMessage(MessageId id)
+    {// Multi-thread safe, may be called from non-UI thread/context. App.UIDispatcher.InvokeAsync()
+        App.ExecuteOrEnqueueOnUI(() =>
         { // UI thread.
             if (id == MessageId.SwitchCulture)
             { // Switch culture.
@@ -83,7 +83,7 @@ public partial class MainWindow : Window, IMainViewService
                 }
 
                 HashedString.TrySetCurrentCulture(App.Settings.Culture);
-                Arc.WPF.StringerUpdater.StringerUpdate();
+                Arc.WPF.Stringer.Refresh();
             }
             else if (id == MessageId.Exit)
             { // Exit application with confirmation.
@@ -94,7 +94,7 @@ public partial class MainWindow : Window, IMainViewService
             }
             else if (id == MessageId.ExitWithoutConfirmation)
             { // Exit application without confirmation.
-                App.SessionEnding = true;
+                App.IsSessionEnding = true;
                 if (this.closingWindow == null)
                 {
                     this.Close();
@@ -107,7 +107,7 @@ public partial class MainWindow : Window, IMainViewService
             else if (id == MessageId.Information)
             {
                 var mit_license = "https://opensource.org/licenses/MIT";
-                var dlg = new Arc.WPF.Dialog(this);
+                var dlg = new Arc.WPF.MessageDialog(this);
                 dlg.TextBlock.Inlines.Add(
 @"Copyright (c) 2021 archi-Doc
 Released under the MIT license
@@ -135,8 +135,8 @@ Released under the MIT license
             }
             else if (id == MessageId.DataFolder)
             {
-                // this.Notification(new NotificationMessage(App.LocalDataFolder));
-                System.Diagnostics.Process.Start("Explorer.exe", App.LocalDataFolder);
+                // this.ShowNotification(new NotificationMessage(App.DataDirectory));
+                System.Diagnostics.Process.Start("Explorer.exe", App.DataDirectory);
             }
             else if (id == MessageId.DisplayScaling)
             {
@@ -147,9 +147,9 @@ Released under the MIT license
         });
     }
 
-    public async Task<MessageBoxResult> Dialog(DialogParam p)
-    { // Multi-thread safe, may be called from non-UI thread/context. App.UI.InvokeAsync()
-        var dlg = new Arc.WPF.Dialog(this, p);
+    public async Task<MessageBoxResult> ShowDialogAsync(DialogParameters parameters)
+    { // Multi-thread safe, may be called from non-UI thread/context. App.UIDispatcher.InvokeAsync()
+        var dlg = new Arc.WPF.MessageDialog(this, parameters);
         var result = await dlg.ShowDialogAsync();
         return result;
         /*var tcs = new TaskCompletionSource<MessageBoxResult>();
@@ -157,11 +157,11 @@ Released under the MIT license
         return tcs.Task.Result;*/
     }
 
-    public void CustomDialog(DialogParam p)
-    { // Multi-thread safe, may be called from non-UI thread/context. App.UI.InvokeAsync()
-        var d = App.UI.InvokeAsync<MessageBoxResult>(() =>
+    public void ShowCustomDialog(DialogParameters parameters)
+    { // Multi-thread safe, may be called from non-UI thread/context. App.UIDispatcher.InvokeAsync()
+        var d = App.UIDispatcher.InvokeAsync<MessageBoxResult>(() =>
         {
-            var dlg = new Arc.WPF.Dialog(this);
+            var dlg = new Arc.WPF.MessageDialog(this);
 
             dlg.TextBlock.Inlines.Add("Normal text...\r\n");
             dlg.TextBlock.Inlines.Add(new System.Windows.Documents.Bold(new System.Windows.Documents.Run("Bold text")));
@@ -184,9 +184,9 @@ Released under the MIT license
             return result;
         });
 
-        var d2 = App.UI.InvokeAsync<MessageBoxResult>(() =>
+        var d2 = App.UIDispatcher.InvokeAsync<MessageBoxResult>(() =>
         {
-            var dlg = new Arc.WPF.Dialog(this, p);
+            var dlg = new Arc.WPF.MessageDialog(this, parameters);
 
             dlg.ShowDialog();
             return dlg.Result;
@@ -197,33 +197,33 @@ Released under the MIT license
         return;
     }
 
-    public async Task<MessageBoxResult> CrossChannel_Dialog(DialogParam p)
-    { // Multi-thread safe, may be called from non-UI thread/context. App.UI.InvokeAsync()
-        var dlg = new Arc.WPF.Dialog(this, p);
+    public async Task<MessageBoxResult> ShowCrossChannelDialogAsync(DialogParameters parameters)
+    { // Multi-thread safe, may be called from non-UI thread/context. App.UIDispatcher.InvokeAsync()
+        var dlg = new Arc.WPF.MessageDialog(this, parameters);
         var result = await dlg.ShowDialogAsync();
         return result;
     }
 
     private void Window_SourceInitialized(object sender, EventArgs e)
     {
-        if (!App.Settings.LoadError)
+        if (!App.Settings.HasLoadError)
         { // Change the UI before this code. The window will be displayed shortly.
             IntPtr hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
-            Arc.WinAPI.Methods.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);
-            WINDOWPLACEMENT wp = App.Settings.WindowPlacement.ToWINDOWPLACEMENT2(dpiX, dpiY);
+            Arc.WinAPI.NativeMethods.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);
+            WINDOWPLACEMENT wp = App.Settings.WindowPlacement.ToWindowPlacementWithPhysicalPosition(dpiX, dpiY);
             wp.length = System.Runtime.InteropServices.Marshal.SizeOf(typeof(WINDOWPLACEMENT));
             wp.flags = 0;
             wp.showCmd = wp.showCmd == SW.SHOWMINIMIZED ? SW.SHOWNORMAL : wp.showCmd;
-            Arc.WinAPI.Methods.SetWindowPlacement(hwnd, ref wp);
+            Arc.WinAPI.NativeMethods.SetWindowPlacement(hwnd, ref wp);
             Transformer.Instance.AdjustWindowPosition(this);
         }
     }
 
     private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
     {
-        if (App.SessionEnding == false)
+        if (App.IsSessionEnding == false)
         {
-            var dlg = new Arc.WPF.Dialog(this);
+            var dlg = new Arc.WPF.MessageDialog(this);
             dlg.Message = HashedString.Get("Dialog.Exit");
             dlg.Button = MessageBoxButton.YesNo; // button
             dlg.Result = MessageBoxResult.Yes; // focus
@@ -240,9 +240,9 @@ Released under the MIT license
 
         // Exit1 (Window is still visible)
         IntPtr hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
-        Arc.WinAPI.Methods.GetWindowPlacement(hwnd, out var wp);
-        Arc.WinAPI.Methods.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);
-        App.Settings.WindowPlacement.FromWINDOWPLACEMENT2(wp, dpiX, dpiY);
+        Arc.WinAPI.NativeMethods.GetWindowPlacement(hwnd, out var wp);
+        Arc.WinAPI.NativeMethods.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);
+        App.Settings.WindowPlacement.FromWindowPlacementWithPhysicalPosition(wp, dpiX, dpiY);
     }
 
     private void Window_KeyDown(object sender, KeyEventArgs e)
@@ -253,11 +253,11 @@ Released under the MIT license
         }
     }
 
-    private void ListView_DropMove(int oldIndex, int newIndex)
+    private void ListView_ItemMoved(int oldIndex, int newIndex)
     {
         if ((oldIndex >= 0) && (newIndex >= 0))
         {
-            this.vm.TestGoshujin.ObservableChain.Move(oldIndex, newIndex);
+            this.vm.TestItems.ObservableChain.Move(oldIndex, newIndex);
         }
 
         return;
@@ -267,12 +267,12 @@ Released under the MIT license
     {
         foreach (var item in e.RemovedItems.Cast<TestItem>())
         {
-            item.Selection = 0;
+            item.SelectionState = 0;
         }
 
         foreach (var item in e.AddedItems.Cast<TestItem>())
         {
-            item.Selection = 1;
+            item.SelectionState = 1;
         }
 
         var listView = sender as ListView;
@@ -281,7 +281,7 @@ Released under the MIT license
             var item = listView.SelectedItem as TestItem;
             if (item != null)
             {
-                item.Selection = 2; // selected+focus
+                item.SelectionState = 2; // selected+focus
             }
         }
     }

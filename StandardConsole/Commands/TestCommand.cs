@@ -28,17 +28,17 @@ public class TestCommand : ISimpleCommand<TestOptions>
         this.consoleService = consoleService;
     }
 
-    public async Task Execute(TestOptions option, string[] args, CancellationToken cancellationToken)
+    public async Task Execute(TestOptions options, string[] args, CancellationToken cancellationToken)
     {
         this.consoleService.WriteLine("Test command:", ConsoleColor.Red);
-        Console.WriteLine($"Number is {option.Number}");
+        Console.WriteLine($"Number is {options.Number}");
 
         var c = new ThreadCore(this.root, parameter =>
         {
             var core = (ThreadCore)parameter!;
             try
             {
-                Task.Delay(option.Number, core.CancellationToken).Wait();
+                Task.Delay(options.Number, core.CancellationToken).Wait();
             }
             catch
             {

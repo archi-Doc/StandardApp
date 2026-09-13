@@ -21,25 +21,35 @@ using System.Windows.Media;
 
 namespace Arc.WinAPI;
 
-public static class Extensions
+public static class IntPtrExtensions
 {
-    public static ushort ToLoWord(this IntPtr dword)
+    /// <summary>
+    /// Gets the low-order word of the value.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The low-order word.</returns>
+    public static ushort GetLowWord(this IntPtr value)
     {
-        return (ushort)((uint)dword & 0xffff);
+        return (ushort)((uint)value & 0xffff);
     }
 
-    public static ushort ToHiWord(this IntPtr dword)
+    /// <summary>
+    /// Gets the high-order word of the (lower 32 bits of the) value.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The high-order word.</returns>
+    public static ushort GetHighWord(this IntPtr value)
     {
-        return (ushort)((uint)dword >> 16);
+        return (ushort)((uint)value >> 16);
     }
 }
 
-public static class Const
+public static class ClipboardFormats
 {
     public const string SHELL_IDLIST_STRING = "Shell IDList Array";
 }
 
-public partial class Methods
+public partial class NativeMethods
 {
     [DllImport("shell32.dll")]
     internal static extern IntPtr ILCombine(IntPtr pidl1, IntPtr pidl2);
@@ -125,35 +135,41 @@ public partial class Methods
     internal static string[]? GetPathFromIDList(System.Windows.IDataObject dataObject)
     {
         string[]? result = null;
-        MemoryStream data = (MemoryStream)dataObject.GetData(Arc.WinAPI.Const.SHELL_IDLIST_STRING);
-        if (data == null)
+        if (dataObject.GetData(Arc.WinAPI.ClipboardFormats.SHELL_IDLIST_STRING) is not MemoryStream data)
         {
             return result;
         }
 
         var b = data.ToArray();
         IntPtr p = Marshal.AllocHGlobal(b.Length);
-        Marshal.Copy(b, 0, p, b.Length);
-
-        // Get number of items.
-        var cidl = (uint)Marshal.ReadInt32(p);
-        result = new string[cidl];
-
-        // Get parent folder.
-        int offset = sizeof(uint);
-        IntPtr parentpidl = (IntPtr)((int)p + (uint)Marshal.ReadInt32(p, offset));
-        SIGDN sigdn = SIGDN.DESKTOPABSOLUTEPARSING;
-
-        // SHGetNameFromIDList(parentpidl, sigdn, out ts);
-
-        // Get subitems.
-        for (int n = 0; n < cidl; ++n)
+        try
         {
-            offset += sizeof(uint);
-            IntPtr relpidl = (IntPtr)((int)p + (uint)Marshal.ReadInt32(p, offset));
-            IntPtr abspidl = ILCombine(parentpidl, relpidl);
-            SHGetNameFromIDList(abspidl, sigdn, out result[n]);
-            ILFree(abspidl);
+            Marshal.Copy(b, 0, p, b.Length);
+
+            // Get number of items.
+            var cidl = (uint)Marshal.ReadInt32(p);
+            result = new string[cidl];
+
+            // Get parent folder.
+            int offset = sizeof(uint);
+            IntPtr parentpidl = IntPtr.Add(p, Marshal.ReadInt32(p, offset));
+            SIGDN sigdn = SIGDN.DESKTOPABSOLUTEPARSING;
+
+            // SHGetNameFromIDList(parentpidl, sigdn, out ts);
+
+            // Get subitems.
+            for (int n = 0; n < cidl; ++n)
+            {
+                offset += sizeof(uint);
+                IntPtr relpidl = IntPtr.Add(p, Marshal.ReadInt32(p, offset));
+                IntPtr abspidl = ILCombine(parentpidl, relpidl);
+                SHGetNameFromIDList(abspidl, sigdn, out result[n]);
+                ILFree(abspidl);
+            }
+        }
+        finally
+        {
+            Marshal.FreeHGlobal(p);
         }
 
         return result;
@@ -182,8 +198,8 @@ public partial class Methods
             uint x = 96;
             uint y = 96;
 
-            var hmonitor = Arc.WinAPI.Methods.MonitorFromWindow(hwnd, MonitorDefaultTo.MONITOR_DEFAULTTONEAREST);
-            Arc.WinAPI.Methods.GetDpiForMonitor(hmonitor, MonitorDpiType.Default, ref x, ref y);
+            var hmonitor = Arc.WinAPI.NativeMethods.MonitorFromWindow(hwnd, MonitorDefaultTo.MONITOR_DEFAULTTONEAREST);
+            Arc.WinAPI.NativeMethods.GetDpiForMonitor(hmonitor, MonitorDpiType.Default, ref x, ref y);
             dpiX = x;
             dpiY = y;
             return true;
@@ -321,8 +337,6 @@ public partial class Methods
             int id;
             GetWindowThreadProcessId(hWnd, out id);
 
-            var pr = Process.GetProcessById(id);
-
             if (pid == id)
             {
                 var clsName = new StringBuilder(256);
@@ -421,7 +435,7 @@ public partial class Methods
     /// <returns>Cursor position.</returns>
     internal static Point GetNowPosition(Visual v)
     {
-        POINT32 p;
+        NativeCursorPoint p;
 
         GetCursorPos(out p);
         return v.PointFromScreen(new Point(p.X, p.Y));
@@ -518,10 +532,10 @@ public partial class Methods
     internal static extern int MapVirtualKey(int wCode, int wMapType);
 
     [DllImport("user32.dll")]
-    internal static extern void GetCursorPos(out POINT32 pt);
+    internal static extern void GetCursorPos(out NativeCursorPoint pt);
 
     [DllImport("user32.dll")]
-    internal static extern int ScreenToClient(IntPtr hwnd, ref POINT32 pt);
+    internal static extern int ScreenToClient(IntPtr hwnd, ref NativeCursorPoint pt);
 
     [DllImport("user32.dll")]
     internal static extern int GetWindowLong(IntPtr hwnd, int index);
@@ -667,7 +681,7 @@ public struct SHFILEOPSTRUCT
 }
 
 [StructLayout(LayoutKind.Sequential)]
-public struct POINT32
+public struct NativeCursorPoint
 {
     public uint X;
     public uint Y;

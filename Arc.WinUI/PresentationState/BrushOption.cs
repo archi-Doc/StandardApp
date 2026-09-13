@@ -10,7 +10,7 @@ namespace Arc.WinUI;
 
 [TinyhandObject]
 public partial class BrushOption : ObservableObject
-{ // Constructor -> (OnAfterDeserialize()) -> Prepare() -> ... -> OnBeforeSerialize()
+{ // Constructor -> (OnDeserialized()) -> Prepare() -> ... -> OnSerializing()
     public BrushOption()
         : this(Colors.Black)
     {
@@ -18,17 +18,17 @@ public partial class BrushOption : ObservableObject
 
     public BrushOption(Color color)
     {
-        this.initialColorInt = ColorToInt(color);
-        this.ColorInt = this.initialColorInt;
+        this.initialColorArgb = ColorToArgb(color);
+        this.ColorArgb = this.initialColorArgb;
     }
 
-    private int initialColorInt;
+    private int initialColorArgb;
     private SolidColorBrush? brush; // [ObservableProperty]
 
     [IgnoreMember]
     public SolidColorBrush Brush
     {
-        get => this.brush ??= this.ColorChanged ? new(IntToColor(this.ColorInt)) : new(IntToColor(this.initialColorInt));
+        get => this.brush ??= this.IsColorChanged ? new(ArgbToColor(this.ColorArgb)) : new(ArgbToColor(this.initialColorArgb));
         set
         {
             if (!global::System.Collections.Generic.EqualityComparer<SolidColorBrush>.Default.Equals(this.brush, value))
@@ -39,34 +39,40 @@ public partial class BrushOption : ObservableObject
         }
     }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether the color has been changed from the initial color.
+    /// </summary>
     [Key(0)]
-    public bool ColorChanged { get; set; } // true:changed, false:default
+    public bool IsColorChanged { get; set; } // true:changed, false:default
 
+    /// <summary>
+    /// Gets or sets the color as a 32-bit ARGB value.
+    /// </summary>
     [Key(1)]
-    public int ColorInt { get; set; }
+    public int ColorArgb { get; set; }
 
-    public void Change(Color color)
+    public void SetColor(Color color)
     {
-        this.ColorChanged = true;
-        this.ColorInt = ColorToInt(color);
+        this.IsColorChanged = true;
+        this.ColorArgb = ColorToArgb(color);
         this.Brush = new SolidColorBrush(color);
     }
 
     public void Reset()
     {
-        if (this.ColorChanged)
+        if (this.IsColorChanged)
         {
-            this.ColorChanged = false;
-            this.ColorInt = this.initialColorInt;
-            this.Brush = new SolidColorBrush(IntToColor(this.ColorInt));
+            this.IsColorChanged = false;
+            this.ColorArgb = this.initialColorArgb;
+            this.Brush = new SolidColorBrush(ArgbToColor(this.ColorArgb));
         }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static int ColorToInt(Color color)
+    private static int ColorToArgb(Color color)
         => (int)color.A << 24 | (int)color.R << 16 | (int)color.G << 8 | (int)color.B;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static Color IntToColor(int colorInt)
-        => Color.FromArgb((byte)(colorInt >> 24), (byte)(colorInt >> 16), (byte)(colorInt >> 8), (byte)colorInt);
+    private static Color ArgbToColor(int argb)
+        => Color.FromArgb((byte)(argb >> 24), (byte)(argb >> 16), (byte)(argb >> 8), (byte)argb);
 }

@@ -24,7 +24,7 @@ public class ConsoleUnit : UnitBase, IUnitPreparable, IUnitExecutable
 
                 // Command
                 context.AddCommand(typeof(TestCommand));
-                context.AddCommand(typeof(TestCommand2));
+                context.AddCommand(typeof(Test2Command));
 
                 // Log filter
                 context.AddSingleton<ExampleLogFilter>();
@@ -65,14 +65,14 @@ public class ConsoleUnit : UnitBase, IUnitPreparable, IUnitExecutable
 
     public class Product : UnitProduct
     {// Unit class for customizing behaviors.
-        public record Param(string Args);
+        public record RunParameters(string Arguments);
 
         public Product(UnitContext context)
             : base(context)
         {
         }
 
-        public async Task RunAsync(Param param)
+        public async Task RunAsync(RunParameters parameters)
         {
             // Create optional instances
             this.Context.CreateInstances();
@@ -89,7 +89,7 @@ public class ConsoleUnit : UnitBase, IUnitPreparable, IUnitExecutable
 
             // Main
             // await SimpleParser.ParseAndRunAsync(this.Context.CommandTypes, "example -string test", parserOptions);
-            await SimpleParser.ParseAndExecute(this.Context.CommandTypes, param.Args, parserOptions);
+            await SimpleParser.ParseAndExecute(this.Context.CommandTypes, parameters.Arguments, parserOptions);
 
             await this.Context.SendStopAsync();
             await this.Context.SendTerminateAsync();

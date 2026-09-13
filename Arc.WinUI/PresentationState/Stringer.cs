@@ -28,7 +28,7 @@ public static class Stringer
     /// <summary>
     /// Updates the display of Stringer.<br/>
     /// Please call from the UI thread.<br/>
-    /// If not on the UI thread, consider using App.TryEnqueueOnUI().
+    /// If not on the UI thread, consider using IApp.UIDispatcherQueue.TryEnqueue().
     /// </summary>
     public static void Refresh()
     {
@@ -74,7 +74,7 @@ public static class Stringer
                 }
                 else if (target is StringerBindingSource stringerBindingSource)
                 { // StringerBindingSource
-                    stringerBindingSource.LanguageChanged();
+                    stringerBindingSource.NotifyLanguageChanged();
                 }
                 else if (target is Button button)
                 {

@@ -9,7 +9,7 @@ public sealed partial class SettingsPage : Page
     public SettingsPage(IApp app)
     {
         this.InitializeComponent();
-        this.State = app.GetAndPrepareState<SettingsState>(this);
+        this.State = app.GetAndPrepareState<SettingsPageState>(this);
 
         // language: en, key: Language.En, text: English
         foreach (var x in LanguageList.LanguageToIdentifier)
@@ -17,14 +17,14 @@ public sealed partial class SettingsPage : Page
             this.AddLanguage(x.Key, x.Value);
         }
 
-        double[] scaling = [0.50d, 0.60d, 0.67d, 0.75d, 0.80d, 0.90d, 1.00d, 1.10d, 1.25d, 1.50d, 1.75d, 2.00d,];
-        foreach (var x in scaling)
+        double[] viewScales = [0.50d, 0.60d, 0.67d, 0.75d, 0.80d, 0.90d, 1.00d, 1.10d, 1.25d, 1.50d, 1.75d, 2.00d,];
+        foreach (var x in viewScales)
         {
-            this.AddScaling(x);
+            this.AddViewScale(x);
         }
     }
 
-    public SettingsState State { get; }
+    public SettingsPageState State { get; }
 
     private void AddLanguage(string language, string key)
     {
@@ -36,7 +36,7 @@ public sealed partial class SettingsPage : Page
         var item = new MenuFlyoutItem
         {
             // DataContext = this.ViewModel,
-            Text = text, // $"{{Arc:Stringer Source=Settings.Language}}",
+            Text = text, // $"{{Arc:Stringer Key=Settings.Language}}",
             Tag = language,
             Command = this.State.SelectLanguageCommand,
             CommandParameter = language,
@@ -46,14 +46,14 @@ public sealed partial class SettingsPage : Page
         this.menuLanguage.Items.Add(item);
     }
 
-    private void AddScaling(double scale)
+    private void AddViewScale(double scale)
     {
         var text = Scaler.ScaleToText(scale);
         var item = new MenuFlyoutItem
         {
             Text = text,
             // Tag = scale.ToString(),
-            Command = this.State.SelectScalingCommand,
+            Command = this.State.SelectViewScaleCommand,
             CommandParameter = scale,
         };
 

@@ -19,6 +19,6 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Button Grid.Row="0" Content="{Arc:Stringer Source=Message.Button}" Command="{x:Bind State.TestCommand}" Margin="10" />
+        <Button Grid.Row="0" Content="{Arc:Stringer Key=Message.Button}" Command="{x:Bind State.ShowSampleDialogCommand}" Margin="10" />
     </Grid>
 </Page>

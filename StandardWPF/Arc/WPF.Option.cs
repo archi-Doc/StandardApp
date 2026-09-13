@@ -16,7 +16,7 @@ namespace Arc.WPF;
 
 [TinyhandObject]
 public partial class BrushOption : BindableBase
-{ // Constructor -> (OnAfterDeserialize()) -> Prepare() -> ... -> OnBeforeSerialize()
+{ // Constructor -> (OnDeserialized()) -> Prepare() -> ... -> OnSerializing()
     private Color initialColor;
     private SolidColorBrush? brush;
 
@@ -41,37 +41,43 @@ public partial class BrushOption : BindableBase
         private set { this.SetProperty(ref this.brush, value); }
     }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether the color has been changed from the initial color.
+    /// </summary>
     [Key(0)]
-    public bool ChangedFlag { get; set; } // true:changed, false:default
+    public bool IsColorChanged { get; set; } // true:changed, false:default
 
+    /// <summary>
+    /// Gets or sets the color as a 32-bit ARGB value.
+    /// </summary>
     [Key(1)]
-    public int BrushColor { get; set; }
+    public int ColorArgb { get; set; }
 
-    public void Change(Color color)
+    public void SetColor(Color color)
     {
         this.Brush = new SolidColorBrush(color);
-        this.ChangedFlag = true;
+        this.IsColorChanged = true;
     }
 
     [TinyhandOnDeserialized]
-    public void OnAfterDeserialize()
+    public void OnDeserialized()
     { // After data has loaded.
-        if (this.ChangedFlag)
+        if (this.IsColorChanged)
         {
-            this.Brush = new SolidColorBrush(Color.FromArgb((byte)(this.BrushColor >> 24), (byte)(this.BrushColor >> 16), (byte)(this.BrushColor >> 8), (byte)this.BrushColor));
+            this.Brush = new SolidColorBrush(Color.FromArgb((byte)(this.ColorArgb >> 24), (byte)(this.ColorArgb >> 16), (byte)(this.ColorArgb >> 8), (byte)this.ColorArgb));
         }
     }
 
     [TinyhandOnSerializing]
-    public void OnBeforeSerialize()
+    public void OnSerializing()
     { // Before data is saved.
         if (this.Brush != null)
         {
-            this.BrushColor = (this.Brush.Color.A << 24) | (this.Brush.Color.R << 16) | (this.Brush.Color.G << 8) | this.Brush.Color.B;
+            this.ColorArgb = (this.Brush.Color.A << 24) | (this.Brush.Color.R << 16) | (this.Brush.Color.G << 8) | this.Brush.Color.B;
         }
         else
         {
-            this.BrushColor = 0;
+            this.ColorArgb = 0;
         }
     }
 }

@@ -5,18 +5,18 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace StandardWinUI.PresentationState;
 
-public partial class SettingsState : ObservableObject, IState
+public partial class SettingsPageState : ObservableObject, IState
 {
     private readonly IApp app;
     private readonly AppSettings settings;
 
-    public SettingsState(IApp app, AppSettings settings)
+    public SettingsPageState(IApp app, AppSettings settings)
     {
         this.app = app;
         this.settings = settings;
 
         this.SetLanguageText();
-        this.SetScalingText();
+        this.SetViewScaleText();
     }
 
     private void SetLanguageText()
@@ -27,9 +27,9 @@ public partial class SettingsState : ObservableObject, IState
         }
     }
 
-    private void SetScalingText()
+    private void SetViewScaleText()
     {
-        this.ScalingText = Scaler.ScaleToText(Scaler.ViewScale);
+        this.ViewScaleText = Scaler.ScaleToText(Scaler.ViewScale);
     }
 
     [RelayCommand]
@@ -37,7 +37,7 @@ public partial class SettingsState : ObservableObject, IState
     {
         try
         {
-            System.Diagnostics.Process.Start("Explorer.exe", this.app.DataFolder);
+            System.Diagnostics.Process.Start("Explorer.exe", this.app.DataDirectory);
         }
         catch
         {
@@ -73,21 +73,21 @@ public partial class SettingsState : ObservableObject, IState
     }
 
     [RelayCommand]
-    private void SelectScaling(double scaling)
+    private void SelectViewScale(double scale)
     {
-        if (Scaler.ViewScale == scaling)
+        if (Scaler.ViewScale == scale)
         {
             return;
         }
 
-        Scaler.ViewScale = scaling;
+        Scaler.ViewScale = scale;
         Scaler.Refresh();
-        this.SetScalingText();
+        this.SetViewScaleText();
     }
 
     [ObservableProperty]
     public partial string LanguageText { get; set; } = string.Empty;
 
     [ObservableProperty]
-    public partial string ScalingText { get; set; } = string.Empty;
+    public partial string ViewScaleText { get; set; } = string.Empty;
 }

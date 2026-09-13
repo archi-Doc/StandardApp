@@ -13,7 +13,10 @@ public static class LanguageList
     {
     }
 
-    public static string LanguageFile { get; set; } = "Resources.Strings.String-{0}.tinyhand";
+    /// <summary>
+    /// Gets or sets the format string of the embedded language resource name ({0}: language).
+    /// </summary>
+    public static string LanguageFileFormat { get; set; } = "Resources.Strings.String-{0}.tinyhand";
 
     public static FrozenDictionary<string, string> LanguageToIdentifier => languageToIdentifier ??= languageToIdentifierDictionary.ToFrozenDictionary();
 
@@ -25,7 +28,7 @@ public static class LanguageList
     private static Dictionary<string, string> identifierToLanguageDictionary = new();
 
     /// <summary>
-    /// Tries to add a language and its identifier to the language list.
+    /// Adds a language and its identifier to the language list.
     /// </summary>
     /// <param name="language">The language to add 'en'.</param>
     /// <param name="identifier">The identifier for the language 'Language.En'.</param>
@@ -41,11 +44,15 @@ public static class LanguageList
     public static bool TryGetLanguage(string identifier, [MaybeNullWhen(false)] out string language)
         => IdentifierToLanguage.TryGetValue(identifier, out language);
 
-    public static void LoadHashedString(Assembly assembly)
+    /// <summary>
+    /// Loads the hashed strings of all registered languages from the specified assembly.
+    /// </summary>
+    /// <param name="assembly">The assembly that contains the embedded language resources.</param>
+    public static void LoadHashedStrings(Assembly assembly)
     {
         foreach (var x in LanguageToIdentifier.Keys)
         {
-            HashedString.LoadAssembly(x, assembly, string.Format(LanguageFile, x));
+            HashedString.LoadAssembly(x, assembly, string.Format(LanguageFileFormat, x));
         }
     }
 }

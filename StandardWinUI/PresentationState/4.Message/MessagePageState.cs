@@ -17,9 +17,9 @@ public partial class MessagePageState : ObservableObject, IState
     }
 
     [RelayCommand]
-    private async Task Test()
+    private async Task ShowSampleDialog()
     {
-        var r = await this.messageDialogService.Show(string.Empty, "Like or Love?", "Like", "Love");
+        var r = await this.messageDialogService.ShowAsync(string.Empty, "Like or Love?", "Like", "Love");
         if (!r.TryGetFirst(out var result))
         {
             return;
@@ -27,11 +27,11 @@ public partial class MessagePageState : ObservableObject, IState
 
         if (result == ContentDialogResult.Primary)
         {
-            await this.messageDialogService.Show(string.Empty, "Hikaru-chan...", string.Empty);
+            await this.messageDialogService.ShowAsync(string.Empty, "Hikaru-chan...", string.Empty);
         }
         else
         {
-            await this.messageDialogService.Show(string.Empty, "Ooh, Ayukawa.", string.Empty);
+            await this.messageDialogService.ShowAsync(string.Empty, "Ooh, Ayukawa.", string.Empty);
         }
     }
 }

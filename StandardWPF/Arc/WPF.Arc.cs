@@ -23,10 +23,10 @@ using Tinyhand;
 
 namespace Arc.WPF;
 
-public static class TextBoxAttachment
+public static class TextBoxBehavior
 {
-    public static readonly DependencyProperty IsSelectAllOnGotFocusProperty =
-        DependencyProperty.RegisterAttached("IsSelectAllOnGotFocus", typeof(bool), typeof(TextBoxAttachment), new PropertyMetadata(false, (d, e) =>
+    public static readonly DependencyProperty SelectAllOnGotFocusProperty =
+        DependencyProperty.RegisterAttached("SelectAllOnGotFocus", typeof(bool), typeof(TextBoxBehavior), new PropertyMetadata(false, (d, e) =>
         {
             if (!(d is TextBox tb))
             {
@@ -47,23 +47,23 @@ public static class TextBoxAttachment
             }
         }));
 
-    public static bool GetIsSelectAllOnGotFocus(DependencyObject obj)
+    public static bool GetSelectAllOnGotFocus(DependencyObject obj)
     {
-        return (bool)obj.GetValue(IsSelectAllOnGotFocusProperty);
+        return (bool)obj.GetValue(SelectAllOnGotFocusProperty);
     }
 
-    public static void SetIsSelectAllOnGotFocus(DependencyObject obj, bool value)
+    public static void SetSelectAllOnGotFocus(DependencyObject obj, bool value)
     {
-        obj.SetValue(IsSelectAllOnGotFocusProperty, value);
+        obj.SetValue(SelectAllOnGotFocusProperty, value);
     }
 
     private static void OnTextBoxGotFocus(object sender, RoutedEventArgs e)
     {
         if (sender is TextBox tb)
         {
-            var isSelectAllOnGotFocus = GetIsSelectAllOnGotFocus(tb);
+            var selectAllOnGotFocus = GetSelectAllOnGotFocus(tb);
 
-            if (isSelectAllOnGotFocus)
+            if (selectAllOnGotFocus)
             {
                 tb.SelectAll();
             }
@@ -104,7 +104,10 @@ public class StringerFormatConverter : IMultiValueConverter
     }
 }
 
-public class BooleanToVisibilityConverter : IValueConverter
+/// <summary>
+/// Converts a boolean to <see cref="Visibility"/> inversely (<see langword="false"/>: Visible, <see langword="true"/>: Collapsed).
+/// </summary>
+public class InverseBooleanToVisibilityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
     {
@@ -245,10 +248,10 @@ public static class DependencyObjectExtensions
     }
 }
 
-public static class Methods
+public static class VisualTreeUtility
 {
     /// <summary>
-    /// Search the ancestor object corredponding with the specified Type T.
+    /// Search the ancestor object corresponding with the specified Type T.
     /// </summary>
     public static T? FindAncestor<T>(DependencyObject dependencyObject)
         where T : DependencyObject
@@ -265,14 +268,17 @@ public static class Methods
     }
 
     /// <summary>
-    /// Find the ancestor. True: found, False: not found.
+    /// Determines whether <paramref name="element"/> is <paramref name="ancestor"/> or one of its visual descendants.
     /// </summary>
-    public static bool FindAncestor(DependencyObject targetParent, DependencyObject dependencyObject)
+    /// <param name="element">The element to check.</param>
+    /// <param name="ancestor">The ancestor element.</param>
+    /// <returns><see langword="true"/> if <paramref name="ancestor"/> is found in the visual parent chain of <paramref name="element"/> (including itself); otherwise, <see langword="false"/>.</returns>
+    public static bool IsDescendantOf(DependencyObject element, DependencyObject ancestor)
     {
-        DependencyObject obj = dependencyObject;
+        DependencyObject obj = element;
         while (obj != null)
         {
-            if (obj == targetParent)
+            if (obj == ancestor)
             {
                 return true;
             }
@@ -282,7 +288,10 @@ public static class Methods
 
         return false; // not found
     }
+}
 
+public static class ObservableCollectionExtensions
+{
     /// <summary>
     /// Sort ObservableCollection.
     /// </summary>
@@ -298,21 +307,24 @@ public static class Methods
     }
 }
 
-public class ListViewDD : ListView
+public class DragDropListView : ListView
 { // drag & drop対応のListView
-    private ListViewItemDD? dragItem;
+    private DragDropListViewItem? dragItem;
     private Point dragStartPos;
     private DragAdorner? dragGhost;
 
-    public Action<int, int>? DropMoveAction { get; set; }
+    /// <summary>
+    /// Gets or sets the action invoked when an item is moved by drag and drop (old index, new index).
+    /// </summary>
+    public Action<int, int>? ItemMovedAction { get; set; }
 
-    public ListViewItem? GetItem(Point pos)
+    public ListViewItem? GetItemAt(Point position)
     {
-        var result = VisualTreeHelper.HitTest(this, pos);
+        var result = VisualTreeHelper.HitTest(this, position);
         var item = result?.VisualHit;
         while (item != null)
         {
-            if (item is ListViewItemDD)
+            if (item is DragDropListViewItem)
             {
                 break;
             }
@@ -323,13 +335,13 @@ public class ListViewDD : ListView
         return item as ListViewItem;
     }
 
-    protected override DependencyObject GetContainerForItemOverride() => new ListViewItemDD();
+    protected override DependencyObject GetContainerForItemOverride() => new DragDropListViewItem();
 
-    protected override bool IsItemItsOwnContainerOverride(object item) => item is ListViewItemDD;
+    protected override bool IsItemItsOwnContainerOverride(object item) => item is DragDropListViewItem;
 
     protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e)
     { // mouse left down
-        this.dragItem = this.GetItem(e.GetPosition(this)) as ListViewItemDD; // マウス下のアイテムを取得する
+        this.dragItem = this.GetItemAt(e.GetPosition(this)) as DragDropListViewItem; // マウス下のアイテムを取得する
         if (this.dragItem != null)
         {
             // dragIndex = Items.IndexOf(i.Content);
@@ -374,7 +386,7 @@ public class ListViewDD : ListView
     { // drag
         if ((this.dragItem != null) && (this.dragGhost != null))
         { // move ghost
-            var p = Arc.WinAPI.Methods.GetNowPosition(this); // var loc = dragItem.PointFromScreen(this.PointToScreen(new Point(0, 0)));
+            var p = Arc.WinAPI.NativeMethods.GetNowPosition(this); // var loc = dragItem.PointFromScreen(this.PointToScreen(new Point(0, 0)));
             this.dragGhost.LeftOffset = p.X; // - loc.X;
             this.dragGhost.TopOffset = p.Y; // - loc.Y;
         }
@@ -393,7 +405,7 @@ public class ListViewDD : ListView
             { // 2つ以上の場合のみ
                 for (int i = 0; i < count; i++)
                 {
-                    var item = this.ItemContainerGenerator.ContainerFromIndex(i) as ListViewItemDD;
+                    var item = this.ItemContainerGenerator.ContainerFromIndex(i) as DragDropListViewItem;
                     if (item == null)
                     {
                         continue;
@@ -403,13 +415,13 @@ public class ListViewDD : ListView
                     if (dropPos.Y < pos.Y)
                     {
                         // i が入れ換え先のインデックス
-                        this.DropMove(index, (index < i) ? i - 1 : i);
+                        this.MoveItem(index, (index < i) ? i - 1 : i);
                         goto _OnDropExit;
                     }
                 }
 
                 // 最後にもっていく
-                this.DropMove(index, count - 1);
+                this.MoveItem(index, count - 1);
             }
         }
 
@@ -418,20 +430,20 @@ _OnDropExit:
         base.OnDrop(e);
     }
 
-    private void DropMove(int oldIndex, int newIndex)
+    private void MoveItem(int oldIndex, int newIndex)
     {
-        if ((oldIndex != newIndex) && (this.DropMoveAction != null))
+        if ((oldIndex != newIndex) && (this.ItemMovedAction != null))
         {
-            this.DropMoveAction(oldIndex, newIndex);
+            this.ItemMovedAction(oldIndex, newIndex);
         }
     }
 }
 
-public class ListViewItemDD : ListViewItem
+public class DragDropListViewItem : ListViewItem
 { // drag & drop対応のListViewItem
     protected override void OnMouseEnter(MouseEventArgs e)
     { // マウスドラッグで、選択要素を変更しないようにする。
-        var parent = ItemsControl.ItemsControlFromItemContainer(this); // as UIElement, tool.FindAncestor<ListViewMod>(this)
+        var parent = ItemsControl.ItemsControlFromItemContainer(this); // as UIElement, VisualTreeUtility.FindAncestor<DragDropListView>(this)
         if (parent.IsMouseCaptured)
         {
             parent.ReleaseMouseCapture();
@@ -449,15 +461,15 @@ public class DragAdorner : Adorner
     private double leftOffset;
     private double topOffset;
 
-    public DragAdorner(UIElement owner, UIElement adornElement, double opacity, Point dragPos)
+    public DragAdorner(UIElement owner, UIElement adornedElement, double opacity, Point dragPosition)
         : base(owner)
     {
-        var brush = new VisualBrush(adornElement) { Opacity = opacity };
-        var b = VisualTreeHelper.GetDescendantBounds(adornElement);
+        var brush = new VisualBrush(adornedElement) { Opacity = opacity };
+        var b = VisualTreeHelper.GetDescendantBounds(adornedElement);
         var r = new Rectangle() { Width = b.Width, Height = b.Height };
 
-        this.xCenter = dragPos.X; // r.Width / 2;
-        this.yCenter = dragPos.Y; // r.Height / 2;
+        this.xCenter = dragPosition.X; // r.Width / 2;
+        this.yCenter = dragPosition.Y; // r.Height / 2;
 
         r.Fill = brush;
         this.child = r;

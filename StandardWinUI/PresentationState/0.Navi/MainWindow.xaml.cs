@@ -11,12 +11,12 @@ using WinUIEx;
 
 namespace StandardWinUI.PresentationState;
 
-public partial class NaviWindow : Window, IMessageDialogService
+public partial class MainWindow : Window, IMessageDialogService
 {
     private readonly IApp app;
     private readonly AppSettings settings;
 
-    public NaviWindow(IApp app, AppSettings settings, IChannel<IMessageDialogService> messageDialogChannel)
+    public MainWindow(IApp app, AppSettings settings, IChannel<IMessageDialogService> messageDialogChannel)
     {
         this.InitializeComponent();
 
@@ -29,37 +29,37 @@ public partial class NaviWindow : Window, IMessageDialogService
         this.SetApplicationIcon();
         // this.RemoveIcon();
 
-        this.Activated += this.NaviWindow_Activated;
-        this.Closed += this.NaviWindow_Closed;
+        this.Activated += this.MainWindow_Activated;
+        this.Closed += this.MainWindow_Closed;
         this.AppWindow.Closing += this.AppWindow_Closing;
 
-        this.contentFrame.Navigating += app.NavigatingHandler; // Frame navigation does not support a DI container, hook into the Navigating event to create instances using a DI container.
+        this.contentFrame.Navigating += app.OnFrameNavigating; // Frame navigation does not support a DI container, hook into the Navigating event to create instances using a DI container.
 
-        this.LoadWindowPlacement(this.settings.WindowPlacement);
+        this.ApplyWindowPlacement(this.settings.WindowPlacement);
         this.nvHome.IsSelected = true;
     }
 
     #region IMessageDialogService
 
-    Task<RadioResult<ContentDialogResult>> IMessageDialogService.Show(string title, string content, string primaryCommand, string? cancelCommand, string? secondaryCommand, CancellationToken cancellationToken)
-        => this.app.UiDispatcherQueue.EnqueueAsync(() => this.ShowMessageDialogAsync(title, content, primaryCommand, cancelCommand, secondaryCommand, cancellationToken));
+    Task<RadioResult<ContentDialogResult>> IMessageDialogService.ShowAsync(string title, string content, string primaryButtonText, string? cancelButtonText, string? secondaryButtonText, CancellationToken cancellationToken)
+        => this.app.UIDispatcherQueue.EnqueueAsync(() => this.ShowMessageDialogAsync(title, content, primaryButtonText, cancelButtonText, secondaryButtonText, cancellationToken));
 
     #endregion
 
     private async void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)
     {// The close button of the Window was pressed.
         args.Cancel = true; // Since the Closing function isn't awaiting, I'll cancel first. Sorry for writing such crappy code.
-        await this.app.TryExit();
+        await this.app.TryExitAsync();
     }
 
-    private void NaviWindow_Activated(object sender, WindowActivatedEventArgs args)
+    private void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
     {
     }
 
-    private void NaviWindow_Closed(object sender, WindowEventArgs args)
+    private void MainWindow_Closed(object sender, WindowEventArgs args)
     {
         // Exit1
-        this.settings.WindowPlacement = this.SaveWindowPlacement();
+        this.settings.WindowPlacement = this.GetWindowPlacement();
     }
 
     private async void nvSample_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
@@ -97,6 +97,6 @@ public partial class NaviWindow : Window, IMessageDialogService
 
     private async void nvExit_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
     {
-        await this.app.TryExit();
+        await this.app.TryExitAsync();
     }
 }

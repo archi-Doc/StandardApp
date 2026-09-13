@@ -15,7 +15,7 @@ namespace Arc.WinUI;
 [MarkupExtensionReturnType(ReturnType = typeof(string))]
 public class StringerExtension : MarkupExtension
 { // Text-based Stringer markup extension. GUI thread only.
-    public string Source { get; set; } = string.Empty;
+    public string Key { get; set; } = string.Empty;
 
     public StringerExtension()
     {
@@ -28,28 +28,32 @@ public class StringerExtension : MarkupExtension
         if (target?.TargetObject is not null)
         {
             if (target.TargetProperty is not null)
-            { // Add ExtensionObject (used in StringerUpdate).
-                Stringer.Register(target.TargetObject, target.TargetProperty, this.Source);
+            { // Add ExtensionObject (used in Stringer.Refresh).
+                Stringer.Register(target.TargetObject, target.TargetProperty, this.Key);
             }
         }
 
-        return HashedString.GetOrIdentifier(this.Source);
+        return HashedString.GetOrIdentifier(this.Key);
     }
 }*/
 
 [MarkupExtensionReturnType(ReturnType = typeof(BindingBase))]
 public class StringerExtension : MarkupExtension
 { // Binding-based Stringer markup extension. GUI thread only.
-    // [ConstructorArgument("source")] // Not supported
-    public string Source { get; set; } = string.Empty;
+    // [ConstructorArgument("key")] // Not supported
+
+    /// <summary>
+    /// Gets or sets the identifier of the localized string.
+    /// </summary>
+    public string Key { get; set; } = string.Empty;
 
     public StringerExtension()
     {
     }
 
-    public StringerExtension(string source)
+    public StringerExtension(string key)
     {
-        this.Source = source;
+        this.Key = key;
     }
 
     protected override object ProvideValue(IXamlServiceProvider serviceProvider)
@@ -57,7 +61,7 @@ public class StringerExtension : MarkupExtension
         return new Binding()
         {
             Path = new("Value"),
-            Source = new StringerBindingSource(this.Source),
+            Source = new StringerBindingSource(this.Key),
         };
     }
 }
@@ -76,7 +80,10 @@ public class StringerBindingSource : INotifyPropertyChanged
         Stringer.Register(this, null, string.Empty);
     }
 
-    public void LanguageChanged()
+    /// <summary>
+    /// Raises <see cref="PropertyChanged"/> for <see cref="Value"/> after the current language has changed.
+    /// </summary>
+    public void NotifyLanguageChanged()
     {
         this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Value"));
     }

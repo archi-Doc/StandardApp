@@ -23,37 +23,37 @@ public partial class AdvancedPageState : ObservableObject, IState
     private readonly AppSettings settings;
     private readonly IMessageDialogService messageDialogService;
 
-    public AdvancedPageState(IApp app, AppSettings settings, IMessageDialogService simpleWindowService)
+    public AdvancedPageState(IApp app, AppSettings settings, IMessageDialogService messageDialogService)
     {
         this.app = app;
         this.settings = settings;
-        this.messageDialogService = simpleWindowService;
+        this.messageDialogService = messageDialogService;
     }
 
     /// <summary>
     /// Restores the state (load persisted data and reflect it in the state).<br/>
-    /// This method is added to the Loaded event of the FrameworkElement when App.GetAndPrepareState() is called.
+    /// This method is added to the Loaded event of the FrameworkElement when IApp.GetAndPrepareState() is called.
     /// </summary>
     void IState.RestoreState()
     {
-        this.SourceText = this.settings.Baibai.ToString();
+        this.SourceText = this.settings.BaibainNumber.ToString();
     }
 
     /// <summary>
     /// Stores the current state (persist the state or convert it into data for persistence).<br/>
-    /// This method is added to the Unloaded event of the FrameworkElement when App.GetAndPrepareState() is called.
+    /// This method is added to the Unloaded event of the FrameworkElement when IApp.GetAndPrepareState() is called.
     /// </summary>
     void IState.StoreState()
     {
         if (int.TryParse(this.SourceText, out int v))
         {
-            this.settings.Baibai = v;
+            this.settings.BaibainNumber = v;
         }
     }
 
     [RelayCommand]
-    private void Baibain()
-    { // App.ExecuteOrEnqueueOnUI((Microsoft.UI.Dispatching.DispatcherQueueHandler)(() => { }));
+    private void Multiply()
+    { // this.app.UIDispatcherQueue.TryEnqueue(() => { });
         if (int.TryParse((string)this.SourceText, out int value))
         {
             this.DestinationText = (value * 3).ToString();
@@ -65,9 +65,9 @@ public partial class AdvancedPageState : ObservableObject, IState
     [RelayCommand(CanExecute = nameof(CanExit))]
     private async Task Exit()
     {
-        var cts = new CancellationTokenSource();
+        using var cts = new CancellationTokenSource();
         cts.CancelAfter(2000);
 
-        await this.app.TryExit(cts.Token);
+        await this.app.TryExitAsync(cts.Token);
     }
 }

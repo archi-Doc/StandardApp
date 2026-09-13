@@ -21,12 +21,12 @@ public static class WindowExtensions
     /// <param name="window">The window to show the dialog in.</param>
     /// <param name="title">The title of the dialog.</param>
     /// <param name="content">The content of the dialog.</param>
-    /// <param name="primaryCommand">The primary(default) command text.</param>
-    /// <param name="cancelCommand">The cancel command text (<see langword="null" />: No cancel button, "": 'Cancel').</param>
-    /// <param name="secondaryCommand">The secondary command text.</param>
+    /// <param name="primaryButtonText">The primary (default) button text.</param>
+    /// <param name="cancelButtonText">The cancel button text (<see langword="null" />: No cancel button, "": 'Cancel').</param>
+    /// <param name="secondaryButtonText">The secondary button text.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the dialog result.</returns>
-    public static async Task<RadioResult<ContentDialogResult>> ShowMessageDialogAsync(this Window window, string title, string content, string primaryCommand, string? cancelCommand = default, string? secondaryCommand = default, CancellationToken cancellationToken = default)
+    public static async Task<RadioResult<ContentDialogResult>> ShowMessageDialogAsync(this Window window, string title, string content, string primaryButtonText, string? cancelButtonText = default, string? secondaryButtonText = default, CancellationToken cancellationToken = default)
     {
         var dialog = new ContentDialog() { XamlRoot = window.Content.XamlRoot };
         if (window.Content is FrameworkElement element)
@@ -44,27 +44,27 @@ public static class WindowExtensions
 
         dialog.Title = title;
 
-        if (!string.IsNullOrEmpty(primaryCommand))
+        if (!string.IsNullOrEmpty(primaryButtonText))
         {
-            dialog.PrimaryButtonText = primaryCommand;
+            dialog.PrimaryButtonText = primaryButtonText;
         }
         else
         {
             dialog.PrimaryButtonText = OkText;
         }
 
-        if (cancelCommand == string.Empty)
+        if (cancelButtonText == string.Empty)
         {
             dialog.CloseButtonText = CancelText;
         }
-        else if (cancelCommand is not null)
+        else if (cancelButtonText is not null)
         {
-            dialog.CloseButtonText = cancelCommand;
+            dialog.CloseButtonText = cancelButtonText;
         }
 
-        if (!string.IsNullOrEmpty(secondaryCommand))
+        if (!string.IsNullOrEmpty(secondaryButtonText))
         {
-            dialog.SecondaryButtonText = secondaryCommand;
+            dialog.SecondaryButtonText = secondaryButtonText;
         }
 
         var dialogTask = dialog.ShowAsync(ContentDialogPlacement.InPlace);
@@ -85,11 +85,11 @@ public static class WindowExtensions
     }
 
     /// <summary>
-    /// Activates the specified window.
+    /// Brings the specified window into the foreground and activates it.
     /// </summary>
     /// <param name="window">The window to activate.</param>
     /// <param name="force">If set to <c>true</c>, forces the window to activate.</param>
-    public static void ActivateWindow(this Window window, bool force = false)
+    public static void BringToForeground(this Window window, bool force = false)
     {
         var handle = WinRT.Interop.WindowNative.GetWindowHandle(window);
         if (force)
@@ -103,18 +103,18 @@ public static class WindowExtensions
     }
 
     /// <summary>
-    /// Loads the window placement.
+    /// Applies the window placement to the window.
     /// </summary>
-    /// <param name="window">The window to load the placement for.</param>
+    /// <param name="window">The window to apply the placement to.</param>
     /// <param name="windowPlacement">The window placement.</param>
-    public static void LoadWindowPlacement(this Window window, DipWindowPlacement windowPlacement)
+    public static void ApplyWindowPlacement(this Window window, DipWindowPlacement windowPlacement)
     {
         if (windowPlacement.IsValid)
         {
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
             Arc.Internal.WinAPI.GetMonitorDpi(hwnd, out var dpiX, out var dpiY);
-            var wp = windowPlacement.ToWINDOWPLACEMENT2(dpiX, dpiY);
-            wp.length = System.Runtime.InteropServices.Marshal.SizeOf(typeof(Arc.WinUI.WINDOWPLACEMENT));
+            var wp = windowPlacement.ToWindowPlacementWithPhysicalPosition(dpiX, dpiY);
+            wp.length = System.Runtime.InteropServices.Marshal.SizeOf(typeof(Arc.WinUI.NativeWindowPlacement));
             wp.flags = 0;
             wp.showCmd = wp.showCmd == Arc.WinUI.ShowCommand.SHOWMAXIMIZED ? Arc.WinUI.ShowCommand.SHOWMAXIMIZED : Arc.WinUI.ShowCommand.SHOWNORMAL;
             Arc.Internal.WinAPI.SetWindowPlacement(hwnd, ref wp);
@@ -122,11 +122,11 @@ public static class WindowExtensions
     }
 
     /// <summary>
-    /// Saves the window placement.
+    /// Gets the current window placement of the window.
     /// </summary>
-    /// <param name="window">The window to save the placement for.</param>
-    /// <returns>The saved window placement.</returns>
-    public static DipWindowPlacement SaveWindowPlacement(this Window window)
+    /// <param name="window">The window to get the placement for.</param>
+    /// <returns>The current window placement.</returns>
+    public static DipWindowPlacement GetWindowPlacement(this Window window)
     {
         var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
         Arc.Internal.WinAPI.GetWindowPlacement(hwnd, out var wp);

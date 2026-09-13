@@ -13,7 +13,7 @@ public sealed partial class InformationPage : Page
     public InformationPage(IApp app)
     {
         this.InitializeComponent();
-        this.State = app.GetAndPrepareState<InformationState>(this);
+        this.State = app.GetAndPrepareState<InformationPageState>(this);
 
         var titleRun = new Run();
         titleRun.Text = app.Title;
@@ -28,7 +28,7 @@ public sealed partial class InformationPage : Page
         {
             try
             {
-                Arc.WinUI.UiHelper.OpenBrowser(hyperlink.NavigateUri.ToString());
+                Arc.WinUI.UIHelper.OpenBrowser(hyperlink.NavigateUri.ToString());
             }
             catch
             {
@@ -45,7 +45,7 @@ public sealed partial class InformationPage : Page
         this.AddLicense("License.lz4net", "lz4net");
     }
 
-    public InformationState State { get; }
+    public InformationPageState State { get; }
 
     private void nvSample5_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {

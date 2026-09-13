@@ -13,7 +13,7 @@ public partial class AppOptions
     }
 
     [Key(0)]
-    public BrushOption BrushTest { get; set; } = new(Colors.Red);
+    public BrushOption TestBrush { get; set; } = new(Colors.Red);
 
     [Key(1)]
     public BrushCollection BrushCollection { get; set; } = new(); // Brush Collection

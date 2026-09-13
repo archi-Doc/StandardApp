@@ -11,11 +11,11 @@ namespace StandardWinUI;
 
 #if DISABLE_XAML_GENERATED_MAIN
 
-public static partial class Entrypoint
+public static partial class EntryPoint
 {
-    public static DispatcherQueue UiDispatcherQueue { get; private set; } = default!;
+    public static DispatcherQueue UIDispatcherQueue { get; private set; } = default!;
 
-    public static string DataFolder { get; private set; } = string.Empty;
+    public static string DataDirectory { get; private set; } = string.Empty;
 
     private static Mutex? appMutex = string.IsNullOrEmpty(App.MutexName) ? default : new(false, App.MutexName);
 
@@ -26,9 +26,9 @@ public static partial class Entrypoint
     [STAThread]
     private static void Main(string[] args)
     {
-        PrepareDataFolder();
+        PrepareDataDirectory();
         if (appMutex is not null &&
-            UiHelper.PreventMultipleInstances(appMutex))
+            UIHelper.TryActivateRunningInstance(appMutex))
         {
             return;
         }
@@ -40,8 +40,8 @@ public static partial class Entrypoint
             XamlCheckProcessRequirements(); // If an exception occurs here, run the Package project or set WindowsAppSDKSelfContained to true.
             Application.Start(_ =>
             {
-                UiDispatcherQueue = DispatcherQueue.GetForCurrentThread();
-                var context = new DispatcherQueueSynchronizationContext(UiDispatcherQueue);
+                UIDispatcherQueue = DispatcherQueue.GetForCurrentThread();
+                var context = new DispatcherQueueSynchronizationContext(UIDispatcherQueue);
                 SynchronizationContext.SetSynchronizationContext(context);
 
                 var builder = new AppUnit.Builder();
@@ -52,7 +52,7 @@ public static partial class Entrypoint
             });
 
             Task.Run(async () =>
-            {// 'await task' does not work property.
+            {// 'await task' does not work properly.
                 if (unit is null)
                 {
                     return;
@@ -81,23 +81,23 @@ public static partial class Entrypoint
         }
     }
 
-    private static void PrepareDataFolder()
+    private static void PrepareDataDirectory()
     {
-        // Data Folder
+        // Data directory
         try
         {
             // UWP
-            DataFolder = Windows.Storage.ApplicationData.Current.LocalFolder.Path;
+            DataDirectory = Windows.Storage.ApplicationData.Current.LocalFolder.Path;
         }
         catch
         {
             // not UWP
-            DataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), App.DataFolderName);
+            DataDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), App.DataFolderName);
         }
 
         try
         {
-            Directory.CreateDirectory(DataFolder);
+            Directory.CreateDirectory(DataDirectory);
         }
         catch
         {

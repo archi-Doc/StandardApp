@@ -463,10 +463,10 @@ public class Transformer
                 return false;
             }
 
-            var hmonitor = Arc.WinAPI.Methods.MonitorFromWindow(hwnd.Handle, MonitorDefaultTo.MONITOR_DEFAULTTONEAREST);
-            Arc.WinAPI.Methods.GetDpiForMonitor(hmonitor, MonitorDpiType.Default, ref dpiX, ref dpiY);
+            var hmonitor = Arc.WinAPI.NativeMethods.MonitorFromWindow(hwnd.Handle, MonitorDefaultTo.MONITOR_DEFAULTTONEAREST);
+            Arc.WinAPI.NativeMethods.GetDpiForMonitor(hmonitor, MonitorDpiType.Default, ref dpiX, ref dpiY);
             var monitorInfo = new MONITORINFOEX();
-            Arc.WinAPI.Methods.GetMonitorInfo(hmonitor, monitorInfo);
+            Arc.WinAPI.NativeMethods.GetMonitorInfo(hmonitor, monitorInfo);
             workarea = monitorInfo.rcWork;
 
             return true;
@@ -553,7 +553,7 @@ public class Transformer
             }
         }
 
-        element.LayoutTransform = new ScaleTransform(packet.ScaleX, packet.ScaleX);
+        element.LayoutTransform = new ScaleTransform(packet.ScaleX, packet.ScaleY);
 
         if (ratio > 0)
         {

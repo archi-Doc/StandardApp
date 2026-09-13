@@ -15,7 +15,7 @@ namespace Arc.WinUI;
 public abstract class AppBase : IApp
 {
     /// <inheritdoc/>
-    public DispatcherQueue UiDispatcherQueue { get; protected set; } = default!;
+    public DispatcherQueue UIDispatcherQueue { get; protected set; } = default!;
 
     /// <inheritdoc/>
     public string Version { get; protected set; } = string.Empty;
@@ -24,7 +24,7 @@ public abstract class AppBase : IApp
     public string Title { get; protected set; } = string.Empty;
 
     /// <inheritdoc/>
-    public string DataFolder { get; protected set; } = string.Empty;
+    public string DataDirectory { get; protected set; } = string.Empty;
 
     private readonly IServiceProvider serviceProvider;
 
@@ -58,7 +58,7 @@ public abstract class AppBase : IApp
         return state;
     }
 
-    public void NavigatingHandler(object sender, NavigatingCancelEventArgs args)
+    public void OnFrameNavigating(object sender, NavigatingCancelEventArgs args)
     {
         if (args.SourcePageType is not null)
         {
@@ -78,5 +78,5 @@ public abstract class AppBase : IApp
     public void Exit()
         => this.GetApplication().Exit();
 
-    public abstract Task<bool> TryExit(CancellationToken cancellationToken);
+    public abstract Task<bool> TryExitAsync(CancellationToken cancellationToken);
 }
