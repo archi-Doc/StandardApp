@@ -35,7 +35,7 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageReference Include="CommunityToolkit.WinUI.Controls.LayoutTransformControl" Version="8.2.251219" />
     <PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.2.251219" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.4.0" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.5.1" />
   </ItemGroup>
 
   <ItemGroup>
